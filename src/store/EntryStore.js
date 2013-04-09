@@ -45,7 +45,7 @@ define([
 			var d = new Deferred();
 			rest.get(rest.getEntryLoadURI(entryURI, optionalLoadParams)).then(function(data) {
 				cache.cacheAll(Entry.createListChildren(data));
-				var e = Entry.create(data);
+				var e = Entry.create(entryURI, data);
 				cache.cache(e);
 				d.resolve(e);
 			}, function(err) {
