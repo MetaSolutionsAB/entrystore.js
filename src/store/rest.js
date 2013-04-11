@@ -3,12 +3,11 @@ define([
 	"dojo/_base/lang",
 	"dojo/request",
 	"dojo/request/iframe",
-	"dojo/json",
 	"dojo/has", 
 	"dojo/_base/sniff",
 	"dojo/_base/window",
 	"dojo/Deferred"
-], function(lang, request, iframe, json, has, sniff, win, Deferred) {
+], function(lang, request, iframe, has, sniff, win, Deferred) {
 
 	var sortObj = {sortBy: "title", prio: "List"};
 	var defaultLimit = 20;
@@ -39,7 +38,7 @@ define([
 			return url;
 		},
 		
-		get: function(uri, onLoad, onError) {
+		get: function(uri) {
 			return request.get(uri, communicator.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
@@ -48,6 +47,8 @@ define([
 		},
 		
 		/**
+		 * @param {String} uri to post to.
+		 * @param {String} data to post
 		 * @return a promise on which you can call .then on.
 		 */
 		post: function(uri, data) {
@@ -71,6 +72,9 @@ define([
 		},
 
 		/**
+		 * @param {String} uri the address to put to.
+		 * @param {String} data the data to put.
+		 * @param {Date} a date to use for the HTTP if-unmodified-since header.
 		 * @return a promise on which you can call .then on.
 		 */
 		put: function(uri, data, modDate) {
@@ -87,7 +91,7 @@ define([
 		},
 		
 		/**
-		 * @param {String} the resource to delete.
+		 * @param {String} uri of the resource to delete.
 		 * @return a promise.
 		 */
 		del: function(uri, recursive){
@@ -122,121 +126,7 @@ define([
 	                handleAs: "json",
 	                form: _newForm
 				}).then(onSuccess, onError);
-		},
-		
-		/**
-		 *  params contains:
-		 *   The following attributes are considered:
-		 *   limit - only a limited number of children are loaded, -1 means no limit, 0 or undefined means default limit.
-		 *   offset - only children from offest and forward is returned, has to be positive to take effect.
-		 *   sort - information on how to sort the children , 
-		 *          if sort is not provided this entry will not be sorted now and not later either,
-		 *          if sort is given as null the defaults of communicator will be used.
-		 *          if sort is given as an emtpy object sorting is active for this entry but the natural order is used for now.
-		 *          If sort is given as a non emtpy object the following attributes are taken into account:
-		 *      sortBy - the attribute instructs which metadata field to sort the children by, that is title, created, modified, or size.
-		 *      lang - if sort is title and the title is provided in several languages a prioritized language can be given.
-		 *      prio - allows specific builtintypes to be prioritized (e.g. show up in the top of the list).
-		 *      descending - if true the children are shown in descending order.
-		 *  @return {String} in the form of a new URI.
-		 */
-		getEntryLoadURI: function(entryURI, params) {
-			var strL = "";
-			if (params.limit === 0) {
-				strL = "&limit="+defaultLimit;
-			} else if (params.limit > 0) {
-				strL = "&limit="+params.limit;
-			}
-			var strO = params.offset == null || params.offset === 0 ? "" : "&offset="+params.offset;
-			var sort = params.sort == null ? sortObj : params.sort;
-			var strSort = "";
-			var strDesc = "";
-			var strPrio = "";
-			if (sort !== undefined) {
-				strSort = sort.sortBy == undefined ? "" : "&sort="+sort.sortBy;
-				strDesc = sort.descending === true  ? "&order=desc" : "";
-				strPrio = sort.prio == undefined ? "" : "&prio="+sort.prio;	
-				//TODO lang remains.		
-			}
-			return entryURI+strL+strO+strSort+strDesc+strPrio;
-		},
-
-		getEntryCreateURI: function(contextEntry, prototypeEntry, parentListEntry) {
-			var uri = contextEntry.getResourceURI()+"?";
-			if (prototypeEntry) {
-				var ei = prototypeEntry.getEntryInfo();
-				if (entryPrototype.isLink()) {
-					uri = uri+"resource="+encodeURIComponent(prototypeEntry.getResourceURI())+"&";				
-				}
-				if (prototypeEntry.isReference() || prototypeEntry.isLinkReference()) { //external metadata
-					uri = uri+"metadata="+encodeURIComponent(ei.getExternalMetadataURI())+"&";	
-				}
-				if (ei.getEntryType() !== "local") { //local, link, linkreference, reference
-					uri = uri+"locationtype="+ ei.getEntryType()+ "&";   //TODO change in REST layer to entrytype 
-				}
-				if (ei.getResourceType() !== "informationresource") { //informationresource, namedresource
-					uri = uri+"representationtype="+ ei.getRepresentationType()+ "&"; //TODO change in REST layer to resourcetype
-				}
-				if (ei.getGraphType() != "none") {
-					uri = uri+"builtintype="+ ei.getGraphType() + "&"; //TODO change in REST layer to graphtype
-				}
-			}
-			if (parentListEntry) {
-				uri = uri+"listURI="+parentListEntry.getResourceURI()+"&";			
-			}
-			return uri.slice(0,-1);
-		},
-
-		getEntryCreatePostData: function(prototypeEntry) {
-			if (!prototypeEntry) {
-				return "";
-			}
-			var postData = {};
-			var md = prototypeEntry.getMetadata();
-			if (!md.isEmpty()) {
-				postData.metadata = md.exportRDFJSON();
-			}
-			var re = prototypeEntry.getResource();
-			if (re != null && re.getSource != null) {
-				postData.resource = re.getSource();
-			}
-			var ei = prototypeEntry.getEntryInfo().getGraph();
-			if (!ei.isEmpty()) {
-				postData.info = ei.exportRDFJSON();
-			}
-			var cemd = prototypeEntry.getCachedExternalMetadata();
-			if (!cemd) {
-				postData["cached-external-metadata"] = cemd.exportRDFJSON();
-			}
-			return json.stringify(postData);
-		},
-
-		moveEntry: function(entry, fromList, toList) {
-			var uri = toList.getResourceUri()+"?moveEntry="+entry.getContext().getId()+"/entry/"+entry.getId()+"&fromList="+fromList.getContext().getId()+"/resource/"+fromList.getId();
-			return request.post(uri, communicator.insertAuthArgs({
-				preventCache: true,
-				handleAs: "json",
-				headers: headers
-			})).then(function() {
-				entry.setRefreshNeeded();
-				fromList.setRefreshNeeded();
-				toList.setRefreshNeeded();
-			});
-		},
-	
-		loadViaSCAMProxy: function(params) {
-			var url = __confolio.application.getRepository()+"proxy?url="+encodeURIComponent(params.url);
-			if (params.from != null) {
-				url += "&fromFormat="+params.from;
-			}
-			var req = request.get(communicator.insertAuthParams(url), {
-				preventCache: true,
-				handleAs: params.handleAs || "json",
-				headers: headers}
-			).then(params.onSuccess, params.onError || function(mesg) {
-				console.error(mesg);
-			});
-		}
+		}	
 	};
 	return communicator;
 });

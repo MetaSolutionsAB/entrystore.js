@@ -2,11 +2,12 @@
 define([
 	"dojo/_base/array",
 	"dojo/Deferred",
-	"./cache",
+	"./Cache",
 	"./rest",
 	"./Context",
+	"./factory",
 	"./Entry"
-], function(array, Deferred, cache, rest, require) {
+], function(array, Deferred, Cache, rest, require) {
 	
 	/**
 	 * @param baseURI is an optional URL to the current EntryStore
@@ -15,17 +16,29 @@ define([
 	 * @Class
 	 */
 	var EntryStore = function(baseURI, authScheme, credentials) {
-		this.baseURI = baseURI;
+		this._baseURI = baseURI;
+		this._cache = new Cache();
 		if (authScheme) {
 			this.auth(authScheme, credentials);
 		}
-		this.cache = new Cache(this.baseURI);
+		this._contexts = [];
 	};
 	var es = EntryStore.prototype; //Shortcut, avoids having to write EntryStore.prototype everywhere below when defining methods.
 	
+	es.getBaseURI = function() {
+		return this._baseURI;
+	};
+	
+	es._getCache = function() {
+		return this._cache;
+	};
+
+	es._getCachedContextsIdx = function() {
+		return this._contexts;
+	};
 	es.auth = function(authScheme, credentials) {
 		rest.auth(authScheme, credentials);
-		cache.invalidateCache();
+		this._cache.invalidateCache();
 	};
 
 	es.logout = function() {
@@ -38,16 +51,15 @@ define([
 	 * @return a Promise which on success provides an Entry instance.
 	 */
 	es.getEntry = function(entryURI, optionalLoadParams) {
-		var e = this.cache.get(entryURI);
+		var e = this._cache.get(entryURI);
 		if (e) {
 			return e.refresh(); //Will only refresh if needed, a promise is returned in any case
 		} else {
 			var d = new Deferred();
-			rest.get(rest.getEntryLoadURI(entryURI, optionalLoadParams)).then(function(data) {
-				cache.cacheAll(Entry.createListChildren(data));
-				var e = Entry.create(entryURI, data);
-				cache.cache(e);
-				d.resolve(e);
+			rest.get(factory.getEntryLoadURI(entryURI, optionalLoadParams)).then(function(data) {
+				//The entry, will always be there.
+				var entry = factory.updateOrCreate(entryURI, data, this);
+				d.resolve(entry);
 			}, function(err) {
 				d.reject("Failed fetching entry. "+err);
 			});
@@ -77,7 +89,7 @@ define([
 	 */
 	es.getContexts = function(optionalPagingParams) {
 		var d = new Deferred();		
-		this.getEntry(this.baseURI+"_principals/entry/_all", optionalPagingParams).then(function(entry) {
+		this.getEntry(this._baseURI+"_principals/entry/_all", optionalPagingParams).then(function(entry) {
 			var list = entry.getResource();
 			list.get(optionalPagingParams).then(function(entries) {
 				d.resolve(array.map(entries, function(entry) {return entry.getResource();}), list);
@@ -96,11 +108,11 @@ define([
 	 * @param prototypeEntry a fake entry that acts as a prototype, i.e. containing characteristics of the to be created entry. Optional.
 	 * @param parentListEntry an entry corresponding to a list to which the entry should be added as a child.    
 	 */
-	es.createEntry = function(contextEntry, prototypeEntry, parentListEntry) {
+	es.createEntry = function(context, prototypeEntry, parentListEntry) {
 		var d = new Deferred();
 		rest.post(
-				rest.getEntryCreateURI(contextEntry, prototypeEntry, parentListEntry),
-				rest.getEntryCreatePostData(prototypeEntry)).then(function(location) { //Success, a new created entry exists
+				factory.getEntryCreateURI(context, prototypeEntry, parentListEntry),
+				factory.getEntryCreatePostData(prototypeEntry)).then(function(location) { //Success, a new created entry exists
 			es.getEntry(location).then(function(entry) {  //Lets load it the regular way.
 				d.resolve(entry);
 			}, function(err) {
@@ -122,13 +134,13 @@ define([
 	};
 	
 	es.addCacheUpdateListener = function(listener) {
-		this.cache.addCacheUpdateListener(listener);
+		this._cache.addCacheUpdateListener(listener);
 	};
 	es.removeCacheUpdateListener = function(listener) {
-		this.cache.removeCacheUpdateListener (listener);		
+		this._cache.removeCacheUpdateListener (listener);		
 	};
 	es.invalidateCache = function() {
-		this.cache.invalidateCache();
+		this._cache.invalidateCache();
 	};
 	
 	es.version = function() {
@@ -138,6 +150,18 @@ define([
 	es.status = function() {
 		//TODO admin only
 	};
+	
+	
+	es.moveEntry = function(entry, fromList, toList) {
+		var uri = factory.getMoveURI(entry, fromList, toList, this._baseURI);
+		return rest.post(uri, "");
+	};
+	
+	es.loadViaProxy = function(uri, formatHint) {
+		var url = factory.getProxyURI(uri, formatHint);
+		return rest.get(url);
+	};
+
 	
 	// TODO user and group handling (get/add/update/remove)
 	return es;

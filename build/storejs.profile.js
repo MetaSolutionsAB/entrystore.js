@@ -7,7 +7,8 @@ var profile = (function(){
  
 		packages:[
 			{name:"dojo", location:"../lib/dojo-src/dojo"},
-			"store"
+			"store",
+			"rdfjson"
 		],
  
 		defaultConfig:{
@@ -39,7 +40,7 @@ var profile = (function(){
  
 		layers: {
 			"dojo/dojo": {
-				include: ["store/EntryStore"],
+				include: ["store/EntryStore", "rdfjson/Graph"],
 				customBase: 1
 			}
 		}

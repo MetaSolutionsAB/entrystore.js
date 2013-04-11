@@ -1,31 +1,42 @@
 /*global define*/
 define([
-	"dojo/Deferred"
-], function(Deferred) {
+	"dojo/Deferred",
+	"./PrototypeEntry"
+], function(Deferred, PrototypeEntry) {
 	
 	/**
 	 * @param entry in which this context is a resource.
 	 * @constructor
 	 */
-	var Context = function(entry) {
-		this._entry = entry;
+	var Context = function(entryURI, resourceURI, entryStore) {
+		this._entryURI = entryURI;
+		this._resourceURI = resourceURI;
+		this._entryStore = entryStore;
 	};
 	var co = Context.prototype; //Shortcut, avoids having to write Context.prototype everywhere below when defining methods.
 
 	co.getEntryStore = function() {
-		return this._entry.getEntryStore();
+		return this._entryStore;
 	};
 
 	/**
-	 * @return the entry where this context is a resource.
+	 * @return {Promise} that on success provides the entry for this context.
 	 */
 	co.getOwnEntry = function() {
 		return this._entry;
 	};
 	
+	co.getOwnResourceURI = function() {
+		return this._resourceURI;
+	};
+	
+	co.getOwnEntryURI = function() {
+		return this._entryURI;
+	};
+	
 	co.listEntries = function(optionalPagingParams) {
 		var d = new Deferred();		
-		this.getEntryStore().getEntry(this.getOwnEntry.getResourceURI()+"/entry/_all", optionalPagingParams).then(function(entry) {
+		this.getEntryStore().getEntry(this._resourceURI+"/entry/_all", optionalPagingParams).then(function(entry) {
 			var list = entry.getResource();
 			list.get(optionalPagingParams).then(function(entries) {
 				d.resolve(entries, list);
@@ -37,21 +48,7 @@ define([
 		});
 		return d.promise;
 	};
-	
-	/** 
-	 * Convenience method, same as context.getOwnEntry.getMetadata()
-	 */
-	co.getMetadata = function() {
-		return this.getOwnEntry().getMetadata();
-	};
-	
-	/**
-	 * Convenience method, same as context.getOwnEntry.setMetadata(metadata)
-	 */
-	co.setMetadata = function(metadata) {
-		return this.getOwnEntry().setMetadata(metadata);
-	};
-	
+		
 	/**
 	 * Convenience method, see EntryStore.getEntry()
 	 */
@@ -63,9 +60,12 @@ define([
 	 * Convenience method, see EntryStore.createEntry()
 	 */
 	co.createEntry = function(prototypeEntry, parentListEntry) {
-		return this.getEntryStore().createEntry(this.getOwnEntry(), prototypeEntry, parentListEntry);
+		return this.getEntryStore().createEntry(this, prototypeEntry, parentListEntry);
 	};
 
+	co.createPrototypeEntry = function() {
+		return new PrototypeEntry(this);
+	};
 /*
 	context.addRemoteListener(listener); // websockets; listening to remote changes of this context
 	context.removeRemoteListener(listener);
