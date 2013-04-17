@@ -4,10 +4,8 @@ define([
 	"dojo/Deferred",
 	"./Cache",
 	"./rest",
-	"./Context",
-	"./factory",
-	"./Entry"
-], function(array, Deferred, Cache, rest, require) {
+	"./factory"
+], function(array, Deferred, Cache, rest, factory) {
 	
 	/**
 	 * @param baseURI is an optional URL to the current EntryStore
@@ -21,23 +19,13 @@ define([
 		if (authScheme) {
 			this.auth(authScheme, credentials);
 		}
-		this._contexts = [];
+		this._contexts = {};
+		this._rest = rest;
 	};
 	var es = EntryStore.prototype; //Shortcut, avoids having to write EntryStore.prototype everywhere below when defining methods.
 	
-	es.getBaseURI = function() {
-		return this._baseURI;
-	};
-	
-	es._getCache = function() {
-		return this._cache;
-	};
-
-	es._getCachedContextsIdx = function() {
-		return this._contexts;
-	};
 	es.auth = function(authScheme, credentials) {
-		rest.auth(authScheme, credentials);
+		this._rest.auth(authScheme, credentials);
 		this._cache.invalidateCache();
 	};
 
@@ -51,14 +39,15 @@ define([
 	 * @return a Promise which on success provides an Entry instance.
 	 */
 	es.getEntry = function(entryURI, optionalLoadParams) {
+		var forceLoad = optionalLoadParams ? optionalLoadParams.forceLoad === true : false;
 		var e = this._cache.get(entryURI);
-		if (e) {
+		if (e && !forceLoad) {
 			return e.refresh(); //Will only refresh if needed, a promise is returned in any case
 		} else {
-			var d = new Deferred();
-			rest.get(factory.getEntryLoadURI(entryURI, optionalLoadParams)).then(function(data) {
+			var d = new Deferred(), self = this;
+			this._rest.get(factory.getEntryLoadURI(entryURI, optionalLoadParams)).then(function(data) {
 				//The entry, will always be there.
-				var entry = factory.updateOrCreate(entryURI, data, this);
+				var entry = factory.updateOrCreate(entryURI, data, self);
 				d.resolve(entry);
 			}, function(err) {
 				d.reject("Failed fetching entry. "+err);
@@ -104,13 +93,12 @@ define([
 	
 	
 	/**
-	 * @param contextEntry an entry for the context where the new entry should be created. Mandatory.
-	 * @param prototypeEntry a fake entry that acts as a prototype, i.e. containing characteristics of the to be created entry. Optional.
+	 * @param prototypeEntry a fake entry that acts as a prototype, i.e. containing characteristics of the to be created entry. Must be provided, includes which context the entry should be created in.
 	 * @param parentListEntry an entry corresponding to a list to which the entry should be added as a child.    
 	 */
-	es.createEntry = function(context, prototypeEntry, parentListEntry) {
+	es.createEntry = function(prototypeEntry, parentListEntry) {
 		var d = new Deferred();
-		rest.post(
+		this._rest.post(
 				factory.getEntryCreateURI(context, prototypeEntry, parentListEntry),
 				factory.getEntryCreatePostData(prototypeEntry)).then(function(location) { //Success, a new created entry exists
 			es.getEntry(location).then(function(entry) {  //Lets load it the regular way.
@@ -161,8 +149,25 @@ define([
 		var url = factory.getProxyURI(uri, formatHint);
 		return rest.get(url);
 	};
+	
+	//==============Non-public methods==============
 
+	es._getBaseURI = function() {
+		return this._baseURI;
+	};
+	
+	es._getCache = function() {
+		return this._cache;
+	};
+	
+	es._getREST = function() {
+		return this._rest;
+	}
+
+	es._getCachedContextsIdx = function() {
+		return this._contexts;
+	};
 	
 	// TODO user and group handling (get/add/update/remove)
-	return es;
+	return EntryStore;
 });

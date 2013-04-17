@@ -71,5 +71,5 @@ define([
 	context.removeRemoteListener(listener);
 */
 
-	return co;
+	return Context;
 });

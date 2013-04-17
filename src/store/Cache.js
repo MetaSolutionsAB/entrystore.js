@@ -9,20 +9,33 @@ define([], function() {
 	};
 	var c = Cache.prototype;
 	
-	c.cache = function(entry) {
-		this._cacheIdx[entry.getURI()] = {time: new Date().getTime(), entry: entry};
+	c.cache = function(entry, silently) {
+		var previouslyCached = this._cacheIdx[entry.getURI()] != null;
+		this._cacheIdx[entry.getURI()] = entry;
+		entry.__cacheDate = new Date().getTime();
+		delete entry.__cacheStale;
+		if (previouslyCached && silently !== true) {
+			this.messageListeners("refreshed", entry);
+		}
 	};
 	
+	c.needRefresh = function(entry, silently) {
+		entry.__cacheStale = true;
+		if (silently !== true) {
+			this.messageListeners("needRefresh", entry);
+		}
+	};
+
 	c.cacheAll = function(entryArr) {
 		for (var i=0; i<entryArr.length;i++) {
 			this.cache(entryArr[i]);
 		}
 	};
 	c.get = function(entryURI) {
-		var s = c._cacheIdx[entryURI];
-		if (s) {
-			return s.entry;
-		}
+		return this._cacheIdx[entryURI];
+	};
+	c.isFresh = function(entry) {
+		return !entry.__cacheStale;
 	};
 	c.addCacheUpdateListener = function(listener) {
 		if (listener.__clid != null) {
@@ -46,13 +59,13 @@ define([], function() {
 		}
 	};
 
-	c.invalidateCache = function() {
+	c.allNeedRefresh = function() {
 		for (var uri in this._cacheIdx) {
 			if (this._cacheIdx.hasOwnProperty(uri)) {
-				this._cacheIdx[uri].entry.invalidate(false); //Do not messageListeners for every entry.
+				this.needRefresh(this._cacheIdx[uri], true); //Do not messageListeners for every entry.
 			}
 		}
-		this.messageListeners("allEntriesInvalidated");
+		this.messageListeners("allEntriesNeedRefresh");
 	};
 
 	return Cache;

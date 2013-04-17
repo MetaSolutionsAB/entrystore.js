@@ -1,34 +1,18 @@
 /*global define*/
 define([
+	"require",
 	"dojo/_base/lang",
+	"dojo/Deferred",
 	"dojo/request",
-	"dojo/request/iframe",
-	"dojo/has", 
-	"dojo/_base/sniff",
-	"dojo/_base/window",
-	"dojo/Deferred"
-], function(lang, request, iframe, has, sniff, win, Deferred) {
+	"dojo/has"
+], function(require, lang, Deferred, request, has) {
 
-	var sortObj = {sortBy: "title", prio: "List"};
-	var defaultLimit = 20;
 	var headers = {
 		"Accept": "application/json",
 		"Content-Type": "application/json; charset=UTF-8"
 	};
 
-	var communicator = {
-		setSort: function(sortObj) {
-			sortObj = sortObj;
-		},
-		getSort: function() {
-			return sortObj;
-		},
-		getDefaultLimit: function() {
-			return defaultLimit;
-		},
-		setDefaultLimit: function(limit) {
-			defaultLimit = limit;
-		},
+	var rest = {
 		// Authentication placeholder to be overridden to set login details
 		insertAuthArgs: function(xhrArgs) {
 			return xhrArgs;
@@ -39,7 +23,7 @@ define([
 		},
 		
 		get: function(uri) {
-			return request.get(uri, communicator.insertAuthArgs({
+			return request.get(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
 				headers: headers
@@ -52,7 +36,7 @@ define([
 		 * @return a promise on which you can call .then on.
 		 */
 		post: function(uri, data) {
-			return request.post(uri, communicator.insertAuthArgs({
+			return request.post(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
 				data: data,
@@ -62,7 +46,7 @@ define([
 		
 		create: function(uri, data) {
 			var d = new Deferred();
-			communicator.post(uri, data).response.then(function(response) {
+			rest.post(uri, data).response.then(function(response) {
 				var location = response.getHeader('Location');
 				d.resolve(location);
 			},function(err) {
@@ -82,7 +66,7 @@ define([
 			if (modDate) {
 				loc_headers["If-Unmodified-Since"] = modDate;			
 			}
-			return request.put(uri, communicator.insertAuthArgs({
+			return request.put(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
 				data: json.stringify(data),
@@ -95,38 +79,45 @@ define([
 		 * @return a promise.
 		 */
 		del: function(uri, recursive){
-			return request.del(uri, communicator.insertAuthArgs({
+			return request.del(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
 				headers: headers
 			}));
-		},
-		
-		putFile: function(resourceURI, inputNode, onSuccess, onError) {
-			  if(!inputNode.value){ return; }
-	          
-	          var _newForm; 
-	          if(has("ie")){
-	                  // just to reiterate, IE is a steaming pile of shit. 
-	                  _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
-	                  _newForm.encoding = "multipart/form-data";
-	          }else{
-	                  // this is how all other sane browsers do it
-	                  _newForm = document.createElement('form');
-	                  _newForm.setAttribute("enctype","multipart/form-data");
-	                  _newForm.setAttribute("method","post");
-	          }
-	          
-	          _newForm.appendChild(inputNode);
-	          win.body().appendChild(_newForm);
-	
-	          iframe(communicator.insertAuthParams(resourceURI+(resourceURI.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true"),
-				{
-					preventCache: true,
-	                handleAs: "json",
-	                form: _newForm
-				}).then(onSuccess, onError);
-		}	
+		}
 	};
-	return communicator;
+	if (has("host-browser")) {
+		require([
+			"dojo/_base/window",
+			"dojo/request/iframe"
+			], function(win, iframe) {
+				rest.putFile = function(resourceURI, inputNode, onSuccess, onError) {
+				  if(!inputNode.value){ return; }
+		          
+		          var _newForm; 
+		          if(has("ie")){
+		                  // just to reiterate, IE is a steaming pile of shit. 
+		                  _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
+		                  _newForm.encoding = "multipart/form-data";
+		          }else{
+		                  // this is how all other sane browsers do it
+		                  _newForm = document.createElement('form');
+		                  _newForm.setAttribute("enctype","multipart/form-data");
+		                  _newForm.setAttribute("method","post");
+		          }
+		          
+		          _newForm.appendChild(inputNode);
+		          win.body().appendChild(_newForm);
+		
+		          iframe(rest.insertAuthParams(resourceURI+(resourceURI.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true"),
+					{
+						preventCache: true,
+		                handleAs: "json",
+		                form: _newForm
+					}).then(onSuccess, onError);
+				}
+		});
+	}
+	
+	return rest;
 });
