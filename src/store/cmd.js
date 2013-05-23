@@ -22,12 +22,12 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
                 return false;
             } else if (result.getResourceURI) { //Check if Entry
                 context.e = result;
-                callback(padding+"Variable 'e' now points to the entry: \""+result.getURI()+"\"\n");
+                callback(padding+"Variable 'e' now points to the entry: \""+result.getURI()+"\"\n", result);
                 return true;
             } else if (result.getOwnEntryURI) {
                 result.getOwnEntry().then(function(entry) {
                     context.e = entry;
-                    callback(padding+"Variable 'e' now points to the entry: \""+entry.getURI()+"\"\n");
+                    callback(padding+"Variable 'e' now points to the entry: \""+entry.getURI()+"\"\n", result);
                 });
                 return true;
             } else if ((result instanceof Array || typeof result == "array") && result.length > 0 && result[0].getResourceURI) { // Check if array of entries.
@@ -35,10 +35,10 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
                 for (var i=0;i<result.length;i++) {
                     l("["+(context._list_offset+i)+"]  "+result[i].getURI());
                 }
-                delete context._list_offset;
+                context._list_offset = 0;
                 l("---------------------------------------------------------------------------------------");
                 context.result = result;
-                callback(padding+"Variable 'result' contains the result of the command.\n");
+                callback(padding+"Variable 'result' contains the result of the command.\n", result);
                 return true;
             }
         };
@@ -57,25 +57,27 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
             if (result && result.then) {  //A promise
                 result.then(function(presult) {
                     if (_own_cmd) {
-                        callback(null);
+                        callback(" ", presult);
                     } else if (f(presult)) {
                         //Do nothing, see f above.
                     } else if (presult) {
                         context.result = presult;
-                        callback(padding+"Variable 'result' contains the result of the command.");
+                        callback(padding+"Variable 'result' contains the result of the command.", presult);
                     } else {
                         callback(null);
                     }
                 }, function(err) {
                     callback(padding+"Error: "+err);
                 });
-            } else if (f(result)) {
-                //Do nothing, see f above.
             } else {
                 if (cmd.match(/[^=<>!]=[^=<>!]/) !== null) {
-                    callback(null);        //Assignment, do not print the value
+                    callback(" ", result);        //Assignment, do not print the value, recognize entry, resource or array of entries.
+                } else if (cmd.match(/\([ecor]\s*\)/)) {
+                   callback(null, result);     //User wanted to print one of 'e' 'c' 'o' or 'r' variables, do that.
+                } else if(f(result)) {
+                    //Do nothing, already recognized entry, resource or array of entries, see f above.
                 } else {
-                    callback(null, result);  //Not assignment, print the value
+                    callback(null, result);  //Nothing special, print the value
                 }
             }
         } catch(e) {
@@ -96,8 +98,9 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
     }
 
     context.repository = function(url) {
+        own_cmd = true;
         context.r = new EntryStore(url);
-        l("Variable 'r' contains the current respository, that is: \""+url+"\"\n");
+        l("Variable 'r' contains the current respository, that is: \""+url+"\"");
     };
 
     context.context = function(cId) {
@@ -107,13 +110,12 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
         } else {
           var uri = context.r.getBaseURI()+"_contexts/entry/"+cId;
           return context.r.getEntry(uri).then(function(entry) {
-              context.ce = entry;
+              context.o = entry;
               context.c = entry.getResource();
               l("Variable 'c' contains the current context, that is: \""+ entry.getResourceURI()+"\"");
-              l("Variable 'ce' contains the current contexts own entry, that is \""+entry.getURI()+"\"\n");
+              l("Variable 'o' contains the current contexts own entry, that is \""+entry.getURI()+"\"");
               return entry;
           }, function(err) {
-              console.dir(err);
               l("Failed loading context: "+err+"\n");
           });
       }
@@ -129,7 +131,7 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
             var uri = context.c.getOwnResourceURI()+"/entry/"+eId;
             return context.r.getEntry(uri).then(function(entry) {
                 context.e = entry;
-                l("Variable 'e' contains the current entry, that is: \""+entry.getURI()+"\"\n");
+                l("Variable 'e' contains the current entry, that is: \""+entry.getURI()+"\"");
                 return entry;
             }, function(err) {
                 console.dir(err);
@@ -219,6 +221,7 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
             return children;
         });
     };
+    context._list_offset = 0; //Only relevant first time.
 
     context.help = function() {
         var w = 25;
@@ -235,7 +238,7 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
         w = 10;
         lt("r", w, "The current repository, updated by the repository method");
         lt("c", w, "The current context resource, updated by the context method");
-        lt("ce", w, "The current context entry, updated by the context method");
+        lt("o", w, "The current context entry, updated by the context method");
         lt("e", w, "The current entry, updated by the entry method and every other method that results in an entry or the resource of an entry");
         lt("last", w, "The result of the last command, independent of what it was.");
         lt("result", w, "If the last command resulted in a promise (a sort of callback), the result variable holds what is returned in this callback");
