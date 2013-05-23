@@ -1,40 +1,34 @@
 /*global define*/
 define([
 	"dojo/Deferred",
-	"./PrototypeEntry"
-], function(Deferred, PrototypeEntry) {
-	
-	/**
-	 * @param entry in which this context is a resource.
-	 * @constructor
+	"./PrototypeEntry",
+    "./Resource"
+], function(Deferred, PrototypeEntry, Resource) {
+
+    /**
+     * @param {String} entryURI in which this context is a resource.
+     * @param {String} resourceURI
+     * @param {store.EntryStore} entryStore
+     * @constructor
+     * @extends store.Resource
 	 */
 	var Context = function(entryURI, resourceURI, entryStore) {
-		this._entryURI = entryURI;
-		this._resourceURI = resourceURI;
-		this._entryStore = entryStore;
-	};
-	var co = Context.prototype; //Shortcut, avoids having to write Context.prototype everywhere below when defining methods.
-
-	co.getEntryStore = function() {
-		return this._entryStore;
+        Resource.apply(this, arguments); //Call the super constructor.
 	};
 
-	/**
-	 * @return {Promise} that on success provides the entry for this context.
-	 */
-	co.getOwnEntry = function() {
-		return this._entry;
-	};
-	
-	co.getOwnResourceURI = function() {
-		return this._resourceURI;
-	};
-	
-	co.getOwnEntryURI = function() {
-		return this._entryURI;
-	};
-	
-	co.listEntries = function(optionalPagingParams) {
+    //Inheritance trick
+    var F = function() {};
+    F.prototype = Resource.prototype;
+    Context.prototype = new F();
+
+    /**
+     * Retrieves a list of all entries, returned in a promise.
+     * TODO document optionalPagingParams
+     *
+     * @param {Object=} optionalPagingParams
+     * @returns {dojo.promsise.Promise}
+     */
+	Context.prototype.listEntries = function(optionalPagingParams) {
 		var d = new Deferred();		
 		this.getEntryStore().getEntry(this._resourceURI+"/entry/_all", optionalPagingParams).then(function(entry) {
 			var list = entry.getResource();
@@ -50,20 +44,28 @@ define([
 	};
 		
 	/**
-	 * Convenience method, see EntryStore.getEntry()
+	 * Convenience method, to retrieve an entry from this context, see EntryStore.getEntry().
+     * @returns {dojo.promise.Promise}
+     * @see store.EntryStore#getEntry
 	 */
-	co.getEntry = function(entryURI, optionalLoadParams) {
+	Context.prototype.getEntry = function(entryURI, optionalLoadParams) {
 		return this.getEntryStore().getEntry(entryURI, optionalLoadParams);
 	};
 	
 	/**
-	 * Convenience method, see EntryStore.createEntry()
+	 * Convenience method, to create an entry, see EntryStore.createEntry()
+     * @returns {dojo,promise.Promise} where the callback will contain the entry.
+     * @see store.EntryStore#createEntry
 	 */
-	co.createEntry = function(prototypeEntry, parentListEntry) {
-		return this.getEntryStore().createEntry(this, prototypeEntry, parentListEntry);
+	Context.prototype.createEntry = function(prototypeEntry, parentListEntry) {
+		return this.getEntryStore().createEntry(prototypeEntry, parentListEntry);
 	};
 
-	co.createPrototypeEntry = function() {
+    /**
+     * Factory method to create a prototypeEntry that has the current context as container.
+     * @returns {store.PrototypeEntry}
+     */
+	Context.prototype.createPrototypeEntry = function() {
 		return new PrototypeEntry(this);
 	};
 /*

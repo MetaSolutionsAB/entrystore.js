@@ -2,10 +2,11 @@
 define([
 	"require",
 	"dojo/_base/lang",
+    "dojo/json",
 	"dojo/Deferred",
 	"dojo/request",
 	"dojo/has"
-], function(require, lang, Deferred, request, has) {
+], function(require, lang, json, Deferred, request, has) {
 
 	var headers = {
 		"Accept": "application/json",
@@ -21,7 +22,11 @@ define([
 		insertAuthParams: function(url) {
 			return url;
 		},
-		
+
+        /**
+         * @param uri
+         * @returns {dojo.promise.Promise}
+         */
 		get: function(uri) {
 			return request.get(uri, rest.insertAuthArgs({
 				preventCache: true,
@@ -57,8 +62,8 @@ define([
 
 		/**
 		 * @param {String} uri the address to put to.
-		 * @param {String} data the data to put.
-		 * @param {Date} a date to use for the HTTP if-unmodified-since header.
+		 * @param {Object} data the data to put.
+		 * @param {Date} modDate a date to use for the HTTP if-unmodified-since header.
 		 * @return a promise on which you can call .then on.
 		 */
 		put: function(uri, data, modDate) {
@@ -76,6 +81,7 @@ define([
 		
 		/**
 		 * @param {String} uri of the resource to delete.
+         * @param {Boolean} recursive if true the store tries to delete any potential children entries
 		 * @return a promise.
 		 */
 		del: function(uri, recursive){

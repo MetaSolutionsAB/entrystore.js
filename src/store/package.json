@@ -1,0 +1,20 @@
+{
+    "name": "store",
+    "version": "0.1",
+    "main": "main",
+    "dependencies": {
+	"dojo": "1.8.3",
+	"dijit": "1.8.3",
+	"dojox": "1.8.3",
+	"util": "1.8.3"
+    },
+    "description": "Store is a library for working with Entries in EntryStore.",
+    "licenses": [
+	{
+	    "type": "BSD",
+	    "url": "Some URL here."
+	}
+    ],
+    "homepage": "TODO",
+    "dojoBuild": "package.js"
+}

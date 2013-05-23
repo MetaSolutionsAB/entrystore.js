@@ -1,43 +1,86 @@
 /*global define*/
 define([], function() {
-	
-	
+
+    /**
+     * @constructor
+     */
 	var Cache = function() {
 		this._listenerCounter = 0;
 		this._listenersIdx = {};
-		this._cacheIdx = {};		
+		this._cacheIdx = {};
+        this._cacheCtrl = {};
 	};
-	var c = Cache.prototype;
-	
-	c.cache = function(entry, silently) {
+
+    /**
+     * Add or update the entry to the cache.
+     * All listeners will be notified unless silently is specified.
+     *
+     * @param {store.Entry} entry
+     * @param {Boolean=} silently
+     */
+	Cache.prototype.cache = function(entry, silently) {
 		var previouslyCached = this._cacheIdx[entry.getURI()] != null;
 		this._cacheIdx[entry.getURI()] = entry;
-		entry.__cacheDate = new Date().getTime();
-		delete entry.__cacheStale;
+        this._cacheCtrl[entry.getURI()] = {date: new Date().getTime()};
 		if (previouslyCached && silently !== true) {
 			this.messageListeners("refreshed", entry);
 		}
 	};
-	
-	c.needRefresh = function(entry, silently) {
-		entry.__cacheStale = true;
+
+    /**
+     * Marks an entry as in need of refresh from the store.
+     * All listeners are notified of the entry now being in need of refreshing unless
+     * silently is set to true.
+     *
+     * @param {store.Entry} entry
+     * @param {Boolean} silently
+     */
+	Cache.prototype.setRefreshNeeded = function(entry, silently) {
+        var ctrl = this._cacheCtrl[entry.getURI()];
+        if (ctrl == null) {
+            throw "No cache control of existing entry: "+entry.getURI();
+        }
+        ctrl.stale = true;
 		if (silently !== true) {
 			this.messageListeners("needRefresh", entry);
 		}
 	};
 
-	c.cacheAll = function(entryArr) {
+    /**
+     * A convenience method for caching multiple entries.
+     *
+     * @param {Array.<store.Entry>} entryArr
+     * @param {Boolean=} silently
+     * @see store.Cache#cache
+     */
+    Cache.prototype.cacheAll = function(entryArr, silently) {
 		for (var i=0; i<entryArr.length;i++) {
-			this.cache(entryArr[i]);
+			this.cache(entryArr[i], silently);
 		}
 	};
-	c.get = function(entryURI) {
+    /**
+     * @param {String} entryURI
+     * @returns {store.Entry|undefined}
+     */
+    Cache.prototype.get = function(entryURI) {
 		return this._cacheIdx[entryURI];
 	};
-	c.isFresh = function(entry) {
-		return !entry.__cacheStale;
+    /**
+     *
+     * @param {store.Entry} entry
+     * @returns {boolean}
+     */
+	Cache.prototype.needRefresh = function(entry) {
+        var ctrl = this._cacheCtrl[entry.getURI()];
+        if (ctrl == null) {
+            throw "No cache control of existing entry: "+entry.getURI();
+        }
+		return ctrl.stale === true;
 	};
-	c.addCacheUpdateListener = function(listener) {
+    /**
+     * @param {Function} listener
+     */
+	Cache.prototype.addCacheUpdateListener = function(listener) {
 		if (listener.__clid != null) {
 			listener.__clid = "idx_"+this._listenerCounter;
 			this._listenerCounter++;
@@ -45,13 +88,25 @@ define([], function() {
 		this._listenersIdx[listener.__clid] = listener;
 	};
 
-	c.removeCacheUpdateListener = function(listener) {
+    /**
+     * @param {Function} listener
+     */
+	Cache.prototype.removeCacheUpdateListener = function(listener) {
 		if (listener.__clid != null) {
 			delete this._listenersIdx[listener.__clid];
 		}
 	};
-	
-	c.messageListeners = function(topic, affectedEntry) {
+
+    /**
+     * Agreed topics are:
+     * allEntriesNeedRefresh - all entries are now in need of refresh, typically happens after a change of user(sign in)
+     * needRefresh - the specified entry need to be refreshed.
+     * refreshed - the specified entry have been refreshed.
+     *
+     * @param {String} topic
+     * @param {store.Entry=} affectedEntry
+     */
+	Cache.prototype.messageListeners = function(topic, affectedEntry) {
 		for (var clid in this._listenersIdx) {
 			if (this._listenersIdx.hasOwnProperty(clid)) {
 				this._listenersIdx[clid](topic, affectedEntry);
@@ -59,10 +114,13 @@ define([], function() {
 		}
 	};
 
-	c.allNeedRefresh = function() {
+    /**
+     * Marks all entries as in need of refresh and consequently messages all listeners with the allEntriesNeedRefresh topic.
+     */
+	Cache.prototype.allNeedRefresh = function() {
 		for (var uri in this._cacheIdx) {
 			if (this._cacheIdx.hasOwnProperty(uri)) {
-				this.needRefresh(this._cacheIdx[uri], true); //Do not messageListeners for every entry.
+				this.setRefreshNeeded(this._cacheIdx[uri], true); //Do not messageListeners for every entry.
 			}
 		}
 		this.messageListeners("allEntriesNeedRefresh");
