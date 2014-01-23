@@ -40,3 +40,26 @@ The resulting build are located in trunk/release and the relevant files are:
 # TESTING
 
 The tests are located in trunk/tests
+
+# Command line
+
+The StoreJS library also allows command line access to a EntryStore repository. To start the command line you need to have node installed, then:
+
+    cd bin
+    node cmdline.js
+     ---------------------------------------------------------------------------
+    | Welcome to the EntryStore Shell, to get help with commands type 'help()'  |
+     ---------------------------------------------------------------------------
+    ES>
+
+The first thing you need to do is to connect to a repository, and then to select a context and maybe a entry like this:
+
+    ES> repository("http://localhost:8080/store")
+    ==>   Variable 'r' contains the current respository, that is: "http://localhost:8080/store"
+    ES> context("1")
+    ==>   Variable 'c' contains the current context, that is: "http://localhost:8080/store/1"
+    ==>   Variable 'o' contains the current contexts own entry, that is "http://localhost:8080/store/_contexts/entry/1"
+    ES> entry("1")
+    ==>   Variable 'e' contains the current entry, that is: "http://localhost:8080/store/1/entry/1"
+
+Check the help() command to get an idea of what you can do more.

@@ -3,9 +3,9 @@ repl = require("repl");
 vm = require("vm");
 
 dojoConfig = {
-    dojoBaseUrl: "../src/", // Where we will put our packages
+    baseUrl: "../", // Where we will put our packages
+    "async": 1,
     hasCache: {
-        "async": 1,
         "host-node": 1, // Ensure we "force" the loader into Node.js mode
         "dom": 0 // Ensure that none of the code assumes we have a DOM
     },
@@ -13,16 +13,20 @@ dojoConfig = {
     // loader that your packages share the same root path as the loader,
     // this really isn't always a good idea and it is better to be
     // explicit about our package map.
-    packages: [{
-        name: "dojo",
-        location: "../lib/dojo-src/dojo"
-    },{
-        name: "rdfjson",
-        location: "../src/rdfjson"
-    },{
-        name: "store",
-        location: "../src/store"
-    }],
+    packages: [
+        {
+            name: "dojo",
+            location: "lib/dojo-src/dojo"
+        }, {
+            name: "dojox",
+            location: "lib/dojo-src/dojox"
+        }, {
+            name: "rdfjson",
+            location: "src/rdfjson"
+        }, {
+            name: "store",
+            location: "src/store"
+        }],
     deps: ["store/cmd"] // And array of modules to load on "boot"
 };
 
