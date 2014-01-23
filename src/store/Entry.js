@@ -61,11 +61,21 @@ define([
 	 * for this entry if the value is false or undefined.
 	 * @see Entry.refresh.
 	 */
-	Entry.prototype.needRefresh = function(silently) {
+	Entry.prototype.setRefreshNeeded = function(silently) {
 		this.getEntryStore().getCache().setRefreshNeeded(this, silently);
 	};
-	
-	/**
+
+    /**
+     * Tells wether a entry needs to be refreshed.
+     *
+     * @return {Boolean} true if the entry need to be refreshed before used.
+     * @see Entry.refresh.
+     */
+    Entry.prototype.needRefresh = function() {
+        this.getEntryStore().getCache().needRefresh(this);
+    };
+
+    /**
 	 * Refreshes an entry if needed, that is, if it has been marked as invalid.
 	 * @param {Boolean=} silently the cache will send out a refresh message for this entry
 	 * if a refresh was needed AND if the value of silently is false or undefined.   
@@ -114,18 +124,31 @@ define([
 	Entry.prototype.setMetadata = function(graph) {
 		var d = new Deferred(), self = this;
 		this._metadata= graph || this._metadata;
-		this.getEntryStore().getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON())).then(function() {
-			self.needRefresh(true);
-			self.refresh().then(function() {
-				d.resolve(self);
-			}, function() {
-				//Failed refreshing, but succeded at saving metadata, at least send out message that it needs to be refreshed.
-				self.getEntryStore().getCache().message("refreshed", self);
-				d.resolve(self);
-			});
-		}, function(err) {
-			d.reject("Failed saving metadata. "+err);
-		});
+        if (this.isReference()) {
+            d.reject("Entry \""+this.getURI()+"\" is a reference and have no local metadata that can be saved.");
+        } else if (!this.canWriteMetadata()) {
+            d.reject("You do not have sufficient access rights to save metadata on entry \""+this.getURI()+"\".");
+        } else if(this.needRefresh()) {
+            d.reject("The entry \""+this.getURI()+"\" need to be refreshed before its local metadata can be saved.\n"+
+                "This message indicates that the client is written poorly, this case should have been taken into account.");
+        } else if (this._metadata == null) {
+            d.reject("The entry \""+this.getURI()+"\" should allow local metadata to be saved, but there is no local metadata.\n"+
+                "This message is a bug in the storejs API.");
+        } else {
+            this.getEntryStore().getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON())).then(function() {
+                console.info("Local metadata saved for entry: \""+self.getURI()+"\"");
+                self.setRefreshNeeded(true);
+                self.refresh().then(function() {
+                    d.resolve(self);
+                }, function() {
+                    //Failed refreshing, but succeded at saving metadata, at least send out message that it needs to be refreshed.
+                    self.getEntryStore().getCache().message("refreshed", self);
+                    d.resolve(self);
+                });
+            }, function(err) {
+                d.reject("Failed saving local metadata. "+err);
+            });
+        }
 		return d.promise;
 	};
 	
@@ -148,7 +171,7 @@ define([
 		var d = new Deferred(), self = this;
 		this._cachedExternalMetadata = graph || this._cachedExternalMetadata;
 		this.getEntryStore().getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(), json.stringify(this._cachedExternalMetadata.exportRDFJSON())).then(function() {
-			self.needRefresh(true);
+			self.setRefreshNeeded(true);
 			self.refresh().then(function() {
 				d.resolve(self);
 			}, function() {
@@ -188,77 +211,100 @@ define([
 	};
 
     /**
+     * GraphType list
      * @returns {boolean}
      */
 	Entry.prototype.isList = function() {
 		return this.getEntryInfo().getGraphType() === "list";
 	};
     /**
+     * Graphtype resultlist
      * @returns {boolean}
      */
 	Entry.prototype.isResultList = function() {
 		return this.getEntryInfo().getGraphType() === "resultlist";
 	};
     /**
+     * GraphType context
      * @returns {boolean}
      */
 	Entry.prototype.isContext = function() {
 		return this.getEntryInfo().getGraphType() === "context";
 	};
     /**
+     * GraphType systemcontext
      * @returns {boolean}
      */
 	Entry.prototype.isSystemContext = function() {
 		return this.getEntryInfo().getGraphType() === "systemcontext";
 	};
     /**
+     * GraphType user
      * @returns {boolean}
      */
 	Entry.prototype.isUser = function() {
 		return this.getEntryInfo().getGraphType() === "user";
 	};
     /**
+     * GraphType group
      * @returns {boolean}
      */
 	Entry.prototype.isGroup = function() {
 		return this.getEntryInfo().getGraphType() === "group";
 	};
     /**
+     * GraphType graph
      * @returns {boolean}
      */
 	Entry.prototype.isGraph = function() {
 		return this.getEntryInfo().getGraphType() === "graph";
 	};
     /**
+     * GraphType string
      * @returns {boolean}
      */
 	Entry.prototype.isString = function() {
 		return this.getEntryInfo().getGraphType() === "string";
 	};
     /**
+     * GraphType none.
+     * @returns {boolean}
+     */
+    Entry.prototype.isNone = function() {
+        return this.getEntryInfo().getGraphType() === "none";
+    };
+    /**
+     * EntryType link
      * @returns {boolean}
      */
 	Entry.prototype.isLink = function() {
 		return this.getEntryInfo().getEntryType() === "link";		
 	};
     /**
+     * EntryType reference
      * @returns {boolean}
      */
 	Entry.prototype.isReference = function() {
 		return this.getEntryInfo().getEntryType() === "reference";		
 	};
     /**
+     * EntryType linkreference
      * @returns {boolean}
      */
 	Entry.prototype.isLinkReference = function() {
 		return this.getEntryInfo().getEntryType() === "linkreference";		
 	};
     /**
+     * EntryType link, linkreference or reference
      * @returns {boolean} true if entrytype is NOT local.
      */
 	Entry.prototype.isExternal = function() {
 		return this.getEntryInfo().getEntryType() !== "local";
 	};
+    /**
+     * EntryType local
+     * @returns {boolean}
+     */
 	Entry.prototype.isLocal = function() {
 		return this.getEntryInfo().getEntryType() === "local";
 	};

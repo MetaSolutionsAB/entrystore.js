@@ -70,7 +70,7 @@ define([
 			entryURI = this._sortedChildren[i];
 			if (entryURI) {
 				var e = this._cache.get(entryURI);
-				if (careAboutFresh === false || this._cache.needRefresh(e)) {
+				if (careAboutFresh === false || !this._cache.needRefresh(e)) {
 					results.push(e);
 				} else {
 					needRefresh = true;

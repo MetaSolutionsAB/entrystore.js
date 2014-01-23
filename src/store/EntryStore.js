@@ -5,8 +5,9 @@ define([
     "dojo/promise/Promise",
     "./Cache",
     "./rest",
-    "./factory"
-], function (lang, array, Promise, Cache, rest, factory) {
+    "./factory",
+    "dojo/has"
+], function (lang, array, Promise, Cache, rest, factory, has) {
 
     /**
      * @param {String=} baseURI is an optional URL to the current EntryStore
@@ -18,10 +19,18 @@ define([
         /**
          * @type {String}
          */
-        this._baseURI = baseURI; //TODO fix fallback if not provided
-        if (this._baseURI[this._baseURI.length-1] !== "/") {
-            this._baseURI = this._baseURI+"/";
+        if (has("host-browser") && baseURI == null) {
+            var href = window.location.href, host = window.location.host;
+            var idx = href.indexOf(host)+host.length;
+            var path = href.substr(idx).match(/^\/([^\/]*)\/.*/)[1];
+            this._baseURI = href.substr(0,idx+1)+path+"/";
+        } else {
+            this._baseURI = baseURI;
+            if (this._baseURI[this._baseURI.length-1] !== "/") {
+                this._baseURI = this._baseURI+"/";
+            }
         }
+
         this._cache = new Cache();
         if (authScheme) {
             this.auth(authScheme, credentials);
@@ -32,7 +41,7 @@ define([
 
     EntryStore.prototype.auth = function (authScheme, credentials) {
         this._rest.auth(authScheme, credentials);
-        this._cache.invalidateCache();
+        this.invalidateCache();
     };
 
     EntryStore.prototype.logout = function () {
@@ -101,7 +110,10 @@ define([
         var postURI = factory.getEntryCreateURI(prototypeEntry, parentListEntry);
         var postParams = factory.getEntryCreatePostData(prototypeEntry);
         return this._rest.post(postURI, postParams).then(
-            lang.hitch(this, EntryStore.prototype.getEntry),
+            lang.hitch(this, function(data) {
+                var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
+                return this.getEntry(euri);
+            }),
             function (err) {
                 return "Failed creating entry. " + err;
             }
@@ -150,7 +162,7 @@ define([
      * @see store.Cache#allNeedRefresh
      */
     EntryStore.prototype.invalidateCache = function () {
-        this._cache.invalidateCache();
+        this._cache.allNeedRefresh();
     };
 
     EntryStore.prototype.version = function () {

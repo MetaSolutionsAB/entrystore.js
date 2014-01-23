@@ -49,7 +49,7 @@ define([
 	EntryInfo.prototype.save = function() {
 		var d = new Deferred(), self = this;
 		this._entry.getEntryStore.getREST().put(this.getEntryURI(), json.stringify(this._info.exportRDFJSON())).then(function() {
-			self._entry.needRefresh(true);
+			self._entry.setRefreshNeeded(true);
 			self._entry.refresh().then(function() {
 				d.resolve(self);
 			}, function() {

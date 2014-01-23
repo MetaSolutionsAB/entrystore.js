@@ -5,8 +5,9 @@ define([
     "dojo/json",
 	"dojo/Deferred",
 	"dojo/request",
+    "dojox/encoding/base64",
 	"dojo/has"
-], function(require, lang, json, Deferred, request, has) {
+], function(require, lang, json, Deferred, request, base64, has) {
 
 	var headers = {
 		"Accept": "application/json",
@@ -16,23 +17,52 @@ define([
 	var rest = {
 		// Authentication placeholder to be overridden to set login details
 		insertAuthArgs: function(xhrArgs) {
-			return xhrArgs;
+            if (this._authScheme === "basic") {
+                xhrArgs.user = this._user;
+                xhrArgs.password = this._password;
+            }
+            return xhrArgs;
 		},
 		// Authentication placeholder to be overridden to set login details
 		insertAuthParams: function(url) {
 			return url;
 		},
 
+        auth: function(authScheme, credentials) {
+            this._authScheme = authScheme;
+            if (authScheme === "basic") {
+                this._user = credentials.user;
+                this._password = credentials.password;
+                // Need to set the authorization header explicitly since the use of user and password in xhr.open
+                // does not seem to work in chrome when the content-type is not multipart-form-data
+                var tok = credentials.user + ':' + credentials.password;
+                var tokArr = [];
+                for (var i = 0; i < tok.length; i++) {
+                    tokArr.push(tok.charCodeAt(i));
+                }
+                var hash = base64.encode(tokArr);
+                headers.Authorization = "Basic " + hash;
+            }
+        },
+
         /**
          * @param uri
          * @returns {dojo.promise.Promise}
          */
 		get: function(uri) {
-			return request.get(uri, rest.insertAuthArgs({
+			var d = request.get(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
 				headers: headers
-			}));
+			})).response.then(function(response) {
+                    var status = response.getHeader('status');
+                    if (response.status === 200) {
+                        return response.data;
+                    } else {
+                        d.cancel("Entry could not be loaded: "+response.text);
+                    }
+            });
+            return d;
 		},
 		
 		/**
@@ -62,7 +92,7 @@ define([
 
 		/**
 		 * @param {String} uri the address to put to.
-		 * @param {Object} data the data to put.
+		 * @param {String} data the data to put.
 		 * @param {Date} modDate a date to use for the HTTP if-unmodified-since header.
 		 * @return a promise on which you can call .then on.
 		 */
@@ -74,7 +104,7 @@ define([
 			return request.put(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
-				data: json.stringify(data),
+				data: data,
 				headers: loc_headers
 			}));
 		},

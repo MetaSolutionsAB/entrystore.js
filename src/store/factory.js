@@ -57,7 +57,7 @@ define([
 			entry._resource = resource;
 		}
 
-		if (data.resource == null) {
+		if (entry._resource == null || data.resource == null) {
 			return;
 		}
 		
@@ -132,7 +132,7 @@ define([
             var resourceURI = entryURI.replace("/entry/", "/resource/");
 			entry._resource = new List(entryURI, resourceURI, entryStore);
 			cache.cache(entry, true); //Add to cache silently.
-			entry.needRefresh(true);  //Make sure it needs to be updated before accessed.
+			entry.setRefreshNeeded(true);  //Make sure it needs to be updated before accessed.
 		}
 		return entry._resource; //Returning only the list which has no reference to the entry isolates the entry from beeing accessed before refreshed.
 	};
@@ -183,8 +183,11 @@ define([
 
     exports.getId = function(uri) {
         return uri.substr(uri.lastIndexOf("/")+1);
-    }
-		
+    };
+
+    exports.getURIFromCreated = function(data, context) {
+        return context.getOwnResourceURI()+"/entry/"+data.entryId;
+    };
 	/**
 	 *  params contains:
 	 *   The following attributes are considered:
@@ -267,7 +270,7 @@ define([
 				empty = false;
 			}
 			var cemd = prototypeEntry.getCachedExternalMetadata();
-			if (!cemd && !cemd.isEmpty()) {
+			if (cemd != null && !cemd.isEmpty()) {
 				postData["cached-external-metadata"] = cemd.exportRDFJSON();
 				empty = false;
 			}

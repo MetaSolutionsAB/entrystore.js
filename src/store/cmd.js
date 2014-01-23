@@ -1,5 +1,5 @@
 /*global define*/
-define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], function(EntryStore, Entry, Resource, rdfprint) {
+define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "store/solr"], function(EntryStore, Entry, Resource, rdfprint, solr) {
     // The following code only works in node.js as it depends on repl and vm being available as global variables.
     // Tested against version 0.6.10
 
@@ -92,15 +92,33 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
         l("Repository, available in variable 'r', set from command line to: \""+process.argv[2]+"\"\n");
     }
 
+    if (process.argv.length > 4) {
+        l("Basic authentication provided.");
+    }
+
     var context = repl.start("ES> ", null, es_eval, false, true).context;   //Use of global variable repl
     if (process.argv.length > 2) {
         context.r = new EntryStore(process.argv[2]);
     }
+    if (process.argv.length > 4) {
+        context.r.auth("basic", {user: process.argv[3], password: process.argv[4]});
+    }
+    context.solr = solr;
 
     context.repository = function(url) {
         own_cmd = true;
         context.r = new EntryStore(url);
         l("Variable 'r' contains the current respository, that is: \""+url+"\"");
+    };
+
+    context.auth = function(user, password) {
+        own_cmd = true;
+        if (context.r == null) {
+            l("You need to set the current repository first.\n");
+        } else {
+            context.r.auth("basic", {user: user, password: password});
+            l("Credentials set using basic auth");
+        }
     };
 
     context.context = function(cId) {
@@ -134,7 +152,6 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print"], f
                 l("Variable 'e' contains the current entry, that is: \""+entry.getURI()+"\"");
                 return entry;
             }, function(err) {
-                console.dir(err);
                 l("Failed loading entry: "+err+"\n");
             });
         }

@@ -2,9 +2,10 @@
 define([
 	"dojo/_base/lang",
 	"dojo/Deferred",
+    "dojo/json",
     "./Resource",
 	"rdfjson/Graph"
-], function(lang, Deferred, Resource, Graph) {
+], function(lang, Deferred, json, Resource, Graph) {
 	
 	/**
      * @param {store.EntryStore} entryStore
@@ -33,7 +34,7 @@ define([
 	//TODO fix ifModifiedSince.
 	RDFGraph.prototype.setGraph = function(graph) {
 		this._graph = graph;
-		return this._entryStore.getREST().put(this._resourceURI, graph.exportRDFJSON());
+		return this._entryStore.getREST().put(this._resourceURI, json.stringify(graph.exportRDFJSON()));
 	};
 
 	return RDFGraph;

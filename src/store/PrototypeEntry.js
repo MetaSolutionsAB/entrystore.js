@@ -18,7 +18,7 @@ define([
 		this.entryInfo.setResourceURI(cru + "/resource/_newId");
 		//No setter in EntryInfo since metadata is not supposed to be set from externally.
 		this.entryInfo.getGraph().create(this.entryInfo.getEntryURI(), terms.metadata, {type: "uri", value: cru + "metadata/_newId"});
-		this.entry = new Entry(this.entryInfo);
+		this.entry = new Entry(context, this.entryInfo, context.getEntryStore());
 	};
 
 	//EntryInfo setters, now chainable as methods on PrototypeEntry.
@@ -40,7 +40,8 @@ define([
 	//Now make PrototypeEntry appear as a readable Entry by copying over all vital read methods 
 	//(e.g. getXX methods, ignoring the isXX  methods since they are convienance methods not used internally in the API).
 	array.forEach(["getEntryInfo", "getContext", "getMetadata", "getCachedExternalMetadata", "getExtractedMetadata", 
-				   "getResourceURI", "getResource", "getReferrers"], function(method) {
+        "getResourceURI", "getResource", "getReferrers",
+        "isLocal", "isLink", "isReference", "isLinkReference"], function(method) {
         PrototypeEntry.prototype[method] = function() {
 			return Entry.prototype[method].apply(this.entry, arguments);
 		};
