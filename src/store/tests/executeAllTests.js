@@ -4,7 +4,7 @@ require([
 ], function (array, config) {
 
     var deps = array.map(config.tests, function(cls) {
-        return "tests/"+cls;
+        return "store/tests/"+cls;
     });
     require(deps, function() {
         var testClasses = Array.prototype.slice.call(arguments, 0);

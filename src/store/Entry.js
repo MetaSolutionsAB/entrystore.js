@@ -2,7 +2,7 @@
 define([
     "dojo/Deferred",
 	"dojo/json",
-    "./factory"
+    "store/factory"
 ], function(Deferred, json, factory) {
 	
 	/**

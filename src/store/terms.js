@@ -15,6 +15,7 @@ define([], function() {
     var ns = "http://scam.sf.net/schema#";
     var rdfns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
+
     var externals = {
         resource: ns + "resource",
         metadata: ns + "metadata",

@@ -1,9 +1,9 @@
-define(['rdfjson/Graph', 'store/EntryStore'], function(Graph, EntryStore) {
+define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
 	//browsers have the global nodeunit already available
 	return nodeunit.testCase({
 		initStore: function(test) {
-			var es = new EntryStore("http://localhost:8080/store/");
-			es.getEntry("http://localhost:8080/store/1/entry/5").then(function(entry) {
+			var es = new EntryStore(config.repository);
+			es.getEntry(config.repository+"1/entry/1").then(function(entry) {
 				test.ok(entry != null);
 				test.done();
 			}, function(err) {

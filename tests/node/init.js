@@ -26,7 +26,7 @@ dojoConfig = {
         name: "tests",
         location: "tests"
     }],
-    deps: ["tests/config", "tests/executeAllTests"] // And array of modules to load on "boot"
+    deps: ["tests/config", "store/tests/executeAllTests"] // And array of modules to load on "boot"
 };
 
 // Make the nodeunit library available as a global variable.
