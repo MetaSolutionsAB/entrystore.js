@@ -1,8 +1,7 @@
 /*global define*/
 define([
-	"dojo/Deferred",
-    "./factory"
-], function(Deferred, factory) {
+    "store/factory"
+], function(factory) {
 
     /**
      * @param {String} entryURI in which this context is a resource.

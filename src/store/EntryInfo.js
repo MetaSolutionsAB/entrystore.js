@@ -3,11 +3,10 @@ define([
 	"dojo/_base/array",
 	"dojo/Deferred",
 	"dojo/json",
-	"./rest",
-	"./terms",
-	"./factory",
+    "store/terms",
+	"store/factory",
 	"rdfjson/Graph"
-], function(array, Deferred, json, rest, terms, factory, Graph) {
+], function(array, Deferred, json, terms, factory, Graph) {
 	
 	/**
 	 * @param {String} entryURI must be provided unless the graph contains a statement with the store:resource property which allows us to infer the entryURI.

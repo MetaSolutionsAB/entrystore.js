@@ -1,11 +1,10 @@
 /*global define*/
 define([
 	"dojo/_base/array",
-	"dojo/_base/lang",
-	"./Entry",
-	"./EntryInfo",
-	"./terms"
-], function(array, lang, Entry, EntryInfo, terms) {
+    "store/Entry",
+	"store/EntryInfo",
+	"store/terms"
+], function(array, Entry, EntryInfo, terms) {
 	
 	/**
 	 * @param {store.Context} context where this prototypeEntry belongs.

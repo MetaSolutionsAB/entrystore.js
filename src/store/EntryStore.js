@@ -1,13 +1,11 @@
 /*global define*/
 define([
     "dojo/_base/lang",
-    "dojo/_base/array",
-    "dojo/promise/Promise",
-    "./Cache",
-    "./rest",
-    "./factory",
+    "store/Cache",
+    "store/rest",
+    "store/factory",
     "dojo/has"
-], function (lang, array, Promise, Cache, rest, factory, has) {
+], function (lang, Cache, rest, factory, has) {
 
     /**
      * @param {String=} baseURI is an optional URL to the current EntryStore

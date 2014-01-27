@@ -2,8 +2,8 @@
 define([
     'dojo/_base/lang',
 	'dojo/_base/array',
-	'./Entry',
-	'./Context'
+	'store/Entry',
+	'store/Context'
 ], function(lang, array, Entry, Context) {
 	
 	var c = function() {

@@ -1,16 +1,16 @@
 /*global define,rdfjson*/
 define([
-    'store/EntryStore',
-    "store/factory",
-    "dojo/json",
+    'dojo/_base/array',
+    'dojo/_base/window',
     'dojo/dom-attr',
     'dojo/dom-construct',
-    'dojo/_base/window',
-    'dojo/_base/array',
+    'dojo/json',
     'dojo/query',
+    'store/EntryStore',
+    'store/factory',
     'store/html',
     'dojo/domReady!'
-], function (EntryStore, factory, json, attr, construct, win, array, query, html) {
+], function (array, win, attr, construct, json, query, EntryStore, factory, html) {
     var entryURI = window._entryURI || window.location.href;
     if (entryURI.indexOf("?") !== -1) {
         entryURI = entryURI.substr(0, entryURI.indexOf("?"));
@@ -18,7 +18,7 @@ define([
     var node = construct.create("div", null, win.body(), "first");
     var es = new EntryStore(window._storeURI);
     var onSuccess = function(entry) {
-        construct.create("h1", {"innerHTML": "Entry: "+entryURI}, node)
+        construct.create("h1", {"innerHTML": "Entry: "+entryURI}, node);
         construct.place(html.print(entry), node);
 
         if (entry.isList()) {

@@ -2,11 +2,11 @@
 define([
     'exports',
     'rdfjson/print'
-], function (exports, rdfprint) {
+], function (exports, print) {
 
 
     exports.metadataTable = function(entry) {
-        var delegates = rdfprint.prettyTree(entry.getMetadata(), entry.getResourceURI());
+        var delegates = print.prettyTree(entry.getMetadata(), entry.getResourceURI());
         var arr = [];
         for (var i=0;i<delegates.length;i++) {
             var d = delegates[i], st = d.stmt;
@@ -32,7 +32,7 @@ define([
     };
 
     exports.metadataIndent = function(graph, subject) {
-        var delegates = rdfprint.prettyTree(graph, subject);
+        var delegates = print.prettyTree(graph, subject);
         var arr = [];
         for (var i=0;i<delegates.length;i++) {
             var d = delegates[i], st = d.stmt;

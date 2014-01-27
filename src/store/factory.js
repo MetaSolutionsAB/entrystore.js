@@ -2,16 +2,16 @@
 define([
 	"dojo/json",
 	"dojo/_base/array",
-	"./Context",
-	"./EntryInfo",
-	"./Entry",
-	"./PrototypeEntry",
-	"./List",
-	"./SearchList",
-	"./RDFGraph",
+	"store/Context",
+	"store/EntryInfo",
+	"store/Entry",
+	"store/PrototypeEntry",
+	"store/List",
+	"store/SearchList",
+	"store/RDFGraph",
 	"rdfjson/Graph",
 	"exports"
-], function(json, array, Context, EntryInfo, Entry, PrototypeEntry, List, SearchList, RGraph, Graph, exports) {
+], function(json, array, Context, EntryInfo, Entry, PrototypeEntry, List, SearchList, RDFGraph, Graph, exports) {
 
 	var sortObj = {sortBy: "title", prio: "List"};
 	var defaultLimit = 20;
@@ -51,7 +51,7 @@ define([
 					resource = new List(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 				break;
 				case "graph":
-					resource = new RGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
+					resource = new RDFGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 					break;
 			}
 			entry._resource = resource;
@@ -237,17 +237,17 @@ define([
 					uri = uri+"metadata="+encodeURIComponent(ei.getExternalMetadataURI())+"&";	
 				}
 				if (ei.getEntryType() !== "local") { //local, link, linkreference, reference
-					uri = uri+"locationtype="+ ei.getEntryType()+ "&";   //TODO change in REST layer to entrytype 
+					uri = uri+"entrytype="+ ei.getEntryType()+ "&";   //TODO change in REST layer to entrytype
 				}
 				if (ei.getResourceType() !== "informationresource") { //informationresource, namedresource
 					uri = uri+"representationtype="+ ei.getResourceType()+ "&"; //TODO change in REST layer to resourcetype
 				}
 				if (ei.getGraphType() != "none") {
-					uri = uri+"builtintype="+ ei.getGraphType() + "&"; //TODO change in REST layer to graphtype
+					uri = uri+"graphtype="+ ei.getGraphType() + "&"; //TODO change in REST layer to graphtype
 				}
 			}
 			if (parentListEntry) {
-				uri = uri+"listURI="+parentListEntry.getResourceURI()+"&";			
+				uri = uri+"list="+parentListEntry.getResourceURI()+"&";
 			}
 			return uri.slice(0,-1);
 	};

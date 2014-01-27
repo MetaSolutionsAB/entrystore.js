@@ -1,7 +1,7 @@
 /*global define*/
 define([
-	"./List",
-	"./factory"
+	"store/List",
+	"store/factory"
 ], function(List, factory) {
 	
 	/**

@@ -1,11 +1,9 @@
 /*global define*/
 define([
-    "dojo/promise/Promise",
     "dojo/Deferred",
 	"dojo/json",
-    "rdfjson/Graph",
-	"./factory"
-], function(Promise, Deferred, json, Graph, factory) {
+    "./factory"
+], function(Deferred, json, factory) {
 	
 	/**
      * @param {store.Context} context

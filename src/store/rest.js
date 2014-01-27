@@ -2,12 +2,11 @@
 define([
 	"require",
 	"dojo/_base/lang",
-    "dojo/json",
-	"dojo/Deferred",
+    "dojo/Deferred",
 	"dojo/request",
     "dojox/encoding/base64",
 	"dojo/has"
-], function(require, lang, json, Deferred, request, base64, has) {
+], function(require, lang, Deferred, request, base64, has) {
 
 	var headers = {
 		"Accept": "application/json",

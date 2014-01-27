@@ -3,7 +3,7 @@ define([
 	"dojo/_base/lang",
 	"dojo/Deferred",
     "dojo/json",
-    "./Resource",
+    "store/Resource",
 	"rdfjson/Graph"
 ], function(lang, Deferred, json, Resource, Graph) {
 	

@@ -1,11 +1,10 @@
 /*global define*/
 define([
-	"dojo/_base/array",
-	"dojo/_base/lang",
+    "dojo/_base/lang",
 	"dojo/Deferred",
-    "./Resource",
-	"./factory"
-], function(array, lang, Deferred, Resource, factory) {
+    "store/Resource",
+	"store/factory"
+], function(lang, Deferred, Resource, factory) {
 
     /**
      * @param {String} entryURI in which this List is a resource.
