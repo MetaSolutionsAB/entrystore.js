@@ -5,9 +5,8 @@ define([
 	"dojo/_base/lang",
     "dojo/Deferred",
 	"dojo/request",
-    "dojox/encoding/base64",
 	"dojo/has"
-], function(array, require, lang, Deferred, request, base64, has) {
+], function(array, require, lang, Deferred, request, has) {
 
 	var headers = {
 		"Accept": "application/json",
@@ -37,26 +36,7 @@ define([
         auth: function(authScheme, credentials) {
             delete headers.cookie;
             rest._authScheme = authScheme;
-            if (authScheme === "basic") {
-                if (credentials) {
-                    rest._user = credentials.user;
-                    rest._password = credentials.password;
-                    // Need to set the authorization header explicitly since the use of user and password in xhr.open
-                    // does not seem to work in chrome when the content-type is not multipart-form-data
-                    var tok = credentials.user + ':' + credentials.password;
-                    var tokArr = [];
-                    for (var i = 0; i < tok.length; i++) {
-                        tokArr.push(tok.charCodeAt(i));
-                    }
-                    var hash = base64.encode(tokArr);
-                    headers.Authorization = "Basic " + hash;
-                } else {
-                    delete headers.Authorization;
-                }
-                var d = new Deferred();
-                d.resolve();
-                return d.promise;
-            } else if (authScheme === "cookie") {
+            if (authScheme === "cookie") {
                 if (credentials) {
                     this._cookie_credentials = credentials;
                     var data = {
