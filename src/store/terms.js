@@ -31,7 +31,7 @@ define(["store/types"], function(types) {
 	et[ns+"Link"] = types.ET.LINK;
 	et[ns+"LinkReference"] = types.ET.LINKREF;
 	et[ns+"Reference"] = types.ET.REF;
-	et["default"] = types.ET.default;   //The default option
+	et["default"] = types.ET.DEFAULT;   //The default option
     externals.entryType = et;
     externals.invEntryType = inv(et);
 
@@ -46,7 +46,7 @@ define(["store/types"], function(types) {
 	gt[ns+"ResultList"] = types.GT.RESULTLIST;
 	gt[ns+"Graph"] = types.GT.GRAPH;
 	gt[ns+"String"] = types.GT.STRING;
-	gt["default"] = types.GT.default; //The default option
+	gt["default"] = types.GT.DEFAULT; //The default option
     externals.graphType = gt;
     externals.invGraphType = inv(gt);
 
@@ -56,7 +56,7 @@ define(["store/types"], function(types) {
 	rt[ns+"ResolvableInformationResource"] = types.RT.RESOLVABLE;
 	rt[ns+"NamedResource"] = types.RT.NAMED;
 	rt[ns+"Unknown"] = types.RT.UNKNOWN;
-	rt["default"] = types.RT.default; //The default option
+	rt["default"] = types.RT.DEFAULT; //The default option
     externals.resourceType = rt;
     externals.invResourceType = inv(rt);
 

@@ -5,7 +5,7 @@ define({
         LINK: "link",
         LINKREF: "linkreference",
         REF: "reference",
-        default: "local"   //The default option
+        DEFAULT: "local"   //The default option
     },
     GT: { //GraphType
         NONE: "none",
@@ -18,7 +18,7 @@ define({
         GRAPH: "graph",
         STRING: "string",
         PIPELINE: "pipeline",
-        default: "none"//The default option
+        DEFAULT: "none"//The default option
     },
 
     RT: { //ResourceType
@@ -26,6 +26,6 @@ define({
         RESOLVABLEINFORMATIONRESOURCE: "resolvable",
         NAMEDRESOURCE: "named",
         UNKNOWN: "unknown",
-        default: "information" //The default option
+        DEFAULT: "information" //The default option
     }
 });
