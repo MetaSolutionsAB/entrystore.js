@@ -391,7 +391,7 @@ define(["./rdfjson", "./Statement"], function (rjson, Statement) {
      * @param {Object} o the object in the form of an object containing
      *  the attributes: 'type', 'value', 'lang', and 'datatype'. If undefined a new blank node is created.
      *  If a string is provided it is assumed to be a url, i.e. sending in "the url" is the same as sending in {type: "uri", value: "the url"}.
-     * @param {Boolean} assert indicated if the statement should be added to the graph directly. If not specified true is assumed.
+     * @param {Boolean=} assert indicated if the statement should be added to the graph directly. If not specified true is assumed.
      * @returns {rdfjson.Statement}
      * @see rdfjson.rdfjson#add
      */

@@ -50,5 +50,9 @@ define([
         return factory.getId(this._entryURI);
     };
 
-	return Resource;
+    Resource.prototype._update = function(data) {
+        this._data = data;
+    };
+
+    return Resource;
 });

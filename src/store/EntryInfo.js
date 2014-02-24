@@ -118,10 +118,12 @@ define([
 		var oldResourceURI = this.getResourceURI();
 		this._graph.findAndRemove(this._entryURI, terms.resource);
 		this._graph.create(this._entryURI, terms.resource, {type: "uri", value: uri});
-		var stmts = this._graph.find(oldResourceURI);
-		for (var i=0;i<stmts.length;i++) {
-			stmts[i].setSubject(uri);
-		}
+		if (oldResourceURI) {
+            var stmts = this._graph.find(oldResourceURI);
+            for (var i=0;i<stmts.length;i++) {
+                stmts[i].setSubject(uri);
+            }
+        }
 	};
 
     /**

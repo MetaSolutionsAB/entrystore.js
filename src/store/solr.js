@@ -71,8 +71,8 @@ define([
 	];
     
     var map = {
-    	entryType: "locationType",
-    	graphType: "builtinType",
+    	entryType: "entryType",
+    	graphType: "graphType",
     	resourceType: "representationType",
     	title_lang: "title.lang",
     	metadata_r: "metadata.r",

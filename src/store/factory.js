@@ -1,17 +1,19 @@
 /*global define*/
 define([
-	"dojo/json",
+    'store/StringResource',
+    'store/types',
+    "dojo/json",
 	"dojo/_base/array",
 	"store/Context",
 	"store/EntryInfo",
 	"store/Entry",
-	"store/PrototypeEntry",
-	"store/List",
+    "store/List",
 	"store/SearchList",
 	"store/RDFGraph",
 	"rdfjson/Graph",
+    "store/User",
 	"exports"
-], function(json, array, Context, EntryInfo, Entry, PrototypeEntry, List, SearchList, RDFGraph, Graph, exports) {
+], function(StringResource, types, json, array, Context, EntryInfo, Entry, List, SearchList, RDFGraph, Graph, User, exports) {
 
 	var sortObj = {sortBy: "title", prio: "List"};
 	var defaultLimit = 20;
@@ -36,25 +38,42 @@ define([
 		return o;
 	};
 
-	var _updateOrCreateResource = function(entry, data) {
-		var resource = entry.getResource();
+	var _updateOrCreateResource = function(entry, data, force) {
+		data = data || {};
+        var resource = entry.getResource();
 		if (!resource) {
 			switch(entry.getEntryInfo().getGraphType()) {
-				case "context":
+                case types.GT.CONTEXT: //Synchronous resource, asynchronous methods.
 					resource = getContextForEntry(entry.getResourceURI()+"/", entry.getEntryStore()); //Dummy URL to find the right context.
 				break;
-				case "user":
+                case types.GT.LIST: //Synchronous resource, asynchronous methods.
+                    resource = new List(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
+                    var base = entry.getContext().getOwnResourceURI()+"/entry/";
+                    var children = array.map(data.resource.children, function(child) {
+                        return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
+                    });
+                    resource._update(data.resource, children);
+                    break;
+                case "group":
+                    break;
+                case types.GT.USER: //Asynchronous resource, synchronous getters.
+                    if (force || data.resource != null) {
+                        resource = new User(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
+                    }
 				break;
-				case "group":
-				break;
-				case "list":
-					resource = new List(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
-				break;
-				case "graph":
-					resource = new RDFGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
+                case types.GT.STRING:
+                    if (force || data.resource != null) {
+                        resource = new StringResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || "");
+                    }
+                    break;
+				case types.GT.GRAPH: //Sync or Async?
+					if (force || data.resource != null) {
+                        resource = new RDFGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
+                    }
 					break;
 			}
 			entry._resource = resource;
+            return;
 		}
 
 		if (entry._resource == null || data.resource == null) {
@@ -150,6 +169,7 @@ define([
         cache.cache(entry); //Add to or refresh the cache.
         return entry;
     };
+    exports.updateOrCreateResource = _updateOrCreateResource;
 	exports.update = function(entry, data) {
         entry.getEntryInfo().setGraph(new Graph(data.info));
         _updateOrCreateResource(entry, data);
@@ -158,9 +178,6 @@ define([
     };
 	exports.createSearchList = function(entryStore, query) {
 		return new SearchList(entryStore, query);
-	};
-	exports.createPrototypeEntry = function(context) {
-		return new PrototypeEntry(context);
 	};
 	exports.extractSearchResults = function(data, list, entryStore) {
 		//Update or create all entries recieved.
@@ -183,6 +200,10 @@ define([
 
     exports.getId = function(uri) {
         return uri.substr(uri.lastIndexOf("/")+1);
+    };
+
+    exports.getEntryURI = function(entryStore, contextId, entryId) {
+        return entryStore.getBaseURI()+contextId+"/entry/"+entryId;
     };
 
     exports.getURIFromCreated = function(data, context) {
@@ -234,16 +255,18 @@ define([
 					uri = uri+"resource="+encodeURIComponent(prototypeEntry.getResourceURI())+"&";				
 				}
 				if (prototypeEntry.isReference() || prototypeEntry.isLinkReference()) { //external metadata
-					uri = uri+"metadata="+encodeURIComponent(ei.getExternalMetadataURI())+"&";	
+                    uri = uri+"resource="+encodeURIComponent(prototypeEntry.getResourceURI())+"&";
+                    uri = uri+"cached-external-metadata="+encodeURIComponent(ei.getExternalMetadataURI())+"&";
 				}
 				if (ei.getEntryType() !== "local") { //local, link, linkreference, reference
-					uri = uri+"entrytype="+ ei.getEntryType()+ "&";   //TODO change in REST layer to entrytype
+					uri = uri+"entrytype="+ ei.getEntryType()+ "&";
 				}
-				if (ei.getResourceType() !== "informationresource") { //informationresource, namedresource
-					uri = uri+"representationtype="+ ei.getResourceType()+ "&"; //TODO change in REST layer to resourcetype
+				if (ei.getResourceType() !== "information") { //informationresource, namedresource
+					//TODO Bug in REST layer, should be resourcetype, is now informationresource innstead
+                    uri = uri+"informationresource=false&";
 				}
 				if (ei.getGraphType() != "none") {
-					uri = uri+"graphtype="+ ei.getGraphType() + "&"; //TODO change in REST layer to graphtype
+                    uri = uri+"graphtype="+ ei.getGraphType() + "&";
 				}
 			}
 			if (parentListEntry) {
@@ -308,5 +331,4 @@ define([
 	exports.setDefaultLimit = function(limit) {
 			defaultLimit = limit;
 	};
-	return exports;
 });

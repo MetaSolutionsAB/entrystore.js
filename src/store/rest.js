@@ -1,12 +1,13 @@
 /*global define*/
 define([
-	"require",
+    'dojo/_base/array',
+    "require",
 	"dojo/_base/lang",
     "dojo/Deferred",
 	"dojo/request",
     "dojox/encoding/base64",
 	"dojo/has"
-], function(require, lang, Deferred, request, base64, has) {
+], function(array, require, lang, Deferred, request, base64, has) {
 
 	var headers = {
 		"Accept": "application/json",
@@ -16,9 +17,9 @@ define([
 	var rest = {
 		// Authentication placeholder to be overridden to set login details
 		insertAuthArgs: function(xhrArgs) {
-            if (this._authScheme === "basic") {
-                xhrArgs.user = this._user;
-                xhrArgs.password = this._password;
+            if (rest._authScheme === "basic") {
+                xhrArgs.user = rest._user;
+                xhrArgs.password = rest._password;
             }
             return xhrArgs;
 		},
@@ -27,20 +28,62 @@ define([
 			return url;
 		},
 
+        /**
+         *
+         * @param authScheme
+         * @param credentials
+         * @returns {dojo.promise.Promise}
+         */
         auth: function(authScheme, credentials) {
-            this._authScheme = authScheme;
+            delete headers.cookie;
+            rest._authScheme = authScheme;
             if (authScheme === "basic") {
-                this._user = credentials.user;
-                this._password = credentials.password;
-                // Need to set the authorization header explicitly since the use of user and password in xhr.open
-                // does not seem to work in chrome when the content-type is not multipart-form-data
-                var tok = credentials.user + ':' + credentials.password;
-                var tokArr = [];
-                for (var i = 0; i < tok.length; i++) {
-                    tokArr.push(tok.charCodeAt(i));
+                if (credentials) {
+                    rest._user = credentials.user;
+                    rest._password = credentials.password;
+                    // Need to set the authorization header explicitly since the use of user and password in xhr.open
+                    // does not seem to work in chrome when the content-type is not multipart-form-data
+                    var tok = credentials.user + ':' + credentials.password;
+                    var tokArr = [];
+                    for (var i = 0; i < tok.length; i++) {
+                        tokArr.push(tok.charCodeAt(i));
+                    }
+                    var hash = base64.encode(tokArr);
+                    headers.Authorization = "Basic " + hash;
+                } else {
+                    delete headers.Authorization;
                 }
-                var hash = base64.encode(tokArr);
-                headers.Authorization = "Basic " + hash;
+                var d = new Deferred();
+                d.resolve();
+                return d.promise;
+            } else if (authScheme === "cookie") {
+                if (credentials) {
+                    this._cookie_credentials = credentials;
+                    var data = {
+                        "auth_username": credentials.user,
+                        "auth_password": credentials.password,
+                        "auth_maxage": credentials.maxAge != null ? credentials.maxAge : 604800 //in seconds, 86400 is default and corresponds to a day.
+                    };
+                    if (has("host-browser")) {
+                        return rest.post(credentials.base + "auth/cookie", data);
+                    } else {
+                        var p = rest.post(credentials.base + "auth/cookie", data);
+                        return p.response.then(function(response) {
+                            var cookies = response.getHeader("set-cookie");
+                            array.some(cookies, function(c) {
+                                if (c.substring(0,11) === "auth_token=") {
+                                    headers.cookie = [c];
+                                }
+                            });
+                        });
+                    }
+                } else if (this._cookie_credentials) {
+                    return request.get(this._cookie_credentials.base + "auth/logout", {
+                        preventCache: true,
+                        handleAs: "json",
+                        headers: headers
+                    });
+                }
             }
         },
 
