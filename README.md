@@ -1,10 +1,10 @@
 # EntryStore.js
 
-EntryStore.js is a javascript library that simplifies the communication with the EntryStore REST API.
+EntryStore.js (short: StoreJS) is a JavaScript library that simplifies the communication with the EntryStore REST API.
 
 # Installation
 
-Run lib/INSTALL-dojo.sh to install Dojo.
+Run `lib/INSTALL-dojo.sh` to install Dojo.
 
 # Development
 
@@ -29,7 +29,7 @@ The following commands where given to include it in the first place (just to rem
 
 # Build
 
-Run `build/build.sh`.
+Run `cd build && ./build.sh`.
 
 The resulting build is located in `release` and the relevant files are:
 
@@ -37,11 +37,14 @@ The resulting build is located in `release` and the relevant files are:
 * `release/dojo/dojo.js.uncompressed.js` (readable, with logging)
 * `release/dojo/dojo.js.consoleStripped.js` (readable, without logging)
 
-# Unit testing
+# Testing
+
+The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store. The base URL of the instance is configured in `tests/config.js`.
 
 The tests are written according to the style of [Nodeunit](https://github.com/caolan/nodeunit).
 
 ## Running unit tests in node
+
 Make sure you have nodeunit installed:
 
     > cd tests/node
