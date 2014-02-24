@@ -1,13 +1,12 @@
-# EntryStore.js or StoreJS in short
+# EntryStore.js
 
-StoreJS is a javascript library that simplifies the communication with the EntryStore REST API.
+EntryStore.js is a javascript library that simplifies the communication with the EntryStore REST API.
 
-# INSTALL
+# Installation
 
-Run the trunk/lib/INSTALL-dojo.sh to install dojo.
+Run lib/INSTALL-dojo.sh to install Dojo.
 
-
-# DEVELOPMENT
+# Development
 
 We try to follow the development guide outlined here:
 https://github.com/maqetta/maqetta/wiki/Development-Guide
@@ -17,7 +16,7 @@ Except that at this time we do not rely on es5 or a shim, hence we use dojos lan
 The directory `src/rdfjson` originate from the rforms project and are added into the project via
 the [git subtree merge strategy](https://www.kernel.org/pub/software/scm/git/docs/howto/using-merge-subtree.html).
 Hence, never change any files in that directories directly. Instead make the changes
-in the [RForms repository](https://bitbucket.org/metasolutions/rforms) and integrate the changes by making a:
+in the [RDForms repository](https://bitbucket.org/metasolutions/rdforms) and integrate the changes by making a:
 
     > git pull -s subtree rdfjson master
 
@@ -28,16 +27,17 @@ The following commands where given to include it in the first place (just to rem
     > git read-tree --prefix=src/rdfjson/ -u rdfjson/master:src/rdfjson
     > git commit -m "Subtree merge of src/rdfjson from RForms repository."
 
-# BUILD
+# Build
 
-Run the trunk/build/build.sh
-The resulting build are located in trunk/release and the relevant files are:
+Run `build/build.sh`.
 
-* trunk/release/dojo/dojo.js				  	(Minified, without logging)
-* trunk/release/dojo/dojo.js.uncompressed.js	(Readable, with logging)
-* trunk/release/dojo/dojo.js.consoleStripped.js	(Readable, without logging)
+The resulting build is located in `release` and the relevant files are:
 
-# Unit testing of StoreJS
+* `release/dojo/dojo.js` (minified, without logging)
+* `release/dojo/dojo.js.uncompressed.js` (readable, with logging)
+* `release/dojo/dojo.js.consoleStripped.js` (readable, without logging)
+
+# Unit testing
 
 The tests are written according to the style of [Nodeunit](https://github.com/caolan/nodeunit).
 
@@ -52,6 +52,7 @@ Then to run the test do the following:
     > node init.js
 
 ## Running unit tests in a browser
+
 Point your browser to the `tests/html/index.html` file. It works both via the file and http protocolls.
 Note though that the http requires that you configure a webserver to serve StoreJS.
 
@@ -59,6 +60,7 @@ The nodeunit js and css file is retrieved by compiling the nodeunit framework.
 The current files where generated from the master branch at the 27:th of January 2014.
 
 ## Developing new tests
+
 It is recommended to create a new AMD module for each group of tests. Include it in the `tests/config.js` file
 to make it part of the testsuite.
 
