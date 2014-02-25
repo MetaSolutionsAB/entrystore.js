@@ -15,6 +15,7 @@ define([
         setUp: function(callback) {
             if (!ready) {
                 es.auth("cookie", {user: "Donald", password: "donalddonald"}).then(function() {
+                    ready = true;
                     callback();
                 });
             } else {
