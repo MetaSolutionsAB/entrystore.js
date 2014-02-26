@@ -33,6 +33,15 @@ define([
                 });
             });
         },
+        createEntry: function(test) {
+            c.newEntry().create().then(function(entry) {
+                test.ok(entry.getId() != null, "Entry created but without id!");
+                test.done();
+            }, function() {
+                test.ok(false, "Failed creating entry in context 1.");
+                test.done();
+            });
+        },
         createWithMetadata: function(test) {
             var pe = c.newEntry();
             var uri = pe.getResourceURI();

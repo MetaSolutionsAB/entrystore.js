@@ -3,6 +3,7 @@ define(['store/rest',
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
+    var authAdminReady;
 
 	return nodeunit.testCase({ inGroups: true,
         withoutLogin: {
@@ -69,54 +70,46 @@ define(['store/rest',
                     test.ok(false, "Could not de-authenticate user Donald.");
                     test.done();
                 });
-            },
-            createEntry: function(test) {
-                es.auth("cookie", {user: "Donald", password: "donalddonald"}).then(function() {
-                    var c = es.getContextById("1");
-                    c.newEntry().create().then(function(entry) {
-                        test.ok(entry.getId() != null, "Entry created but without id!");
-                        test.done();
-                    }, function() {
-                        test.ok(false, "Failed creating entry in context 1.");
-                        test.done();
-                    });
-                });
             }
         },
         withAdminLogin: {
-            createContext: function(test) {
-                es.auth("cookie", {user: "admin", password: "adminadmin"}).then(function() {
-                    es.newContext().create().then(function(entry) {
-                        test.ok(entry.isContext(), "Entry created, but it is not a context");
-                        test.done();
-                    }, function() {
-                        test.ok(false, "Failed creating context.");
-                        test.done();
+            setUp: function(callback) {
+                if (!authAdminReady) {
+                    es.auth("cookie", {user: "admin", password: "adminadmin"}).then(function() {
+                        authAdminReady = true;
+                        callback();
                     });
+                } else {
+                    callback();
+                }
+            },
+            createContext: function(test) {
+                es.newContext().create().then(function(entry) {
+                    test.ok(entry.isContext(), "Entry created, but it is not a context");
+                    test.done();
+                }, function() {
+                    test.ok(false, "Failed creating context.");
+                    test.done();
                 });
             },
             createUser: function(test) {
-                es.auth("cookie", {user: "admin", password: "adminadmin"}).then(function() {
-                    var username = ""+new Date().getTime();
-                    es.newUser(username).create().then(function(entry) {
-                        test.ok(entry.isUser(), "Entry created, but it is not a user!");
-                        test.ok(entry.getResource().getName() === username, "User created, but username provided in creation step is missing.")
-                        test.done();
-                    }, function() {
-                        test.ok(false, "Failed creating user.");
-                        test.done();
-                    });
+                var username = ""+new Date().getTime();
+                es.newUser(username).create().then(function(entry) {
+                    test.ok(entry.isUser(), "Entry created, but it is not a user!");
+                    test.ok(entry.getResource().getName() === username, "User created, but username provided in creation step is missing.")
+                    test.done();
+                }, function() {
+                    test.ok(false, "Failed creating user.");
+                    test.done();
                 });
             },
             createGroup: function(test) {
-                es.auth("cookie", {user: "admin", password: "adminadmin"}).then(function() {
-                    es.newGroup().create().then(function(entry) {
-                        test.ok(entry.isGroup(), "Entry created, but it is not a group!");
-                        test.done();
-                    }, function() {
-                        test.ok(false, "Failed creating group.");
-                        test.done();
-                    });
+                es.newGroup().create().then(function(entry) {
+                    test.ok(entry.isGroup(), "Entry created, but it is not a group!");
+                    test.done();
+                }, function() {
+                    test.ok(false, "Failed creating group.");
+                    test.done();
                 });
             }
         }
