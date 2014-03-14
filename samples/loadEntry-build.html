@@ -1,0 +1,14 @@
+<html><body>
+  <script src="../release/entrystore.js"></script>
+  <script type="text/javascript">
+      require(['store/EntryStore'], function(EntryStore) {
+          var es = new EntryStore();
+          var entryURI = es.getEntryURI("1", "_top");
+          es.getEntry(entryURI).then(function(entry) {
+              alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "http://purl.org/dc/terms/title"));
+          }, function(err) {
+              alert("Failure to load entry: "+err);
+          });
+      });
+  </script>
+</body></html>
