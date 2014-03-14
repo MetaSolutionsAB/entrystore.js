@@ -20,7 +20,7 @@ in the [RDForms repository](https://bitbucket.org/metasolutions/rdforms) and int
 
     > git pull -s subtree rdfjson master
 
-The following commands where given to include it in the first place (just to remember):
+The following commands were given to include it in the first place (just to remember):
 
     > git remote add -f rdfjson git@bitbucket.org:metasolutions/rforms.git
     > git merge -s ours --no-commit rdfjson/master
@@ -46,7 +46,7 @@ The latest build of EntryStore.js is always available from:
 
 Lets do three examples for getting an idea of how to use the API.
 
-## Loading en entry - complete example walk through
+## Loading an entry - complete walk through
 We start by walking through a complete example for loading an existing entry from an EntryStore repository. First we need to load the
 Entrystore.js library, i.e.:
 
@@ -81,7 +81,7 @@ Fifth, we need to load the entry and wait for the result using the Promise appro
     es.getEntry(entryURI).then(function(entry) {
     });
 
-Finally we want to do something with the loaded entry. In this case we fetch the metadata object of the entry and find
+Finally we want to do something with the loaded entry. In this example we just fetch the metadata object of the entry and find
 the first value with the dcterms:title property:
 
     alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "http://purl.org/dc/terms/title"));
@@ -104,7 +104,7 @@ All taken together and packaged into a minimal HTML file the example looks like 
       </script>
     </body></html>
 
-There is also version that works directly with the non-built code, see trunk/samples/loadEntry.html
+See trunk/samples/loadEntry-build.html, but there is also a version that works directly with the non-built code, see trunk/samples/loadEntry.html
 
 ## Creating an entry
 To create an entry we need to first authenticate and get a hold of the specific context we want to create the entry in:
@@ -160,7 +160,7 @@ Point your browser to the `tests/html/index.html` file. It works both via the fi
 Note though that the http requires that you configure a webserver to serve StoreJS.
 
 The nodeunit js and css file is retrieved by compiling the nodeunit framework.
-The current files where generated from the master branch at the 27:th of January 2014.
+The current files were generated from the master branch at the 27:th of January 2014.
 
 ## Developing new tests
 
