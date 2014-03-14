@@ -48,7 +48,7 @@ define(['store/rest',
         },
         withRegularLogin: {
             cookieSignIn: function(test) {
-                es.auth("cookie", {user: "Donald", password: "donalddonald"}).then(function() {
+                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                     return rest.get(config.repository+"auth/user").then(function(data) {
                         test.ok(data.user === "Donald");
                         test.done();
@@ -59,7 +59,7 @@ define(['store/rest',
                 });
             },
             cookieSignOut: function(test) {
-                es.auth("cookie", {user: "Donald", password: "donalddonald"}).then(function() {
+                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                     es.logout("cookie").then(function() {
                         return rest.get(config.repository+"auth/user").then(function(data) {
                             test.ok(data.user === "guest", "Failed sign out from account Donald.");
@@ -75,7 +75,7 @@ define(['store/rest',
         withAdminLogin: {
             setUp: function(callback) {
                 if (!authAdminReady) {
-                    es.auth("cookie", {user: "admin", password: "adminadmin"}).then(function() {
+                    es.auth({user: "admin", password: "adminadmin"}).then(function() {
                         authAdminReady = true;
                         callback();
                     });

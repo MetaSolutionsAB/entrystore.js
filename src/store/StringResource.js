@@ -19,6 +19,9 @@ define([
     F.prototype = Resource.prototype;
     Str.prototype = new F();
 
+    /**
+     * @returns {String} never null.
+     */
     Str.prototype.getString = function() {
         return this._data;
     };

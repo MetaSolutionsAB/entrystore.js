@@ -49,10 +49,12 @@ define([
                 case types.GT.LIST: //Synchronous resource, asynchronous methods.
                     resource = new List(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
                     var base = entry.getContext().getOwnResourceURI()+"/entry/";
-                    var children = array.map(data.resource.children, function(child) {
-                        return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
-                    });
-                    resource._update(data.resource, children);
+                    if (data.resource && data.resource.children) {
+                        var children = array.map(data.resource.children, function(child) {
+                            return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
+                        });
+                        resource._update(data.resource, children);
+                    }
                     break;
                 case "group":
                     break;
@@ -83,10 +85,12 @@ define([
 		if (resource._update) {
 			if (entry.isList()) {
 				var base = entry.getContext().getOwnResourceURI()+"/entry/";
-				var children = array.map(data.resource.children, function(child) {
-					return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
-				});
-				resource._update(data.resource, children);
+                if (data.resource && data.resource.children) {
+                    var children = array.map(data.resource.children, function(child) {
+                        return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
+                    });
+                    resource._update(data.resource, children);
+                }
 			} else {
 				resource._update(data.resource);
 			}
@@ -97,7 +101,7 @@ define([
 			entry._metadata = data.metadata ? new Graph(data.metadata) : null;
 			entry._cachedExternalMetadata = data["cached-external-metadata"] ? new Graph(data["cached-external-metadata"]) : null;
 			entry._extractedMetadata = data["extracted-metadata"] ? new Graph(data["extracted-metadata"]) : null;
-			entry._relation = data.relations ? new Graph(data.relations): null;
+			entry._relation = data.relations ? new Graph(data.relations): new Graph();
 			entry._rights = transformRights(data.rights);
 			entry._alias = data.alias; //Move to entryinfo?
 			entry._name = data.name; //Move to entryinfo?

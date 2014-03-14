@@ -29,41 +29,37 @@ define([
 
         /**
          *
-         * @param authScheme
          * @param credentials
          * @returns {dojo.promise.Promise}
          */
-        auth: function(authScheme, credentials) {
+        auth: function(credentials) {
             delete headers.cookie;
-            rest._authScheme = authScheme;
-            if (authScheme === "cookie") {
-                if (credentials) {
-                    this._cookie_credentials = credentials;
-                    var data = {
-                        "auth_username": credentials.user,
-                        "auth_password": credentials.password,
-                        "auth_maxage": credentials.maxAge != null ? credentials.maxAge : 604800 //in seconds, 86400 is default and corresponds to a day.
-                    };
-                    if (has("host-browser")) {
-                        return rest.post(credentials.base + "auth/cookie", data);
-                    } else {
-                        var p = rest.post(credentials.base + "auth/cookie", data);
-                        return p.response.then(function(response) {
-                            var cookies = response.getHeader("set-cookie");
-                            array.some(cookies, function(c) {
-                                if (c.substring(0,11) === "auth_token=") {
-                                    headers.cookie = [c];
-                                }
-                            });
+            if (credentials) {
+                this._cookie_credentials = credentials;
+                var data = {
+                    "auth_username": credentials.user,
+                    "auth_password": credentials.password,
+                    "auth_maxage": credentials.maxAge != null ? credentials.maxAge : 604800 //in seconds, 86400 is default and corresponds to a day.
+                };
+                if (has("host-browser")) {
+                    return rest.post(credentials.base + "auth/cookie", data);
+                } else {
+                    var p = rest.post(credentials.base + "auth/cookie", data);
+                    return p.response.then(function(response) {
+                        var cookies = response.getHeader("set-cookie");
+                        array.some(cookies, function(c) {
+                            if (c.substring(0,11) === "auth_token=") {
+                                headers.cookie = [c];
+                            }
                         });
-                    }
-                } else if (this._cookie_credentials) {
-                    return request.get(this._cookie_credentials.base + "auth/logout", {
-                        preventCache: true,
-                        handleAs: "json",
-                        headers: headers
                     });
                 }
+            } else if (this._cookie_credentials) {
+                return request.get(this._cookie_credentials.base + "auth/logout", {
+                    preventCache: true,
+                    handleAs: "json",
+                    headers: headers
+                });
             }
         },
 
@@ -81,7 +77,7 @@ define([
                     if (response.status === 200) {
                         return response.data;
                     } else {
-                        d.cancel("Entry could not be loaded: "+response.text);
+                        throw "Resource could not be loaded: "+response.text;
                     }
             });
             return d;
@@ -107,7 +103,7 @@ define([
 				var location = response.getHeader('Location');
 				d.resolve(location);
 			},function(err) {
-				d.reject("Failed creating. "+err);
+				throw "Failed creating. "+err;
 			});
 			return d.promise;
 		},

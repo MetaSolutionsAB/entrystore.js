@@ -12,19 +12,15 @@ define([
 
     /**
      * @param {String=} baseURI is an optional URL to the current EntryStore
-     * @param {String=} authScheme is optional, see the auth method.
      * @param {String=} credentials is optional, see the auth method.
      * @class
      */
-    var EntryStore = function (baseURI, authScheme, credentials) {
+    var EntryStore = function (baseURI, credentials) {
         /**
          * @type {String}
          */
         if (has("host-browser") && baseURI == null) {
-            var href = window.location.href, host = window.location.host;
-            var idx = href.indexOf(host)+host.length;
-            var path = href.substr(idx).match(/^\/([^\/]*)\/.*/)[1];
-            this._baseURI = href.substr(0,idx+1)+path+"/";
+            this._baseURI = window.location.origin+"/store/";
         } else {
             this._baseURI = baseURI;
             if (this._baseURI[this._baseURI.length-1] !== "/") {
@@ -33,29 +29,38 @@ define([
         }
 
         this._cache = new Cache();
-        if (authScheme) {
-            this.auth(authScheme, credentials);
+        if (credentials) {
+            this.auth(credentials);
         }
         this._contexts = {};
         this._rest = rest;
     };
 
+    EntryStore.prototype.getUserInfo = function() {
+        return this._rest.get(this._baseURI + "auth/user");
+    };
+
+    EntryStore.prototype.getUserEntry = function() {
+        return this._rest.get(this._baseURI + "auth/user").then(lang.hitch(this, function(data) {
+            return this.getEntry(this.getEntryURI("_principals", data.id));
+        }));
+    };
+
     /**
      * Authenticate using
-     * @param {String} authScheme currently only support for "basic" and "cookie".
      * @param {Object} credentials containing a user, password and potentially a maxAge for cookie lifecycle
      */
-    EntryStore.prototype.auth = function (authScheme, credentials) {
+    EntryStore.prototype.auth = function (credentials) {
         if (credentials) {
             credentials.base = this.getBaseURI();
         }
-        var promise = this._rest.auth(authScheme, credentials);
+        var promise = this._rest.auth(credentials);
         this.invalidateCache();
         return promise;
     };
 
-    EntryStore.prototype.logout = function (authscheme) {
-        return this.auth(authscheme);
+    EntryStore.prototype.logout = function () {
+        return this.auth();
     };
 
     /**
@@ -75,7 +80,7 @@ define([
                 //The entry, will always be there.
                 return factory.updateOrCreate(entryURI, data, self);
             }, function (err) {
-                return "Failed fetching entry. " + err;
+                throw "Failed fetching entry. " + err;
             });
         }
     };

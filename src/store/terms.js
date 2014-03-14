@@ -60,5 +60,10 @@ define(["store/types"], function(types) {
     externals.resourceType = rt;
     externals.invResourceType = inv(rt);
 
+    externals.acl = {
+        read: ns + "read",
+        write: ns + "write"
+    };
+
 	return externals;
 });

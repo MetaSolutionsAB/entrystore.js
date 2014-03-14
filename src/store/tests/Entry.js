@@ -7,14 +7,13 @@ define([
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
-    var en;
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.auth("cookie", {user: "Donald", password: "donalddonald"}).then(function() {
+                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                     ready = true;
                     callback();
                 });
@@ -153,8 +152,11 @@ define([
                         entry.refresh().then(function() {
                             test.ok(!res.getGraph().isEmpty(), "Failed to update graph of graph entry");
                             test.ok(res.getGraph().find(null, dct+"subject").length === 0, "Statement added after save operation remains, strange.");
-                        })
-                        test.done();
+                            test.done();
+                        }, function(err) {
+                            test.ok(false, "Failed refreshing: "+err);
+                            test.done();
+                        });
                     }, function(err) {
                         test.ok(false, "Failed to update resource of entry graph. "+err);
                         test.done();
@@ -179,7 +181,32 @@ define([
                 test.done();
             });
         },
-
+        updateStringEntry: function(test) {
+            var str = "a string";
+            c.newString().create().then(function(entry) {
+                entry.loadResource().then(function(res) {
+                    test.ok(res.getString() === "", "Empty string instead of null");
+                    res.setString(str).then(function() {
+                        test.ok(res.getString() === str, "String is not set correctly");
+                        res.setString("");
+                        entry.setRefreshNeeded();
+                        entry.refresh().then(function() {
+                            test.ok(res.getString() === "", "Reload from repository gave wrong string");
+                            test.done();
+                        }, function(err) {
+                            test.ok(false, "Failed refreshing: "+err);
+                            test.done();
+                        });
+                    }, function(err) {
+                        test.ok(false, "Failed to update resource of string entry. "+err);
+                        test.done();
+                    });
+                });
+            }, function() {
+                test.ok(false, "Failed to create a string entry in Context 1.");
+                test.done();
+            });
+        },
 
         createWithCachedExternalMetadata: function(test) {
             var uri = "http://example.com/";
@@ -193,6 +220,7 @@ define([
                 test.done();
             });
         },
+
 
         updateCachedExternalMetadata: function(test) {
             var uri = "http://example.com/";

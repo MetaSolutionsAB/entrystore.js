@@ -241,10 +241,28 @@ define([
         }
         return d.promise;
     };
-	
-	Entry.prototype.getReferrers = function() {
-		//TODO
+
+	Entry.prototype.getReferrersGraph = function() {
+        return this._relation;
 	};
+
+    Entry.prototype.getReferrers = function(prop) {
+        return array.map(this._relation.find(null, prop, null), function(stmt) {
+            return stmt.getSubject();
+        });
+    };
+
+    Entry.prototype.getParentLists = function() {
+        return this.getReferrers("http://entrystore.org/terms/hasListMember");
+    };
+    Entry.prototype.getParentGroups = function() {
+        return this.getReferrers("http://entrystore.org/terms/hasGroupMember");
+    };
+
+    Entry.prototype.getComments = function() {
+        return this.getReferrers("http://ontologi.es/like#regarding");
+    };
+
 
     /**
      * GraphType list

@@ -7,9 +7,11 @@ define([
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
-    var en;
     var ready;
     var dct = "http://purl.org/dc/terms/";
+    var now = new Date();
+    var yesterday = (new Date()).setDate(now.getDate() - 1);
+    var tomorrow = (new Date()).setDate(now.getDate() + 1);
 
     return nodeunit.testCase({
         setUp: function(callback) {
@@ -22,220 +24,93 @@ define([
                 callback();
             }
         },
-        refresh: function(test) {
+        dates: function(test) {
             c.newEntry().create().then(function(entry) {
-                var graph = entry.getMetadata(true);
-                graph.create(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title"});
-                test.ok(!graph.isEmpty(), "Could not change the metadata graph.");
-                entry.refresh(true, true).then(function() {
-                    test.ok(entry.getMetadata(true).isEmpty(), "Could not refresh, unsaved changes in metadata graph remains.");
-                    test.done();
-                });
-            });
-        },
-        createEntry: function(test) {
-            c.newEntry().create().then(function(entry) {
-                test.ok(entry.getId() != null, "Entry created but without id!");
-                test.done();
-            }, function() {
-                test.ok(false, "Failed creating entry in context 1.");
-                test.done();
-            });
-        },
-        createWithMetadata: function(test) {
-            var pe = c.newEntry();
-            var uri = pe.getResourceURI();
-            var graph = new Graph();
-            graph.create(uri, dct+"title", {value: "Some title", type: "literal"});
-            pe.setMetadata(graph);
-            pe.create().then(function(entry) {
-                var md = entry.getMetadata();
-                test.ok(md.findFirstValue(entry.getResourceURI(), dct+"title") === "Some title", "Failed to create an entry with a title.");
-                test.done();
-            }, function() {
-                test.ok(false, "Could not create an Entry in Context 1.");
-                test.done();
-            });
-        },
-        updateMetadata: function(test) {
-            var pe = c.newEntry().create().then(function(entry) {
-                entry.getMetadata(true).create(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title2"});
-                entry.setMetadata().then(function() {
-                    entry.getMetadata().findAndRemove();
-                    test.ok(entry.getMetadata().findFirstValue(entry.getResourceURI(), dct+"title") == null, "Could not clear the RDF graph.");
-                    entry.refresh(true, true).then(function() {
-                        test.ok(entry.getMetadata().findFirstValue(entry.getResourceURI(), dct+"title") === "Some title2",
-                            "Failed to create and update the metadata with a new title.");
+                var ei = entry.getEntryInfo();
+                var cr = ei.getCreationDate();
+                test.ok(cr > yesterday && cr < tomorrow, "Creation date seems to be incorrect.");
+                var mo = ei.getModificationDate();
+                test.ok(mo > yesterday && mo < tomorrow, "Modification date seems to be incorrect");
+                test.ok(mo >= cr, "Modification date should be same as creation date after first creation.");
+                entry.setMetadata(new Graph({"http://example.com": {"http://purl.org/dc/terms/title": [{value: "A title", type: "literal"}]}}))
+                    .then(function() {
+                        test.ok(ei.getModificationDate() > mo, "Modification date not changed after metadata was updated.");
                         test.done();
                     });
-                }, function() {
-                    test.ok(false, "Could not save metadata for new entry!");
+            });
+        },
+        creator: function(test) {
+            es.getUserEntry().then(function(user) {
+                c.newEntry().create().then(function(entry) {
+                    var ei = entry.getEntryInfo();
+                    test.ok(ei.getCreator() === user.getResourceURI(), "Creator does not match current user.");
                     test.done();
                 });
             });
         },
-        linkEntry: function(test) {
-            var uri = "http://example.com/";
-            c.newLink(uri).create().then(function(entry) {
-                test.ok(entry.isLink(), "Failed to create a link.");
-                test.ok(uri == entry.getResourceURI(), "Failed to set resourceURI during creation step.");
-                test.done();
-            }, function() {
-                test.ok(false, "Failed to create link in Context 1.");
-                test.done();
+        contributors: function(test) {
+            es.getUserEntry().then(function(user) {
+                c.newEntry().create().then(function(entry) {
+                    var contr = entry.getEntryInfo().getContributors();
+                    test.ok(contr.length ===  1 && contr[0] === user.getResourceURI(), "No contributors.");
+                    test.done();
+                });
             });
         },
-        linkRefEntry: function(test) {
-            var uri = "http://example.com/";
-            c.newLinkRef(uri, uri).create().then(function(entry) {
-                test.ok(entry.isLinkReference(), "Failed to create a link-reference.");
-                test.ok(uri == entry.getResourceURI(), "Failed to set resourceURI during creation step.");
-                test.ok(uri == entry.getEntryInfo().getExternalMetadataURI(), "Failed to set external metadatat URI during creation step.");
-                test.done();
-            }, function() {
-                test.ok(false, "Failed to create linkreference in Context 1.");
-                test.done();
-            });
-        },
-
-        refEntry: function(test) {
-            var uri = "http://example.com/";
-            c.newRef(uri, uri).create().then(function(entry) {
-                test.ok(entry.isReference(), "Failed to create a reference.");
-                test.ok(uri == entry.getResourceURI(), "Failed to set resourceURI during creation step.");
-                test.ok(uri == entry.getEntryInfo().getExternalMetadataURI(), "Failed to set external metadatat URI during creation step.");
-                test.done();
-            }, function() {
-                test.ok(false, "Failed to create a reference in Context 1.");
-                test.done();
-            });
-        },
-        listEntry: function(test) {
-            c.newList().create().then(function(entry) {
-                test.ok(entry.isList(), "Entry created, but it is not a list as expected.");
-                test.done();
-            }, function() {
-                test.ok(false, "Failed to create a list in Context 1.");
-                test.done();
-            });
-        },
-        graphEntry: function(test) {
-            var g = new Graph();
-            g.create("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
-            c.newGraph(g).create().then(function(entry) {
-                test.ok(entry.isGraph(), "Entry created, but it is not a graph as expected.");
-                entry.loadResource().then(function(res) {
-                    test.ok(res.getGraph().find().length === 1, "The created graph Entry does save the provided graph upon creation");
-                    var g2 = new Graph();
-                    res.setGraph(g2).then(function() {
-                        test.ok(res.getGraph().isEmpty(), "Failed to update ")
-                    })
-                    g2.create("http://example.com/", dct+"title", {type: "literal", value:"Some title2"});
-
+        acl: function(test) {
+            c.newEntry().create().then(function(entry) {
+                var ei = entry.getEntryInfo();
+                test.ok(!ei.hasACL(), "ACL present on created entry when no ACL was provided.");
+                var acl = {admin: [es.getEntryURI("_principals", "admin")]};
+                ei.setACL(acl);
+                test.ok(ei.hasACL(), "No ACL present although it was just set.");
+                ei.save().then(function() {
+                    var acl = ei.getACL();
+                    test.ok(acl.admin.length === 1, "ACL failed to save.");
+                    test.ok(acl.rread.length === 0, "Local modifications of ACL after save operation remains.");
                     test.done();
                 }, function(err) {
-                    test.ok(false, "Failed to load resource graph for graph entry.");
+                    test.ok(false, "Failed updating ACL. "+err);
                     test.done();
                 });
-            }, function() {
-                test.ok(false, "Failed to create a graph in Context 1.");
+                acl.rread = [es.getEntryURI("_principals", "admin")];
+                ei.setACL(acl); //Make a local modification.
+            });
+        },
+        createWithACL: function(test) {
+            var acl = {admin: [es.getEntryURI("_principals", "admin")]};
+            c.newEntry().setACL(acl).create().then(function(entry) {
+                test.ok(entry.getEntryInfo().hasACL(), "No ACL present although it was provided on create.");
                 test.done();
             });
         },
-        updateGraphEntry: function(test) {
-            c.newGraph().create().then(function(entry) {
-                entry.loadResource().then(function(res) {
-                    var g = new Graph();
-                    g.create("http://example.com/", dct+"title", {type: "literal", value:"Some title"});
-                    res.setGraph(g).then(function() {
-                        test.ok(res.getGraph().find(null, dct+"subject").length === 1, "Statement added after save missing, should be there until refresh.");
-                        entry.setRefreshNeeded();
-                        entry.refresh().then(function() {
-                            test.ok(!res.getGraph().isEmpty(), "Failed to update graph of graph entry");
-                            test.ok(res.getGraph().find(null, dct+"subject").length === 0, "Statement added after save operation remains, strange.");
-                            test.done();
-                        }, function(err) {
-                            test.ok(false, "Failed refreshing: "+err);
-                            test.done();
-                        });
-                    }, function(err) {
-                        test.ok(false, "Failed to update resource of entry graph. "+err);
-                        test.done();
-                    });
-                    g.create("http://example.com/", dct+"subject", {type: "literal", value:"not good if it remains in graph after update"});
-
-                });
-            }, function() {
-                test.ok(false, "Failed to create a graph in Context 1.");
-                test.done();
-            });
-        },
-        stringEntry: function(test) {
-            c.newString("one").create().then(function(entry) {
-                test.ok(entry.isString(), "Entry created, but it is not a string as expected.");
-                entry.loadResource().then(function(res) {
-                    test.ok(res.getString() === "one", "The created string entry does not have the string provided upon creation.");
+        changeResourceURI: function(test) {
+            var uri = "http://example.com";
+            var uri2 = uri + "/about";
+            c.newLink(uri).create().then(function(entry) {
+                var ei = entry.getEntryInfo();
+                ei.setResourceURI(uri2);
+                test.ok(uri2 === ei.getResourceURI(), "Failed to set new URI");
+                ei.save().then(function() {
+                    test.ok(ei.getResourceURI() === uri2, "Failed to save new URI, local change remains.");
                     test.done();
                 });
-            }, function() {
-                test.ok(false, "Failed to create a string entry in Context 1.");
-                test.done();
+                ei.setResourceURI(uri); //Resetting old uri, local change that should be reset after save.
             });
         },
-        updateStringEntry: function(test) {
-            var str = "a string";
-            c.newString().create().then(function(entry) {
-                entry.loadResource().then(function(res) {
-                    test.ok(res.getString() === "", "Empty string instead of null");
-                    res.setString(str).then(function() {
-                        test.ok(res.getString() === str, "String is not set correctly");
-                        res.setString("");
-                        entry.setRefreshNeeded();
-                        entry.refresh().then(function() {
-                            test.ok(res.getString() === "", "Reload from repository gave wrong string");
-                            test.done();
-                        }, function(err) {
-                            test.ok(false, "Failed refreshing: "+err);
-                            test.done();
-                        });
-                    }, function(err) {
-                        test.ok(false, "Failed to update resource of string entry. "+err);
-                        test.done();
-                    });
-                });
-            }, function() {
-                test.ok(false, "Failed to create a string entry in Context 1.");
-                test.done();
-            });
-        },
-
-        createWithCachedExternalMetadata: function(test) {
-            var uri = "http://example.com/";
-            var graph = new Graph();
-            graph.create(uri, dct+"title", {value: "Some title", type: "literal"});
-            c.newLinkRef(uri, uri).setCachedExternalMetadata(graph).create().then(function(entry) {
-                test.ok(!entry.getCachedExternalMetadata().isEmpty(), "Failed to set cached external metadata in creation step.");
-                test.done();
-            }, function() {
-                test.ok(false, "Failed to create Entry with cached external metadata in Context 1.");
-                test.done();
-            });
-        },
-
-
-        updateCachedExternalMetadata: function(test) {
-            var uri = "http://example.com/";
-            c.newRef(uri, uri).create().then(function(entry) {
-                var cemd = entry.getCachedExternalMetadata();
-                test.ok(cemd.isEmpty(), "New Link entry has non-empty cached external metadata, strange.");
-                cemd.create(entry.getResourceURI(), dct+"title", {value: "A title", type: "literal"});
-                return entry.setCachedExternalMetadata().then(function() {
-                    test.ok(!cemd.isEmpty(), "Failed to save cached external metadata.");
-                    test.done();
-                }, function() {
-                    test.ok(false, "Something went wrong updating cachedExternalMetadata.");
+        changeExternalMetadataURI: function(test) {
+            var res = "http://slashdot.org";
+            var mduri = "http://example.com";
+            var mduri2 = mduri + "/about";
+            c.newRef(res, mduri).create().then(function(entry) {
+                var ei = entry.getEntryInfo();
+                ei.setExternalMetadataURI(mduri2);
+                test.ok(ei.getExternalMetadataURI() === mduri2, "Failed to set new external metadata URI");
+                ei.save().then(function() {
+                    test.ok(ei.getExternalMetadataURI() === mduri2, "Failed to save new URI, local change remains.");
                     test.done();
                 });
+                ei.setExternalMetadataURI(mduri); //Resetting old uri, local change that should be reset after save.
             });
         }
     });
