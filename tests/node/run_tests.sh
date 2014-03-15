@@ -6,3 +6,5 @@ if [ -x "$NODE_PATH" ] ; then
 else
   nodejs init.js
 fi
+
+exit $?
