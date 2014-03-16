@@ -2,9 +2,10 @@
 define([
     "dojo/_base/lang",
 	"dojo/Deferred",
+    "dojo/json",
     "store/Resource",
 	"store/factory"
-], function(lang, Deferred, Resource, factory) {
+], function(lang, Deferred, json, Resource, factory) {
 
     /**
      * @param {String} entryURI in which this List is a resource.
@@ -49,31 +50,47 @@ define([
 	};
 
     List.prototype.addEntry = function(entry) {
-        return this.getAllUnorderedEntries().then(lang.hitch(this, function(entries) {
+        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.push(entry.getId());
-            return this.setAllUnorderedEntries(entries);
+            return this.setAllEntryIds(entries).then(function() {
+                entry.setRefreshNeeded();
+            });
         }));
     };
 
-    List.prototype.getAllUnorderedEntries = function() {
+    List.prototype.removeEntry = function(entry) {
+        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+            entries.splice(entries.indexOf(entry.getId()));
+            return this.setAllEntryIds(entries).then(function() {
+                entry.setRefreshNeeded();
+            });
+        }));
+    };
+
+    List.prototype.needRefresh = function() {
+        delete this._unsortedChildren;
+        this._sortedChildren = [];
+        delete this._size;
+    };
+
+    List.prototype.getAllEntryIds = function() {
         var d = new Deferred();
         if (this._unsortedChildren != null) {
-            def.resolve(this._unsortedChildren);
+            d.resolve(this._unsortedChildren);
         } else {
             this.getEntries().then(function() {
-                def.resolve(this._unsortedChildren);
+                d.resolve(this._unsortedChildren);
             });
         }
         return d.promise;
     };
 
-    List.prototype.setAllUnorderedEntries = function(entries) {
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify(entries))
+    List.prototype.setAllEntryIds = function(entries) {
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify({resource: entries}))
             .then(lang.hitch(this, function() {
-                this._sortedChildren = [];
+                this.needRefresh();
                 return this._entryStore.getEntry(this.getOwnEntryURI()).then(function(oentry) {
                     oentry.setRefreshNeeded();
-                    return oentry.refresh();
                 });
             }));
     };

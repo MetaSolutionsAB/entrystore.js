@@ -118,6 +118,13 @@ define([
         return this._rest.post(postURI, postParams).then(
             lang.hitch(this, function(data) {
                 var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
+                var plist = prototypeEntry.getParentList();
+                if (plist != null) {
+                    var res = plist.getResource();
+                    if (res != null && res.needRefresh) {
+                        plist.getResource().needRefresh();
+                    }
+                }
                 return this.getEntry(euri);
             })
         );

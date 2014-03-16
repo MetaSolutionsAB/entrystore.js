@@ -1,12 +1,13 @@
 /*global define*/
 define([
+    'dojo/_base/array',
     'dojo/_base/lang',
     "rdfjson/Graph",
     "store/types",
     "dojo/Deferred",
 	"dojo/json",
     "./factory"
-], function(lang, Graph, types, Deferred, json, factory) {
+], function(array, lang, Graph, types, Deferred, json, factory) {
 	
 	/**
      * @param {store.Context} context

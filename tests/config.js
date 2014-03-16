@@ -3,7 +3,8 @@ define({
         "EntryStore",
         "Entry",
         "EntryInfo",
-        "Cache"
+        "Cache",
+        "List"
     ],
     repository: "http://localhost:8080/store/",
     reporter: "default"
