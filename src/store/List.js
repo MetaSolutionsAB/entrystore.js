@@ -17,7 +17,6 @@ define([
         Resource.apply(this, arguments); //Call the super constructor.
 		this._cache = entryStore.getCache();
 		this._sortedChildren = [];
-//		this._unsortedChildren;
 	};
 
     //Inheritance trick
@@ -48,6 +47,36 @@ define([
 		}
 		return def.promise;
 	};
+
+    List.prototype.addEntry = function(entry) {
+        return this.getAllUnorderedEntries().then(lang.hitch(this, function(entries) {
+            entries.push(entry.getId());
+            return this.setAllUnorderedEntries(entries);
+        }));
+    };
+
+    List.prototype.getAllUnorderedEntries = function() {
+        var d = new Deferred();
+        if (this._unsortedChildren != null) {
+            def.resolve(this._unsortedChildren);
+        } else {
+            this.getEntries().then(function() {
+                def.resolve(this._unsortedChildren);
+            });
+        }
+        return d.promise;
+    };
+
+    List.prototype.setAllUnorderedEntries = function(entries) {
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify(entries))
+            .then(lang.hitch(this, function() {
+                this._sortedChildren = [];
+                return this._entryStore.getEntry(this.getOwnEntryURI()).then(function(oentry) {
+                    oentry.setRefreshNeeded();
+                    return oentry.refresh();
+                });
+            }));
+    };
 
     List.prototype.getSize = function() {
         return this._size;
@@ -102,7 +131,13 @@ define([
 			this._sortedChildren[offset+i] = children[i].getURI();
 		}
 		this._size = data.size;
-//		this._unsortedChildren = data.allUnsorted;
+		this._unsortedChildren = data.allUnsorted;
 	};
-	return List;
+
+    List.prototype.save = function(graph) {
+        this._graph = graph || this._graph;
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify(graph.exportRDFJSON()));
+    };
+
+    return List;
 });
