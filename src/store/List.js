@@ -1,11 +1,11 @@
 /*global define*/
 define([
-	"dojo/_base/array",
-	"dojo/_base/lang",
+    "dojo/_base/lang",
 	"dojo/Deferred",
-    "./Resource",
-	"./factory"
-], function(array, lang, Deferred, Resource, factory) {
+    "dojo/json",
+    "store/Resource",
+	"store/factory"
+], function(lang, Deferred, json, Resource, factory) {
 
     /**
      * @param {String} entryURI in which this List is a resource.
@@ -18,7 +18,6 @@ define([
         Resource.apply(this, arguments); //Call the super constructor.
 		this._cache = entryStore.getCache();
 		this._sortedChildren = [];
-//		this._unsortedChildren;
 	};
 
     //Inheritance trick
@@ -50,6 +49,52 @@ define([
 		return def.promise;
 	};
 
+    List.prototype.addEntry = function(entry) {
+        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+            entries.push(entry.getId());
+            return this.setAllEntryIds(entries).then(function() {
+                entry.setRefreshNeeded();
+            });
+        }));
+    };
+
+    List.prototype.removeEntry = function(entry) {
+        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+            entries.splice(entries.indexOf(entry.getId()));
+            return this.setAllEntryIds(entries).then(function() {
+                entry.setRefreshNeeded();
+            });
+        }));
+    };
+
+    List.prototype.needRefresh = function() {
+        delete this._unsortedChildren;
+        this._sortedChildren = [];
+        delete this._size;
+    };
+
+    List.prototype.getAllEntryIds = function() {
+        var d = new Deferred();
+        if (this._unsortedChildren != null) {
+            d.resolve(this._unsortedChildren);
+        } else {
+            this.getEntries().then(function() {
+                d.resolve(this._unsortedChildren);
+            });
+        }
+        return d.promise;
+    };
+
+    List.prototype.setAllEntryIds = function(entries) {
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify({resource: entries}))
+            .then(lang.hitch(this, function() {
+                this.needRefresh();
+                return this._entryStore.getEntry(this.getOwnEntryURI()).then(function(oentry) {
+                    oentry.setRefreshNeeded();
+                });
+            }));
+    };
+
     List.prototype.getSize = function() {
         return this._size;
     };
@@ -70,7 +115,7 @@ define([
 			entryURI = this._sortedChildren[i];
 			if (entryURI) {
 				var e = this._cache.get(entryURI);
-				if (careAboutFresh === false || this._cache.needRefresh(e)) {
+				if (careAboutFresh === false || !this._cache.needRefresh(e)) {
 					results.push(e);
 				} else {
 					needRefresh = true;
@@ -103,7 +148,13 @@ define([
 			this._sortedChildren[offset+i] = children[i].getURI();
 		}
 		this._size = data.size;
-//		this._unsortedChildren = data.allUnsorted;
+		this._unsortedChildren = data.allUnsorted;
 	};
-	return List;
+
+    List.prototype.save = function(graph) {
+        this._graph = graph || this._graph;
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify(graph.exportRDFJSON()));
+    };
+
+    return List;
 });

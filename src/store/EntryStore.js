@@ -1,42 +1,66 @@
 /*global define*/
 define([
     "dojo/_base/lang",
-    "dojo/_base/array",
-    "dojo/promise/Promise",
-    "./Cache",
-    "./rest",
-    "./factory"
-], function (lang, array, Promise, Cache, rest, factory) {
+    "store/Cache",
+    "store/rest",
+    "store/factory",
+    "store/types",
+    "store/PrototypeEntry",
+    'store/User',
+    "dojo/has"
+], function (lang, Cache, rest, factory, types, PrototypeEntry, User, has) {
 
     /**
      * @param {String=} baseURI is an optional URL to the current EntryStore
-     * @param {String=} authScheme is optional, see the auth method.
      * @param {String=} credentials is optional, see the auth method.
      * @class
      */
-    var EntryStore = function (baseURI, authScheme, credentials) {
+    var EntryStore = function (baseURI, credentials) {
         /**
          * @type {String}
          */
-        this._baseURI = baseURI; //TODO fix fallback if not provided
-        if (this._baseURI[this._baseURI.length-1] !== "/") {
-            this._baseURI = this._baseURI+"/";
+        if (has("host-browser") && baseURI == null) {
+            this._baseURI = window.location.origin+"/store/";
+        } else {
+            this._baseURI = baseURI;
+            if (this._baseURI[this._baseURI.length-1] !== "/") {
+                this._baseURI = this._baseURI+"/";
+            }
         }
+
         this._cache = new Cache();
-        if (authScheme) {
-            this.auth(authScheme, credentials);
+        if (credentials) {
+            this.auth(credentials);
         }
         this._contexts = {};
         this._rest = rest;
     };
 
-    EntryStore.prototype.auth = function (authScheme, credentials) {
-        this._rest.auth(authScheme, credentials);
-        this._cache.invalidateCache();
+    EntryStore.prototype.getUserInfo = function() {
+        return this._rest.get(this._baseURI + "auth/user");
+    };
+
+    EntryStore.prototype.getUserEntry = function() {
+        return this._rest.get(this._baseURI + "auth/user").then(lang.hitch(this, function(data) {
+            return this.getEntry(this.getEntryURI("_principals", data.id));
+        }));
+    };
+
+    /**
+     * Authenticate using
+     * @param {Object} credentials containing a user, password and potentially a maxAge for cookie lifecycle
+     */
+    EntryStore.prototype.auth = function (credentials) {
+        if (credentials) {
+            credentials.base = this.getBaseURI();
+        }
+        var promise = this._rest.auth(credentials);
+        this.invalidateCache();
+        return promise;
     };
 
     EntryStore.prototype.logout = function () {
-        this.auth();
+        return this.auth();
     };
 
     /**
@@ -56,7 +80,7 @@ define([
                 //The entry, will always be there.
                 return factory.updateOrCreate(entryURI, data, self);
             }, function (err) {
-                return "Failed fetching entry. " + err;
+                throw "Failed fetching entry. " + err;
             });
         }
     };
@@ -65,17 +89,10 @@ define([
      * Retrieves a Context instance, the entry for the context is not loaded by default, you can call Context.getOwnEntry() to achieve that.
      *
      * @param {String} contextEntryURI is the URI to the contexts entry, e.g. base/_contexts/entry/1.
-     * @return {dojo.promise.Promise} that on success yields a Context instance. If you prefer to get the entry for the context use the getEntry method instead.
+     * @return {store.Context}
      */
     EntryStore.prototype.getContext = function (contextEntryURI) {
-        var d = this.getEntry(contextEntryURI).then(function (entry) {
-            if (entry.isContext()) {
-                return entry.getResource();
-            } else {
-                d.reject("Specified URI does not correspond to a context (an entry with a context resource).");
-            }
-        });
-        return d;
+        return factory.getContext(this, contextEntryURI);
     };
 
     /**
@@ -92,36 +109,62 @@ define([
         return factory.getList(this, this._baseURI + "_principals/entry/_all");
     };
 
-
     /**
      * @param {store.PrototypeEntry} prototypeEntry a fake entry that acts as a prototype, i.e. containing characteristics of the to be created entry. Must be provided, includes which context the entry should be created in.
-     * @param {store.Entry} parentListEntry an entry corresponding to a list to which the entry should be added as a child.
      */
-    EntryStore.prototype.createEntry = function (prototypeEntry, parentListEntry) {
-        var postURI = factory.getEntryCreateURI(prototypeEntry, parentListEntry);
+    EntryStore.prototype.createEntry = function (prototypeEntry) {
+        var postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
         var postParams = factory.getEntryCreatePostData(prototypeEntry);
         return this._rest.post(postURI, postParams).then(
-            lang.hitch(this, EntryStore.prototype.getEntry),
-            function (err) {
-                return "Failed creating entry. " + err;
-            }
+            lang.hitch(this, function(data) {
+                var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
+                var plist = prototypeEntry.getParentList();
+                if (plist != null) {
+                    var res = plist.getResource();
+                    if (res != null && res.needRefresh) {
+                        plist.getResource().needRefresh();
+                    }
+                }
+                return this.getEntry(euri);
+            })
         );
     };
 
     /**
      * @returns {store.PrototypeEntry}
      */
-    EntryStore.prototype.createPrototypeEntryForContext = function () {
+    EntryStore.prototype.newContext = function (id) {
         var _contexts = factory.getContext(this, this._baseURI + "_contexts/entry/_contexts");
-        return factory.createPrototypeEntry(_contexts).setGraphType("Context");
+        return new PrototypeEntry(_contexts, id).setGraphType(types.GT.CONTEXT);
     };
 
     /**
      * @returns {store.PrototypeEntry}
      */
-    EntryStore.prototype.createPrototypeEntryForPrincipal = function () {
+    EntryStore.prototype.newUser = function (username, password, homeContext, id) {
         var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
-        return factory.createPrototypeEntry(_principals).setGraphType("Context");
+        var pe = new PrototypeEntry(_principals, id).setGraphType(types.GT.USER);
+        var ei = pe.getEntryInfo();
+        var user = new User(ei.getEntryURI(), ei.getResourceURI(), this, {});
+        pe.entry._resource = user;
+        if (username != null) {
+            user.setName(username);
+        }
+        if (password != null) {
+            user.setPassword(password);
+        }
+        if (homeContext != null) {
+            user.setHomeContext(homeContext);
+        }
+        return pe;
+    };
+
+    /**
+     * @returns {store.PrototypeEntry}
+     */
+    EntryStore.prototype.newGroup = function (id) {
+        var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
+        return new PrototypeEntry(_principals, id).setGraphType(types.GT.GROUP);
     };
 
     /**
@@ -150,7 +193,7 @@ define([
      * @see store.Cache#allNeedRefresh
      */
     EntryStore.prototype.invalidateCache = function () {
-        this._cache.invalidateCache();
+        this._cache.allNeedRefresh();
     };
 
     EntryStore.prototype.version = function () {
@@ -176,6 +219,17 @@ define([
     };
 
     //==============Non-public methods==============
+
+    /**
+     * @returns {String}
+     */
+    EntryStore.prototype.getEntryURI = function (contextId, entryId) {
+        return factory.getEntryURI(this, contextId, entryId);
+    };
+
+    EntryStore.prototype.getContextById = function (id) {
+        return factory.getContext(this, this._baseURI + "_contexts/entry/"+id);
+    };
 
     /**
      * @returns {String}

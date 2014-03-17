@@ -1,5 +1,5 @@
 /*global define*/
-define([], function() {
+define(["store/types"], function(types) {
 
     var inv = function(obj) {
         var iobj = {};
@@ -12,8 +12,9 @@ define([], function() {
     };
 
     //Namespaces
-    var ns = "http://scam.sf.net/schema#";
+    var ns = "http://entrystore.org/terms/";
     var rdfns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
 
     var externals = {
         resource: ns + "resource",
@@ -26,38 +27,43 @@ define([], function() {
 
     //EntryType
 	var et = {};
-	et[ns+"Local"] = "local";
-	et[ns+"Link"] = "link";
-	et[ns+"LinkReference"] = "linkreference";
-	et[ns+"Reference"] = "reference";
-	et["default"] = "local";   //The default option
+	et[ns+"Local"] = types.ET.LOCAL;
+	et[ns+"Link"] = types.ET.LINK;
+	et[ns+"LinkReference"] = types.ET.LINKREF;
+	et[ns+"Reference"] = types.ET.REF;
+	et["default"] = types.ET.DEFAULT;   //The default option
     externals.entryType = et;
     externals.invEntryType = inv(et);
 
     //GraphType
     var gt = {};
-	gt[ns+"None"] = "none";
-	gt[ns+"Context"] = "context";
-	gt[ns+"SystemContext"] = "systemcontext";
-	gt[ns+"User"] = "user";
-	gt[ns+"Group"] = "group";
-	gt[ns+"List"] = "list";
-	gt[ns+"ResultList"] = "resultlist";
-	gt["http://www.w3.org/2004/03/trix/rdfg-1/Graph"] = "graph";
-	gt[ns+"String"] = "string";
-	gt["default"] = "none"; //The default option
+	gt[ns+"None"] = types.GT.NONE;
+	gt[ns+"Context"] = types.GT.CONTEXT;
+	gt[ns+"SystemContext"] = types.GT.SYSTEMCONTEXT;
+	gt[ns+"User"] = types.GT.USER;
+	gt[ns+"Group"] = types.GT.GROUP;
+	gt[ns+"List"] = types.GT.LIST;
+	gt[ns+"ResultList"] = types.GT.RESULTLIST;
+	gt[ns+"Graph"] = types.GT.GRAPH;
+	gt[ns+"String"] = types.GT.STRING;
+	gt["default"] = types.GT.DEFAULT; //The default option
     externals.graphType = gt;
     externals.invGraphType = inv(gt);
 
     //ResourceType
 	var rt = {};
-	rt[ns+"InformationResource"] = "information";
-	rt[ns+"ResolvableInformationResource"] = "resolvable";
-	rt[ns+"NamedResource"] = "named";
-	rt[ns+"Unknown"] = "unknown";
-	rt["default"] = "information"; //The default option
+	rt[ns+"InformationResource"] = types.RT.INFORMATION;
+	rt[ns+"ResolvableInformationResource"] = types.RT.RESOLVABLE;
+	rt[ns+"NamedResource"] = types.RT.NAMED;
+	rt[ns+"Unknown"] = types.RT.UNKNOWN;
+	rt["default"] = types.RT.DEFAULT; //The default option
     externals.resourceType = rt;
     externals.invResourceType = inv(rt);
+
+    externals.acl = {
+        read: ns + "read",
+        write: ns + "write"
+    };
 
 	return externals;
 });

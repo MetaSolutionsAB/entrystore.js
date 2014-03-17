@@ -1,8 +1,7 @@
 /*global define*/
 define([
-	"dojo/Deferred",
-    "./factory"
-], function(Deferred, factory) {
+    "store/factory"
+], function(factory) {
 
     /**
      * @param {String} entryURI in which this context is a resource.
@@ -51,5 +50,9 @@ define([
         return factory.getId(this._entryURI);
     };
 
-	return Resource;
+    Resource.prototype._update = function(data) {
+        this._data = data;
+    };
+
+    return Resource;
 });

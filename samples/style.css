@@ -1,0 +1,35 @@
+/*------ RDFJSON html module Pretty printing ------*/
+.entry h3, .entry h4 {
+    margin: 0;
+    border-bottom: 1px solid grey;
+}
+.entry h3 {
+    padding: 0.2em;
+    background: lightyellow;
+}
+.entry h4 {
+    padding: 0.2em 0em;
+}
+.entry {
+    background: lightgrey;
+    border: 1px solid grey;
+    padding: 0;
+    margin: 2em 0.5em 0.3em 0.5em;
+}
+.entry>div {
+    padding: 0.5em;
+}
+.rdf_statement>span {
+    margin-left: 1em;
+}
+.entryInfo .info>label {
+    font-weight: normal;
+}
+.entryInfo .info {
+    font-weight: bold;
+    margin-right: 1em;
+    background: lightyellow;
+    border-radius: 6px;
+    padding: 2 7;
+    border: 1px solid grey;
+}

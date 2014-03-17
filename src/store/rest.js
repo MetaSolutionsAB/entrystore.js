@@ -1,12 +1,12 @@
 /*global define*/
 define([
-	"require",
+    'dojo/_base/array',
+    "require",
 	"dojo/_base/lang",
-    "dojo/json",
-	"dojo/Deferred",
+    "dojo/Deferred",
 	"dojo/request",
 	"dojo/has"
-], function(require, lang, json, Deferred, request, has) {
+], function(array, require, lang, Deferred, request, has) {
 
 	var headers = {
 		"Accept": "application/json",
@@ -16,7 +16,11 @@ define([
 	var rest = {
 		// Authentication placeholder to be overridden to set login details
 		insertAuthArgs: function(xhrArgs) {
-			return xhrArgs;
+            if (rest._authScheme === "basic") {
+                xhrArgs.user = rest._user;
+                xhrArgs.password = rest._password;
+            }
+            return xhrArgs;
 		},
 		// Authentication placeholder to be overridden to set login details
 		insertAuthParams: function(url) {
@@ -24,15 +28,59 @@ define([
 		},
 
         /**
+         *
+         * @param credentials
+         * @returns {dojo.promise.Promise}
+         */
+        auth: function(credentials) {
+            delete headers.cookie;
+            if (credentials) {
+                this._cookie_credentials = credentials;
+                var data = {
+                    "auth_username": credentials.user,
+                    "auth_password": credentials.password,
+                    "auth_maxage": credentials.maxAge != null ? credentials.maxAge : 604800 //in seconds, 86400 is default and corresponds to a day.
+                };
+                if (has("host-browser")) {
+                    return rest.post(credentials.base + "auth/cookie", data);
+                } else {
+                    var p = rest.post(credentials.base + "auth/cookie", data);
+                    return p.response.then(function(response) {
+                        var cookies = response.getHeader("set-cookie");
+                        array.some(cookies, function(c) {
+                            if (c.substring(0,11) === "auth_token=") {
+                                headers.cookie = [c];
+                            }
+                        });
+                    });
+                }
+            } else if (this._cookie_credentials) {
+                return request.get(this._cookie_credentials.base + "auth/logout", {
+                    preventCache: true,
+                    handleAs: "json",
+                    headers: headers
+                });
+            }
+        },
+
+        /**
          * @param uri
          * @returns {dojo.promise.Promise}
          */
 		get: function(uri) {
-			return request.get(uri, rest.insertAuthArgs({
+			var d = request.get(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
 				headers: headers
-			}));
+			})).response.then(function(response) {
+                    var status = response.getHeader('status');
+                    if (response.status === 200) {
+                        return response.data;
+                    } else {
+                        throw "Resource could not be loaded: "+response.text;
+                    }
+            });
+            return d;
 		},
 		
 		/**
@@ -55,14 +103,14 @@ define([
 				var location = response.getHeader('Location');
 				d.resolve(location);
 			},function(err) {
-				d.reject("Failed creating. "+err);
+				throw "Failed creating. "+err;
 			});
 			return d.promise;
 		},
 
 		/**
 		 * @param {String} uri the address to put to.
-		 * @param {Object} data the data to put.
+		 * @param {String} data the data to put.
 		 * @param {Date} modDate a date to use for the HTTP if-unmodified-since header.
 		 * @return a promise on which you can call .then on.
 		 */
@@ -74,7 +122,7 @@ define([
 			return request.put(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
-				data: json.stringify(data),
+				data: data,
 				headers: loc_headers
 			}));
 		},

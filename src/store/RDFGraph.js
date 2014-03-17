@@ -1,40 +1,45 @@
 /*global define*/
 define([
-	"dojo/_base/lang",
-	"dojo/Deferred",
-    "./Resource",
+    "dojo/json",
+    "store/Resource",
 	"rdfjson/Graph"
-], function(lang, Deferred, Resource, Graph) {
+], function(json, Resource, Graph) {
 	
 	/**
      * @param {store.EntryStore} entryStore
      * @param {String} entryURI
 	 * @param {String} resourceURI
+     * @param {rdfjson.Graph | Object} data is a RDF graph of some sort
 	 * @constructor
      * @extends store.Resource
 	 */
-	var RDFGraph = function(entryURI, resourceURI, entryStore) {
+	var RDFGraph = function(entryURI, resourceURI, entryStore, data) {
         Resource.apply(this, arguments); //Call the super constructor.
+        this._graph = data instanceof Graph? data : new Graph(data);
 	};
 
+    //Inheritance trick
+    var F = function() {};
+    F.prototype = Resource.prototype;
+    RDFGraph.prototype = new F();
+
     RDFGraph.prototype.getGraph = function() {
-		if (this._graph) {
-			var d = new Deferred();
-			d.resolve(this._graph);
-			return d.promise;
-		} else {
-			return this._entryStore.getREST().get(this._resourceURI).then(lang.hitch(this, function(data) {
-				this._graph = new Graph(data);
-				return this._graph;
-			}));
-		}
+		return this._graph;
 	};
 	
 	//TODO fix ifModifiedSince.
 	RDFGraph.prototype.setGraph = function(graph) {
-		this._graph = graph;
-		return this._entryStore.getREST().put(this._resourceURI, graph.exportRDFJSON());
+		this._graph = graph || this._graph;
+		return this._entryStore.getREST().put(this._resourceURI, json.stringify(graph.exportRDFJSON()));
 	};
+
+    RDFGraph.prototype.getSource = function() {
+        return this._graph.exportRDFJSON();
+    };
+
+    RDFGraph.prototype._update = function(data) {
+        this._graph = new Graph(data);
+    };
 
 	return RDFGraph;
 });

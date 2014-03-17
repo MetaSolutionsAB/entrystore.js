@@ -3,11 +3,11 @@ define([
 	"dojo/_base/array",
 	"dojo/Deferred",
 	"dojo/json",
-	"./rest",
-	"./terms",
-	"./factory",
-	"rdfjson/Graph"
-], function(array, Deferred, json, rest, terms, factory, Graph) {
+    "store/terms",
+	"store/factory",
+	"rdfjson/Graph",
+    "dojo/date/stamp"
+], function(array, Deferred, json, terms, factory, Graph, stamp) {
 	
 	/**
 	 * @param {String} entryURI must be provided unless the graph contains a statement with the store:resource property which allows us to infer the entryURI.
@@ -48,8 +48,9 @@ define([
      */
 	EntryInfo.prototype.save = function() {
 		var d = new Deferred(), self = this;
-		this._entry.getEntryStore.getREST().put(this.getEntryURI(), json.stringify(this._info.exportRDFJSON())).then(function() {
-			self._entry.needRefresh(true);
+		//TODO, remove the info: part of the sent graph.
+        this._entry.getEntryStore().getREST().put(this.getEntryURI(), json.stringify({info: this._graph.exportRDFJSON()})).then(function() {
+			self._entry.setRefreshNeeded(true);
 			self._entry.refresh().then(function() {
 				d.resolve(self);
 			}, function() {
@@ -119,10 +120,12 @@ define([
 		var oldResourceURI = this.getResourceURI();
 		this._graph.findAndRemove(this._entryURI, terms.resource);
 		this._graph.create(this._entryURI, terms.resource, {type: "uri", value: uri});
-		var stmts = this._graph.find(oldResourceURI);
-		for (var i=0;i<stmts.length;i++) {
-			stmts[i].setSubject(uri);
-		}
+		if (oldResourceURI) {
+            var stmts = this._graph.find(oldResourceURI);
+            for (var i=0;i<stmts.length;i++) {
+                stmts[i].setSubject(uri);
+            }
+        }
 	};
 
     /**
@@ -134,25 +137,26 @@ define([
 		return terms.entryType[et || "default"];
 	};
 
-	EntryInfo.prototype.getResourceType = function() {
-		return this._getResourceType(terms.resourceType);
+    var getResourceType = function(entry, vocab) {
+        var stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
+        for (var i=0;i<stmts.length;i++) {
+            var t = vocab[stmts[i].getValue()];
+            if (t != null) {
+                return t;
+            }
+        }
+        return vocab["default"];
+    };
+
+    EntryInfo.prototype.getResourceType = function() {
+		return getResourceType(this, terms.resourceType);
 	};
 
 	EntryInfo.prototype.getGraphType = function() {
-		return this._getResourceType(terms.graphType);
+		return getResourceType(this, terms.graphType);
 	};
 
-	EntryInfo.prototype._getResourceType = function(vocab) {
-		var stmts = this._graph.find(this.getResourceURI(), terms.rdf.type);
-		for (var i=0;i<stmts.length;i++) {
-			var t = vocab[stmts[i].getValue()];
-			if (t != null) {
-				return t;
-			}
-		}
-		return vocab["default"];
-	};
-	
+
 	//TODO: change to entryURI instead of resourceURI for principalURIs.
 	/**
 	 * The acl object returned looks like:
@@ -174,15 +178,22 @@ define([
 	EntryInfo.prototype.getACL = function() {
 		var f = function(stmt) { return stmt.getValue();};  //Statement > object value.
 		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-		return {
-			admin:	array.map(this._graph.find(this._entryURI, terms.write), f),
-			rread:	array.map(this._graph.find(ru, terms.read), f),
-			rwrite:	array.map(this._graph.find(ru, terms.write), f),
-			mread:	array.map(this._graph.find(mu, terms.read), f),
-			mwrite:	array.map(this._graph.find(mu, terms.write), f)
+		var acl = {
+			admin:	array.map(this._graph.find(this._entryURI, terms.acl.write), f),
+			rread:	array.map(this._graph.find(ru, terms.acl.read), f),
+			rwrite:	array.map(this._graph.find(ru, terms.acl.write), f),
+			mread:	array.map(this._graph.find(mu, terms.acl.read), f),
+			mwrite:	array.map(this._graph.find(mu, terms.acl.write), f)
 		};
+        acl.contextOverride = acl.admin.length !== 0 || acl.rread.length !== 0 || acl.rwrite.length !== 0
+            || acl.mread.length !== 0 || acl.mwrite.length !== 0;
+        return acl;
 	};
-	
+
+    EntryInfo.prototype.hasACL = function() {
+        return this.getACL().contextOverride;
+    };
+
 	/**
 	 * Replaces the current acl with the provided acl. The acl object is the same as you get from the getACL call.
 	 * The only difference is that the acl object from this method is allowed to be empty 
@@ -191,20 +202,56 @@ define([
 	 * @param acl {Object} same kind of object you get from getACL.
 	 */
 	EntryInfo.prototype.setACL = function(acl) {
+        var g = this._graph;
 		var f = function(subj, pred, principals) {
-			this._graph.findAndRemove(subj, pred);
+			g.findAndRemove(subj, pred);
 			array.forEach(principals || [], function(principal) {
-				this._graph.create(subj, pred, {type: "uri", value: principal});
+				g.create(subj, pred, {type: "uri", value: principal});
 			}, this);
 		};
 		acl = acl || {};
 		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-		f(this._entryURI, terms.write, acl.admin);
-		f(ru, terms.read, acl.rread);
-		f(ru, terms.write, acl.rread);
-		f(mu, terms.read, acl.mread);
-		f(mu, terms.write, acl.mread);
+		f(this._entryURI, terms.acl.write, acl.admin);
+		f(ru, terms.acl.read, acl.rread);
+		f(ru, terms.acl.write, acl.rread);
+		f(mu, terms.acl.read, acl.mread);
+		f(mu, terms.acl.write, acl.mread);
 	};
-	
-	return EntryInfo;
+
+    /**
+     * @returns {Date} the date when the entry was created.
+     */
+    EntryInfo.prototype.getCreationDate = function() {
+        var d = this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/created");
+        return stamp.fromISOString(d); //Must always exist.
+    };
+
+    /**
+     * @returns {Date} the date of last modification (according to the repository, local changes are not reflected).
+     */
+    EntryInfo.prototype.getModificationDate = function() {
+        var d = this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/modified");
+        if (d != null) {
+            return stamp.fromISOString(d);
+        } else {
+            return this.getCreationDate();
+        }
+    };
+
+    /**
+     * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
+     */
+    EntryInfo.prototype.getCreator = function() {
+        return this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/creator");
+    };
+
+    /**
+     * @returns {Array} an array of URIs to the contributors using their Entrys resource URIs,
+     * e.g. ["http://somerepo/store/_principals/resource/4"], never null although the array might be empty.
+     */
+    EntryInfo.prototype.getContributors = function() {
+        return array.map(this._graph.find(this.getEntryURI(), "http://purl.org/dc/terms/contributor"), function(statement) {return statement.getValue();});
+    };
+
+    return EntryInfo;
 });

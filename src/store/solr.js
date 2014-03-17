@@ -2,8 +2,8 @@
 define([
     'dojo/_base/lang',
 	'dojo/_base/array',
-	'./Entry',
-	'./Context'
+	'store/Entry',
+	'store/Context'
 ], function(lang, array, Entry, Context) {
 	
 	var c = function() {
@@ -71,8 +71,8 @@ define([
 	];
     
     var map = {
-    	entryType: "locationType",
-    	graphType: "builtinType",
+    	entryType: "entryType",
+    	graphType: "graphType",
     	resourceType: "representationType",
     	title_lang: "title.lang",
     	metadata_r: "metadata.r",
