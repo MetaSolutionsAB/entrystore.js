@@ -86,7 +86,7 @@ define([
     };
 
     List.prototype.setAllEntryIds = function(entries) {
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify({resource: entries}))
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify(entries))
             .then(lang.hitch(this, function() {
                 this.needRefresh();
                 return this._entryStore.getEntry(this.getOwnEntryURI()).then(function(oentry) {

@@ -48,8 +48,7 @@ define([
      */
 	EntryInfo.prototype.save = function() {
 		var d = new Deferred(), self = this;
-		//TODO, remove the info: part of the sent graph.
-        this._entry.getEntryStore().getREST().put(this.getEntryURI(), json.stringify({info: this._graph.exportRDFJSON()})).then(function() {
+        this._entry.getEntryStore().getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON())).then(function() {
 			self._entry.setRefreshNeeded(true);
 			self._entry.refresh().then(function() {
 				d.resolve(self);
