@@ -1,5 +1,6 @@
 var profile = (function(){
 	return {
+        releaseDir: '../release',
         action: 'release',
         platform: 'browser',
         mini: true,
@@ -33,7 +34,7 @@ var profile = (function(){
 
 	    layers: {
             "dojo/dojo": {
-                include: ["store/EntryStore", "rdfjson/Graph", "dojo/_base/window", "dojo/request/iframe", "dojo/request/xhr"],
+                include: ["store/EntryStore", "store/solr", "rdfjson/Graph", "dojo/_base/window", "dojo/request/iframe", "dojo/request/xhr", "dojo/domReady", "dojo/promise/all"],
                 customBase: true,
                 boot: true
             }
