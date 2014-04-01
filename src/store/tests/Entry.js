@@ -188,14 +188,16 @@ define([
                     test.ok(res.getString() === "", "Empty string instead of null");
                     res.setString(str).then(function() {
                         test.ok(res.getString() === str, "String is not set correctly");
-                        res.setString("");
-                        entry.setRefreshNeeded();
-                        entry.refresh().then(function() {
-                            test.ok(res.getString() === "", "Reload from repository gave wrong string");
-                            test.done();
-                        }, function(err) {
-                            test.ok(false, "Failed refreshing: "+err);
-                            test.done();
+                        res.setString("").then(function() {
+                            entry.setRefreshNeeded();
+                            entry.refresh().then(function() {
+                                console.log("String is: "+res.getString());
+                                test.ok(res.getString() === "", "Reload from repository gave wrong string");
+                                test.done();
+                            }, function(err) {
+                                test.ok(false, "Failed refreshing: "+err);
+                                test.done();
+                            });
                         });
                     }, function(err) {
                         test.ok(false, "Failed to update resource of string entry. "+err);
@@ -207,7 +209,6 @@ define([
                 test.done();
             });
         },
-
         createWithCachedExternalMetadata: function(test) {
             var uri = "http://example.com/";
             var graph = new Graph();

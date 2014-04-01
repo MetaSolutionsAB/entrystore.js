@@ -6,6 +6,6 @@ define({
         "Cache",
         "List"
     ],
-    repository: "http://localhost:8080/store/",
+    repository: "http://localhost:8180/store/",
     reporter: "default"
 });
