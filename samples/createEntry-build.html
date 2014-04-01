@@ -3,7 +3,7 @@
    <script type="text/javascript">
        require(['store/EntryStore'], function(EntryStore) {
            var es = new EntryStore();
-           es.auth({user: "donald", password: "donalddonald"}).then(function() {
+           es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                var c = es.getContextById("1");
                c.newEntry().create().then(function(entry) {
                    alert("Created an entry!");
