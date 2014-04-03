@@ -20,8 +20,10 @@
           'tests/config',
           'dojo/domReady!'             //Wait until the dom is ready.
       ], function(config) {
-          //Override the default repository location with what can be detected, (might be the same).
-          config.repository = window.location.origin+"/store/";
+          if (config.repository == null) {
+              //Override the default repository location with what can be detected, (might be the same).
+              config.repository = window.location.origin+"/store/";
+          }
           //Load the runner which will execute immediately based on what is available in the config.
           require(['store/tests/executeAllTests'], function() {});
       });

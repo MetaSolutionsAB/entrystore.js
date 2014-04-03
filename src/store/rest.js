@@ -58,7 +58,8 @@ define([
                 return request.get(this._cookie_credentials.base + "auth/logout", {
                     preventCache: true,
                     handleAs: "json",
-                    headers: headers
+                    headers: headers,
+                    withCredentials: true
                 });
             }
         },
@@ -71,9 +72,9 @@ define([
 			var d = request.get(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
-				headers: headers
+				headers: headers,
+                withCredentials: true
 			})).response.then(function(response) {
-                    var status = response.getHeader('status');
                     if (response.status === 200) {
                         return response.data;
                     } else {
@@ -93,7 +94,8 @@ define([
 				preventCache: true,
 				handleAs: "json",
 				data: data,
-				headers: headers
+				headers: headers,
+                withCredentials: true
 			}));
 		},
 		
@@ -123,7 +125,8 @@ define([
 				preventCache: true,
 				handleAs: "json",
 				data: data,
-				headers: loc_headers
+				headers: loc_headers,
+                withCredentials: true
 			}));
 		},
 		
@@ -136,7 +139,8 @@ define([
 			return request.del(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
-				headers: headers
+				headers: headers,
+                withCredentials: true
 			}));
 		}
 	};
