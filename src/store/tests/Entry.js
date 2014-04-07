@@ -127,11 +127,13 @@ define([
                     test.ok(res.getGraph().find().length === 1, "The created graph Entry does save the provided graph upon creation");
                     var g2 = new Graph();
                     res.setGraph(g2).then(function() {
-                        test.ok(res.getGraph().isEmpty(), "Failed to update ")
+                        entry.setRefreshNeeded();
+                        entry.refresh().then(function() {
+                            test.ok(res.getGraph().isEmpty(), "Failed to update ")
+                            test.done();
+                        });
                     })
                     g2.create("http://example.com/", dct+"title", {type: "literal", value:"Some title2"});
-
-                    test.done();
                 }, function(err) {
                     test.ok(false, "Failed to load resource graph for graph entry.");
                     test.done();

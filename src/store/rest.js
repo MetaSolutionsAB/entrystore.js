@@ -70,10 +70,22 @@ define([
          * @returns {dojo.promise.Promise}
          */
 		get: function(uri) {
+            var jsonp = false;
             if (has("host-browser")) {
+                if (uri.indexOf(window.location.origin) !== 0
+                    && uri.indexOf("/entry/") !== -1) {   //TODO check where jsonp is supported
+                    jsonp = true;
+                }
+            }
+
+            if (jsonp) {
                 var d = new Deferred();
                 require(["dojo/request/script"], function(script) {
-                    script.get(uri, {jsonp: "callback", "Accept": "application/json"}).then(function(data) {
+                    var queryParameter = new RegExp('[?&]format=');
+                    if(!queryParameter.test(uri)){
+                        uri += (~uri.indexOf('?') ? '&' : '?') + 'format=application/json';
+                    }
+                    script.get(uri, {jsonp: "callback"}).then(function(data) {
                         d.resolve(data);
                     });
                 });
