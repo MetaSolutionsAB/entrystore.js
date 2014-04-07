@@ -10,7 +10,8 @@ define([
 
 	var headers = {
 		"Accept": "application/json",
-		"Content-Type": "application/json; charset=UTF-8"
+		"Content-Type": "application/json; charset=UTF-8",
+        "X-Requested-With": null
 	};
 
 	var rest = {
@@ -69,19 +70,29 @@ define([
          * @returns {dojo.promise.Promise}
          */
 		get: function(uri) {
-			var d = request.get(uri, rest.insertAuthArgs({
-				preventCache: true,
-				handleAs: "json",
-				headers: headers,
-                withCredentials: true
-			})).response.then(function(response) {
-                    if (response.status === 200) {
-                        return response.data;
-                    } else {
-                        throw "Resource could not be loaded: "+response.text;
-                    }
-            });
-            return d;
+            if (has("host-browser")) {
+                var d = new Deferred();
+                require(["dojo/request/script"], function(script) {
+                    script.get(uri, {jsonp: "callback", "Accept": "application/json"}).then(function(data) {
+                        d.resolve(data);
+                    });
+                });
+                return d;
+            } else {
+                var d = request.get(uri, rest.insertAuthArgs({
+                        preventCache: true,
+                        handleAs: "json",
+                        headers: headers,
+                        withCredentials: true
+                    })).response.then(function(response) {
+                        if (response.status === 200) {
+                            return response.data;
+                        } else {
+                            throw "Resource could not be loaded: "+response.text;
+                        }
+                    });
+                return d;
+            }
 		},
 		
 		/**
