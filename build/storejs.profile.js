@@ -1,5 +1,6 @@
 var profile = (function(){
 	return {
+        basePath: '../libs/',
         releaseDir: '../release',
         action: 'release',
         platform: 'browser',
@@ -8,13 +9,11 @@ var profile = (function(){
         stripConsole: 'all',
         selectorEngine: 'acme',
 	    layerOptimize: "closure",
-	    basePath: '../src/',
-	    releaseDir: "../release",
-	    
+
         packages:[
-            {name:"dojo", location:"../lib/dojo-src/dojo"},
-            "store",
-            "rdfjson"
+            "dojo",
+            "rdfjson",
+            {name:"store", location:".."}
         ],
 	    	    
 

@@ -9,12 +9,11 @@
       var dojoConfig = {
           async:true,
           packages: [
-              { name: "store", location: "../../../src/store" },
-              { name: "rdfjson", location: "../../../src/rdfjson" },
-              { name: "tests", location: "../../../tests" }]
+              { name: "store", location: "../.." },
+              { name: "tests", location: "../../tests" }]
       };
   </script>
-  <script src="../../lib/dojo/dojo/dojo.js.uncompressed.js"></script>
+  <script src="../../libs/dojo/dojo.js"></script>
   <script type="text/javascript">
       require([
           'tests/config',

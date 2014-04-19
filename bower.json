@@ -1,0 +1,29 @@
+{
+  "name": "entrystore.js",
+  "version": "4.1.0",
+  "authors": [
+    "Matthias Palmér <matthias@metasolutions.se>"
+  ],
+  "description": "EntryStore.js provides an API for working with an EntryStore repository via its REST API.",
+  "keywords": [
+    "rdf",
+    "files",
+    "rest",
+    "metadata"
+  ],
+  "dependencies": {
+    "dojo": "1.9.3",
+    "util": "dojo-util#1.9.3",
+    "rdfjson": "git@bitbucket.org:metasolutions/rdfjson.git#develop"
+  },
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

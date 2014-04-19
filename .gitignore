@@ -1,6 +1,5 @@
 node_modules
-/lib/dojo
-/lib/dojo-src
+/libs
 .idea
 release/
 *~

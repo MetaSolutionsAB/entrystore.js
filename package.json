@@ -1,12 +1,9 @@
 {
     "name": "store",
-    "version": "0.1",
+    "version": "4.1.0",
     "main": "main",
     "dependencies": {
-	"dojo": "1.8.3",
-	"dijit": "1.8.3",
-	"dojox": "1.8.3",
-	"util": "1.8.3"
+        "nodeunit": ""
     },
     "description": "Store is a library for working with Entries in EntryStore.",
     "licenses": [
