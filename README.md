@@ -4,7 +4,15 @@ EntryStore.js (short: StoreJS) is a JavaScript library that simplifies the commu
 
 # Installation
 
-Run `lib/INSTALL-dojo.sh` to install Dojo.
+Before you can use entrystore.js you need to make sure all dependencies are available. Simply run:
+
+    $ cd path_to_rdforms
+    $ npm   install
+    $ bower install
+
+This requires that you have [nodejs](http://nodejs.org/) and [npm](https://www.npmjs.org/) installed
+as well as [bower](http://bower.io/). Note: npm installs the nodeunit library used by the tests while bower installs
+dojo, rdfjson and the dojo-util libraries.
 
 # Development
 
