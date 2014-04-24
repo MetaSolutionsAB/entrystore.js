@@ -147,7 +147,9 @@ version running against the non-built code):
 
 # Testing
 
-The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store. The base URL of the instance is configured in `tests/config.js`.
+The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store.
+The base URL of the instance is configured in a file `tests/config.js` that you have to provide,
+for instance by making a copy of `tests/config.js_example` and then adapt it.
 
 The tests are written according to the style of [Nodeunit](https://github.com/caolan/nodeunit).
 

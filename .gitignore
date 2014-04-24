@@ -1,5 +1,6 @@
 node_modules
 /libs
+/tests/config.js
 .idea
 release/
 *~
