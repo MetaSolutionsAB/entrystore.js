@@ -155,10 +155,9 @@ define([
 		
 		/**
 		 * @param {String} uri of the resource to delete.
-         * @param {Boolean} recursive if true the store tries to delete any potential children entries
 		 * @return a promise.
 		 */
-		del: function(uri, recursive){
+		del: function(uri){
 			return request.del(uri, rest.insertAuthArgs({
 				preventCache: true,
 				handleAs: "json",
