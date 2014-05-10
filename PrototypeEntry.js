@@ -12,7 +12,10 @@ define([
 	 * @class
 	 */
 	var PrototypeEntry = function(context, id) {
-		id = id || "_newId";
+		if (id != null) {
+            this.specificId = id;
+        }
+        id = id || "_newId";
         this.context = context;
 		var cru = context.getOwnResourceURI();
 		this.entryInfo = new EntryInfo(cru + "/entry/"+id);
@@ -47,6 +50,10 @@ define([
 			return Entry.prototype[method].apply(this.entry, arguments);
 		};
 	});
+
+    PrototypeEntry.prototype.getSpecificId = function() {
+        return this.specificId;
+    };
 
     PrototypeEntry.prototype.setMetadata = function(graph) {
         this.entry._metadata = graph;

@@ -52,8 +52,21 @@ define([
      * @see store.EntryStore#getEntry
 	 */
 	Context.prototype.getEntry = function(entryURI, optionalLoadParams) {
-		return this.getEntryStore().getEntry(entryURI, optionalLoadParams);
+        return this.getEntryStore().getEntry(entryURI, optionalLoadParams);
 	};
+
+    /**
+     * Convenience method, to retrieve an entry from this context, see EntryStore.getEntry().
+     * @returns {dojo.promise.Promise}
+     * @see store.EntryStore#getEntry
+     */
+    Context.prototype.getEntryById = function(entryId, optionalLoadParams) {
+        return this.getEntryStore().getEntry(this.getEntryUri(entryId), optionalLoadParams);
+    };
+
+    Context.prototype.getEntryUri = function(entryId) {
+        return this.getEntryStore().getEntryUri(this.getId(), entryId);
+    };
 
     /**
      * Factory method to create a prototypeEntry that has the current context as container.

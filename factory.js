@@ -255,6 +255,9 @@ define([
 			var uri = prototypeEntry.getContext().getOwnResourceURI()+"?";
 			if (prototypeEntry) {
 				var ei = prototypeEntry.getEntryInfo();
+                if (prototypeEntry.getSpecificId() != null) {
+                    uri = uri+"id="+prototypeEntry.getSpecificId()+"&";
+                }
 				if (prototypeEntry.isLink()) {
 					uri = uri+"resource="+encodeURIComponent(prototypeEntry.getResourceURI())+"&";				
 				}
