@@ -21,19 +21,18 @@ define([
 		this._entryInfo._entry = this;
 		this._entryStore = entryStore;
 	};
-	var en = Entry.prototype; //Shortcut, avoids having to write Entry.prototype below when defining methods.
 
     /**
      * @returns {store.EntryStore}
      */
-	en.getEntryStore = function() {
+    Entry.prototype.getEntryStore = function() {
 		return this._entryStore;
 	};
 
     /**
      * @returns {store.EntryInfo}
      */
-	en.getEntryInfo = function() {
+    Entry.prototype.getEntryInfo = function() {
 		return this._entryInfo;
 	};
 
