@@ -10,9 +10,9 @@ define([
 ], function(array, lang, Graph, types, Deferred, json, factory) {
 	
 	/**
-     * @param {store.Context} context
-	 * @param {store.EntryInfo} entryInfo that defines the basics of this entry.
-     * @param {store.EntryStore} entryStore
+     * @param {store/Context} context
+	 * @param {store/EntryInfo} entryInfo that defines the basics of this entry.
+     * @param {store/EntryStore} entryStore
 	 * @constructor
 	 */
 	var Entry = function(context, entryInfo, entryStore) {
@@ -23,14 +23,14 @@ define([
 	};
 
     /**
-     * @returns {store.EntryStore}
+     * @returns {store/EntryStore}
      */
     Entry.prototype.getEntryStore = function() {
 		return this._entryStore;
 	};
 
     /**
-     * @returns {store.EntryInfo}
+     * @returns {store/EntryInfo}
      */
     Entry.prototype.getEntryInfo = function() {
 		return this._entryInfo;
@@ -38,8 +38,8 @@ define([
 
 	/**
 	 * Convenience method, same as calling entry.getEntryInfo().getEntryURI()
-	 * @return {String} the entry uri.
-     * @see store.EntryInfo#getEntryURI
+	 * @return {string} the entry uri.
+     * @see store/EntryInfo#getEntryURI
 	 */
 	Entry.prototype.getURI = function() {
 		return this._entryInfo.getEntryURI();
@@ -47,15 +47,15 @@ define([
 
     /**
      * Convenience method, same as calling entry.getEntryInfo().getId()
-     * @returns {String} the id of the entry
-     * @see store.EntryInfo#getId
+     * @returns {string} the id of the entry
+     * @see store/EntryInfo#getId
      */
     Entry.prototype.getId = function() {
         return this._entryInfo.getId();
     };
 
     /**
-     * @returns {String} a URI to the resource of this entry.
+     * @returns {string} a URI to the resource of this entry.
      */
     Entry.prototype.getResourceURI = function() {
         return this._entryInfo.getResourceURI();
@@ -65,7 +65,7 @@ define([
 	 * That an entry needs to be refreshed typically means that it contains stale data (with respect to what is available in the store). 
 	 * The entry should be refresh before it is further used.
 	 * 
-	 * @param {Boolean=} silently the cache will send out a stale message (to all registered listeners of the cache)
+	 * @param {boolean=} silently the cache will send out a stale message (to all registered listeners of the cache)
 	 * for this entry if the value is false or undefined.
 	 * @see Entry.refresh.
 	 */
@@ -76,7 +76,7 @@ define([
     /**
      * Tells whether an entry needs to be refreshed.
      *
-     * @return {Boolean} true if the entry need to be refreshed before used.
+     * @return {boolean} true if the entry need to be refreshed before used.
      * @see Entry.refresh.
      */
     Entry.prototype.needRefresh = function() {
@@ -85,7 +85,7 @@ define([
 
     /**
 	 * Refreshes an entry if needed, that is, if it has been marked as invalid.
-	 * @param {Boolean=} silently the cache will send out a refresh message for this entry
+	 * @param {boolean=} silently the cache will send out a refresh message for this entry
 	 * if a refresh was needed AND if the value of silently is false or undefined. If force is true
      * it will send out a refresh message anyhow.
      * @param {force=} if true the entry will be refreshed independent if it was marked in need of a refresh or not.
@@ -109,14 +109,14 @@ define([
 	};
 
     /**
-     * @returns {store.Context}
+     * @returns {store/Context}
      */
 	Entry.prototype.getContext = function() {
 		return this._context;
 	};
 	
 	/**
-	 * @return {rdfjson.Graph} a RDF graph with metadata, typically containing statements about the resourceURI.
+	 * @return {rdfjson/Graph} a RDF graph with metadata, typically containing statements about the resourceURI.
 	 */
 	Entry.prototype.getMetadata = function() {
 		if (this._metadata == null) {
@@ -130,8 +130,8 @@ define([
 	 * Invalidates all graph object previously retrieved via getMetadata.
 	 * Setting metadata for an entry with entrytype 'reference' will change it to 'linkreference'. 
 	 * 
-	 * @param {rdfjson.Graph} graph is an RDF graph with metadata, if it is not provided the current metadata graph is saved (there is currently no check whether it has been modified or not).
-	 * @return {dojo.promise.Promise} a promise that on success will contain the current updated entry (the entry is not replaced only updated).
+	 * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current metadata graph is saved (there is currently no check whether it has been modified or not).
+	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry (the entry is not replaced only updated).
 	 */
 	Entry.prototype.setMetadata = function(graph) {
 		var d = new Deferred(), self = this;
@@ -179,8 +179,8 @@ define([
 	 * Updates the cached external metadata for this entry.
 	 * Invalidates all graph object previously retrieved via getCachedExternalMetadata.
 	 * 
-	 * @param {rdfjson.Graph} graph is an RDF graph with metadata, if it is not provided the current cached external metadata graph is saved (there is currently no check whether it has been modified or not).
-	 * @return {dojo.promise.Promise} a promise that on success will contain the current updated entry (the entry is not replaced only updated).
+	 * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current cached external metadata graph is saved (there is currently no check whether it has been modified or not).
+	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry (the entry is not replaced only updated).
 	 */	
 	Entry.prototype.setCachedExternalMetadata = function(graph) {
 		var d = new Deferred(), self = this;
@@ -201,7 +201,7 @@ define([
 	};
 
     /**
-     * @returns {rdfjson.Graph}
+     * @returns {rdfjson/Graph}
      */
     Entry.prototype.getExtractedMetadata = function() {
         if (this._extractedMetadata == null) {
@@ -216,7 +216,7 @@ define([
      * loaded with loadResource). Use loadResource to be guaranteed to get a resource back.
      * Although, it will always return null when EntryType is not local!
      *
-     * @returns {store.Resource}
+     * @returns {store/Resource}
      */
     Entry.prototype.getResource = function() {
 		return this._resource;
@@ -225,7 +225,7 @@ define([
     /**
      * If the EntryType is local then this method retrieves a resource corresponding to the GraphType.
      *
-     * @returns {dojo.promise.Promise}
+     * @returns {dojo/promise/Promise}
      */
     Entry.prototype.loadResource = function() {
         var d = new Deferred();
@@ -252,9 +252,16 @@ define([
         });
     };
 
+    /**
+     * @returns {string[]}
+     */
     Entry.prototype.getParentLists = function() {
         return this.getReferrers("http://entrystore.org/terms/hasListMember");
     };
+
+    /**
+     * @returns {string[]}
+     */
     Entry.prototype.getParentGroups = function() {
         return this.getReferrers("http://entrystore.org/terms/hasGroupMember");
     };
@@ -405,9 +412,9 @@ define([
 
 	/**
 	 * Deletes this entry without any option to recover it.
-	 * @param recursive {Boolean} if true and the entry is a list it will delete the entire tree of lists 
+	 * @param {boolean} recursive if true and the entry is a list it will delete the entire tree of lists
 	 * and all entries that is only contained in the current list or any of its child lists. 
-	 * @return {dojo.promise.Promise} which on success indicates that the deletion has succeded.
+	 * @return {dojo/promise/Promise} which on success indicates that the deletion has succeded.
 	 */
 	Entry.prototype.del = function(recursive) {
 		if (recursive === true) {

@@ -16,19 +16,19 @@ dojoConfig = {
     packages: [
         {
             name: "dojo",
-            location: "lib/dojo-src/dojo"
+            location: "libs/dojo"
         }, {
             name: "dojox",
-            location: "lib/dojo-src/dojox"
+            location: "libs/dojox"
         }, {
             name: "rdfjson",
-            location: "src/rdfjson"
+            location: "libs/rdfjson"
         }, {
             name: "store",
-            location: "src/store"
+            location: "."
         }],
     deps: ["store/cmd"] // And array of modules to load on "boot"
 };
 
 // Now load the Dojo loader
-require("../lib/dojo-src/dojo/dojo.js");
+require("../libs/dojo/dojo.js");

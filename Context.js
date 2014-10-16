@@ -61,11 +61,11 @@ define([
      * @see store.EntryStore#getEntry
      */
     Context.prototype.getEntryById = function(entryId, optionalLoadParams) {
-        return this.getEntryStore().getEntry(this.getEntryUri(entryId), optionalLoadParams);
+        return this.getEntryStore().getEntry(this.getEntryURI(entryId), optionalLoadParams);
     };
 
-    Context.prototype.getEntryUri = function(entryId) {
-        return this.getEntryStore().getEntryUri(this.getId(), entryId);
+    Context.prototype.getEntryURI = function(entryId) {
+        return this.getEntryStore().getEntryURI(this.getId(), entryId);
     };
 
     /**
