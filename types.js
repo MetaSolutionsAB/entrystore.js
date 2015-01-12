@@ -1,31 +1,31 @@
 /*global define*/
 define({
 	ET: { //EntryType
-        LOCAL: "local",
-        LINK: "link",
-        LINKREF: "linkreference",
-        REF: "reference",
-        DEFAULT: "local"   //The default option
+        LOCAL: "Local",
+        LINK: "Link",
+        LINKREF: "Linkreference",
+        REF: "Reference",
+        DEFAULT: "Local"   //The default option
     },
     GT: { //GraphType
-        NONE: "none",
-        CONTEXT: "context",
-        SYSTEMCONTEXT: "systemcontext",
-        USER: "user",
-        GROUP: "group",
-        LIST: "list",
-        RESULTLIST: "resultlist",
-        GRAPH: "graph",
-        STRING: "string",
-        PIPELINE: "pipeline",
-        DEFAULT: "none"//The default option
+        NONE: "None",
+        CONTEXT: "Context",
+        SYSTEMCONTEXT: "Systemcontext",
+        USER: "User",
+        GROUP: "Group",
+        LIST: "List",
+        RESULTLIST: "Resultlist",
+        GRAPH: "Graph",
+        STRING: "String",
+        PIPELINE: "Pipeline",
+        DEFAULT: "None"//The default option
     },
 
     RT: { //ResourceType
-        INFORMATIONRESOURCE: "information",
-        RESOLVABLEINFORMATIONRESOURCE: "resolvable",
-        NAMEDRESOURCE: "named",
-        UNKNOWN: "unknown",
-        DEFAULT: "information" //The default option
+        INFORMATIONRESOURCE: "Information",
+        RESOLVABLEINFORMATIONRESOURCE: "Resolvable",
+        NAMEDRESOURCE: "Named",
+        UNKNOWN: "Unknown",
+        DEFAULT: "Information" //The default option
     }
 });

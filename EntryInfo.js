@@ -10,7 +10,9 @@ define([
 ], function(array, Deferred, json, terms, factory, Graph, stamp) {
 	
 	/**
-	 * @param {String} entryURI must be provided unless the graph contains a statement with the store:resource property which allows us to infer the entryURI.
+     * EntryInfo is a class that contains all the administrative information for an entry.
+     * @exports store/EntryInfo
+     * @param {String} entryURI must be provided unless the graph contains a statement with the store:resource property which allows us to infer the entryURI.
 	 * @param {rdfjson.Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as statements
      * @param {store.EntryStore} entryStore
 	 * @class
@@ -147,10 +149,26 @@ define([
         return vocab["default"];
     };
 
+    /**
+     * the resource type of the entry, e.g. "Information", "Resolvable" etc.
+     * The allowed values are available in types.RT.
+     * E.g. to check if the entry is an information resource:
+     * if (ei.getResourceType() === types.RT.INFORMATIONRESOURCE) {...}
+     *
+     * @returns {String}
+     */
     EntryInfo.prototype.getResourceType = function() {
 		return getResourceType(this, terms.resourceType);
 	};
 
+    /**
+     * the graph type of the entry, e.g. "User", "List", "String", etc.
+     * The allowed values are available in types.GT.
+     * E.g. to check if the entry is a list:
+     * if (ei.getGraphType() === types.GT.LIST) {...}
+     *
+     * @returns {String}
+     */
 	EntryInfo.prototype.getGraphType = function() {
 		return getResourceType(this, terms.graphType);
 	};
@@ -189,6 +207,11 @@ define([
         return acl;
 	};
 
+    /**
+     * if the entry has an explicit ACL or if the containing contexts ACL is used.
+     *
+     * @returns {boolean}
+     */
     EntryInfo.prototype.hasACL = function() {
         return this.getACL().contextOverride;
     };
@@ -198,7 +221,7 @@ define([
 	 * The only difference is that the acl object from this method is allowed to be empty 
 	 * or leave out some keys that are not to be set.
 	 * 
-	 * @param acl {Object} same kind of object you get from getACL.
+	 * @param {Object} acl same kind of object you get from getACL.
 	 */
 	EntryInfo.prototype.setACL = function(acl) {
         var g = this._graph;

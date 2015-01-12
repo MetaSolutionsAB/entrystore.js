@@ -67,7 +67,7 @@ define([
 
 	//Additional set methods not available on EntryInfo since you are not supposed to change these values for created entries.
 	PrototypeEntry.prototype.setEntryType = function(et) {
-		var uri = terms.invEntryType[et.toLowerCase()];
+		var uri = terms.invEntryType[et];
 		if (uri) {
 			this.entryInfo.getGraph().create(this.entryInfo.getEntryURI(), terms.rdf.type, {type: "uri", value: uri});
 		}
@@ -75,14 +75,14 @@ define([
 	};
 	PrototypeEntry.prototype.setGraphType = function(gt) {
         this._gt = gt;
-        var uri = terms.invGraphType[gt.toLowerCase()];
+        var uri = terms.invGraphType[gt];
 		if (uri) {
 			this.entryInfo.getGraph().create(this.entryInfo.getResourceURI(), terms.rdf.type, {type: "uri", value: uri});
 		}
 		return this;
 	};
 	PrototypeEntry.prototype.setResourceType = function(rt) {
-		var uri = terms.invResourceType[rt.toLowerCase()];
+		var uri = terms.invResourceType[rt];
 		if (uri) {
 			this.entryInfo.getGraph().create(this.entryInfo.getResourceURI(), terms.rdf.type, {type: "uri", value: uri});
 		}

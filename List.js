@@ -1,11 +1,12 @@
 /*global define*/
 define([
     "dojo/_base/lang",
+    "dojo/_base/array",
 	"dojo/Deferred",
     "dojo/json",
     "store/Resource",
 	"store/factory"
-], function(lang, Deferred, json, Resource, factory) {
+], function(lang, array, Deferred, json, Resource, factory) {
 
     /**
      * @param {String} entryURI in which this List is a resource.
@@ -141,15 +142,17 @@ define([
 			}));
 	};
 
-	//Data contains allUnsorted array, size, and children.
-	List.prototype._update = function(data, children) {
-		var offset = data.offset;
-		for (var i=0;i<children.length;i++) {
-			this._sortedChildren[offset+i] = children[i].getURI();
-		}
-		this._size = data.size;
-		this._unsortedChildren = data.allUnsorted;
-	};
+    //Data contains allUnsorted array, size, and children.
+    List.prototype._update = function(data, children) {
+        var offset = data.offset || 0;
+        for (var i=0;i<children.length;i++) {
+            this._sortedChildren[offset+i] = children[i].getURI();
+        }
+        this._size = data.size || children.length;
+        this._unsortedChildren = data.allUnsorted || array.map(children, function(entry) {
+            return entry.getId();
+        });
+    };
 
     List.prototype.save = function(graph) {
         this._graph = graph || this._graph;

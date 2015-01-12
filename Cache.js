@@ -2,7 +2,8 @@
 define([], function() {
 
     /**
-     * @constructor
+     * @exports store/Cache
+     * @class
      */
 	var Cache = function() {
 		this._listenerCounter = 0;

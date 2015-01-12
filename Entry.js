@@ -10,10 +10,11 @@ define([
 ], function(array, lang, Graph, types, Deferred, json, factory) {
 	
 	/**
-     * @param {store/Context} context
-	 * @param {store/EntryInfo} entryInfo that defines the basics of this entry.
-     * @param {store/EntryStore} entryStore
-	 * @constructor
+     * @exports store/Entry
+     * @param {store/Context} context container for this entry
+	 * @param {store/EntryInfo} entryInfo defines the basics of this entry
+     * @param {store/EntryStore} entryStore the repository for this entry
+	 * @class
 	 */
 	var Entry = function(context, entryInfo, entryStore) {
 		this._context = context;
@@ -242,10 +243,19 @@ define([
         return d.promise;
     };
 
+    /**
+     * @returns {rdfjson/Graph}
+     */
 	Entry.prototype.getReferrersGraph = function() {
         return this._relation;
 	};
 
+    /**
+     * a list of URIs that has referred to this Entry using various properties.
+     *
+     * @param {string} prop
+     * @returns {string[]}
+     */
     Entry.prototype.getReferrers = function(prop) {
         return array.map(this._relation.find(null, prop, null), function(stmt) {
             return stmt.getSubject();
@@ -253,6 +263,7 @@ define([
     };
 
     /**
+     * a list of URIs corresponding to list entries where this entry is contained.
      * @returns {string[]}
      */
     Entry.prototype.getParentLists = function() {
@@ -260,12 +271,17 @@ define([
     };
 
     /**
+     * a list of URIs corresponding to groups where this user entry is member.
      * @returns {string[]}
      */
     Entry.prototype.getParentGroups = function() {
         return this.getReferrers("http://entrystore.org/terms/hasGroupMember");
     };
 
+    /**
+     * a list of comments (i.e. their URIs) of this entry.
+     * @returns {string[]}
+     */
     Entry.prototype.getComments = function() {
         return this.getReferrers("http://ontologi.es/like#regarding");
     };
@@ -423,5 +439,6 @@ define([
 			return this.getEntryStore().getREST().del(this.getURI());
 		}
 	};
+
 	return Entry;
 });

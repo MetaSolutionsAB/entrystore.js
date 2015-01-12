@@ -4,11 +4,12 @@ define([
 ], function(factory) {
 
     /**
+     * @exports store/Resource
      * @param {String} entryURI in which this context is a resource.
      * @param {String} resourceURI
-     * @param {store.EntryStore} entryStore
-     * @constructor
-	 */
+     * @param {store/EntryStore} entryStore
+     * @class
+     */
 	var Resource = function(entryURI, resourceURI, entryStore) {
 		this._entryURI = entryURI;
 		this._resourceURI = resourceURI;

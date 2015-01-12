@@ -1,4 +1,5 @@
 /*global define*/
+
 define([
     "dojo/_base/lang",
     "store/Cache",
@@ -11,6 +12,8 @@ define([
 ], function (lang, Cache, rest, factory, types, PrototypeEntry, User, has) {
 
     /**
+     * EntryStore is the main class that is used to connect to a running server-side EntryStore instance.
+     * @exports store/EntryStore
      * @param {String=} baseURI is an optional URL to the current EntryStore
      * @param {String=} credentials is optional, see the auth method.
      * @class
@@ -36,10 +39,17 @@ define([
         this._rest = rest;
     };
 
+    /**
+     * @returns {Object} containing attributes "user" being the username, "id" of the user entry,
+     * and "homecontext" being the entry-id of the home context.
+     */
     EntryStore.prototype.getUserInfo = function() {
         return this._rest.get(this._baseURI + "auth/user");
     };
 
+    /**
+     * @returns {store/Entry} the currently signed in users entry (in _principals context).
+     */
     EntryStore.prototype.getUserEntry = function() {
         return this._rest.get(this._baseURI + "auth/user").then(lang.hitch(this, function(data) {
             return this.getEntry(this.getEntryURI("_principals", data.id));
@@ -59,6 +69,9 @@ define([
         return promise;
     };
 
+    /**
+     * @returns {dojo/promise/Promise}
+     */
     EntryStore.prototype.logout = function () {
         return this.auth();
     };
@@ -89,28 +102,28 @@ define([
      * Retrieves a Context instance, the entry for the context is not loaded by default, you can call Context.getOwnEntry() to achieve that.
      *
      * @param {String} contextEntryURI is the URI to the contexts entry, e.g. base/_contexts/entry/1.
-     * @return {store.Context}
+     * @return {store/Context}
      */
     EntryStore.prototype.getContext = function (contextEntryURI) {
         return factory.getContext(this, contextEntryURI);
     };
 
     /**
-     * @return {store.List} of entries that have contexts as resources.
+     * @return {store/List} of entries that have contexts as resources.
      */
     EntryStore.prototype.getContextList = function () {
         return factory.getList(this, this._baseURI + "_contexts/entry/_all");
     };
 
     /**
-     * @return {store.List} of entries that have principals as resources.
+     * @return {store/List} of entries that have principals as resources.
      */
     EntryStore.prototype.getPrincipalList = function () {
         return factory.getList(this, this._baseURI + "_principals/entry/_all");
     };
 
     /**
-     * @param {store.PrototypeEntry} prototypeEntry a fake entry that acts as a prototype, i.e. containing characteristics of the to be created entry. Must be provided, includes which context the entry should be created in.
+     * @param {store/PrototypeEntry} prototypeEntry a fake entry that acts as a prototype, i.e. containing characteristics of the to be created entry. Must be provided, includes which context the entry should be created in.
      */
     EntryStore.prototype.createEntry = function (prototypeEntry) {
         var postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
@@ -131,7 +144,7 @@ define([
     };
 
     /**
-     * @returns {store.PrototypeEntry}
+     * @returns {store/PrototypeEntry}
      */
     EntryStore.prototype.newContext = function (id) {
         var _contexts = factory.getContext(this, this._baseURI + "_contexts/entry/_contexts");
@@ -139,7 +152,7 @@ define([
     };
 
     /**
-     * @returns {store.PrototypeEntry}
+     * @returns {store/PrototypeEntry}
      */
     EntryStore.prototype.newUser = function (username, password, homeContext, id) {
         var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
@@ -160,7 +173,7 @@ define([
     };
 
     /**
-     * @returns {store.PrototypeEntry}
+     * @returns {store/PrototypeEntry}
      */
     EntryStore.prototype.newGroup = function (id) {
         var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
@@ -171,7 +184,7 @@ define([
      * Convenience function.
      *
      * @param {Function} listener
-     * @see store.Cache#addCacheUpdateListener
+     * @see store/Cache#addCacheUpdateListener
      */
     EntryStore.prototype.addCacheUpdateListener = function (listener) {
         this._cache.addCacheUpdateListener(listener);
@@ -181,7 +194,7 @@ define([
      * Convenience function.
      *
      * @param {Function} listener
-     * @see store.Cache#removeCacheUpdateListener
+     * @see store/Cache#removeCacheUpdateListener
      */
     EntryStore.prototype.removeCacheUpdateListener = function (listener) {
         this._cache.removeCacheUpdateListener(listener);
@@ -190,30 +203,53 @@ define([
     /**
      * Convenience function.
      *
-     * @see store.Cache#allNeedRefresh
+     * @see store/Cache#allNeedRefresh
      */
     EntryStore.prototype.invalidateCache = function () {
         this._cache.allNeedRefresh();
     };
 
+    /**
+     * @todo implement support for version of API.
+     */
     EntryStore.prototype.version = function () {
         //TODO
     };
 
+    /**
+     *  @todo implement status of the current API instance.
+     */
     EntryStore.prototype.status = function () {
         //TODO admin only
     };
 
+    /**
+     * Moves an entry from one list to another.
+     * @param {store/Entry} entry to move
+     * @param {store/Entry} fromList source list where the entry is currently residing.
+     * @param {store/Entry} toList destination list where the entry is supposed to end up.
+     * @returns {*}
+     */
     EntryStore.prototype.moveEntry = function (entry, fromList, toList) {
         var uri = factory.getMoveURI(entry, fromList, toList, this._baseURI);
         return this._rest.post(uri, "");
     };
 
+    /**
+     * @param {string} uri indicates the resource to load.
+     * @param {string} formatHint indicates that you want data back in the format specified
+     * (e.g. by specifiying a suitable accept header).
+     * @returns {string}
+     */
     EntryStore.prototype.loadViaProxy = function (uri, formatHint) {
         var url = factory.getProxyURI(uri, formatHint);
         return this._rest.get(url);
     };
 
+    /**
+     * @param {object} query implementation of some sort, e.g. store/solr
+     * @returns {store/SearchList}
+     */
     EntryStore.prototype.createSearchList = function (query) {
         return factory.createSearchList(this, query);
     };
@@ -221,32 +257,37 @@ define([
     //==============Non-public methods==============
 
     /**
-     * @returns {String}
+     * Constructs an entry URI from the id for the context and the specific entry.
+     * @returns {String} an entry URI
      */
     EntryStore.prototype.getEntryURI = function (contextId, entryId) {
         return factory.getEntryURI(this, contextId, entryId);
     };
 
+    /**
+     * @param {string} id identifier for the context (not the contexts alias/name)
+     * @returns {string} an URI to a contexts entry.
+     */
     EntryStore.prototype.getContextById = function (id) {
         return factory.getContext(this, this._baseURI + "_contexts/entry/"+id);
     };
 
     /**
-     * @returns {String}
+     * @returns {String} e.g. http://localhost/8080/store/
      */
     EntryStore.prototype.getBaseURI = function () {
         return this._baseURI;
     };
 
     /**
-     * @returns {store.Cache}
+     * @returns {store/Cache}
      */
     EntryStore.prototype.getCache = function () {
         return this._cache;
     };
 
     /**
-     * @returns {store.rest}
+     * @returns {store/rest}
      */
     EntryStore.prototype.getREST = function () {
         return this._rest;

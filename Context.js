@@ -9,11 +9,12 @@ define([
 ], function(StringResource, types, Deferred, PrototypeEntry, Resource, RDFGraph) {
 
     /**
+     * @exports store/Context
      * @param {String} entryURI in which this context is a resource.
      * @param {String} resourceURI
-     * @param {store.EntryStore} entryStore
-     * @constructor
-     * @extends store.Resource
+     * @param {store/EntryStore} entryStore
+     * @class
+     * @augments store/Resource
 	 */
 	var Context = function(entryURI, resourceURI, entryStore) {
         Resource.apply(this, arguments); //Call the super constructor.
@@ -64,6 +65,12 @@ define([
         return this.getEntryStore().getEntry(this.getEntryURI(entryId), optionalLoadParams);
     };
 
+    /**
+     * Expands the given entry id into a full URI.
+     *
+     * @param {string} entryId
+     * @returns {string}
+     */
     Context.prototype.getEntryURI = function(entryId) {
         return this.getEntryStore().getEntryURI(this.getId(), entryId);
     };
@@ -153,7 +160,7 @@ define([
      *
      * @param {String} str an optional string for the StringResource.
      * @param {String} id an optional id for the entry, fails if an entry exists already with this id.
-     * @returns {store.PrototypeEntry}
+     * @returns {store/PrototypeEntry}
      */
     Context.prototype.newString = function(str, id) {
         var pe = new PrototypeEntry(this, id).setGraphType(types.GT.STRING);
@@ -162,10 +169,30 @@ define([
         return pe;
     };
 
+    /**
+     * The alias for this context.
+     *
+     * @returns {string}
+     */
+    Context.prototype.getAlias = function() {
+        return this._alias;
+    };
+
+    /**
+     * @todo this method remains to be implemented
+     * @param {string} alias
+     */
+    Context.prototype.setAlias = function(alias) {
+        throw "Not yet implemented";
+    };
+
     /*
         context.addRemoteListener(listener); // websockets; listening to remote changes of this context
         context.removeRemoteListener(listener);
     */
+    Context.prototype._update = function(data) {
+        this._alias = data.alias;
+    };
 
 	return Context;
 });
