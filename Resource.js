@@ -4,11 +4,19 @@ define([
 ], function(factory) {
 
     /**
+     * This is the base class for resources contained by entries, do not use directly, instead use a subclass.
+     *
      * @exports store/Resource
-     * @param {String} entryURI in which this context is a resource.
-     * @param {String} resourceURI
-     * @param {store/EntryStore} entryStore
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
      * @class
+     * @see subclass {@link store/Context}
+     * @see subclass {@link store/List}
+     * @see subclass {@link store/RDFGraph}
+     * @see subclass {@link store/StringResource}
+     * @see subclass {@link store/User}
+     * @see subclass {@link store/Group}
      */
 	var Resource = function(entryURI, resourceURI, entryStore) {
 		this._entryURI = entryURI;
@@ -17,35 +25,53 @@ define([
 	};
 
     /**
-     * @returns {store.EntryStore}
+     * Retrieves the API's repository instance
+     *
+     * @returns {store/EntryStore}
      */
 	Resource.prototype.getEntryStore = function() {
 		return this._entryStore;
 	};
 
 	/**
-	 * @return {dojo.promise.Promise} that on success provides the entry for this context.
+     * Retrieves the entry that contains this resource. Asking for the entry directly (direct=true, rather than getting
+     * it asynchronously via a promise) should work for all resources except context resources.
+     *
+     * > _**Advanced explanation:**
+     * > Context resources are often created opportunistically by the API without also
+     * > loading the context entry along with it, e.g. when loading entries during a search operation. The reason why
+     * > the context entries are not loaded along with the context resource is that such an approach, depending on
+     * > the use-case, may lead to dramatic increases in the amount of requests to the repository._
+     *
+	 * @return {dojo.promise.Promise|store.Entry} if direct=true an Entry is returned (or undefined if not in cache,
+     * only happens sometimes for Contexts) otherwise a promise is returned that on success provides the entry for this resource.
 	 */
-	Resource.prototype.getOwnEntry = function() {
-		return this._entryStore.getEntry(this._entryURI);
+	Resource.prototype.getEntry = function(direct) {
+		return this._entryStore.getEntry(this._entryURI, {direct:direct});
 	};
 
     /**
-     * @returns {String}
+     * The resources own URI.
+     *
+     * @returns {string}
      */
-	Resource.prototype.getOwnResourceURI = function() {
+	Resource.prototype.getResourceURI = function() {
 		return this._resourceURI;
 	};
 
     /**
-     * @returns {String}
+     * The URI to the entry containing this resource.
+     *
+     * @returns {string}
      */
-	Resource.prototype.getOwnEntryURI = function() {
+	Resource.prototype.getEntryURI = function() {
 		return this._entryURI;
 	};
 
     /**
-     * @returns {String}
+     * The id for the entry containing this resource.
+     *
+     * @returns {string}
      */
     Resource.prototype.getId = function() {
         return factory.getId(this._entryURI);

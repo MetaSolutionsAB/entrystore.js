@@ -18,9 +18,19 @@ define([
             SearchList, RDFGraph, Graph, User, exports) {
 
     /**
-     * A module that contain utility factory methods.
-     * @module store/factory
+     * This module contains utility methods that encapsulates EntryStores REST layer from the rest of the code.
+     * It is intended to be used internally by the EntryStore.js API, not by application developers.
+     *
+     * Hence, **you should avoid using factory methods directly in application code as there are most probably
+     * other ways to achieve the same thing. Most likely by using method in {@link store/EntryStore}!**
+     *
+     * The utility methods are currently not visible as they are not documented yet.
+     * (The methods cannot be marked as private as they need to be used throughout the API.)
+     *
+     * @exports store/factory
+     * @namespace
      */
+    var factory = exports;
 
 	var sortObj = {sortBy: "title", prio: "List"};
 	var defaultLimit = 20;
@@ -47,7 +57,7 @@ define([
 
 	var _updateOrCreateResource = function(entry, data, force) {
 		data = data || {};
-        var resource = entry.getResource();
+        var resource = entry.getResource(true);
 		if (!resource) {
 			switch(entry.getEntryInfo().getGraphType()) {
                 case types.GT.CONTEXT: //Synchronous resource, asynchronous methods.
@@ -60,10 +70,10 @@ define([
                     } else {
                         resource = new List(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
                     }
-                    var base = entry.getContext().getOwnResourceURI()+"/entry/";
+                    var base = entry.getContext().getResourceURI()+"/entry/";
                     if (data.resource && data.resource.children) {
                         var children = array.map(data.resource.children, function(child) {
-                            return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
+                            return factory.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
                         });
                         resource._update(data.resource, children);
                     }
@@ -94,10 +104,10 @@ define([
 		
 		if (resource._update) {
 			if (entry.isList() || entry.isGroup()) {
-				var base = entry.getContext().getOwnResourceURI()+"/entry/";
+				var base = entry.getContext().getResourceURI()+"/entry/";
                 if (data.resource && data.resource.children) {
                     var children = array.map(data.resource.children, function(child) {
-                        return exports.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
+                        return factory.updateOrCreate(base+child.entryId, child, entry.getEntryStore());
                     });
                     resource._update(data.resource, children);
                 }
@@ -141,11 +151,8 @@ define([
 			}*/			
 			return entry;
 	};
-	
-	exports.inMemoryEntryStore = function() {
-			return null;
-	};
-	exports.getContext = function(entryStore, contextEntryURI) {
+
+	factory.getContext = function(entryStore, contextEntryURI) {
 		var baseURI = entryStore.getBaseURI();
 		var contextsBaseURI = baseURI+"_contexts/entry/";
 		var contextId = contextEntryURI.substr(contextsBaseURI.length);
@@ -157,7 +164,7 @@ define([
 		}
 		return context;
 	};
-	exports.getList = function(entryStore, entryURI) {
+	factory.getList = function(entryStore, entryURI) {
 		var cache = entryStore.getCache();
 		var entry = cache.get(entryURI);
 		if (!entry) {  //If no entry is in cache, create an empty entry
@@ -170,82 +177,71 @@ define([
 		}
 		return entry._resource; //Returning only the list which has no reference to the entry isolates the entry from beeing accessed before refreshed.
 	};
-	exports.updateOrCreate = function(entryURI, data, entryStore) {
+	factory.updateOrCreate = function(entryURI, data, entryStore) {
         var cache = entryStore.getCache();
         var entry = cache.get(entryURI);
         if (entry) {
             entry.getEntryInfo().setGraph(new Graph(data.info));
         } else {
             var ei = new EntryInfo(entryURI, new Graph(data.info), entryStore); //Assuming there is an info object... TODO check so not info_stub remains in rest layer.
-            entry = new Entry(getContextForEntry(entryURI, entryStore), ei, entryStore);
+            entry = new Entry(getContextForEntry(entryURI, entryStore), ei);
         }
         _updateEntry(entry, data);
         _updateOrCreateResource(entry, data);
         cache.cache(entry); //Add to or refresh the cache.
         return entry;
     };
-    exports.updateOrCreateResource = _updateOrCreateResource;
-	exports.update = function(entry, data) {
+    factory.updateOrCreateResource = _updateOrCreateResource;
+	factory.update = function(entry, data) {
         entry.getEntryInfo().setGraph(new Graph(data.info));
         _updateOrCreateResource(entry, data);
         _updateEntry(entry, data);
         entry.getEntryStore().getCache().cache(entry); //Add to or refresh the cache.
     };
-	exports.createSearchList = function(entryStore, query) {
+	factory.createSearchList = function(entryStore, query) {
 		return new SearchList(entryStore, query);
 	};
-	exports.extractSearchResults = function(data, list, entryStore) {
+	factory.extractSearchResults = function(data, list, entryStore) {
 		//Update or create all entries recieved.
 		data.resource.offset = data.resource.offset || data.offset; //TODO change rest api so offset is inside of resource.
 		data.resource.size = data.resource.size || data.results; //TODO change rest api so size is inside of resource.
 		var baseURI = entryStore.getBaseURI();
 		var entries = array.map(data.resource.children, function(child) {
-			return exports.updateOrCreate(baseURI+child.contextId+"/entry/"+child.entryId, child, entryStore);
+			return factory.updateOrCreate(baseURI+child.contextId+"/entry/"+child.entryId, child, entryStore);
 		});
 		list._update(data.resource, entries);
 		return entries;
 	};
-	exports.getMetadataURI = function(entryURI) {
-			return entryURI.replace("/entry/", "/metadata/");
+	factory.getMetadataURI = function(entryURI) {
+        return entryURI.replace("/entry/", "/metadata/");
 	};
 
-	exports.getCachedExternalMetadataURI = function(entryURI) {
-			return entryURI.replace("/entry/", "/cached-external-metadata/");
+	factory.getCachedExternalMetadataURI = function(entryURI) {
+        return entryURI.replace("/entry/", "/cached-external-metadata/");
 	};
 
-    exports.getId = function(uri) {
+    factory.getId = function(uri) {
         return uri.substr(uri.lastIndexOf("/")+1);
     };
 
-    exports.getEntryURI = function(entryStore, contextId, entryId) {
+    factory.getEntryURI = function(entryStore, contextId, entryId) {
         return entryStore.getBaseURI()+contextId+"/entry/"+entryId;
     };
 
-    exports.getURIFromCreated = function(data, context) {
-        return context.getOwnResourceURI()+"/entry/"+data.entryId;
+    factory.getResourceURI = function(entryStore, contextId, entryId) {
+        return entryStore.getBaseURI()+contextId+"/resource/"+entryId;
     };
-	/**
-	 *  params contains:
-	 *   The following attributes are considered:
-	 *   limit - only a limited number of children are loaded, -1 means no limit, 0 or undefined means default limit.
-	 *   offset - only children from offest and forward is returned, has to be positive to take effect.
-	 *   sort - information on how to sort the children , 
-	 *          if sort is not provided this entry will not be sorted now and not later either,
-	 *          if sort is given as null the defaults of the factory will be used.
-	 *          if sort is given as an emtpy object sorting is active for this entry but the natural order is used for now.
-	 *          If sort is given as a non emtpy object the following attributes are taken into account:
-	 *      sortBy - the attribute instructs which metadata field to sort the children by, that is title, created, modified, or size.
-	 *      lang - if sort is title and the title is provided in several languages a prioritized language can be given.
-	 *      prio - allows specific builtintypes to be prioritized (e.g. show up in the top of the list).
-	 *      descending - if true the children are shown in descending order.
-	 *  @return {String} in the form of a new URI.
-	 */
-	exports.getEntryLoadURI = function(entryURI, params) {
+
+    factory.getURIFromCreated = function(data, context) {
+        return context.getResourceURI()+"/entry/"+data.entryId;
+    };
+
+	factory.getEntryLoadURI = function(entryURI, params) {
 			params = params || {};
 			var strL = "";
-			if (params.limit > 0) {
+			if (params.limit > 0 || params.limit === -1) {
 				strL = "&limit="+params.limit;
-			} else{
+			} else {
 				strL = "&limit="+defaultLimit;
 			}
 			var strO = params.offset == null || params.offset === 0 ? "" : "&offset="+params.offset;
@@ -262,8 +258,8 @@ define([
 			return entryURI+"?includeAll"+strL+strO+strSort+strDesc+strPrio;
 	};
 
-	exports.getEntryCreateURI = function(prototypeEntry, parentListEntry) {
-			var uri = prototypeEntry.getContext().getOwnResourceURI()+"?";
+	factory.getEntryCreateURI = function(prototypeEntry, parentListEntry) {
+			var uri = prototypeEntry.getContext().getResourceURI()+"?";
 			if (prototypeEntry) {
 				var ei = prototypeEntry.getEntryInfo();
                 if (prototypeEntry.getSpecificId() != null) {
@@ -293,14 +289,14 @@ define([
 			return uri.slice(0,-1);
 	};
 
-	exports.getEntryCreatePostData = function(prototypeEntry) {
+	factory.getEntryCreatePostData = function(prototypeEntry) {
 			var postData = {}, empty = true;
 			var md = prototypeEntry.getMetadata();
 			if (md != null && !md.isEmpty()) {
 				postData.metadata = md.exportRDFJSON();
 				empty = false;
 			}
-			var re = prototypeEntry.getResource();
+			var re = prototypeEntry.getResource(true);
 			if (re != null && re.getSource != null) {
 				postData.resource = re.getSource();
 				empty = false;
@@ -317,38 +313,32 @@ define([
 			}
 			return empty ? "" : json.stringify(postData);
 	};
-    /**
-     * @param {store/Entry} entry
-     * @param {store/Entry} fromListEntry
-     * @param {store/Entry} toListEntry
-     * @param {String} baseURI
-     * @returns {string}
-     */
-	exports.getMoveURI = function(entry, fromListEntry, toListEntry, baseURI) {
+
+	factory.getMoveURI = function(entry, fromListEntry, toListEntry, baseURI) {
 			var euri = entry.getURI().substr(baseURI.length); //Only send something like 3/entry/2
 			var furi = fromListEntry.getResourceURI().substr(baseURI.length);
 			return toListEntry.getResourceURI()+"?moveEntry="+euri+"&fromList="+furi;
 	};
-	
-	exports.getProxyURI = function(baseURI, uri, formatHint) {
+
+	factory.getProxyURI = function(baseURI, uri, formatHint) {
 			var url = baseURI+"proxy?url="+encodeURIComponent(uri);
 			if (formatHint != null) {
 				url += "&fromFormat="+formatHint;
 			}
 			return url;
 	};
-	exports.setSort = function(sortObject) {
+	factory.setSort = function(sortObject) {
 			sortObj = sortObject;
 	};
-	exports.getSort = function() {
+	factory.getSort = function() {
 			return sortObj;
 	};
-	exports.getDefaultLimit = function() {
+	factory.getDefaultLimit = function() {
 			return defaultLimit;
 	};
-	exports.setDefaultLimit = function(limit) {
+	factory.setDefaultLimit = function(limit) {
 			defaultLimit = limit;
 	};
 
-    return exports;
+    return factory;
 });

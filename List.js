@@ -9,11 +9,16 @@ define([
 ], function(lang, array, Deferred, json, Resource, factory) {
 
     /**
-     * @param {String} entryURI in which this List is a resource.
-     * @param {String} resourceURI
-     * @param {store.EntryStore} entryStore
-     * @constructor
-     * @extends store.Resource
+     * List is a container for other entries in the same context.
+     * A single entry may appear in multiple lists (multiple parent lists) unless if it is a list itself.
+     * To avoid circular references list entries are only allowed to appear in one parent list.
+     *
+     * @exports store/List
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     * @class
+     * @augments store/Resource
      */
 	var List = function(entryURI, resourceURI, entryStore) {
         Resource.apply(this, arguments); //Call the super constructor.
@@ -26,19 +31,44 @@ define([
     F.prototype = Resource.prototype;
     List.prototype = new F();
 
+    /**
+     * Set the max amount of entries to include in each page during pagination.
+     *
+     * @param {integer} limit
+     * @returns {store/List} allows chaining of set-operations.
+     */
     List.prototype.setLimit = function(limit) {
-		this._limit = limit; //TODO check valid limit.
+		this._limit = limit;
 		return this;
-	};
-	List.prototype.getLimit = function() {
-		return this._limit || factory.getDefaultLimit();
 	};
 
-	List.prototype.setSort = function(params) {
-		this._sortParams = params;
+    /**
+     * Get the max amount of entries to include in each page during pagination.
+     *
+     * @returns {integer}
+     */
+	List.prototype.getLimit = function() {
+        return this._limit || factory.getDefaultLimit();
+	};
+
+    /**
+     * Sets the sort order when loading entries contained in this list.
+     *
+     * @param {Object} sortParams - same object structure as the sort parameter in optionalLoadParameters
+     * in {@link store/EntryStore#getEntry} method.
+     * @returns {store/List} allows chaining of set-operations.
+     */
+	List.prototype.setSort = function(sortParams) {
+        this._clearSortedEntries();
+        this._sortParams = sortParams;
 		return this;
 	};
-	
+
+    /**
+     * Retrieves an array of entries contained in this list according to the current page and pagination settings.
+     * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
+     * @returns {dojo/promise/Promise} the promise will return an entry-array.
+     */
 	List.prototype.getEntries = function(page) {
 		var results = this._getEntries(page);
 		var def = new Deferred();
@@ -50,6 +80,13 @@ define([
 		return def.promise;
 	};
 
+    /**
+     * Adds an entry to this list, on success the entry will be marked as in need of a refresh.
+     * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
+     *
+     * @param {store/Entry} entry - entry to add to the list.
+     * @returns {dojo/promise/Promise}
+     */
     List.prototype.addEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.push(entry.getId());
@@ -59,6 +96,13 @@ define([
         }));
     };
 
+    /**
+     * Removes an entry from this list, on success the entry will be marked as in need of a refresh.
+     * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
+
+     * @param {store/Entry} entry - entry to be removed from the list.
+     * @returns {dojo/promise/Promise}
+     */
     List.prototype.removeEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.splice(entries.indexOf(entry.getId()));
@@ -68,12 +112,21 @@ define([
         }));
     };
 
+    /**
+     * Will unset things since the cache is stale...
+     */
     List.prototype.needRefresh = function() {
         delete this._unsortedChildren;
         this._sortedChildren = [];
         delete this._size;
     };
 
+    /**
+     * Get a list of entry ids contained in this list.
+     *
+     * @returns {dojo/promise/Promise} the promise will deliver an array of children entries in this list as ids
+     * (strings, not full URIs).
+     */
     List.prototype.getAllEntryIds = function() {
         var d = new Deferred();
         if (this._unsortedChildren != null) {
@@ -86,21 +139,36 @@ define([
         return d.promise;
     };
 
+    /**
+     * Set a list of entry ids to be contained in this list.
+     *
+     * @param {string[]} entries - array of entry ids (as strings, not full URIs).
+     * @returns {dojo/promise/Promise}
+     */
     List.prototype.setAllEntryIds = function(entries) {
         return this._entryStore.getREST().put(this._resourceURI, json.stringify(entries))
             .then(lang.hitch(this, function() {
                 this.needRefresh();
-                return this._entryStore.getEntry(this.getOwnEntryURI()).then(function(oentry) {
+                return this._entryStore.getEntry(this.getEntryURI()).then(function(oentry) {
                     oentry.setRefreshNeeded();
                 });
             }));
     };
 
+    /**
+     * Get size of list.
+     *
+     * @returns {integer} the amount of entries in the list.
+     */
     List.prototype.getSize = function() {
         return this._size;
     };
-	
-	//=========Helper methods===============
+
+    //=========Helper methods===============
+
+    List.prototype._clearSortedEntries = function() {
+        this._sortedChildren = [];
+    };
 
 	List.prototype._getEntries = function(page, careAboutFresh) {
 		if (this._size == null) {
@@ -152,11 +220,6 @@ define([
         this._unsortedChildren = data.allUnsorted || array.map(children, function(entry) {
             return entry.getId();
         });
-    };
-
-    List.prototype.save = function(graph) {
-        this._graph = graph || this._graph;
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify(graph.exportRDFJSON()));
     };
 
     return List;

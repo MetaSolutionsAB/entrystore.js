@@ -96,7 +96,7 @@ define(['store/rest',
                 var username = ""+new Date().getTime();
                 es.newUser(username).create().then(function(entry) {
                     test.ok(entry.isUser(), "Entry created, but it is not a user!");
-                    test.ok(entry.getResource().getName() === username, "User created, but username provided in creation step is missing.")
+                    test.ok(entry.getResource(true).getName() === username, "User created, but username provided in creation step is missing.")
                     test.done();
                 }, function() {
                     test.ok(false, "Failed creating user.");

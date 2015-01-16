@@ -2,10 +2,24 @@
 define([
     'exports',
     'rdfjson/print'
-], function (exports, print) {
+], function (
+    exports,
+    print) {
 
+    /**
+     * A module that contain utility methods for generating html for entries.
+     *
+     * @exports store/html
+     * @namespace
+     */
+    var html = exports; //This construction seem to be needed because of jsdoc3 issues with not detecting the exports variable.
 
-    exports.metadataTable = function(entry) {
+    /**
+     * Generates a table with columns subject, predicate, and object.
+     * @param {store/Entry} entry to expose metadata for
+     * @returns {string} rendered html as a string
+     */
+    html.metadataTable = function(entry) {
         var delegates = print.prettyTree(entry.getMetadata(), entry.getResourceURI());
         var arr = [];
         for (var i=0;i<delegates.length;i++) {
@@ -31,7 +45,14 @@ define([
         return _ind[indent];
     };
 
-    exports.metadataIndent = function(graph, subject) {
+    /**
+     * Prints one level of triples from a subject where URIs are namespaced.
+     *
+     * @param {rdfjson/Graph} graph the graph containing the metadata
+     * @param {string} subject URI to a resource to start from
+     * @returns {string} string with the triples rendered as HTML.
+     */
+    html.metadataIndent = function(graph, subject) {
         var delegates = print.prettyTree(graph, subject);
         var arr = [];
         for (var i=0;i<delegates.length;i++) {
@@ -44,24 +65,37 @@ define([
         return arr.join("\n");
     };
 
-    exports.entryInfo = function(entryInfo) {
+    /**
+     * Prints the three types of the entry, i.e. entry, resource and graphtype.
+     * @param {store/EntryInfo} entryInfo
+     * @returns {string}
+     */
+    html.entryInfo = function(entryInfo) {
         return "<span class='info entrytype'><label>EntryType:</label> "+ entryInfo.getEntryType() + "</span>" +
             "<span class='info resourceType'><label>ResourceType:</label> "+entryInfo.getResourceType()+"</span>" +
             "<span class='info graphType'><label>GraphType:</label> "+entryInfo.getGraphType()+"</span>";
     };
-    exports.print = function(entry) {
+
+    /**
+     * Prints information about the entry, including entryinfo, metadata, cached external meradata as well as which context
+     * the entry belongs to.
+     *
+     * @param {store/Entry} entry
+     * @returns {string} information about the entry as a HTML string.
+     */
+    html.print = function(entry) {
         var strs = ["<div class='entry'>" +
             "<h3>Context: <a class='contextURI' href='"+entry.getContext().getOwnEntryURI()+"'>"+entry.getContext().getId()+"</a> <span></span> " +
             "Entry: <a class='entryURI' href='"+entry.getURI()+"'>"+entry.getId()+"</a></h3>" +
             "<div>" +
-            "<div class='entryInfo'>"+exports.entryInfo(entry.getEntryInfo())+"</div>"]
+            "<div class='entryInfo'>"+html.entryInfo(entry.getEntryInfo())+"</div>"]
         var md = entry.getMetadata();
         if (md && !md.isEmpty()) {
-            strs.push("<h4>Local metadata:</h4><div class='metadata'>"+exports.metadataIndent(md, entry.getResourceURI())+"</div>");
+            strs.push("<h4>Local metadata:</h4><div class='metadata'>"+html.metadataIndent(md, entry.getResourceURI())+"</div>");
         }
         var emd = entry.getCachedExternalMetadata();
         if (emd && !emd.isEmpty()) {
-            strs.push("<h4>Cached external metadata:</h4><div class='metadata'>"+exports.metadataIndent(emd, entry.getResourceURI())+"</div>");
+            strs.push("<h4>Cached external metadata:</h4><div class='metadata'>"+html.metadataIndent(emd, entry.getResourceURI())+"</div>");
         }
         strs.push("</div></div>");
         return strs.join("");

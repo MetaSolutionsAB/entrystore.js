@@ -92,7 +92,7 @@ define([
 	
     //===========Overwrite some functions with better support for instances as well as strings.
 	cp.context = function(context) {
-		this._context = context instanceof Context ? context.getOwnResourceURI() : context.getResourceURI ? context.getResourceURI() : lang.isString(context) && context !== "" ? context : null;
+		this._context = context instanceof Context ? context.getResourceURI() : context.getResourceURI ? context.getResourceURI() : lang.isString(context) && context !== "" ? context : null;
 		return this;
 	};
 	

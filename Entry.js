@@ -16,18 +16,17 @@ define([
      * @param {store/EntryStore} entryStore the repository for this entry
 	 * @class
 	 */
-	var Entry = function(context, entryInfo, entryStore) {
+	var Entry = function(context, entryInfo) {
 		this._context = context;
 		this._entryInfo = entryInfo;
 		this._entryInfo._entry = this;
-		this._entryStore = entryStore;
 	};
 
     /**
      * @returns {store/EntryStore}
      */
     Entry.prototype.getEntryStore = function() {
-		return this._entryStore;
+		return this._context.getEntryStore();
 	};
 
     /**
@@ -136,7 +135,7 @@ define([
 	 */
 	Entry.prototype.setMetadata = function(graph) {
 		var d = new Deferred(), self = this;
-		this._metadata= graph || this._metadata;
+		this._metadata = graph || this._metadata;
         if (this.isReference()) {
             d.reject("Entry \""+this.getURI()+"\" is a reference and have no local metadata that can be saved.");
         } else if (!this.canWriteMetadata()) {
@@ -212,28 +211,23 @@ define([
 	};
 
     /**
-     * Guaranteed to return a resource for List and Context, for other graphtypes the response may be null depending
-     * on how the entry was loaded (if indirectly as a child of a list entry the resource will be missing until explicitly
-     * loaded with loadResource). Use loadResource to be guaranteed to get a resource back.
-     * Although, it will always return null when EntryType is not local!
+     * Provides the resource for this entry if it exists in a promise, e.g. if the graph-type is not none.
+     * It is also possible to request the resource directly, i.e. get the resource rather than a promise.
+     * This is achieved by specifying the "direct" parameter as true. This always work for Lists, Groups,
+     * and Context resources. For all other resources it will work if the resource, e.g. a RDFGraph,
+     * a StringResource etc. is already loaded. If it is not loaded null will be returned.
      *
-     * @returns {store/Resource}
+     * @returns {store/Resource|dojo/promise/Promise}
      */
-    Entry.prototype.getResource = function() {
-		return this._resource;
-	};
-
-    /**
-     * If the EntryType is local then this method retrieves a resource corresponding to the GraphType.
-     *
-     * @returns {dojo/promise/Promise}
-     */
-    Entry.prototype.loadResource = function() {
+    Entry.prototype.getResource = function(direct) {
+		if (direct) {
+            return this._resource;
+        }
         var d = new Deferred();
         if (this._resource) {
             d.resolve(this._resource);
         } else {
-            this._entryStore.getREST().get(this.getResourceURI()).then(lang.hitch(this, function(data) {
+            this.getEntryStore().getREST().get(this.getResourceURI()).then(lang.hitch(this, function(data) {
                 factory.updateOrCreateResource(this, {resource: data}, true);
                 d.resolve(this._resource);
             }), function(err) {
@@ -416,17 +410,68 @@ define([
 		return this._rights.administer || this._rights.writemetadata;
 	};
 
+    /**
+     * Whether this entry is available publically or not.
+     * To make sure this method returns a boolean make sure the contexts entry is loaded, e.g. via:
+     * entry.getContext().getEntry().then(function() {
+     *    if (entry.isPublic()) {...} //Or whatever you need to do with the isPublic method.
+     * }
+     *
+     * @returns {boolean|undefined} undefined only if the entry has no ACL and the contexts entry which
+     * specifies the default access is not cached, otherwise a boolean is returned.
+     */
+    Entry.prototype.isPublic = function() {
+        var guestprincipal = this.getEntryStore().getResourceURI("_principals", "_guest");
+        var acl = this.getEntryInfo().getACL();
+        if (acl.contextOverride) {
+            var ce = this.getContext().getEntry(true);
+            if (ce == null) {
+                return;
+            }
+            acl = ce.getEntryInfo().getACL();
+            return array.some(["rwrite", "rread"], function(key) {
+                return array.indexOf(acl[key], guestprincipal);
+            });
+        } else {
+            return array.some(["rwrite", "rread", "mwrite", "mread"], function(key) {
+                return array.indexOf(acl[key], guestprincipal);
+            });
+        }
+    };
 
-	Entry.prototype.setResource = function(binary) {
-		//TODO
-	};
-	
-	Entry.prototype.resourceFileUpload = function(DOMInputElement) {
-		//TODO
-	};
+    /**
+     * Whether this entry is available to the specified user.
+     * To make sure this method returns a boolean and not undefined,
+     * make sure that the contexts entry is loaded, e.g. via:
+     *
+     * entry.getContext().getEntry().then(function() {
+     *    //And then do you check, e.g.:
+     *    entry.getEntryStore().getUserEntry().then(function(currentUserEntry) {
+     *       if (entry.isPrivateTo(currentUserEntry) {...}
+     *    })
+     * }
+     *
+     * @returns {boolean|undefined} undefined if the contexts entry which
+     * specifies the default access is not cached, otherwise a boolean is returned.
+     */
+    Entry.prototype.isPrivateTo = function(userEntry) {
+        var userPrincipal = userEntry.getResourceURI();
+        var acl = this.getEntryInfo().getACL();
+        var ce = this.getContext().getEntry(true);
+        if (ce == null) {
+            return;
+        }
+        var cacl = ce.getEntryInfo().getACL();
+        if (cacl.admin.length !== 1 || acl.admin[0] !== userPrincipal) {
+            return false;
+        }
+        if (acl.contextOverride) {
+            return acl.admin.length === 1 && acl.admin[0] === userPrincipal;
+        }
+        return true;
+    };
 
-
-	/**
+    /**
 	 * Deletes this entry without any option to recover it.
 	 * @param {boolean} recursive if true and the entry is a list it will delete the entire tree of lists
 	 * and all entries that is only contained in the current list or any of its child lists. 

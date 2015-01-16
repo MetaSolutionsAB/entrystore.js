@@ -24,7 +24,7 @@ define([
         if (entry.isList()) {
             construct.create("h2", {"innerHTML": "Entry is a list, children below:"}, node);
             //Children
-            var list = entry.getResource();
+            var list = entry.getResource(true);
             list.setLimit(38);
             list.getEntries().then(function(children) {  //TODO handle errors
                 construct.create("h3", {"innerHTML": "List loaded with "+children.length+" children."}, node);

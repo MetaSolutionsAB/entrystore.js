@@ -2,6 +2,10 @@
 define([], function() {
 
     /**
+     * Caches loaded entries and keeps track of which entries that need to be updated (refreshed).
+     * The cache also provides a listener functionality that allows you to be notified of
+     * when entries are updated.
+     *
      * @exports store/Cache
      * @class
      */
@@ -16,8 +20,8 @@ define([], function() {
      * Add or update the entry to the cache.
      * All listeners will be notified unless silently is specified.
      *
-     * @param {store.Entry} entry
-     * @param {Boolean=} silently
+     * @param {store/Entry} entry
+     * @param {Boolean=} silently - listeners will be notified unless true is specified.
      */
 	Cache.prototype.cache = function(entry, silently) {
 		var previouslyCached = this._cacheIdx[entry.getURI()] != null;
@@ -33,8 +37,8 @@ define([], function() {
      * All listeners are notified of the entry now being in need of refreshing unless
      * silently is set to true.
      *
-     * @param {store.Entry} entry
-     * @param {Boolean} silently
+     * @param {store/Entry} entry
+     * @param {Boolean=} silently
      */
 	Cache.prototype.setRefreshNeeded = function(entry, silently) {
         var ctrl = this._cacheCtrl[entry.getURI()];
@@ -50,25 +54,30 @@ define([], function() {
     /**
      * A convenience method for caching multiple entries.
      *
-     * @param {Array.<store.Entry>} entryArr
+     * @param {store/Entry[]} entryArr
      * @param {Boolean=} silently
-     * @see store.Cache#cache
+     * @see store/Cache#cache
      */
     Cache.prototype.cacheAll = function(entryArr, silently) {
 		for (var i=0; i<entryArr.length;i++) {
 			this.cache(entryArr[i], silently);
 		}
 	};
+
     /**
+     * Retrieve the entry from it's URI.
+     *
      * @param {String} entryURI
-     * @returns {store.Entry|undefined}
+     * @returns {store/Entry|undefined}
      */
     Cache.prototype.get = function(entryURI) {
 		return this._cacheIdx[entryURI];
 	};
+
     /**
+     * Tells wheter the entry is in need of a refresh from the repository.
      *
-     * @param {store.Entry} entry
+     * @param {store/Entry} entry
      * @returns {boolean}
      */
 	Cache.prototype.needRefresh = function(entry) {
@@ -78,6 +87,7 @@ define([], function() {
         }
 		return ctrl.stale === true;
 	};
+
     /**
      * @param {Function} listener
      */
@@ -105,7 +115,7 @@ define([], function() {
      * refreshed - the specified entry have been refreshed.
      *
      * @param {String} topic
-     * @param {store.Entry=} affectedEntry
+     * @param {store/Entry=} affectedEntry
      */
 	Cache.prototype.messageListeners = function(topic, affectedEntry) {
 		for (var clid in this._listenersIdx) {

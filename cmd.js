@@ -24,8 +24,8 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "s
                 context.e = result;
                 callback(padding+"Variable 'e' now points to the entry: \""+result.getURI()+"\"\n", result);
                 return true;
-            } else if (result.getOwnEntryURI) {
-                result.getOwnEntry().then(function(entry) {
+            } else if (result.getEntryURI) {
+                result.getEntry().then(function(entry) {
                     context.e = entry;
                     callback(padding+"Variable 'e' now points to the entry: \""+entry.getURI()+"\"\n", result);
                 });
@@ -129,7 +129,7 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "s
           var uri = context.r.getBaseURI()+"_contexts/entry/"+cId;
           return context.r.getEntry(uri).then(function(entry) {
               context.o = entry;
-              context.c = entry.getResource();
+              context.c = entry.getResource(true);
               l("Variable 'c' contains the current context, that is: \""+ entry.getResourceURI()+"\"");
               l("Variable 'o' contains the current contexts own entry, that is \""+entry.getURI()+"\"");
               return entry;
@@ -146,7 +146,7 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "s
         } else if (context.c == null) {
             l("You need to set current context first.\n");
         } else {
-            var uri = context.c.getOwnResourceURI()+"/entry/"+eId;
+            var uri = context.c.getResourceURI()+"/entry/"+eId;
             return context.r.getEntry(uri).then(function(entry) {
                 context.e = entry;
                 l("Variable 'e' contains the current entry, that is: \""+entry.getURI()+"\"");
@@ -225,14 +225,14 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "s
             return;
         }
 
-        var list = context.e.getResource();
+        var list = context.e.getResource(true);
         return list.getEntries(page).then(function(children) {
             context._list_offset = page*list.getLimit();
             if (context._list_offset > list.getSize()) {
-                l("Showing no entries as the page is out of range, there are only "+ Math.ceil(list.getSize() / list.getLimit()) +" pages with in total "+list.getSize()+" entries in list \""+list.getOwnEntryURI()+"\"\n");
+                l("Showing no entries as the page is out of range, there are only "+ Math.ceil(list.getSize() / list.getLimit()) +" pages with in total "+list.getSize()+" entries in list \""+list.getEntryURI()+"\"\n");
                 return;
             } else {
-                l("Showing entry "+(context._list_offset) +" to entry "+(context._list_offset+children.length-1)+" in the List \""+list.getOwnEntryURI()+"\"");
+                l("Showing entry "+(context._list_offset) +" to entry "+(context._list_offset+children.length-1)+" in the List \""+list.getEntryURI()+"\"");
                 l("There are in total "+list.getSize()+" entries in list.");
             }
             return children;

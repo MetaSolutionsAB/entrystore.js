@@ -5,7 +5,8 @@ define([
 ], function(List, factory) {
 	
 	/**
-     * @param {store.EntryStore} entryStore
+     * @exports store/SearchList
+     * @param {store/EntryStore} entryStore
      * @param {Object} query
 	 * @constructor
 	 */
@@ -15,6 +16,10 @@ define([
 		this._sortedChildren = [];
 	};
 
+    /**
+     * the query instance, e.g. an instance of store/solr, associated with this SearchList.
+     * @returns {Object}
+     */
 	SList.prototype.getQuery = function() {
 		return this._query;
 	};

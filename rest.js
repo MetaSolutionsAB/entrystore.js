@@ -14,24 +14,19 @@ define([
         "X-Requested-With": null
 	};
 
+    /**
+     * Functionality for communicating with the repository via Ajax calls.
+     * Authentication is done via cookies and accept headers are in general set to
+     * application/json behind the scenes.
+     *
+     * @exports store/rest
+     * @namespace
+     */
 	var rest = {
-		// Authentication placeholder to be overridden to set login details
-		insertAuthArgs: function(xhrArgs) {
-            if (rest._authScheme === "basic") {
-                xhrArgs.user = rest._user;
-                xhrArgs.password = rest._password;
-            }
-            return xhrArgs;
-		},
-		// Authentication placeholder to be overridden to set login details
-		insertAuthParams: function(url) {
-			return url;
-		},
-
         /**
-         *
-         * @param credentials
-         * @returns {dojo.promise.Promise}
+         * @param {object} credentials should contain attributes "user", "password", and "maxAge".
+         * MaxAge is the amount of seconds the authorization should be valid.
+         * @returns {dojo/promise/Promise}
          */
         auth: function(credentials) {
             delete headers.cookie;
@@ -66,8 +61,11 @@ define([
         },
 
         /**
-         * @param uri
-         * @returns {dojo.promise.Promise}
+         * Fetches JSON data from the provided URI.
+         * If a cross-domain call is made and we are in a browser environment a jsonp call is made.
+         *
+         * @param {string} uri - URI to a resource to fetch.
+         * @returns {dojo/promise/Promise}
          */
 		get: function(uri) {
             var jsonp = false;
@@ -91,12 +89,12 @@ define([
                 });
                 return d;
             } else {
-                var d = request.get(uri, rest.insertAuthArgs({
+                var d = request.get(uri, {
                         preventCache: true,
                         handleAs: "json",
                         headers: headers,
                         withCredentials: true
-                    })).response.then(function(response) {
+                }).response.then(function(response) {
                         if (response.status === 200) {
                             return response.data;
                         } else {
@@ -108,20 +106,31 @@ define([
 		},
 		
 		/**
-		 * @param {String} uri to post to.
-		 * @param {String} data to post
-		 * @return a promise on which you can call .then on.
+         * Posts data to the provided URI.
+         *
+		 * @param {String} uri - an URI to post to.
+		 * @param {String|Object} data - the data to post either as a string or as an object that will be serialized as JSON.
+		 * @return {dojo/promise/Promise}
 		 */
 		post: function(uri, data) {
-			return request.post(uri, rest.insertAuthArgs({
-				preventCache: true,
-				handleAs: "json",
-				data: data,
-				headers: headers,
+            return request.post(uri, {
+                preventCache: true,
+                handleAs: "json",
+                data: data,
+                headers: headers,
                 withCredentials: true
-			}));
+            });
 		},
-		
+
+        /**
+         * Posts data to a factory resource with the intent to create a new resource.
+         * That is, it posts data and expects a Location header back with information on the created resource.
+         *
+         * @param {string} uri - factory resource, may include parameters.
+         * @param {string|Object} data - the data that is to be posted as a string,
+         * if an object is provided it will be serialized as json.
+         * @returns {dojo/promise/Promise}
+         */
 		create: function(uri, data) {
 			var d = new Deferred();
 			rest.post(uri, data).response.then(function(response) {
@@ -134,68 +143,91 @@ define([
 		},
 
 		/**
-		 * @param {String} uri the address to put to.
-		 * @param {String} data the data to put.
+         * Replaces a resource with a new representation.
+         *
+		 * @param {string} uri the address to put to.
+		 * @param {string|Object} data - the data to put, either a string or a object that is serialized as json.
 		 * @param {Date} modDate a date to use for the HTTP if-unmodified-since header.
-		 * @return a promise on which you can call .then on.
+		 * @return {dojo/promise/Promise}
 		 */
 		put: function(uri, data, modDate) {
 			var loc_headers = lang.clone(headers);
 			if (modDate) {
 				loc_headers["If-Unmodified-Since"] = modDate;			
 			}
-			return request.put(uri, rest.insertAuthArgs({
+			return request.put(uri, {
 				preventCache: true,
 				handleAs: "json",
 				data: data,
 				headers: loc_headers,
                 withCredentials: true
-			}));
+			});
 		},
 		
 		/**
-		 * @param {String} uri of the resource to delete.
-		 * @return a promise.
+         * Deletes a resource.
+         *
+		 * @param {String} uri of the resource that is to be deleted.
+		 * @return {dojo/promise/Promise}
 		 */
 		del: function(uri){
-			return request.del(uri, rest.insertAuthArgs({
+			return request.del(uri, {
 				preventCache: true,
 				handleAs: "json",
 				headers: headers,
                 withCredentials: true
-			}));
-		}
+			});
+		},
+
+        /**
+         * Put a file to a URI.
+         * In a browser environment a file is represented via an input tag which references
+         * the file to be uploaded via its value attribute.
+         * In non-browser environments the file is typically represented as a file handle.
+         *
+         * > _**Under the hood** the tag is moved into a form in an invisible iframe
+         * which then is submitted. If there is a response it is provided in a textarea which
+         * can be looked into since we are on the same domain._
+         *
+         * @param {string} uri the URI to which we will put the file.
+         * @param {data} data - input tag or file handle that corresponds to a file.
+         * @todo implement in non-browser environment.
+         */
+        putFile: function(uri, data) {
+            throw "Currently not supported in a non-browser environment!";
+        }
 	};
 	if (has("host-browser")) {
 		require([
 			"dojo/_base/window",
 			"dojo/request/iframe"
 			], function(win, iframe) {
-				rest.putFile = function(resourceURI, inputNode, onSuccess, onError) {
-				  if(!inputNode.value){ return; }
+
+				rest.putFile = function(uri, data) {
+                    if(!data.value){ return; }
+                    var _newForm;
+                    if(has("ie")){
+                        // just to reiterate, IE is a steaming pile of shit.
+                        _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
+                        _newForm.encoding = "multipart/form-data";
+                    } else {
+                        // this is how all other sane browsers do it
+                        _newForm = document.createElement('form');
+                        _newForm.setAttribute("enctype","multipart/form-data");
+                        _newForm.setAttribute("method","post");
+                    }
 		          
-		          var _newForm; 
-		          if(has("ie")){
-		                  // just to reiterate, IE is a steaming pile of shit. 
-		                  _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
-		                  _newForm.encoding = "multipart/form-data";
-		          }else{
-		                  // this is how all other sane browsers do it
-		                  _newForm = document.createElement('form');
-		                  _newForm.setAttribute("enctype","multipart/form-data");
-		                  _newForm.setAttribute("method","post");
-		          }
-		          
-		          _newForm.appendChild(inputNode);
-		          win.body().appendChild(_newForm);
-		
-		          iframe(rest.insertAuthParams(resourceURI+(resourceURI.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true"),
-					{
-						preventCache: true,
-		                handleAs: "json",
-		                form: _newForm
-					}).then(onSuccess, onError);
-				}
+                    _newForm.appendChild(data);
+                    win.body().appendChild(_newForm);
+
+                    return iframe(
+                        (uri+(uri.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true"),
+                        {
+                            preventCache: true,
+                            handleAs: "json",
+                            form: _newForm
+                        });
+                };
 		});
 	}
 	

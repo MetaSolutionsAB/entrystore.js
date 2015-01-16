@@ -23,11 +23,11 @@ define([
         },
         refresh: function(test) {
             c.newEntry().create().then(function(entry) {
-                var graph = entry.getMetadata(true);
+                var graph = entry.getMetadata();
                 graph.create(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title"});
                 test.ok(!graph.isEmpty(), "Could not change the metadata graph.");
                 entry.refresh(true, true).then(function() {
-                    test.ok(entry.getMetadata(true).isEmpty(), "Could not refresh, unsaved changes in metadata graph remains.");
+                    test.ok(entry.getMetadata().isEmpty(), "Could not refresh, unsaved changes in metadata graph remains.");
                     test.done();
                 });
             });
@@ -123,10 +123,10 @@ define([
             g.create("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
             c.newGraph(g).create().then(function(entry) {
                 test.ok(entry.isGraph(), "Entry created, but it is not a graph as expected.");
-                entry.loadResource().then(function(res) {
+                entry.getResource().then(function(res) {
                     test.ok(res.getGraph().find().length === 1, "The created graph Entry does save the provided graph upon creation");
                     var g2 = new Graph();
-                    res.setGraph(g2).then(function() {
+                    res.setGraph(g2).commit().then(function() {
                         entry.setRefreshNeeded();
                         entry.refresh().then(function() {
                             test.ok(res.getGraph().isEmpty(), "Failed to update ")
@@ -145,10 +145,10 @@ define([
         },
         updateGraphEntry: function(test) {
             c.newGraph().create().then(function(entry) {
-                entry.loadResource().then(function(res) {
+                entry.getResource().then(function(res) {
                     var g = new Graph();
                     g.create("http://example.com/", dct+"title", {type: "literal", value:"Some title"});
-                    res.setGraph(g).then(function() {
+                    res.setGraph(g).commit().then(function() {
                         test.ok(res.getGraph().find(null, dct+"subject").length === 1, "Statement added after save missing, should be there until refresh.");
                         entry.setRefreshNeeded();
                         entry.refresh().then(function() {
@@ -174,7 +174,7 @@ define([
         stringEntry: function(test) {
             c.newString("one").create().then(function(entry) {
                 test.ok(entry.isString(), "Entry created, but it is not a string as expected.");
-                entry.loadResource().then(function(res) {
+                entry.getResource().then(function(res) {
                     test.ok(res.getString() === "one", "The created string entry does not have the string provided upon creation.");
                     test.done();
                 });
@@ -186,11 +186,11 @@ define([
         updateStringEntry: function(test) {
             var str = "a string";
             c.newString().create().then(function(entry) {
-                entry.loadResource().then(function(res) {
+                entry.getResource().then(function(res) {
                     test.ok(res.getString() === "", "Empty string instead of null");
-                    res.setString(str).then(function() {
+                    res.setString(str).commit().then(function() {
                         test.ok(res.getString() === str, "String is not set correctly");
-                        res.setString("").then(function() {
+                        res.setString("").commit().then(function() {
                             entry.setRefreshNeeded();
                             entry.refresh().then(function() {
                                 console.log("String is: "+res.getString());

@@ -15,7 +15,7 @@
       ], function(EntryStore, construct, array, html) {
           var es = new EntryStore();
           es.getEntry(es.getEntryURI("1", "_top")).then(function(entry) {
-              var list = entry.getResource();
+              var list = entry.getResource(true);
               list.getEntries().then(function(children) {
                   construct.create("h3", {"innerHTML": "List loaded with "+children.length+" children."}, "_contentNode");
                   array.forEach(children, function(child) {

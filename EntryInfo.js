@@ -13,8 +13,8 @@ define([
      * EntryInfo is a class that contains all the administrative information for an entry.
      * @exports store/EntryInfo
      * @param {String} entryURI must be provided unless the graph contains a statement with the store:resource property which allows us to infer the entryURI.
-	 * @param {rdfjson.Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as statements
-     * @param {store.EntryStore} entryStore
+	 * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as statements
+     * @param {store/EntryStore} entryStore
 	 * @class
 	 */
 	var EntryInfo = function(entryURI, graph, entryStore) {
@@ -24,21 +24,21 @@ define([
 	};
 
     /**
-     * @returns {store.Entry}
+     * @returns {store/Entry}
      */
 	EntryInfo.prototype.getEntry = function() {
 		return this._entry;
 	};
 
     /**
-     * @param {rdfjson.Graph} graph
+     * @param {rdfjson/Graph} graph
      */
 	EntryInfo.prototype.setGraph = function(graph) {
 		this._graph = graph;
 	};
 
     /**
-     * @return {rdfjson.Graph}
+     * @return {rdfjson/Graph}
      */
 	EntryInfo.prototype.getGraph = function() {
 		return this._graph;
@@ -46,7 +46,7 @@ define([
 
     /**
      * Saves the entry information, e.g. posts to basepath/store/{contextId}/entry/{entryId}
-     * @returns {dojo.promise.Promise}
+     * @returns {dojo/promise/Promise}
      */
 	EntryInfo.prototype.save = function() {
 		var d = new Deferred(), self = this;
@@ -131,7 +131,7 @@ define([
 
     /**
      * @returns {String} one of the entryTypes
-     * @see store.terms#entryType
+     * @see store/terms#entryType
      */
     EntryInfo.prototype.getEntryType = function() {
 		var et = this._graph.findFirstValue(this._entryURI, terms.rdf.type);

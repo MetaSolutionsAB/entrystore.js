@@ -33,7 +33,7 @@ define([
         },
 
         members: function(test) {
-            var resource = lst.getResource();
+            var resource = lst.getResource(true);
             resource.getEntries().then(function(entries) {
                 test.ok(entries.length >= 2, "List have to few children");
                 test.done();
@@ -42,7 +42,7 @@ define([
 
         addMember: function(test) {
             c.newEntry().create().then(function(entry) {
-                var lres = lst.getResource();
+                var lres = lst.getResource(true);
                 test.ok(entry.getParentLists().length === 0, "New entry should not belong to a parentList unless explicitly specified.");
                 test.ok(!entry.needRefresh(), "New entry should not be in need of a refresh.");
                 lres.addEntry(entry).then(function() {
@@ -57,7 +57,7 @@ define([
 
         addMemberOnCreate: function(test) {
             c.newEntry().setParentList(lst).create().then(function(entry) {
-                lst.getResource().getEntries().then(function(entries) {
+                lst.getResource(true).getEntries().then(function(entries) {
                     test.ok(entries.indexOf(entry) >= 0, "Entry not contained in list, list not refreshed or entry not added to list.");
                     test.done();
                 });
@@ -66,7 +66,7 @@ define([
 
         removeMember: function(test) {
             c.newEntry().setParentList(lst).create().then(function(entry) {
-                var lres = lst.getResource();
+                var lres = lst.getResource(true);
                 test.ok(entry.getParentLists().length === 1, "New entry should belong to the specified parentList provided upon creation.");
                 test.ok(!entry.needRefresh(), "New entry should not be in need of a refresh.");
                 lres.getEntries().then(function(entries) {

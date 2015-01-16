@@ -1,15 +1,21 @@
 /*global define*/
 define([
     "dojo/json",
+    "dojo/_base/lang",
     "store/Resource"
-], function(json, Resource) {
+], function(json, lang, Resource) {
 	
 	/**
-     * @param {store.EntryStore} entryStore
-     * @param {String} entryURI
-	 * @param {String} resourceURI
-	 * @constructor
-     * @extends store.Resource
+     * User instances are resources corresponding to users that can be authenticated to access the EntryStore repository.
+     * The user resource URI can be referred to from access control lists.
+     *
+     * @exports store/User
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     * @param {Object} data - information about the user, e.g. object containing name and homecontext.
+	 * @class
+     * @extends store/Resource
 	 */
 	var User = function(entryURI, resourceURI, entryStore, data) {
         Resource.apply(this, arguments); //Call the super constructor.
@@ -20,30 +26,64 @@ define([
     F.prototype = Resource.prototype;
     User.prototype = new F();
 
+    /**
+     * Get the name of the user, this is a a unique name (username) in the current repository's _principals context.
+     * @returns {string}
+     */
     User.prototype.getName = function() {
-        return this._data["name"];
+        return this._data.name;
     };
 
+    /**
+     * Set a new name (username), it will not succeed if it is already in use, for instance by another user or group.
+     * @param {string} name
+     * @returns {dojo/promise/Promise}
+     */
     User.prototype.setName = function(name) {
+        var oldname = this._data.name;
         this._data.name = name;
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify({name: name})).then(function(data) {
+            return data;
+        }, lang.hitch(this, function(e) {
+            this._data.name = oldname;
+            throw e;
+        }));
     };
 
+    /**
+     * Set a new password for the user.
+     *
+     * @param {string} password - a new password, should be at least 8 characters long.
+     * @returns {dojo/promise/Promise}
+     */
     User.prototype.setPassword = function(password) {
-        this._data.password = password;
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify({password: password}));
     };
 
+    /**
+     * Get the home context for this user.
+     *
+     * @returns {string} - a context id (not the full resource URI).
+     */
     User.prototype.getHomeContext = function() {
         return this._data.homecontext;
     };
 
-    User.prototype.setHomeContext = function(context) {
-        this._data.homecontext = context;
+    /**
+     * Set a new home context for this user.
+     *
+     * @param {string} contextId - a context id (not the full resource URI).
+     * @returns {dojo/promise/Promise}
+     */
+    User.prototype.setHomeContext = function(contextId) {
+        var oldhc = this._data.homecontext;
+        this._data.homecontext = contextId;
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify({homecontext: contextId}))
+            .then(function(data) {return data;}, lang.hitch(this, function(e) {
+                this._data.homecontext = oldhc;
+                throw e;
+            }));
     };
-
-    //TODO fix ifModifiedSince.
-	User.prototype.save = function() {
-		return this._entryStore.getREST().put(this._resourceURI, json.stringify(this._data));
-	};
 
     User.prototype.getSource = function() {
         return this._data;
