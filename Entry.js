@@ -10,6 +10,17 @@ define([
 ], function(array, lang, Graph, types, Deferred, json, factory) {
 	
 	/**
+     * Entrys are at the center of this API. Entrys holds together metadata, external metadata, resources,
+     * access control, and provenance. Hence, entrys appear in the majority of methods, either directly or in
+     * callbacks via promises. Each entry has a simple identifier within a context and a globally unique URI that
+     * can be used to load, store and index the entry.
+     *
+     * Many of the methods in this class are convenience methods that allows the developer to interact with
+     * the information retrieved from the repository without digging through the RDF graphs. For instance,
+     * all methods starting with _can_ or _is_ are convenience methods for working with access control or the type
+     * information available in the associated {@link store/EntryInformation} class. The same is true for the
+     * majority of the get methods, only those that have corresponding set methods are really unique for this class.
+     *
      * @exports store/Entry
      * @param {store/Context} context container for this entry
 	 * @param {store/EntryInfo} entryInfo defines the basics of this entry
@@ -55,58 +66,12 @@ define([
     };
 
     /**
+     * Convenience method, same as calling entry.getEntryInfo().getResourceURI()
      * @returns {string} a URI to the resource of this entry.
      */
     Entry.prototype.getResourceURI = function() {
         return this._entryInfo.getResourceURI();
     };
-
-    /**
-	 * That an entry needs to be refreshed typically means that it contains stale data (with respect to what is available in the store). 
-	 * The entry should be refresh before it is further used.
-	 * 
-	 * @param {boolean=} silently the cache will send out a stale message (to all registered listeners of the cache)
-	 * for this entry if the value is false or undefined.
-	 * @see Entry.refresh.
-	 */
-	Entry.prototype.setRefreshNeeded = function(silently) {
-		this.getEntryStore().getCache().setRefreshNeeded(this, silently);
-	};
-
-    /**
-     * Tells whether an entry needs to be refreshed.
-     *
-     * @return {boolean} true if the entry need to be refreshed before used.
-     * @see Entry.refresh.
-     */
-    Entry.prototype.needRefresh = function() {
-        return this.getEntryStore().getCache().needRefresh(this);
-    };
-
-    /**
-	 * Refreshes an entry if needed, that is, if it has been marked as invalid.
-	 * @param {boolean=} silently the cache will send out a refresh message for this entry
-	 * if a refresh was needed AND if the value of silently is false or undefined. If force is true
-     * it will send out a refresh message anyhow.
-     * @param {force=} if true the entry will be refreshed independent if it was marked in need of a refresh or not.
-	 */
-	Entry.prototype.refresh = function(silently, force) {
-		var d = new Deferred();
-		var es = this.getEntryStore();
-        if (force === true || es.getCache().needRefresh(this)) {
-			var self = this, entryURI = this.getURI();
-			es.getREST().get(factory.getEntryLoadURI(entryURI)).then(function(data) {
-				factory.update(self, data);
-				es.getCache().cache(self, silently);
-				d.resolve(self);
-			}, function(err) {
-				d.reject("Failed refreshing entry. "+err);
-			});
-		} else {
-			d.resolve(this);
-		}
-		return d.promise;
-	};
 
     /**
      * @returns {store/Context}
@@ -116,7 +81,9 @@ define([
 	};
 	
 	/**
-	 * @return {rdfjson/Graph} a RDF graph with metadata, typically containing statements about the resourceURI.
+     * Provides an RDF graph as an {@link rdfjson/Graph} instance.
+	 * @return {rdfjson/Graph} a RDF graph with metadata, typically containing statements about the resourceURI. The
+     * returned graph may be empty but never null or undefined.
 	 */
 	Entry.prototype.getMetadata = function() {
 		if (this._metadata == null) {
@@ -124,18 +91,35 @@ define([
         }
         return this._metadata;
 	};
-	
-	/**
-	 * Updates the metadata for this entry.
-	 * Invalidates all graph object previously retrieved via getMetadata.
-	 * Setting metadata for an entry with entrytype 'reference' will change it to 'linkreference'. 
+
+    /**
+     * Sets a new metadata graph for this entry without pushing it to the repository.
+     * In many cases this method is not needed since you can get the metadata graph, modify it and then
+     * commit the changes directly.
+     *
+     * However, in some cases you need to set a new metadata graph, e.g.
+     * you want to overwrite the metadata with a new graph retrieved from another source
+     * or the entry have been refreshed with new information and you want to commit the merged results.
+     * In these cases you need to discard the current metadata graph with help of this method.
+     *
+     * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current metadata graph is saved (there is currently no check whether it has been modified or not).
+     * @return store/Entry - to allow chaining with other methods, e.g. with commitMetadata.
+     */
+    Entry.prototype.setMetadata = function(graph) {
+        this._metadata = graph;
+        return this;
+    }
+
+
+    /**
+	 * Will push the metadata for this entry to the repository.
+	 * If metadata has been set for an entry with EntryType 'reference'
+     * the entrytype will change to 'linkreference' upon a successful commit.
 	 * 
-	 * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current metadata graph is saved (there is currently no check whether it has been modified or not).
-	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry (the entry is not replaced only updated).
+	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry.
 	 */
-	Entry.prototype.setMetadata = function(graph) {
+	Entry.prototype.commitMetadata = function() {
 		var d = new Deferred(), self = this;
-		this._metadata = graph || this._metadata;
         if (this.isReference()) {
             d.reject("Entry \""+this.getURI()+"\" is a reference and have no local metadata that can be saved.");
         } else if (!this.canWriteMetadata()) {
@@ -165,7 +149,9 @@ define([
 	
 	/**
 	 * Cached external metadata can only be provided for entries with entrytype reference or linkreference.
-	 * @return {rdfjson.Graph} a RDF graph with cached external metadata, typically containing statements about the resourceURI.
+	 *
+     * @return {rdfjson/Graph} - a RDF graph with cached external metadata, typically containing statements
+     * about the resourceURI. The returned graph may be empty but never null or undefined.
 	 */	
 	Entry.prototype.getCachedExternalMetadata = function() {
         if (this._cachedExternalMetadata == null) {
@@ -175,16 +161,24 @@ define([
         return this._cachedExternalMetadata;
 	};
 
-	/**
-	 * Updates the cached external metadata for this entry.
-	 * Invalidates all graph object previously retrieved via getCachedExternalMetadata.
-	 * 
-	 * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current cached external metadata graph is saved (there is currently no check whether it has been modified or not).
-	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry (the entry is not replaced only updated).
+    /**
+     * Sets a new cached external metadata graph for this entry without pushing it to the repository.
+     *
+     * @param {rdfjson/Graph} graph is an RDF graph with metadata.
+     * @return store/Entry - to allow chaining with other methods, e.g. with commitCachedExternalMetadata.
+     */
+    Entry.prototype.setCachedExternalMetadata = function(graph) {
+        this._cachedExternalMetadata = graph || this._cachedExternalMetadata;
+        return this;
+    };
+
+    /**
+	 * Pushes the current cached external metadata graph for this entry to the repository.
+	 *
+	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry.
 	 */	
-	Entry.prototype.setCachedExternalMetadata = function(graph) {
+	Entry.prototype.commitCachedExternalMetadata = function() {
 		var d = new Deferred(), self = this;
-		this._cachedExternalMetadata = graph || this._cachedExternalMetadata;
 		this.getEntryStore().getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(), json.stringify(this._cachedExternalMetadata.exportRDFJSON())).then(function() {
 			self.setRefreshNeeded(true);
 			self.refresh().then(function() {
@@ -201,6 +195,7 @@ define([
 	};
 
     /**
+     * @todo remains to be supported in repository
      * @returns {rdfjson/Graph}
      */
     Entry.prototype.getExtractedMetadata = function() {
@@ -282,128 +277,147 @@ define([
 
 
     /**
-     * GraphType list
+     * Is the resource of this entry of the GraphType list?
      * @returns {boolean}
      */
 	Entry.prototype.isList = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.LIST;
 	};
     /**
-     * Graphtype resultlist
+     * Is the resource of this entry of the Graphtype resultlist?
      * @returns {boolean}
      */
 	Entry.prototype.isResultList = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.RESULTLIST;
 	};
     /**
-     * GraphType context
+     * Is the resource of this entry of the GraphType context?
      * @returns {boolean}
      */
 	Entry.prototype.isContext = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.CONTEXT;
 	};
     /**
-     * GraphType systemcontext
+     * Is the resource of this entry of the GraphType systemcontext?
      * @returns {boolean}
      */
 	Entry.prototype.isSystemContext = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.SYSTEMCONTEXT;
 	};
+
     /**
-     * GraphType user
+     * Is the resource of this entry of the GraphType user?
      * @returns {boolean}
      */
 	Entry.prototype.isUser = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.USER;
 	};
+
     /**
-     * GraphType group
+     * Is the resource of this entry of the GraphType group?
      * @returns {boolean}
      */
 	Entry.prototype.isGroup = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.GROUP;
 	};
+
     /**
-     * GraphType graph
+     * Is the resource of this entry of the GraphType graph?
      * @returns {boolean}
      */
 	Entry.prototype.isGraph = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.GRAPH;
 	};
     /**
-     * GraphType string
+     * Is the resource of this entry of the GraphType string?
      * @returns {boolean}
      */
 	Entry.prototype.isString = function() {
 		return this.getEntryInfo().getGraphType() === types.GT.STRING;
 	};
+
     /**
-     * GraphType none.
+     * Is the resource of this entry of the GraphType none?
      * @returns {boolean}
      */
     Entry.prototype.isNone = function() {
         return this.getEntryInfo().getGraphType() === types.GT.NONE;
     };
+
     /**
-     * EntryType link
+     * Is this entry of the EntryType link?
      * @returns {boolean}
      */
 	Entry.prototype.isLink = function() {
 		return this.getEntryInfo().getEntryType() === types.ET.LINK;
 	};
+
     /**
-     * EntryType reference
+     * Is this entry of the EntryType reference?
      * @returns {boolean}
      */
 	Entry.prototype.isReference = function() {
 		return this.getEntryInfo().getEntryType() === types.ET.REF;
 	};
+
     /**
-     * EntryType linkreference
+     * Is this entry of the EntryType linkreference?
      * @returns {boolean}
      */
 	Entry.prototype.isLinkReference = function() {
 		return this.getEntryInfo().getEntryType() === types.ET.LINKREF;
 	};
+
     /**
-     * EntryType link, linkreference or reference
+     * Is the entry of the EntryType link, linkreference or reference?
      * @returns {boolean} true if entrytype is NOT local.
      */
 	Entry.prototype.isExternal = function() {
 		return this.getEntryInfo().getEntryType() !== types.ET.LOCAL;
 	};
+
     /**
-     * EntryType local
+     * Is the entry of the EntryType local?
      * @returns {boolean}
      */
 	Entry.prototype.isLocal = function() {
 		return this.getEntryInfo().getEntryType() === types.ET.LOCAL;
 	};
+
     /**
+     * Is the current user an owner of this entry?
      * @returns {boolean}
      */
 	Entry.prototype.canAdministerEntry = function() {
 		return this._rights.administer;
 	};
+
     /**
+     * Is the current user authorized to read the resource of this entry?
      * @returns {boolean}
      */
 	Entry.prototype.canReadResource = function() {
 		return this._rights.administer || this._rights.readresource || this._rights.writeresource;
 	};
+
     /**
+     * Is the current user authorized to write the resource of this entry?
      * @returns {boolean}
      */
 	Entry.prototype.canWriteResource = function() {
 		return this._rights.administer || this._rights.writeresource;
 	};
+
     /**
+     * Is the current user authorized to read the metadata of this entry?
      * @returns {boolean}
      */
 	Entry.prototype.canReadMetadata = function() {
 		return this._rights.administer || this._rights.readmetadata || this._rights.writemetadata;
 	};
+
     /**
+     * Is the current user authorized to write the metadata of this entry?
      * @returns {boolean}
      */
 	Entry.prototype.canWriteMetadata = function() {
@@ -485,5 +499,52 @@ define([
 		}
 	};
 
-	return Entry;
+    /**
+     * That an entry needs to be refreshed typically means that it contains stale data (with respect to what is available in the store).
+     * The entry should be refresh before it is further used.
+     *
+     * @param {boolean=} silently the cache will send out a stale message (to all registered listeners of the cache)
+     * for this entry if the value is false or undefined.
+     * @see store.Entry#refresh.
+     */
+    Entry.prototype.setRefreshNeeded = function(silently) {
+        this.getEntryStore().getCache().setRefreshNeeded(this, silently);
+    };
+
+    /**
+     * Tells whether an entry needs to be refreshed.
+     *
+     * @return {boolean} true if the entry need to be refreshed before used.
+     * @see store/Entry#refresh.
+     */
+    Entry.prototype.needRefresh = function() {
+        return this.getEntryStore().getCache().needRefresh(this);
+    };
+
+    /**
+     * Refreshes an entry if needed, that is, if it has been marked as invalid.
+     * @param {boolean=} silently the cache will send out a refresh message for this entry
+     * if a refresh was needed AND if the value of silently is false or undefined. If force is true
+     * it will send out a refresh message anyhow.
+     * @param {force=} if true the entry will be refreshed independent if it was marked in need of a refresh or not.
+     */
+    Entry.prototype.refresh = function(silently, force) {
+        var d = new Deferred();
+        var es = this.getEntryStore();
+        if (force === true || es.getCache().needRefresh(this)) {
+            var self = this, entryURI = this.getURI();
+            es.getREST().get(factory.getEntryLoadURI(entryURI)).then(function(data) {
+                factory.update(self, data);
+                es.getCache().cache(self, silently);
+                d.resolve(self);
+            }, function(err) {
+                d.reject("Failed refreshing entry. "+err);
+            });
+        } else {
+            d.resolve(this);
+        }
+        return d.promise;
+    };
+
+    return Entry;
 });

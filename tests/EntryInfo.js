@@ -33,7 +33,7 @@ define([
                 test.ok(mo > yesterday && mo < tomorrow, "Modification date seems to be incorrect");
                 test.ok(mo >= cr, "Modification date should be same as creation date after first creation.");
                 entry.setMetadata(new Graph({"http://example.com": {"http://purl.org/dc/terms/title": [{value: "A title", type: "literal"}]}}))
-                    .then(function() {
+                    .commitMetadata().then(function() {
                         test.ok(ei.getModificationDate() > mo, "Modification date not changed after metadata was updated.");
                         test.done();
                     });
@@ -64,7 +64,7 @@ define([
                 var acl = {admin: [es.getEntryURI("_principals", "admin")]};
                 ei.setACL(acl);
                 test.ok(ei.hasACL(), "No ACL present although it was just set.");
-                ei.save().then(function() {
+                ei.commit().then(function() {
                     var acl = ei.getACL();
                     test.ok(acl.admin.length === 1, "ACL failed to save.");
                     test.ok(acl.rread.length === 0, "Local modifications of ACL after save operation remains.");
@@ -91,7 +91,7 @@ define([
                 var ei = entry.getEntryInfo();
                 ei.setResourceURI(uri2);
                 test.ok(uri2 === ei.getResourceURI(), "Failed to set new URI");
-                ei.save().then(function() {
+                ei.commit().then(function() {
                     test.ok(ei.getResourceURI() === uri2, "Failed to save new URI, local change remains.");
                     test.done();
                 });
@@ -106,7 +106,7 @@ define([
                 var ei = entry.getEntryInfo();
                 ei.setExternalMetadataURI(mduri2);
                 test.ok(ei.getExternalMetadataURI() === mduri2, "Failed to set new external metadata URI");
-                ei.save().then(function() {
+                ei.commit().then(function() {
                     test.ok(ei.getExternalMetadataURI() === mduri2, "Failed to save new URI, local change remains.");
                     test.done();
                 });

@@ -44,11 +44,12 @@ define([
 		return this._graph;
 	};
 
+
     /**
-     * Saves the entry information, e.g. posts to basepath/store/{contextId}/entry/{entryId}
+     * Pushes the entry information to the repository, e.g. posts to basepath/store/{contextId}/entry/{entryId}
      * @returns {dojo/promise/Promise}
      */
-	EntryInfo.prototype.save = function() {
+	EntryInfo.prototype.commit = function() {
 		var d = new Deferred(), self = this;
         this._entry.getEntryStore().getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON())).then(function() {
 			self._entry.setRefreshNeeded(true);

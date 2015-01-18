@@ -59,7 +59,7 @@ define([
         updateMetadata: function(test) {
             var pe = c.newEntry().create().then(function(entry) {
                 entry.getMetadata(true).create(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title2"});
-                entry.setMetadata().then(function() {
+                entry.commitMetadata().then(function() {
                     entry.getMetadata().findAndRemove();
                     test.ok(entry.getMetadata().findFirstValue(entry.getResourceURI(), dct+"title") == null, "Could not clear the RDF graph.");
                     entry.refresh(true, true).then(function() {
@@ -231,7 +231,7 @@ define([
                 var cemd = entry.getCachedExternalMetadata();
                 test.ok(cemd.isEmpty(), "New Link entry has non-empty cached external metadata, strange.");
                 cemd.create(entry.getResourceURI(), dct+"title", {value: "A title", type: "literal"});
-                return entry.setCachedExternalMetadata().then(function() {
+                return entry.commitCachedExternalMetadata().then(function() {
                     test.ok(!cemd.isEmpty(), "Failed to save cached external metadata.");
                     test.done();
                 }, function() {
