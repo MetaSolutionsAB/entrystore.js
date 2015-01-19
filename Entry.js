@@ -281,28 +281,28 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isList = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.LIST;
+		return this.getEntryInfo().getGraphType() === types.GT_LIST;
 	};
     /**
      * Is the resource of this entry of the Graphtype resultlist?
      * @returns {boolean}
      */
 	Entry.prototype.isResultList = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.RESULTLIST;
+		return this.getEntryInfo().getGraphType() === types.GT_RESULTLIST;
 	};
     /**
      * Is the resource of this entry of the GraphType context?
      * @returns {boolean}
      */
 	Entry.prototype.isContext = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.CONTEXT;
+		return this.getEntryInfo().getGraphType() === types.GT_CONTEXT;
 	};
     /**
      * Is the resource of this entry of the GraphType systemcontext?
      * @returns {boolean}
      */
 	Entry.prototype.isSystemContext = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.SYSTEMCONTEXT;
+		return this.getEntryInfo().getGraphType() === types.GT_SYSTEMCONTEXT;
 	};
 
     /**
@@ -310,7 +310,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isUser = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.USER;
+		return this.getEntryInfo().getGraphType() === types.GT_USER;
 	};
 
     /**
@@ -318,7 +318,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isGroup = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.GROUP;
+		return this.getEntryInfo().getGraphType() === types.GT_GROUP;
 	};
 
     /**
@@ -326,14 +326,14 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isGraph = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.GRAPH;
+		return this.getEntryInfo().getGraphType() === types.GT_GRAPH;
 	};
     /**
      * Is the resource of this entry of the GraphType string?
      * @returns {boolean}
      */
 	Entry.prototype.isString = function() {
-		return this.getEntryInfo().getGraphType() === types.GT.STRING;
+		return this.getEntryInfo().getGraphType() === types.GT_STRING;
 	};
 
     /**
@@ -341,7 +341,7 @@ define([
      * @returns {boolean}
      */
     Entry.prototype.isNone = function() {
-        return this.getEntryInfo().getGraphType() === types.GT.NONE;
+        return this.getEntryInfo().getGraphType() === types.GT_NONE;
     };
 
     /**
@@ -349,7 +349,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isLink = function() {
-		return this.getEntryInfo().getEntryType() === types.ET.LINK;
+		return this.getEntryInfo().getEntryType() === types.ET_LINK;
 	};
 
     /**
@@ -357,7 +357,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isReference = function() {
-		return this.getEntryInfo().getEntryType() === types.ET.REF;
+		return this.getEntryInfo().getEntryType() === types.ET_REF;
 	};
 
     /**
@@ -365,7 +365,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isLinkReference = function() {
-		return this.getEntryInfo().getEntryType() === types.ET.LINKREF;
+		return this.getEntryInfo().getEntryType() === types.ET_LINKREF;
 	};
 
     /**
@@ -373,7 +373,7 @@ define([
      * @returns {boolean} true if entrytype is NOT local.
      */
 	Entry.prototype.isExternal = function() {
-		return this.getEntryInfo().getEntryType() !== types.ET.LOCAL;
+		return this.getEntryInfo().getEntryType() !== types.ET_LOCAL;
 	};
 
     /**
@@ -381,7 +381,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.isLocal = function() {
-		return this.getEntryInfo().getEntryType() === types.ET.LOCAL;
+		return this.getEntryInfo().getEntryType() === types.ET_LOCAL;
 	};
 
     /**

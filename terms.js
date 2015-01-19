@@ -27,36 +27,36 @@ define(["store/types"], function(types) {
 
     //EntryType
 	var et = {};
-	et[ns+"Local"] = types.ET.LOCAL;
-	et[ns+"Link"] = types.ET.LINK;
-	et[ns+"LinkReference"] = types.ET.LINKREF;
-	et[ns+"Reference"] = types.ET.REF;
-	et["default"] = types.ET.DEFAULT;   //The default option
+	et[ns+"Local"] = types.ET_LOCAL;
+	et[ns+"Link"] = types.ET_LINK;
+	et[ns+"LinkReference"] = types.ET_LINKREF;
+	et[ns+"Reference"] = types.ET_REF;
+	et["default"] = types.ET_LOCAL;   //The default option
     externals.entryType = et;
     externals.invEntryType = inv(et);
 
     //GraphType
     var gt = {};
-	gt[ns+"None"] = types.GT.NONE;
-	gt[ns+"Context"] = types.GT.CONTEXT;
-	gt[ns+"SystemContext"] = types.GT.SYSTEMCONTEXT;
-	gt[ns+"User"] = types.GT.USER;
-	gt[ns+"Group"] = types.GT.GROUP;
-	gt[ns+"List"] = types.GT.LIST;
-	gt[ns+"ResultList"] = types.GT.RESULTLIST;
-	gt[ns+"Graph"] = types.GT.GRAPH;
-	gt[ns+"String"] = types.GT.STRING;
-	gt["default"] = types.GT.DEFAULT; //The default option
+	gt[ns+"None"] = types.GT_NONE;
+	gt[ns+"Context"] = types.GT_CONTEXT;
+	gt[ns+"SystemContext"] = types.GT_SYSTEMCONTEXT;
+	gt[ns+"User"] = types.GT_USER;
+	gt[ns+"Group"] = types.GT_GROUP;
+	gt[ns+"List"] = types.GT_LIST;
+	gt[ns+"ResultList"] = types.GT_RESULTLIST;
+	gt[ns+"Graph"] = types.GT_GRAPH;
+	gt[ns+"String"] = types.GT_STRING;
+	gt["default"] = types.GT_NONE; //The default option
     externals.graphType = gt;
     externals.invGraphType = inv(gt);
 
     //ResourceType
 	var rt = {};
-	rt[ns+"InformationResource"] = types.RT.INFORMATION;
-	rt[ns+"ResolvableInformationResource"] = types.RT.RESOLVABLE;
-	rt[ns+"NamedResource"] = types.RT.NAMED;
-	rt[ns+"Unknown"] = types.RT.UNKNOWN;
-	rt["default"] = types.RT.DEFAULT; //The default option
+	rt[ns+"InformationResource"] = types.RT_INFORMATIONRESOURCE;
+	rt[ns+"ResolvableInformationResource"] = types.RT_RESOLVABLEINFORMATIONRESOURCE;
+	rt[ns+"NamedResource"] = types.RT_NAMEDRESOURCE;
+	rt[ns+"Unknown"] = types.RT_UNKNOWN;
+	rt["default"] = types.RT_INFORMATIONRESOURCE; //The default option
     externals.resourceType = rt;
     externals.invResourceType = inv(rt);
 

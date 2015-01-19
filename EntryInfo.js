@@ -152,9 +152,9 @@ define([
 
     /**
      * the resource type of the entry, e.g. "Information", "Resolvable" etc.
-     * The allowed values are available in types.RT.
+     * The allowed values are available in store/types beginning with 'RT_'.
      * E.g. to check if the entry is an information resource:
-     * if (ei.getResourceType() === types.RT.INFORMATIONRESOURCE) {...}
+     * if (ei.getResourceType() === types.RT_INFORMATIONRESOURCE) {...}
      *
      * @returns {String}
      */
@@ -164,9 +164,9 @@ define([
 
     /**
      * the graph type of the entry, e.g. "User", "List", "String", etc.
-     * The allowed values are available in types.GT.
+     * The allowed values are available in store/types beginning with 'GT_'.
      * E.g. to check if the entry is a list:
-     * if (ei.getGraphType() === types.GT.LIST) {...}
+     * if (ei.getGraphType() === types.GT_LIST) {...}
      *
      * @returns {String}
      */

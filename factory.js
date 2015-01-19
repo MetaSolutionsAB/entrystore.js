@@ -60,11 +60,11 @@ define([
         var resource = entry.getResource(true);
 		if (!resource) {
 			switch(entry.getEntryInfo().getGraphType()) {
-                case types.GT.CONTEXT: //Synchronous resource, asynchronous methods.
+                case types.GT_CONTEXT: //Synchronous resource, asynchronous methods.
 					resource = getContextForEntry(entry.getResourceURI()+"/", entry.getEntryStore()); //Dummy URL to find the right context.
 				break;
-                case types.GT.LIST: //Synchronous resource, asynchronous methods.
-                case types.GT.GROUP: //Synchronous resource, asynchronous methods.
+                case types.GT_LIST: //Synchronous resource, asynchronous methods.
+                case types.GT_GROUP: //Synchronous resource, asynchronous methods.
                     if (entry.isGroup()) {
                         resource = new Group(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
                     } else {
@@ -78,17 +78,17 @@ define([
                         resource._update(data.resource, children);
                     }
                     break;
-                case types.GT.USER: //Asynchronous resource, synchronous getters.
+                case types.GT_USER: //Asynchronous resource, synchronous getters.
                     if (force || data.resource != null) {
                         resource = new User(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
                     }
                     break;
-                case types.GT.STRING:
+                case types.GT_STRING:
                     if (force || data.resource != null) {
                         resource = new StringResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || "");
                     }
                     break;
-				case types.GT.GRAPH: //Sync or Async?
+				case types.GT_GRAPH: //Sync or Async?
 					if (force || data.resource != null) {
                         resource = new RDFGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
                     }
@@ -272,14 +272,14 @@ define([
                     uri = uri+"resource="+encodeURIComponent(prototypeEntry.getResourceURI())+"&";
                     uri = uri+"cached-external-metadata="+encodeURIComponent(ei.getExternalMetadataURI())+"&";
 				}
-				if (ei.getEntryType() !== types.ET.LOCAL) { //local, link, linkreference, reference
+				if (ei.getEntryType() !== types.ET_LOCAL) { //local, link, linkreference, reference
 					uri = uri+"entrytype="+ ei.getEntryType().toLowerCase()+ "&";
 				}
-				if (ei.getResourceType() !== types.RT.INFORMATIONRESOURCE) { //informationresource, namedresource
+				if (ei.getResourceType() !== types.RT_INFORMATIONRESOURCE) { //informationresource, namedresource
 					//TODO Bug in REST layer, should be resourcetype, is now informationresource innstead
                     uri = uri+"informationresource=false&";
 				}
-				if (ei.getGraphType() != types.GT.NONE) {
+				if (ei.getGraphType() != types.GT_NONE) {
                     uri = uri+"graphtype="+ ei.getGraphType().toLowerCase() + "&";
 				}
 			}

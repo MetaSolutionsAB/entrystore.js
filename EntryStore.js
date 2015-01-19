@@ -124,7 +124,7 @@ define([
      *          offset: 20,
      *          sort: {
      *             sortBy: "modified",
-     *             prio: types.GT.LIST
+     *             prio: types.GT_LIST
      *          }
      *      });
      *
@@ -302,7 +302,7 @@ define([
      */
     EntryStore.prototype.newContext = function (id) {
         var _contexts = factory.getContext(this, this._baseURI + "_contexts/entry/_contexts");
-        return new PrototypeEntry(_contexts, id).setGraphType(types.GT.CONTEXT);
+        return new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
     };
 
     /**
@@ -315,7 +315,7 @@ define([
      */
     EntryStore.prototype.newUser = function (username, password, homeContext, id) {
         var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
-        var pe = new PrototypeEntry(_principals, id).setGraphType(types.GT.USER);
+        var pe = new PrototypeEntry(_principals, id).setGraphType(types.GT_USER);
         var ei = pe.getEntryInfo();
         var data = {};
         if (username != null) {
@@ -338,7 +338,7 @@ define([
      */
     EntryStore.prototype.newGroup = function (id) {
         var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
-        return new PrototypeEntry(_principals, id).setGraphType(types.GT.GROUP);
+        return new PrototypeEntry(_principals, id).setGraphType(types.GT_GROUP);
     };
 
     /**

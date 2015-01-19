@@ -53,7 +53,6 @@ define([
      *
      * @param {string} entryId
      * @returns {string} the URI for an entry in this context with the given id.
-     * @deprecated
      */
     Context.prototype.getEntryURIbyId = function(entryId) {
         return this.getEntryStore().getEntryURI(this.getId(), entryId);
@@ -80,7 +79,7 @@ define([
      * @returns {store/PrototypeEntry}
      */
     Context.prototype.newLink = function(link, id) {
-        return new PrototypeEntry(this, id).setResourceURI(link).setEntryType(types.ET.LINK);
+        return new PrototypeEntry(this, id).setResourceURI(link).setEntryType(types.ET_LINK);
     };
 
     /**
@@ -93,7 +92,7 @@ define([
      * @returns {store/PrototypeEntry}
      */
     Context.prototype.newLinkRef = function(link, metadatalink, id) {
-        return new PrototypeEntry(this, id).setResourceURI(link).setExternalMetadataURI(metadatalink).setEntryType(types.ET.LINKREF);
+        return new PrototypeEntry(this, id).setResourceURI(link).setExternalMetadataURI(metadatalink).setEntryType(types.ET_LINKREF);
     };
 
     /**
@@ -108,7 +107,7 @@ define([
      * @returns {store/PrototypeEntry}
      */
     Context.prototype.newRef = function(link, metadatalink, id) {
-        return new PrototypeEntry(this, id).setResourceURI(link).setExternalMetadataURI(metadatalink).setEntryType(types.ET.REF);
+        return new PrototypeEntry(this, id).setResourceURI(link).setExternalMetadataURI(metadatalink).setEntryType(types.ET_REF);
     };
 
     /**
@@ -119,7 +118,7 @@ define([
      * @returns {store/PrototypeEntry}
      */
     Context.prototype.newList = function(id) {
-        return new PrototypeEntry(this, id).setGraphType(types.GT.LIST);
+        return new PrototypeEntry(this, id).setGraphType(types.GT_LIST);
     };
 
     /**
@@ -131,7 +130,7 @@ define([
      * @returns {store/PrototypeEntry}
      */
     Context.prototype.newGraph = function(graph, id) {
-        var pe = new PrototypeEntry(this, id).setGraphType(types.GT.GRAPH);
+        var pe = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
         var ei = pe.getEntryInfo();
         pe._resource = new RDFGraph(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), graph || {});
         return pe;
@@ -146,7 +145,7 @@ define([
      * @returns {store/PrototypeEntry}
      */
     Context.prototype.newString = function(str, id) {
-        var pe = new PrototypeEntry(this, id).setGraphType(types.GT.STRING);
+        var pe = new PrototypeEntry(this, id).setGraphType(types.GT_STRING);
         var ei = pe.getEntryInfo();
             pe._resource = new StringResource(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), str);
         return pe;

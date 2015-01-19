@@ -30,7 +30,14 @@ define([
 		return this._query.getLimit()  || factory.getDefaultLimit();
 	};
 
-	SList.prototype.getEntries = List.prototype.getEntries;
+    /**
+     * Retrieves an array of entries contained in this list according to the current page and pagination settings.
+     *
+     * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
+     * @returns {dojo/promise/Promise} the promise will return an entry-array.
+     * @method
+     */
+    SList.prototype.getEntries = List.prototype.getEntries;
 
 	//=====Private methods=============	
 	
