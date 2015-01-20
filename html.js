@@ -85,7 +85,7 @@ define([
      */
     html.print = function(entry) {
         var strs = ["<div class='entry'>" +
-            "<h3>Context: <a class='contextURI' href='"+entry.getContext().getOwnEntryURI()+"'>"+entry.getContext().getId()+"</a> <span></span> " +
+            "<h3>Context: <a class='contextURI' href='"+entry.getContext().getEntryURI()+"'>"+entry.getContext().getId()+"</a> <span></span> " +
             "Entry: <a class='entryURI' href='"+entry.getURI()+"'>"+entry.getId()+"</a></h3>" +
             "<div>" +
             "<div class='entryInfo'>"+html.entryInfo(entry.getEntryInfo())+"</div>"]

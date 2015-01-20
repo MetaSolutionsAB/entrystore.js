@@ -451,8 +451,8 @@ define([
      */
     EntryStore.prototype.info = function () {
         require(["dojo/text!package.json"], function(data) {
-            var package = json.parse(data);
-            return {version: package.version};
+            var p = json.parse(data);
+            return {version: p.version};
         })
     };
 

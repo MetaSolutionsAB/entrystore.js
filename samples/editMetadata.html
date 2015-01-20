@@ -14,7 +14,7 @@
                     md.create(entry.getResourceURI(), "http://purl.org/dc/terms/title",
                             {type: "literal", value: "New title at "+new Date(), language: "en"});
                 }
-                entry.setMetadata(md).then(function() {
+                entry.commitMetadata().then(function() {
                     alert("Success: changed metadata");
                 }, function(err) {
                     alert("Failure: "+err);

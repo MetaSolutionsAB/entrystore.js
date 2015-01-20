@@ -1,6 +1,6 @@
 var profile = (function(){
     var testResourceRe = /\/tests\//;
-    var exclude = /^store\/(node_modules|bin|build|libs|release|samples)\//;
+    var exclude = /^store\/(node_modules|bin|build|libs|release|samples|jsdoc)\//;
     return {
         resourceTags: {
             ignore: function(filename, mid) {
