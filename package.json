@@ -6,12 +6,6 @@
     "jaguarjs-jsdoc": "0.0.1",
     "nodeunit": ""
   },
-  "devDependencies": {
-    "napa": ""
-  },
-  "scripts": {
-    "install": "napa DBCDK/jsdoc3Template"
-  },
   "description": "Store is a library for working with Entries in EntryStore.",
   "licenses": [
     {
