@@ -385,6 +385,22 @@ define([
 	};
 
     /**
+     * Is the entry an information resource?
+     * @returns {boolean}
+     */
+    Entry.prototype.isInformationResource = function() {
+        return this.getEntryInfo().getResourceType() === types.RT_INFORMATIONRESOURCE;
+    };
+
+    /**
+     * Is the entry a named resource?
+     * @returns {boolean}
+     */
+    Entry.prototype.isNamedResource = function() {
+        return this.getEntryInfo().getResourceType() === types.RT_NAMEDRESOURCE;
+    };
+
+    /**
      * Is the current user an owner of this entry?
      * @returns {boolean}
      */

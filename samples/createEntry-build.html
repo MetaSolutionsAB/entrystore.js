@@ -5,7 +5,7 @@
            var es = new EntryStore();
            es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                var c = es.getContextById("1");
-               c.newEntry().create().then(function(entry) {
+               c.newEntry().commit().then(function(entry) {
                    alert("Created an entry!");
                }, function(err) {
                    alert("Failed to create an entry! + err");

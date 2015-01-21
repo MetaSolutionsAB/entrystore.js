@@ -11,11 +11,12 @@ define([
     "store/Group",
 	"store/SearchList",
 	"store/RDFGraph",
+    "store/FileResource",
 	"rdfjson/Graph",
     "store/User",
 	"exports"
 ], function(StringResource, types, json, array, Context, EntryInfo, Entry, List, Group,
-            SearchList, RDFGraph, Graph, User, exports) {
+            SearchList, RDFGraph, FileResource, Graph, User, exports) {
 
     /**
      * This module contains utility methods that encapsulates EntryStores REST layer from the rest of the code.
@@ -58,7 +59,8 @@ define([
 	var _updateOrCreateResource = function(entry, data, force) {
 		data = data || {};
         var resource = entry.getResource(true);
-		if (!resource) {
+        var ei = entry.getEntryInfo();
+		if (!resource && ei.getEntryType() === types.ET_LOCAL && ei.getResourceType() === types.RT_INFORMATIONRESOURCE) {
 			switch(entry.getEntryInfo().getGraphType()) {
                 case types.GT_CONTEXT: //Synchronous resource, asynchronous methods.
 					resource = getContextForEntry(entry.getResourceURI()+"/", entry.getEntryStore()); //Dummy URL to find the right context.
@@ -93,6 +95,8 @@ define([
                         resource = new RDFGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
                     }
 					break;
+                case types.GT_NONE: //Uploaded file.
+                    resource = new FileResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 			}
 			entry._resource = resource;
             return;

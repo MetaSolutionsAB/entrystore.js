@@ -71,6 +71,18 @@ define([
 	};
 
     /**
+     * Factory method to create a PrototypeEntry that corresponds to a local named resource that has the current context as container.
+     * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
+     * (returns a promise).
+     *
+     * @param {string=} id - id for the entry, fails after commit if an entry exists already with this id.
+     * @returns {store/PrototypeEntry}
+     */
+    Context.prototype.newNamedEntry = function(id) {
+        return (new PrototypeEntry(this, id)).setResourceType(types.RT_NAMEDRESOURCE);
+    };
+
+    /**
      * Factory method to create a PrototypeEntry that corresponds to a link that has the current context as container.
      * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it (returns a promise).
      *

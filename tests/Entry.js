@@ -22,9 +22,9 @@ define([
             }
         },
         refresh: function(test) {
-            c.newEntry().create().then(function(entry) {
+            c.newEntry().commit().then(function(entry) {
                 var graph = entry.getMetadata();
-                graph.create(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title"});
+                graph.add(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title"});
                 test.ok(!graph.isEmpty(), "Could not change the metadata graph.");
                 entry.refresh(true, true).then(function() {
                     test.ok(entry.getMetadata().isEmpty(), "Could not refresh, unsaved changes in metadata graph remains.");
@@ -33,8 +33,18 @@ define([
             });
         },
         createEntry: function(test) {
-            c.newEntry().create().then(function(entry) {
+            c.newEntry().commit().then(function(entry) {
                 test.ok(entry.getId() != null, "Entry created but without id!");
+                test.done();
+            }, function() {
+                test.ok(false, "Failed creating entry in context 1.");
+                test.done();
+            });
+        },
+        createNamedEntry: function(test) {
+            c.newNamedEntry().commit().then(function(entry) {
+                test.ok(entry.getId() != null, "Entry created but without id!");
+                test.ok(entry.isNamedResource(), "Entry but not as named resource!");
                 test.done();
             }, function() {
                 test.ok(false, "Failed creating entry in context 1.");
@@ -45,9 +55,9 @@ define([
             var pe = c.newEntry();
             var uri = pe.getResourceURI();
             var graph = new Graph();
-            graph.create(uri, dct+"title", {value: "Some title", type: "literal"});
+            graph.add(uri, dct+"title", {value: "Some title", type: "literal"});
             pe.setMetadata(graph);
-            pe.create().then(function(entry) {
+            pe.commit().then(function(entry) {
                 var md = entry.getMetadata();
                 test.ok(md.findFirstValue(entry.getResourceURI(), dct+"title") === "Some title", "Failed to create an entry with a title.");
                 test.done();
@@ -57,8 +67,8 @@ define([
             });
         },
         updateMetadata: function(test) {
-            var pe = c.newEntry().create().then(function(entry) {
-                entry.getMetadata(true).create(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title2"});
+            var pe = c.newEntry().commit().then(function(entry) {
+                entry.getMetadata(true).add(entry.getResourceURI(), dct+"title", {type: "literal", value:"Some title2"});
                 entry.commitMetadata().then(function() {
                     entry.getMetadata().findAndRemove();
                     test.ok(entry.getMetadata().findFirstValue(entry.getResourceURI(), dct+"title") == null, "Could not clear the RDF graph.");
@@ -75,7 +85,7 @@ define([
         },
         linkEntry: function(test) {
             var uri = "http://example.com/";
-            c.newLink(uri).create().then(function(entry) {
+            c.newLink(uri).commit().then(function(entry) {
                 test.ok(entry.isLink(), "Failed to create a link.");
                 test.ok(uri == entry.getResourceURI(), "Failed to set resourceURI during creation step.");
                 test.done();
@@ -86,7 +96,7 @@ define([
         },
         linkRefEntry: function(test) {
             var uri = "http://example.com/";
-            c.newLinkRef(uri, uri).create().then(function(entry) {
+            c.newLinkRef(uri, uri).commit().then(function(entry) {
                 test.ok(entry.isLinkReference(), "Failed to create a link-reference.");
                 test.ok(uri == entry.getResourceURI(), "Failed to set resourceURI during creation step.");
                 test.ok(uri == entry.getEntryInfo().getExternalMetadataURI(), "Failed to set external metadatat URI during creation step.");
@@ -99,7 +109,7 @@ define([
 
         refEntry: function(test) {
             var uri = "http://example.com/";
-            c.newRef(uri, uri).create().then(function(entry) {
+            c.newRef(uri, uri).commit().then(function(entry) {
                 test.ok(entry.isReference(), "Failed to create a reference.");
                 test.ok(uri == entry.getResourceURI(), "Failed to set resourceURI during creation step.");
                 test.ok(uri == entry.getEntryInfo().getExternalMetadataURI(), "Failed to set external metadatat URI during creation step.");
@@ -110,7 +120,7 @@ define([
             });
         },
         listEntry: function(test) {
-            c.newList().create().then(function(entry) {
+            c.newList().commit().then(function(entry) {
                 test.ok(entry.isList(), "Entry created, but it is not a list as expected.");
                 test.done();
             }, function() {
@@ -120,8 +130,8 @@ define([
         },
         graphEntry: function(test) {
             var g = new Graph();
-            g.create("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
-            c.newGraph(g).create().then(function(entry) {
+            g.add("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
+            c.newGraph(g).commit().then(function(entry) {
                 test.ok(entry.isGraph(), "Entry created, but it is not a graph as expected.");
                 entry.getResource().then(function(res) {
                     test.ok(res.getGraph().find().length === 1, "The created graph Entry does save the provided graph upon creation");
@@ -133,7 +143,7 @@ define([
                             test.done();
                         });
                     })
-                    g2.create("http://example.com/", dct+"title", {type: "literal", value:"Some title2"});
+                    g2.add("http://example.com/", dct+"title", {type: "literal", value:"Some title2"});
                 }, function(err) {
                     test.ok(false, "Failed to load resource graph for graph entry.");
                     test.done();
@@ -144,10 +154,10 @@ define([
             });
         },
         updateGraphEntry: function(test) {
-            c.newGraph().create().then(function(entry) {
+            c.newGraph().commit().then(function(entry) {
                 entry.getResource().then(function(res) {
                     var g = new Graph();
-                    g.create("http://example.com/", dct+"title", {type: "literal", value:"Some title"});
+                    g.add("http://example.com/", dct+"title", {type: "literal", value:"Some title"});
                     res.setGraph(g).commit().then(function() {
                         test.ok(res.getGraph().find(null, dct+"subject").length === 1, "Statement added after save missing, should be there until refresh.");
                         entry.setRefreshNeeded();
@@ -163,7 +173,7 @@ define([
                         test.ok(false, "Failed to update resource of entry graph. "+err);
                         test.done();
                     });
-                    g.create("http://example.com/", dct+"subject", {type: "literal", value:"not good if it remains in graph after update"});
+                    g.add("http://example.com/", dct+"subject", {type: "literal", value:"not good if it remains in graph after update"});
 
                 });
             }, function() {
@@ -172,7 +182,7 @@ define([
             });
         },
         stringEntry: function(test) {
-            c.newString("one").create().then(function(entry) {
+            c.newString("one").commit().then(function(entry) {
                 test.ok(entry.isString(), "Entry created, but it is not a string as expected.");
                 entry.getResource().then(function(res) {
                     test.ok(res.getString() === "one", "The created string entry does not have the string provided upon creation.");
@@ -185,7 +195,7 @@ define([
         },
         updateStringEntry: function(test) {
             var str = "a string";
-            c.newString().create().then(function(entry) {
+            c.newString().commit().then(function(entry) {
                 entry.getResource().then(function(res) {
                     test.ok(res.getString() === "", "Empty string instead of null");
                     res.setString(str).commit().then(function() {
@@ -193,7 +203,6 @@ define([
                         res.setString("").commit().then(function() {
                             entry.setRefreshNeeded();
                             entry.refresh().then(function() {
-                                console.log("String is: "+res.getString());
                                 test.ok(res.getString() === "", "Reload from repository gave wrong string");
                                 test.done();
                             }, function(err) {
@@ -214,8 +223,8 @@ define([
         createWithCachedExternalMetadata: function(test) {
             var uri = "http://example.com/";
             var graph = new Graph();
-            graph.create(uri, dct+"title", {value: "Some title", type: "literal"});
-            c.newLinkRef(uri, uri).setCachedExternalMetadata(graph).create().then(function(entry) {
+            graph.add(uri, dct+"title", {value: "Some title", type: "literal"});
+            c.newLinkRef(uri, uri).setCachedExternalMetadata(graph).commit().then(function(entry) {
                 test.ok(!entry.getCachedExternalMetadata().isEmpty(), "Failed to set cached external metadata in creation step.");
                 test.done();
             }, function() {
@@ -227,10 +236,10 @@ define([
 
         updateCachedExternalMetadata: function(test) {
             var uri = "http://example.com/";
-            c.newRef(uri, uri).create().then(function(entry) {
+            c.newRef(uri, uri).commit().then(function(entry) {
                 var cemd = entry.getCachedExternalMetadata();
                 test.ok(cemd.isEmpty(), "New Link entry has non-empty cached external metadata, strange.");
-                cemd.create(entry.getResourceURI(), dct+"title", {value: "A title", type: "literal"});
+                cemd.add(entry.getResourceURI(), dct+"title", {value: "A title", type: "literal"});
                 return entry.commitCachedExternalMetadata().then(function() {
                     test.ok(!cemd.isEmpty(), "Failed to save cached external metadata.");
                     test.done();

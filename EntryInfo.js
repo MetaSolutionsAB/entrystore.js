@@ -242,6 +242,46 @@ define([
 	};
 
     /**
+     * @returns {string} the label of the resource of this entry, typically set when uploading a file.
+     */
+    EntryInfo.prototype.getLabel = function() {
+        return this._graph.findFirstValue(this.getResourceURI(), "http://www.w3.org/2000/01/rdf-schema#label");
+    };
+
+    /**
+     * Sets a new label of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
+     * the updated graph to the repository.
+     *
+     * @param {string} label - a new label for the resource.
+     */
+    EntryInfo.prototype.setLabel = function(label) {
+        this._graph.findAndRemove(this.getResourceURI(), "http://www.w3.org/2000/01/rdf-schema#label");
+        if (label != null && label != "") {
+            this._graph.add(this.getResourceURI(), "http://www.w3.org/2000/01/rdf-schema#label", {type: "literal", value: label});
+        }
+    };
+
+    /**
+     * @returns {string} the format of the resource of this entry.
+     */
+    EntryInfo.prototype.getFormat = function() {
+        return this._graph.findFirstValue(this.getResourceURI(), "http://purl.org/dc/terms/format");
+    };
+
+    /**
+     * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
+     * the updated graph to the repository.
+     *
+     * @param {string} format - a format in the form application/json or text/plain.
+     */
+    EntryInfo.prototype.setFormat = function(format) {
+        this._graph.findAndRemove(this.getResourceURI(), "http://purl.org/dc/terms/format");
+        if (format != null && format != "") {
+            this._graph.add(this.getResourceURI(), "http://purl.org/dc/terms/format", {type: "literal", value: format});
+        }
+    };
+
+    /**
      * @returns {Date} the date when the entry was created.
      */
     EntryInfo.prototype.getCreationDate = function() {

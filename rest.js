@@ -61,14 +61,31 @@ define([
         },
 
         /**
-         * Fetches JSON data from the provided URI.
+         * Fetches data from the provided URI.
          * If a cross-domain call is made and we are in a browser environment a jsonp call is made.
          *
          * @param {string} uri - URI to a resource to fetch.
+         * @param {string} format - the format to request as a mimetype.
          * @returns {dojo/promise/Promise}
          */
-		get: function(uri) {
+		get: function(uri, format) {
             var jsonp = false;
+            var loc_headers = headers, handleAs = "json";
+            if (format != null) {
+                loc_headers = lang.clone(headers);
+                loc_headers["Accept"] = format;
+                switch(format) {
+                    case "application/json": //This is the default in the headers.
+                        break;
+                    case "appplication/xml":
+                    case "text/xml":
+                        handleAs = "xml";
+                        break;
+                    default: //All other situations, including text/plain.
+                        handleAs = "text";
+                }
+            }
+
             if (has("host-browser")) {
                 if (uri.indexOf(window.location.origin) !== 0
                     && uri.indexOf("/entry/") !== -1) {   //TODO check where jsonp is supported
@@ -91,8 +108,8 @@ define([
             } else {
                 var d = request.get(uri, {
                         preventCache: true,
-                        handleAs: "json",
-                        headers: headers,
+                        handleAs: handleAs,
+                        headers: loc_headers,
                         withCredentials: true
                 }).response.then(function(response) {
                         if (response.status === 200) {
@@ -147,14 +164,18 @@ define([
          *
 		 * @param {string} uri the address to put to.
 		 * @param {string|Object} data - the data to put, either a string or a object that is serialized as json.
-		 * @param {Date} modDate a date to use for the HTTP if-unmodified-since header.
+		 * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
+         * @param {string=} format - indicates the content-type of the data.
 		 * @return {dojo/promise/Promise}
 		 */
-		put: function(uri, data, modDate) {
+		put: function(uri, data, modDate, format) {
 			var loc_headers = lang.clone(headers);
 			if (modDate) {
 				loc_headers["If-Unmodified-Since"] = modDate;			
 			}
+            if (format) {
+                loc_headers["Content-Type"] = format;
+            }
 			return request.put(uri, {
 				preventCache: true,
 				handleAs: "json",
@@ -215,10 +236,21 @@ define([
                         _newForm = document.createElement('form');
                         _newForm.setAttribute("enctype","multipart/form-data");
                         _newForm.setAttribute("method","post");
+                        _newForm.style.display = "none";
                     }
-		          
+
+                    var oldParent = data.parentElement;
+                    var nextSibling = data.nextSibling;
                     _newForm.appendChild(data);
                     win.body().appendChild(_newForm);
+                    var cleanUp = function() {
+                        if (nextSibling) {
+                            oldParent.insertBefore(data, nextSibling);
+                        } else {
+                            oldParent.appendChild(data);
+                        }
+                        win.body().removeChild(_newForm);
+                    }
 
                     return iframe(
                         (uri+(uri.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true"),
@@ -226,6 +258,12 @@ define([
                             preventCache: true,
                             handleAs: "json",
                             form: _newForm
+                        }).then(function(res) {
+                            cleanUp();
+                            return res;
+                        }, function(e) {
+                            cleanUp();
+                            throw e;
                         });
                 };
 		});
