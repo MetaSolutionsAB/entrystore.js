@@ -187,14 +187,21 @@ define([
 	 * }
 	 * 
 	 * There will always be an array for each key, it might be empty though.
-	 * The principalURI must be the URI to the resource of a user or group entry.
+	 * The principalURI* will always be an URI to the resource of a user or group entry.
 	 * 
 	 * Please note that a non empty acl overrides any defaults from the surrounding context.
-	 * 
+	 *
+     * @param {boolean} asIds - if true the principalURIs are shortened to entry identifiers.
 	 * @return {Object} an acl object.
 	 */
-	EntryInfo.prototype.getACL = function() {
-		var f = function(stmt) { return stmt.getValue();};  //Statement > object value.
+	EntryInfo.prototype.getACL = function(asIds) {
+		var f = function(stmt) {
+            if (asIds) {
+                return factory.getEntryId(stmt.getValue());
+            } else {
+                return stmt.getValue();
+            }
+        };  //Statement > object value.
 		var ru = this.getResourceURI(), mu = this.getMetadataURI();
 		var acl = {
 			admin:	array.map(this._graph.find(this._entryURI, terms.acl.write), f),
@@ -219,26 +226,33 @@ define([
 
 	/**
 	 * Replaces the current acl with the provided acl. The acl object is the same as you get from the getACL call.
-	 * The only difference is that the acl object from this method is allowed to be empty 
+	 * The first difference is that the acl object from this method is allowed to be empty
 	 * or leave out some keys that are not to be set.
+     * The second difference is that it allows entryIds as values in the arrays, not only full resource URIs,
+     * both have to refer to principals though.
 	 * 
 	 * @param {Object} acl same kind of object you get from getACL.
 	 */
 	EntryInfo.prototype.setACL = function(acl) {
         var g = this._graph;
-		var f = function(subj, pred, principals) {
+		var f = function(subj, pred, principals, base) {
 			g.findAndRemove(subj, pred);
 			array.forEach(principals || [], function(principal) {
-				g.create(subj, pred, {type: "uri", value: principal});
-			}, this);
+                if (principal.length < base.length || principal.indexOf(base) !== 0) { //principal is entry id.
+                    g.add(subj, pred, {type: "uri", value: base+principal});
+                } else {
+                    g.add(subj, pred, {type: "uri", value: principal}); //principal is a full entry resource uri.
+                }
+			});
 		};
 		acl = acl || {};
 		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-		f(this._entryURI, terms.acl.write, acl.admin);
-		f(ru, terms.acl.read, acl.rread);
-		f(ru, terms.acl.write, acl.rread);
-		f(mu, terms.acl.read, acl.mread);
-		f(mu, terms.acl.write, acl.mread);
+        var base = factory.getResourceBase(this._entry.getEntryStore(), this._entry.getContext().getId());
+		f(this._entryURI, terms.acl.write, acl.admin, base);
+		f(ru, terms.acl.read, acl.rread, base);
+		f(ru, terms.acl.write, acl.rread, base);
+		f(mu, terms.acl.read, acl.mread, base);
+		f(mu, terms.acl.write, acl.mread, base);
 	};
 
     /**

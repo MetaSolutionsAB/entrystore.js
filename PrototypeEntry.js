@@ -16,6 +16,7 @@ define([
      *
      * @exports store/PrototypeEntry
 	 * @param {store/Context} context where this prototypeEntry belongs.
+     * @param {string} id - entry identifier, if not unique in the context the subsequent commit will fail
 	 * @class
      * @augments store/Entry
 	 */

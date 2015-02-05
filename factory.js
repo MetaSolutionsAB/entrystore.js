@@ -232,6 +232,14 @@ define([
         return entryStore.getBaseURI()+contextId+"/entry/"+entryId;
     };
 
+    factory.getResourceBase = function(entryStore, contextId) {
+        return entryStore.getBaseURI()+contextId+"/resource/";
+    };
+
+    factory.getEntryId = function(uri) {
+        return uri.substr(uri.lastIndexOf("/")+1);
+    };
+
     factory.getResourceURI = function(entryStore, contextId, entryId) {
         return entryStore.getBaseURI()+contextId+"/resource/"+entryId;
     };

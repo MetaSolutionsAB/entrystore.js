@@ -21,29 +21,15 @@ https://github.com/maqetta/maqetta/wiki/Development-Guide
 
 Except that at this time we do not rely on es5 or a shim, hence we use dojos lang.hitch and array.forEach etc.
 
-The directory `src/rdfjson` originate from the rforms project and are added into the project via
-the [git subtree merge strategy](https://www.kernel.org/pub/software/scm/git/docs/howto/using-merge-subtree.html).
-Hence, never change any files in that directories directly. Instead make the changes
-in the [RDForms repository](https://bitbucket.org/metasolutions/rdforms) and integrate the changes by making a:
-
-    > git pull -s subtree rdfjson master
-
-The following commands were given to include it in the first place (just to remember):
-
-    > git remote add -f rdfjson git@bitbucket.org:metasolutions/rforms.git
-    > git merge -s ours --no-commit rdfjson/master
-    > git read-tree --prefix=src/rdfjson/ -u rdfjson/master:src/rdfjson
-    > git commit -m "Subtree merge of src/rdfjson from RForms repository."
-
 # Build
 
 Run `cd build && ./build.sh`.
 
 The resulting build is located in `release` and the relevant files are:
 
-* `release/dojo/dojo.js` (minified, without logging)
-* `release/dojo/dojo.js.uncompressed.js` (readable, with logging)
-* `release/dojo/dojo.js.consoleStripped.js` (readable, without logging)
+* `release/entrystore.js` (minified, without logging)
+* `release/entrystore.js.uncompressed.js` (readable, with logging)
+* `release/entrystore.js.consoleStripped.js` (readable, without logging)
 
 # Latest Build
 
