@@ -30,8 +30,7 @@ define([
          */
         auth: function(credentials) {
             delete headers.cookie;
-            if (credentials) {
-                this._cookie_credentials = credentials;
+            if (credentials.logout !== true) {
                 var data = {
                     "auth_username": credentials.user,
                     "auth_password": credentials.password,
@@ -50,8 +49,8 @@ define([
                         });
                     });
                 }
-            } else if (this._cookie_credentials) {
-                return request.get(this._cookie_credentials.base + "auth/logout", {
+            } else {
+                return request.get(credentials.base + "auth/logout", {
                     preventCache: true,
                     handleAs: "json",
                     headers: headers,
@@ -127,14 +126,23 @@ define([
          *
 		 * @param {String} uri - an URI to post to.
 		 * @param {String|Object} data - the data to post either as a string or as an object that will be serialized as JSON.
-		 * @return {dojo/promise/Promise}
+         * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
+         * @param {string=} format - indicates the content-type of the data.
+         * @return {dojo/promise/Promise}
 		 */
-		post: function(uri, data) {
+		post: function(uri, data, modDate, format) {
+            var loc_headers = lang.clone(headers);
+            if (modDate) {
+                loc_headers["If-Unmodified-Since"] = modDate;
+            }
+            if (format) {
+                loc_headers["Content-Type"] = format;
+            }
             return request.post(uri, {
                 preventCache: true,
                 handleAs: "json",
                 data: data,
-                headers: headers,
+                headers: loc_headers,
                 withCredentials: true
             });
 		},

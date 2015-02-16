@@ -224,8 +224,37 @@ define([
         return entryURI.replace("/entry/", "/cached-external-metadata/");
 	};
 
+    /**
+     * @deprecated in favor of {@link store/factory#getEntryId}
+     */
     factory.getId = function(uri) {
         return uri.substr(uri.lastIndexOf("/")+1);
+    };
+
+    factory.getEntryId = function(uri, base) {
+        if (base) {
+            uri = uri.substr(base.length-1); //include the / before.
+        }
+        var res = uri.match(/\/([^\/]+)\/(entry|resource|metadata|relation)\/([^\?\/]+)(\?.*)?$/);
+        if (res) {
+            return res[3];
+        } else if (uri.indexOf("/") === -1) {
+            return uri;
+        } else if (!base) {
+            return uri.substr(uri.lastIndexOf("/")+1);
+        }
+    };
+
+    factory.getContextId = function(uri, base) {
+        if (base) {
+            uri = uri.substr(base.length-1); //include the / before.
+        }
+        var res = uri.match(/\/([^\/]+)\/(entry|resource|metadata|relation)\/([^\?\/]+)(\?.*)?$/);
+        if (res) {
+            return res[1];
+        } else if (uri.indexOf("/") === -1 || !base) {
+            return "_contexts";
+        }
     };
 
     factory.getEntryURI = function(entryStore, contextId, entryId) {
@@ -234,10 +263,6 @@ define([
 
     factory.getResourceBase = function(entryStore, contextId) {
         return entryStore.getBaseURI()+contextId+"/resource/";
-    };
-
-    factory.getEntryId = function(uri) {
-        return uri.substr(uri.lastIndexOf("/")+1);
     };
 
     factory.getResourceURI = function(entryStore, contextId, entryId) {

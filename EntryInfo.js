@@ -76,7 +76,7 @@ define([
      * @returns {String} the id of the entry
      */
     EntryInfo.prototype.getId = function() {
-        return factory.getId(this._entryURI);
+        return factory.getEntryId(this._entryURI);
     };
 
     /**

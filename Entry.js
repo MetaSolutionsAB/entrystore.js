@@ -370,6 +370,8 @@ define([
 
     /**
      * Is the entry of the EntryType link, linkreference or reference?
+     * That is, the resource can be controlled via {@link store/EntryInfo#setResourceURI}.
+     *
      * @returns {boolean} true if entrytype is NOT local.
      */
 	Entry.prototype.isExternal = function() {
@@ -377,12 +379,46 @@ define([
 	};
 
     /**
-     * Is the entry of the EntryType local?
+     * Is the EntryType local, i.e. the resources URI is maintained
+     * automatically by the repository for this entry.
+     * Opposite to {@link store/Entry#isLinkLike}.
+     *
      * @returns {boolean}
      */
 	Entry.prototype.isLocal = function() {
 		return this.getEntryInfo().getEntryType() === types.ET_LOCAL;
 	};
+
+    /**
+     * Is the entry a local link/linkreference/reference to another entry in the repository. That is,
+     * true if the entry is a link, linkreference or reference AND the resource URI belongs to another
+     * entry in the same repository.
+     *
+     * @returns {boolean}
+     */
+    Entry.prototype.isLinkToEntry = function() {
+        var base = this.getEntryStore().getBaseURI();
+        return this.isExternal() && this.getResourceURI().substr(0, base.length) === base;
+    };
+
+    /**
+     * Is the entry is a link to another entry (as either a link, linkreference or reference) the
+     * linked to entry is returned in a promise.
+     *
+     * @returns {dojo/promise/Promise|undefined} undefined only if the entry does not link to another entry.
+     */
+    Entry.prototype.getLinkedEntry = function() {
+        if (this.isLinkToEntry()) {
+            //In case the link is to the resoure URI rather than the entry URI, we extract
+            //the entry id and context id and rebuild the entry URI.
+            var es = this.getEntryStore();
+            var uri = this.getResourceURI();
+            var eid = es.getEntryId(uri);
+            var cid = es.getContextId(uri);
+            uri = es.getEntryURI(cid, eid);
+            return this.getEntryStore().getEntry(uri);
+        }
+    };
 
     /**
      * Is the entry an information resource?

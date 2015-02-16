@@ -74,7 +74,7 @@ define([
      * @returns {string}
      */
     Resource.prototype.getId = function() {
-        return factory.getId(this._entryURI);
+        return factory.getEntryId(this._entryURI);
     };
 
     Resource.prototype._update = function(data) {

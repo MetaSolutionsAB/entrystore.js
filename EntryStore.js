@@ -69,6 +69,8 @@ define([
     EntryStore.prototype.auth = function (credentials) {
         if (credentials) {
             credentials.base = this.getBaseURI();
+        } else {
+            credentials = {base: this.getBaseURI(), logout: true};
         }
         var promise = this._rest.auth(credentials);
         this.getCache().allNeedRefresh();
@@ -413,6 +415,26 @@ define([
      */
     EntryStore.prototype.getBaseURI = function () {
         return this._baseURI;
+    };
+
+    /**
+     * The entry id of this entry, resource or metadata uri.
+     *
+     * @param {string} uri
+     * @returns {string}
+     */
+    EntryStore.prototype.getEntryId = function(uri) {
+        return factory.getEntryId(uri, this.getBaseURI());
+    };
+
+    /**
+     * The context id of this entry, resource or metadata uri.
+     *
+     * @param {string} uri
+     * @returns {string}
+     */
+    EntryStore.prototype.getContextId = function(uri) {
+        return factory.getContextId(uri, this.getBaseURI());
     };
 
     /**
