@@ -142,7 +142,7 @@ define([
             }
             return request.post(uri, {
                 preventCache: true,
-                handleAs: "json",
+                //handleAs: "json",
                 data: data,
                 headers: loc_headers,
                 withCredentials: true
@@ -191,7 +191,7 @@ define([
             }
 			return request.put(uri, {
 				preventCache: true,
-				handleAs: "json",
+				//handleAs: "json",
 				data: data,
 				headers: loc_headers,
                 withCredentials: true
@@ -207,7 +207,7 @@ define([
 		del: function(uri){
 			return request.del(uri, {
 				preventCache: true,
-				handleAs: "json",
+				//handleAs: "json",
 				headers: headers,
                 withCredentials: true
 			});
