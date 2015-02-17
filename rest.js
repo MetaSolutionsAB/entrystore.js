@@ -125,17 +125,19 @@ define([
          * Posts data to the provided URI.
          *
 		 * @param {String} uri - an URI to post to.
-		 * @param {String|Object} data - the data to post either as a string or as an object that will be serialized as JSON.
+		 * @param {String|Object} data - the data to post. If an object the data is sent as form data.
          * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
-         * @param {string=} format - indicates the content-type of the data.
+         * @param {string=} format - indicates the content-type of the data, default is application/json, except if the data is an object in which case the default is multipart/form-data.
          * @return {dojo/promise/Promise}
 		 */
 		post: function(uri, data, modDate, format) {
             var loc_headers = lang.clone(headers);
             if (modDate) {
                 loc_headers["If-Unmodified-Since"] = modDate;
-            }
+            }//multipart/form-data
             if (format) {
+                loc_headers["Content-Type"] = format;
+            } else if (lang.isObject(data)) {
                 loc_headers["Content-Type"] = format;
             }
             return request.post(uri, {
@@ -171,10 +173,11 @@ define([
          * Replaces a resource with a new representation.
          *
 		 * @param {string} uri the address to put to.
-		 * @param {string|Object} data - the data to put, either a string or a object that is serialized as json.
+		 * @param {string|Object} data - the data to put. If an object the data is sent as form data.
 		 * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
          * @param {string=} format - indicates the content-type of the data.
-		 * @return {dojo/promise/Promise}
+         * @param {string=} format - indicates the content-type of the data, default is application/json, except if the data is an object in which case the default is multipart/form-data.
+         * @return {dojo/promise/Promise}
 		 */
 		put: function(uri, data, modDate, format) {
 			var loc_headers = lang.clone(headers);
@@ -182,6 +185,8 @@ define([
 				loc_headers["If-Unmodified-Since"] = modDate;			
 			}
             if (format) {
+                loc_headers["Content-Type"] = format;
+            }  else if (lang.isObject(data)) {
                 loc_headers["Content-Type"] = format;
             }
 			return request.put(uri, {
