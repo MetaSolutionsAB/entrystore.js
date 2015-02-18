@@ -282,9 +282,9 @@ define([
     EntryStore.prototype.createEntry = function (prototypeEntry) {
         var postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
         var postParams = factory.getEntryCreatePostData(prototypeEntry);
-        return this._rest.post(postURI, postParams).then(
-            lang.hitch(this, function(data) {
-                var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
+        return this._rest.create(postURI, postParams).then(
+            lang.hitch(this, function(euri) {
+                //var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
                 var plist = prototypeEntry.getParentList();
                 if (plist != null) {
                     var res = plist.getResource(true);
