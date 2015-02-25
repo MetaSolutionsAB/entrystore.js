@@ -47,7 +47,7 @@ define([
 
     /**
      * Pushes the entry information to the repository, e.g. posts to basepath/store/{contextId}/entry/{entryId}
-     * @returns {dojo/promise/Promise}
+     * @returns {entryInfoPromise}
      */
 	EntryInfo.prototype.commit = function() {
 		var d = new Deferred(), self = this;
@@ -332,3 +332,22 @@ define([
 
     return EntryInfo;
 });
+
+/**
+ * Promise that provides an {@link store/Entry} on success.
+ *
+ * @name entryInfoPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+/**
+ * @name entryInfoPromise#then
+ * @param {entryCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+/**
+ * This is a successful callback method to be provided as first argument in a {@link entryInfoPromise}
+ *
+ * @callback entryCallback
+ * @param {store/EntryInfo} entry
+ */

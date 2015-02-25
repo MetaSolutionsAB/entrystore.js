@@ -161,7 +161,7 @@ define([
 
     /**
      * @deprecated use {@link store/PrototypeEntry#commit commit} instead.
-     * @returns {dojo/promise/Promise}
+     * @returns {entryPromise}
      */
     PrototypeEntry.prototype.create = function() {
         return this._context.getEntryStore().createEntry(this);
@@ -170,7 +170,7 @@ define([
     /**
      * Create a new entry according to the information specified in the prototype entry.
      *
-     * @returns {dojo/promise/Promise}
+     * @returns {entryPromise}
      * @see store/EntryStore#createEntry
      */
     PrototypeEntry.prototype.commit = function() {

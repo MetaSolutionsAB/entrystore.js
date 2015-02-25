@@ -37,7 +37,7 @@ define([
     /**
      * Set a new name (username), it will not succeed if it is already in use, for instance by another user or group.
      * @param {string} name
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     User.prototype.setName = function(name) {
         var oldname = this._data.name;
@@ -54,7 +54,7 @@ define([
      * Set a new password for the user.
      *
      * @param {string} password - a new password, should be at least 8 characters long.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     User.prototype.setPassword = function(password) {
         return this._entryStore.getREST().put(this._resourceURI, json.stringify({password: password}));
@@ -73,7 +73,7 @@ define([
      * Set a new home context for this user.
      *
      * @param {string} contextId - a context id (not the full resource URI).
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     User.prototype.setHomeContext = function(contextId) {
         var oldhc = this._data.homecontext;

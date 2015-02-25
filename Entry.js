@@ -116,7 +116,7 @@ define([
 	 * If metadata has been set for an entry with EntryType 'reference'
      * the entrytype will change to 'linkreference' upon a successful commit.
 	 * 
-	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry.
+	 * @return {entryPromise} a promise that on success will contain the current updated entry.
 	 */
 	Entry.prototype.commitMetadata = function() {
 		var d = new Deferred(), self = this;
@@ -175,7 +175,7 @@ define([
     /**
 	 * Pushes the current cached external metadata graph for this entry to the repository.
 	 *
-	 * @return {dojo/promise/Promise} a promise that on success will contain the current updated entry.
+	 * @return {entryPromise} a promise that on success will contain the current updated entry.
 	 */	
 	Entry.prototype.commitCachedExternalMetadata = function() {
 		var d = new Deferred(), self = this;
@@ -212,7 +212,7 @@ define([
      * and Context resources. For all other resources it will work if the resource, e.g. a RDFGraph,
      * a StringResource etc. is already loaded. If it is not loaded null will be returned.
      *
-     * @returns {store/Resource|dojo/promise/Promise}
+     * @returns {store/Resource|resourcePromise}
      */
     Entry.prototype.getResource = function(direct) {
 		if (direct) {
@@ -405,7 +405,7 @@ define([
      * Is the entry is a link to another entry (as either a link, linkreference or reference) the
      * linked to entry is returned in a promise.
      *
-     * @returns {dojo/promise/Promise|undefined} undefined only if the entry does not link to another entry.
+     * @returns {entryPromise|undefined} undefined only if the entry does not link to another entry.
      */
     Entry.prototype.getLinkedEntry = function() {
         if (this.isLinkToEntry()) {
@@ -600,3 +600,22 @@ define([
 
     return Entry;
 });
+
+/**
+ * Promise that provides an {@link store/Entry} on success.
+ *
+ * @name entryPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+/**
+ * @name entryPromise#then
+ * @param {entryCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+/**
+ * This is a successful callback method to be provided as first argument in a {@link entryPromise}
+ *
+ * @callback entryCallback
+ * @param {store/Entry} entry
+ */

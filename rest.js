@@ -26,7 +26,7 @@ define([
         /**
          * @param {object} credentials should contain attributes "user", "password", and "maxAge".
          * MaxAge is the amount of seconds the authorization should be valid.
-         * @returns {dojo/promise/Promise}
+         * @returns {xhrPromise}
          */
         auth: function(credentials) {
             delete headers.cookie;
@@ -65,7 +65,7 @@ define([
          *
          * @param {string} uri - URI to a resource to fetch.
          * @param {string} format - the format to request as a mimetype.
-         * @returns {dojo/promise/Promise}
+         * @returns {xhrPromise}
          */
 		get: function(uri, format) {
             var jsonp = false;
@@ -128,7 +128,7 @@ define([
 		 * @param {String|Object} data - the data to post. If an object the data is sent as form data.
          * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
          * @param {string=} format - indicates the content-type of the data, default is application/json, except if the data is an object in which case the default is multipart/form-data.
-         * @return {dojo/promise/Promise}
+         * @return {xhrPromise}
 		 */
 		post: function(uri, data, modDate, format) {
             var loc_headers = lang.clone(headers);
@@ -156,7 +156,7 @@ define([
          * @param {string} uri - factory resource, may include parameters.
          * @param {string|Object} data - the data that is to be posted as a string,
          * if an object is provided it will be serialized as json.
-         * @returns {dojo/promise/Promise}
+         * @returns {createPromise}
          */
 		create: function(uri, data) {
 			var d = new Deferred();
@@ -177,7 +177,7 @@ define([
 		 * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
          * @param {string=} format - indicates the content-type of the data.
          * @param {string=} format - indicates the content-type of the data, default is application/json, except if the data is an object in which case the default is multipart/form-data.
-         * @return {dojo/promise/Promise}
+         * @return {xhrPromise}
 		 */
 		put: function(uri, data, modDate, format) {
 			var loc_headers = lang.clone(headers);
@@ -202,7 +202,7 @@ define([
          * Deletes a resource.
          *
 		 * @param {String} uri of the resource that is to be deleted.
-		 * @return {dojo/promise/Promise}
+		 * @return {xhrPromise}
 		 */
 		del: function(uri){
 			return request.del(uri, {
@@ -284,3 +284,49 @@ define([
 	
 	return rest;
 });
+
+/**
+ * @name xhrPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+
+/**
+ * @name xhrPromise#then
+ * @param {xhrSuccessCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+
+/**
+ * This is a succesfull callback method to be provided as first argument in a {@link entrypromise}
+ *
+ * @callback xhrSuccessCallback
+ * @param {string|object|node}
+ */
+
+/**
+ * This is a callback that will be called upon failure, it is supposed to be provided as second argument in a {@link entrypromise}
+ *
+ * @callback xhrFailureCallback
+ * @param {string} error
+ * @param {object} ioArgs
+ */
+
+/**
+ * @name createPromise
+ * @extends xhrPromise
+ * @class
+ */
+
+/**
+ * @name xhrPromise#then
+ * @param {createSuccessCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+
+/**
+ * This is a succesfull callback method that provides a reference to the newly created object.
+ *
+ * @callback createSuccessCallback
+ * @param {string} uri the URI of the newly created resource.
+ */

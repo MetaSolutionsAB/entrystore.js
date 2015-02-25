@@ -43,7 +43,7 @@ define([
 
     /**
      * Yields information about who currently is authenticated against the EntryStore repository.
-     * @returns {dojo/promise/Promise} - upon success an object containing attributes "user" being the username, "id" of the user entry,
+     * @returns {userInfoPromise} - upon success an object containing attributes "user" being the username, "id" of the user entry,
      * and "homecontext" being the entry-id of the home context is provided.
      * @see {@link store/EntryStore#auth auth}
      * @see {@link store/EntryStore#logout logout}
@@ -53,7 +53,7 @@ define([
     };
 
     /**
-     * @returns {dojo/promise/Promise} on success the entry for the currently signed in user is provided.
+     * @returns {entryPromise} on success the entry for the currently signed in user is provided.
      */
     EntryStore.prototype.getUserEntry = function() {
         return this._rest.get(this._baseURI + "auth/user").then(lang.hitch(this, function(data) {
@@ -79,7 +79,7 @@ define([
 
     /**
      * Logout the currently authorized user.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     EntryStore.prototype.logout = function () {
         return this.auth();
@@ -137,7 +137,7 @@ define([
      *
      * @param {string} entryURI - the entryURI for the entry to retrieve.
      * @param {Object=} optionalLoadParams - parameters for how to load an entry.
-     * @return {dojo/promise/Promise | store/Entry | undefined} - by default a promise is returned, if the
+     * @return {entryPromise | store/Entry | undefined} - by default a promise is returned, if the
      * direct parameter is specified the entry is returned directly or undefined if the entry is not in cache.
      * @see {@link store/EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
      * @see {@link store/Context#getEntryById} for loading entrys relative to a context.
@@ -176,7 +176,7 @@ define([
      * @param {Object} sort - same sort object as provided in the optionalLoadParams to {@see store/EntryStore#getEntry getEntry} method.
      * @param {Object} limit - same limit as provided in the optionalLoadParams to {@see store/EntryStore#getEntry getEntry} method.
      * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify which page to load, first page is 0.
-     * @returns {dojo/promise/Promise} upon success the promise returns an array of entries.
+     * @returns {entryArrayPromise} upon success the promise returns an array of entries.
      */
     EntryStore.prototype.getListEntries = function(entryURI, sort, limit, page) {
         var d = new Deferred();
@@ -349,7 +349,7 @@ define([
      * @param {store/Entry} entry - entry to move
      * @param {store/Entry} fromList - source list where the entry is currently residing.
      * @param {store/Entry} toList - destination list where the entry is supposed to end up.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     EntryStore.prototype.moveEntry = function (entry, fromList, toList) {
         var uri = factory.getMoveURI(entry, fromList, toList, this._baseURI);
@@ -362,7 +362,7 @@ define([
      * @param {string} uri indicates the resource to load.
      * @param {string} formatHint indicates that you want data back in the format specified
      * (e.g. by specifiying a suitable accept header).
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     EntryStore.prototype.loadViaProxy = function (uri, formatHint) {
         var url = factory.getProxyURI(uri, formatHint);
@@ -469,6 +469,7 @@ define([
      * Provides information about version of EntryStore repository, the javascript API,
      * status of services etc.
      * @todo Needs support from EntryStore REST API
+     * @todo Document promise
      * @returns {dojo/promise/Promise}
      */
     EntryStore.prototype.info = function () {
@@ -480,3 +481,41 @@ define([
 
     return EntryStore;
 });
+
+/**
+ * @name userInfoPromise
+ * @extends xhrPromise
+ * @class
+ */
+/**
+ * @name userInfoPromise#then
+ * @param {userInfoCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+/**
+ * @callback userInfoCallback
+ * @param {userInfo} resource
+ */
+/**
+ * @name userInfo
+ * @namespace
+ * @property {string}  user                   - the username
+ * @property {string}  id                     - the entry id of the users entry
+ * @property {string}  homecontext            - the entry id of the users home context.
+ */
+
+
+/**
+ * @name entryArrayPromise
+ * @extends xhrPromise
+ * @class
+ */
+/**
+ * @name entryArrayPromise#then
+ * @param {entryArrayCallback} onSuccess provides an array of Entries
+ * @param {xhrFailureCallback} onError
+ */
+/**
+ * @callback entryArrayCallback
+ * @param {store/Entry[]} arr
+ */

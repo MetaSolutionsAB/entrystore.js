@@ -48,7 +48,7 @@ define([
     /**
      * Pushes the string back to the repository.
      *
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      * @see store/StringResource#setString
      */
     Str.prototype.commit = function() {

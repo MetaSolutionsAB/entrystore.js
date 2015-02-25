@@ -83,3 +83,22 @@ define([
 
     return Resource;
 });
+
+/**
+ * @name resourcePromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+
+/**
+ * @name resourcePromise#then
+ * @param {entryCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+
+/**
+ * This is a successful callback method to be provided as first argument in a {@link resourcePromise}
+ *
+ * @callback resourceCallback
+ * @param {store/Resource} resource
+ */

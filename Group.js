@@ -34,7 +34,7 @@ define([
     /**
      * Set a new name of the group, it will not succeed if it is already in use, for instance by another user or group.
      * @param {string} name
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     Group.prototype.setName = function(name) {
         var oldname = this._name;

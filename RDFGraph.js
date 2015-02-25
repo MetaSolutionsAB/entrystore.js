@@ -51,7 +51,7 @@ define([
      *
      * @todo fix ifModifiedSince.
      * @param {rdfjson/Graph} graph
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     RDFGraph.prototype.commit = function() {
         return this._entryStore.getREST().put(this._resourceURI, json.stringify(this._graph.exportRDFJSON()));

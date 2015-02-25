@@ -31,7 +31,7 @@ define([
      * @param {Object} sort - same sort object as provided in the optionalLoadParams to {@see store/EntryStore#getEntry getEntry} method.
      * @param {Object} limit - same limit as provided in the optionalLoadParams to {@see store/EntryStore#getEntry getEntry} method.
      * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify which page to load, first page is 0.
-     * @returns {dojo/promise/Promise} upon success the promise returns an array of entries.
+     * @returns {entryArrayPromise} upon success the promise returns an array of entries.
      * @see store/EntryStore#getListEntries
      */
 	Context.prototype.listEntries = function(sort, limit, page) {
@@ -41,8 +41,8 @@ define([
     /**
      * Convenience method, to retrieve an entry from this context.
      *
-     * @returns {dojo.promise.Promise}
-     * @see store.EntryStore#getEntry
+     * @returns {entryPromise}
+     * @see store/EntryStore#getEntry
      */
     Context.prototype.getEntryById = function(entryId, optionalLoadParams) {
         return this.getEntryStore().getEntry(this.getMemberEntryURI(entryId), optionalLoadParams);
@@ -176,7 +176,7 @@ define([
     /**
      * Change of context name, succeds if name is not in use already by another context.
      * @param {string} name
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     Context.prototype.setName = function(name) {
         var oldname = this._name;

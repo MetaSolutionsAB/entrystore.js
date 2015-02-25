@@ -67,7 +67,7 @@ define([
     /**
      * Retrieves an array of entries contained in this list according to the current page and pagination settings.
      * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
-     * @returns {dojo/promise/Promise} the promise will return an entry-array.
+     * @returns {entryArrayPromise} the promise will return an entry-array.
      */
 	List.prototype.getEntries = function(page) {
 		var results = this._getEntries(page);
@@ -85,7 +85,7 @@ define([
      * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
      *
      * @param {store/Entry} entry - entry to add to the list.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     List.prototype.addEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
@@ -101,7 +101,7 @@ define([
      * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
 
      * @param {store/Entry} entry - entry to be removed from the list.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     List.prototype.removeEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
@@ -124,7 +124,7 @@ define([
     /**
      * Get a list of entry ids contained in this list.
      *
-     * @returns {dojo/promise/Promise} the promise will deliver an array of children entries in this list as ids
+     * @returns {stringArrayPromise} the promise will deliver an array of children entries in this list as ids
      * (strings, not full URIs).
      */
     List.prototype.getAllEntryIds = function() {
@@ -143,7 +143,7 @@ define([
      * Set a list of entry ids to be contained in this list.
      *
      * @param {string[]} entries - array of entry ids (as strings, not full URIs).
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     List.prototype.setAllEntryIds = function(entries) {
         return this._entryStore.getREST().put(this._resourceURI, json.stringify(entries))
@@ -224,3 +224,20 @@ define([
 
     return List;
 });
+
+/**
+ * Promise that provides an array of entry ids (not full URIs) on success.
+ *
+ * @name stringArrayPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+/**
+ * @name stringArrayPromise#then
+ * @param {stringArrayCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+/**
+ * @callback stringArrayCallback
+ * @param {string[]} idArray
+ */

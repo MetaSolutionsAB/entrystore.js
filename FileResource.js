@@ -41,7 +41,7 @@ define([
      * @todo implement in non-browser environment and for xml.
      * @todo fix-if-modified-since
      * @todo fix xml
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     File.prototype.putFile = function(data) {
         return lang.hitch(this, function() {
@@ -64,7 +64,7 @@ define([
      *
      * @param {string} data - to be stored as a file.
      * @param {string} format - the format of the data as a mimetype.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     File.prototype.put = function(data, format) {
         return this.getEntryStore().getREST().put(this.getResourceURI(), data, null, format)
@@ -78,7 +78,7 @@ define([
      * Pushes text content to the server for this resource.
      *
      * @param {string} text - to be stored as a file, format will be set to text/plain.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     File.prototype.putText = function(text) {
         return this.put(text, "text/plain");
@@ -88,7 +88,7 @@ define([
      * Pushes JSON content to the server for this resource.
      *
      * @param {Object} obj - to be stored as a json object, format will be set to application/json.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      */
     File.prototype.putJSON = function(obj) {
         return this.put(json.stringify(obj));
@@ -98,7 +98,7 @@ define([
      * Pushes xml content to the server for this resource.
      *
      * @param {string|Document} xml - to be stored as a xml object, format will be set to application/json.
-     * @returns {dojo/promise/Promise}
+     * @returns {xhrPromise}
      * @todo not finished or tested
      */
     File.prototype.putXML = function(xml) {
@@ -121,7 +121,7 @@ define([
     };
 
     /**
-     * @returns {dojo/promise/Promise} which format the resource is returned in the promise (string, json or xml)
+     * @returns {xhrPromise} which format the resource is returned in the promise (string, json or xml)
      * depends on what is specified in the mimetype. Xml is only returned in a browser environment, if not in a browser
      * a string is returned.
      */
@@ -131,7 +131,7 @@ define([
     };
 
     /**
-     * @returns {dojo/promise/Promise} ignores what is specified in the mimetype and returns the resource
+     * @returns {xhrPromise} ignores what is specified in the mimetype and returns the resource
      * as a string in the promise.
      */
     File.prototype.getText = function() {
@@ -139,7 +139,7 @@ define([
     };
 
     /**
-     * @returns {dojo/promise/Promise} ignores what is specified in the mimetype and returns the resource
+     * @returns {xhrPromise} ignores what is specified in the mimetype and returns the resource
      * as a javascript object in the promise.
      */
     File.prototype.getJSON = function() {
@@ -147,7 +147,7 @@ define([
     };
 
     /**
-     * @returns {dojo/promise/Promise} ignores what is specified in the mimetype and returns the resource
+     * @returns {xhrPromise} ignores what is specified in the mimetype and returns the resource
      * in the promise as a XML Document or a string (depending on if you are in browser or not).
      */
     File.prototype.getXML = function() {
