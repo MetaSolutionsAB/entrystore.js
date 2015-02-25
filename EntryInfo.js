@@ -342,12 +342,12 @@ define([
  */
 /**
  * @name entryInfoPromise#then
- * @param {entryCallback} onSuccess
+ * @param {entryInfoCallback} onSuccess
  * @param {xhrFailureCallback} onError
  */
 /**
  * This is a successful callback method to be provided as first argument in a {@link entryInfoPromise}
  *
- * @callback entryCallback
+ * @callback entryInfoCallback
  * @param {store/EntryInfo} entry
  */
