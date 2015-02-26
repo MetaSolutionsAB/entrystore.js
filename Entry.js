@@ -252,19 +252,25 @@ define([
     };
 
     /**
-     * a list of URIs corresponding to list entries where this entry is contained.
+     * a list of entry URIs corresponding to list entries where this entry is contained.
      * @returns {string[]}
      */
     Entry.prototype.getParentLists = function() {
-        return this.getReferrers("http://entrystore.org/terms/hasListMember");
+        var listResourceURIArr = this.getReferrers("http://entrystore.org/terms/hasListMember");
+        return array.map(listResourceURIArr, function(resURI) {
+            return factory.getEntryURIFromURI(this.getEntryStore(), resURI);
+        }, this);
     };
 
     /**
-     * a list of URIs corresponding to groups where this user entry is member.
+     * a list of entry URIs corresponding to groups where this user entry is member.
      * @returns {string[]}
      */
     Entry.prototype.getParentGroups = function() {
-        return this.getReferrers("http://entrystore.org/terms/hasGroupMember");
+        var groupResourceURIArr = this.getReferrers("http://entrystore.org/terms/hasGroupMember");
+        return array.map(groupResourceURIArr, function(resURI) {
+            return factory.getEntryURIFromURI(this.getEntryStore(), resURI);
+        }, this);
     };
 
     /**

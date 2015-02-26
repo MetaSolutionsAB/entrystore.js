@@ -257,6 +257,11 @@ define([
         }
     };
 
+    factory.getEntryURIFromURI = function(entryStore, uri) {
+        var base = entryStore.getBaseURI();
+        return base+factory.getContextId(uri, base)+"/entry/"+factory.getEntryId(uri, base);
+    };
+
     factory.getEntryURI = function(entryStore, contextId, entryId) {
         return entryStore.getBaseURI()+contextId+"/entry/"+entryId;
     };
