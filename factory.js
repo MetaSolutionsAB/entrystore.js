@@ -271,7 +271,11 @@ define([
     };
 
     factory.getResourceURI = function(entryStore, contextId, entryId) {
-        return entryStore.getBaseURI()+contextId+"/resource/"+entryId;
+        if (contextId === "_contexts") {
+            return entryStore.getBaseURI()+entryId;
+        } else {
+            return entryStore.getBaseURI()+contextId+"/resource/"+entryId;
+        }
     };
 
     factory.getURIFromCreated = function(data, context) {

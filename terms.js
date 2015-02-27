@@ -17,6 +17,7 @@ define(["store/types"], function(types) {
 
 
     var externals = {
+        homeContext: ns + "homeContext",
         resource: ns + "resource",
         metadata: ns + "metadata",
         externalMetadata: ns + "externalMetadata",
