@@ -307,6 +307,17 @@ define([
         return new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
     };
 
+
+    EntryStore.prototype.createGroupAndContext = function(name) {
+        var uri = this._baseURI+"_principals/groups";
+        if (name != null) {
+            uri += "?name="+encodeURIComponent(name);
+        }
+        return this._rest.create(uri).then(lang.hitch(this, function(location) {
+                return this.getEntry(location);
+        }));
+    };
+
     /**
      * Provides a PrototypeEntry for creating a new user.
      * @param {string=} username - the name the user will use to authenticate himself
