@@ -51,6 +51,30 @@ define([
     };
 
     /**
+     * Get the preferred language of the user.
+     * @returns {string}
+     */
+    User.prototype.getLanguage = function() {
+        return this._data.language;
+    };
+
+    /**
+     * Sets the preferred language of a user.
+     * @param {string} language
+     * @returns {xhrPromise}
+     */
+    User.prototype.setLanguage = function(language) {
+        var oldlanguage = this._data.language;
+        this._data.language = language;
+        return this._entryStore.getREST().put(this._resourceURI, json.stringify({language: language})).then(function(data) {
+            return data;
+        }, lang.hitch(this, function(e) {
+            this._data.language = oldlanguage;
+            throw e;
+        }));
+    };
+
+    /**
      * Set a new password for the user.
      *
      * @param {string} password - a new password, should be at least 8 characters long.
