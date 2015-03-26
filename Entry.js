@@ -496,17 +496,17 @@ define([
         var guestprincipal = this.getEntryStore().getResourceURI("_principals", "_guest");
         var acl = this.getEntryInfo().getACL();
         if (acl.contextOverride) {
+            return array.some(["rwrite", "rread", "mwrite", "mread"], function(key) {
+                return array.indexOf(acl[key], guestprincipal) != -1;
+            });
+        } else {
             var ce = this.getContext().getEntry(true);
             if (ce == null) {
                 return;
             }
             acl = ce.getEntryInfo().getACL();
             return array.some(["rwrite", "rread"], function(key) {
-                return array.indexOf(acl[key], guestprincipal);
-            });
-        } else {
-            return array.some(["rwrite", "rread", "mwrite", "mread"], function(key) {
-                return array.indexOf(acl[key], guestprincipal);
+                return array.indexOf(acl[key], guestprincipal) != -1;
             });
         }
     };

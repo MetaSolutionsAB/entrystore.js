@@ -247,12 +247,12 @@ define([
 		};
 		acl = acl || {};
 		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-        var base = factory.getResourceBase(this._entry.getEntryStore(), this._entry.getContext().getId());
+        var base = factory.getResourceBase(this._entry.getEntryStore(), "_principals");
 		f(this._entryURI, terms.acl.write, acl.admin, base);
 		f(ru, terms.acl.read, acl.rread, base);
-		f(ru, terms.acl.write, acl.rread, base);
+		f(ru, terms.acl.write, acl.rwrite, base);
 		f(mu, terms.acl.read, acl.mread, base);
-		f(mu, terms.acl.write, acl.mread, base);
+		f(mu, terms.acl.write, acl.mwrite, base);
 	};
 
     /**
