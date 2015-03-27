@@ -376,7 +376,7 @@ define([
      * @returns {xhrPromise}
      */
     EntryStore.prototype.loadViaProxy = function (uri, formatHint) {
-        var url = factory.getProxyURI(uri, formatHint);
+        var url = factory.getProxyURI(this._baseURI, uri, formatHint);
         return this._rest.get(url);
     };
 
