@@ -2,11 +2,10 @@
 define([
     'store/StringResource',
     'store/types',
-    "dojo/Deferred",
 	"./PrototypeEntry",
     "./Resource",
     "./RDFGraph"
-], function(StringResource, types, Deferred, PrototypeEntry, Resource, RDFGraph) {
+], function(StringResource, types, PrototypeEntry, Resource, RDFGraph) {
 
     /**
      * @exports store/Context
@@ -45,7 +44,7 @@ define([
      * @see store/EntryStore#getEntry
      */
     Context.prototype.getEntryById = function(entryId, optionalLoadParams) {
-        return this.getEntryStore().getEntry(this.getMemberEntryURI(entryId), optionalLoadParams);
+        return this.getEntryStore().getEntry(this.getEntryURIbyId(entryId), optionalLoadParams);
     };
 
     /**
