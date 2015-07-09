@@ -9,8 +9,9 @@ define([
     "store/types",
     "store/PrototypeEntry",
     'store/User',
+    'store/Auth',
     "dojo/has"
-], function (lang, json, Cache, rest, factory, types, PrototypeEntry, User, has) {
+], function (lang, json, Cache, rest, factory, types, PrototypeEntry, User, Auth, has) {
 
     /**
      * EntryStore is the main class that is used to connect to a running server-side EntryStore repository.
@@ -34,6 +35,7 @@ define([
         }
 
         this._cache = new Cache();
+        this._auth = new Auth(this);
         if (credentials) {
             this.auth(credentials);
         }
@@ -42,47 +44,53 @@ define([
     };
 
     /**
+     * @returns {Auth} where functionality related to authorization are located, including a listener infrastructure.
+     */
+    EntryStore.prototype.getAuth = function() {
+        return this._auth;
+    };
+
+    /**
      * Yields information about who currently is authenticated against the EntryStore repository.
      * @returns {userInfoPromise} - upon success an object containing attributes "user" being the username, "id" of the user entry,
      * and "homecontext" being the entry-id of the home context is provided.
      * @see {@link store/EntryStore#auth auth}
      * @see {@link store/EntryStore#logout logout}
+     * @deprecated use corresponding method on auth object instead.
      */
     EntryStore.prototype.getUserInfo = function() {
-        return this._rest.get(this._baseURI + "auth/user");
+        return this._auth.getUserInfo();
     };
 
     /**
      * @returns {entryPromise} on success the entry for the currently signed in user is provided.
+     * @deprecated use corresponding method on auth object instead.
      */
     EntryStore.prototype.getUserEntry = function() {
-        return this._rest.get(this._baseURI + "auth/user").then(lang.hitch(this, function(data) {
-            return this.getEntry(this.getEntryURI("_principals", data.id));
-        }));
+        return this._auth.getUserEntry();
     };
 
     /**
      * Authenticate using credentials containing a user, a password and an optional maxAge given in seconds.
      *
      * @param {object} - credentials as a parameter object
+     * @deprecated use corresponding method on auth object instead.
      */
     EntryStore.prototype.auth = function (credentials) {
-        if (credentials) {
-            credentials.base = this.getBaseURI();
+        if (credentials == null) {
+            return this._auth.logout();
         } else {
-            credentials = {base: this.getBaseURI(), logout: true};
+            return this._auth.login(credentials.user, credentials.password, credentials.maxAge);
         }
-        var promise = this._rest.auth(credentials);
-        this.getCache().allNeedRefresh();
-        return promise;
     };
 
     /**
      * Logout the currently authorized user.
      * @returns {xhrPromise}
+     * @deprecated use corresponding method on auth object instead.
      */
     EntryStore.prototype.logout = function () {
-        return this.auth();
+        return this._auth.logout();
     };
 
     /**
@@ -496,29 +504,6 @@ define([
 
     return EntryStore;
 });
-
-/**
- * @name userInfoPromise
- * @extends xhrPromise
- * @class
- */
-/**
- * @name userInfoPromise#then
- * @param {userInfoCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * @callback userInfoCallback
- * @param {userInfo} resource
- */
-/**
- * @name userInfo
- * @namespace
- * @property {string}  user                   - the username
- * @property {string}  id                     - the entry id of the users entry
- * @property {string}  homecontext            - the entry id of the users home context.
- */
-
 
 /**
  * @name entryArrayPromise

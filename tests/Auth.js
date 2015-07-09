@@ -1,70 +1,27 @@
-define(['store/rest',
-    'store/EntryStore', 'tests/config'], function(rest, EntryStore, config) {
+define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
-    var authAdminReady;
+    var auth = es.getAuth();
 
 	return nodeunit.testCase({ inGroups: true,
-        withoutLogin: {
-            initStore: function(test) {
-                test.ok(es.getBaseURI() === config.repository);
-                test.done();
-            },
-            getEntry: function(test) {
-                es.getEntry(config.repository+"1/entry/1").then(function(entry) {
-                    test.ok(entry != null);
-                    test.done();
-                }, function(err) {
-                    test.ok(false, err);
-                    test.done();
-                })
-            },
-            getContext: function(test) {
-                var c = es.getContextById("1");
-                test.ok(c.getId() === "1");
-                test.done();
-            },
-            getContextList: function(test) {
-                var clist = es.getContextList();
-                clist.getEntries().then(function(entries) {
-                    test.ok(entries.length > 0, "No contexts found");
-                    test.done();
-                }, function() {
-                    test.ok(false, "Failed loading contextList.");
-                    test.done();
-                });
-            },
-            getPrincipalList: function(test) {
-                var plist = es.getPrincipalList();
-                plist.getEntries().then(function(entries) {
-                    test.ok(entries.length > 0, "No principals found");
-                    test.done();
-                }, function() {
-                    test.ok(false, "Failed loading principalList.");
-                    test.done();
-                });
-            }
-        },
-        withRegularLogin: {
+        authorize: {
             cookieSignIn: function(test) {
-                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
-                    return rest.get(config.repository+"auth/user").then(function(data) {
-                        test.ok(data.user === "Donald");
-                        test.done();
-                    });
+                test.expect(1);
+                auth.login("Donald", "donalddonald").then(function(data) {
+                    test.ok(data.user === "Donald");
+                    test.done();
                 }, function() {
                     test.ok(false, "Could not authenticate user Donald with password donalddonald");
                     test.done();
                 });
             },
             cookieSignOut: function(test) {
-                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
-                    es.logout("cookie").then(function() {
-                        return rest.get(config.repository+"auth/user").then(function(data) {
-                            test.ok(data.user === "guest", "Failed sign out from account Donald.");
-                            test.done();
-                        });
+                test.expect(1);
+                auth.login("Donald", "donalddonald").then(function() {
+                    return auth.logout().then(function(data) {
+                        test.ok(data.user === "guest", "Failed sign out from account Donald.");
+                        test.done();
                     });
                 }, function() {
                     test.ok(false, "Could not de-authenticate user Donald.");
@@ -72,43 +29,55 @@ define(['store/rest',
                 });
             }
         },
-        withAdminLogin: {
-            setUp: function(callback) {
-                if (!authAdminReady) {
-                    es.auth({user: "admin", password: "adminadmin"}).then(function() {
-                        authAdminReady = true;
-                        callback();
-                    });
-                } else {
+        fromGuestListeners: {
+            setUp: function (callback) {
+                auth.logout().then(function() {
                     callback();
-                }
-            },
-            createContext: function(test) {
-                es.newContext().create().then(function(entry) {
-                    test.ok(entry.isContext(), "Entry created, but it is not a context");
-                    test.done();
-                }, function() {
-                    test.ok(false, "Failed creating context.");
-                    test.done();
                 });
             },
-            createUser: function(test) {
-                var username = ""+new Date().getTime();
-                es.newUser(username).create().then(function(entry) {
-                    test.ok(entry.isUser(), "Entry created, but it is not a user!");
-                    test.ok(entry.getResource(true).getName() === username, "User created, but username provided in creation step is missing.")
-                    test.done();
-                }, function() {
-                    test.ok(false, "Failed creating user.");
+            login: function (test) {
+                test.expect(1);
+                var f = function (topic, data) {
+                    if (topic === "login") {
+                        test.ok(data.user === "Donald");
+                        test.done();
+                        auth.removeAuthListener(f);
+                    }
+                };
+                auth.addAuthListener(f);
+                auth.login("Donald", "donalddonald");
+            },
+            guestUserEntry: function(test) {
+                test.expect(1);
+                auth.getUserEntry().then(function(entry) {
+                    var name = entry.getResource(true).getName();
+                    test.ok(name === "guest");
                     test.done();
                 });
+            }
+        },
+        fromUserListeners: {
+            setUp: function (callback) {
+                auth.login("Donald", "donalddonald").then(function() {
+                    callback();
+                });
             },
-            createGroup: function(test) {
-                es.newGroup().create().then(function(entry) {
-                    test.ok(entry.isGroup(), "Entry created, but it is not a group!");
-                    test.done();
-                }, function() {
-                    test.ok(false, "Failed creating group.");
+            logout: function(test) {
+                test.expect(1);
+                var f = function(topic, data) {
+                    if (topic === "logout") {
+                        test.ok(data.user === "guest");
+                        test.done();
+                        auth.removeAuthListener(f);
+                    }
+                };
+                auth.addAuthListener(f);
+                auth.logout();
+            },
+            signedInUserEntry: function(test) {
+                test.expect(1);
+                auth.getUserEntry().then(function(entry) {
+                    test.ok(entry.getResource(true).getName() === "Donald");
                     test.done();
                 });
             }

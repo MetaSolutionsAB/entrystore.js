@@ -1,6 +1,7 @@
 define({
     tests: [
         "EntryStore",
+        "Auth",
         "Entry",
         "EntryInfo",
         "Cache",

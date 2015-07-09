@@ -1,5 +1,4 @@
-define(['store/rest',
-    'store/EntryStore', 'tests/config'], function(rest, EntryStore, config) {
+define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
@@ -46,36 +45,10 @@ define(['store/rest',
                 });
             }
         },
-        withRegularLogin: {
-            cookieSignIn: function(test) {
-                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
-                    return rest.get(config.repository+"auth/user").then(function(data) {
-                        test.ok(data.user === "Donald");
-                        test.done();
-                    });
-                }, function() {
-                    test.ok(false, "Could not authenticate user Donald with password donalddonald");
-                    test.done();
-                });
-            },
-            cookieSignOut: function(test) {
-                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
-                    es.logout("cookie").then(function() {
-                        return rest.get(config.repository+"auth/user").then(function(data) {
-                            test.ok(data.user === "guest", "Failed sign out from account Donald.");
-                            test.done();
-                        });
-                    });
-                }, function() {
-                    test.ok(false, "Could not de-authenticate user Donald.");
-                    test.done();
-                });
-            }
-        },
         withAdminLogin: {
             setUp: function(callback) {
                 if (!authAdminReady) {
-                    es.auth({user: "admin", password: "adminadmin"}).then(function() {
+                    es.getAuth().login("admin", "adminadmin").then(function() {
                         authAdminReady = true;
                         callback();
                     });
@@ -84,7 +57,7 @@ define(['store/rest',
                 }
             },
             createContext: function(test) {
-                es.newContext().create().then(function(entry) {
+                es.newContext().commit().then(function(entry) {
                     test.ok(entry.isContext(), "Entry created, but it is not a context");
                     test.done();
                 }, function() {
@@ -94,9 +67,9 @@ define(['store/rest',
             },
             createUser: function(test) {
                 var username = ""+new Date().getTime();
-                es.newUser(username).create().then(function(entry) {
+                es.newUser(username).commit().then(function(entry) {
                     test.ok(entry.isUser(), "Entry created, but it is not a user!");
-                    test.ok(entry.getResource(true).getName() === username, "User created, but username provided in creation step is missing.")
+                    test.ok(entry.getResource(true).getName() === username, "User created, but username provided in creation step is missing.");
                     test.done();
                 }, function() {
                     test.ok(false, "Failed creating user.");
@@ -104,7 +77,7 @@ define(['store/rest',
                 });
             },
             createGroup: function(test) {
-                es.newGroup().create().then(function(entry) {
+                es.newGroup().commit().then(function(entry) {
                     test.ok(entry.isGroup(), "Entry created, but it is not a group!");
                     test.done();
                 }, function() {
