@@ -1,7 +1,5 @@
 /*global define*/
-define([
-    "store/factory"
-], function(factory) {
+define([], function() {
 
     /**
      * This is the base class for resources contained by entries, do not use directly, instead use a subclass.
@@ -74,7 +72,7 @@ define([
      * @returns {string}
      */
     Resource.prototype.getId = function() {
-        return factory.getEntryId(this._entryURI);
+        return this._entryStore.getFactory().getEntryId(this._entryURI);
     };
 
     Resource.prototype._update = function(data) {

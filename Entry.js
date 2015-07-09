@@ -5,9 +5,8 @@ define([
     "rdfjson/Graph",
     "store/types",
     "dojo/Deferred",
-	"dojo/json",
-    "./factory"
-], function(array, lang, Graph, types, Deferred, json, factory) {
+	"dojo/json"
+], function(array, lang, Graph, types, Deferred, json) {
 	
 	/**
      * Entrys are at the center of this API. Entrys holds together metadata, external metadata, resources,
@@ -223,7 +222,7 @@ define([
             d.resolve(this._resource);
         } else {
             this.getEntryStore().getREST().get(this.getResourceURI()).then(lang.hitch(this, function(data) {
-                factory.updateOrCreateResource(this, {resource: data}, true);
+                this.getEntryStore().getFactory().updateOrCreateResource(this, {resource: data}, true);
                 d.resolve(this._resource);
             }), function(err) {
                 d.reject(err);
@@ -258,7 +257,7 @@ define([
     Entry.prototype.getParentLists = function() {
         var listResourceURIArr = this.getReferrers("http://entrystore.org/terms/hasListMember");
         return array.map(listResourceURIArr, function(resURI) {
-            return factory.getEntryURIFromURI(this.getEntryStore(), resURI);
+            return this.getEntryStore().getFactory().getEntryURIFromURI(this.getEntryStore(), resURI);
         }, this);
     };
 
@@ -269,7 +268,7 @@ define([
     Entry.prototype.getParentGroups = function() {
         var groupResourceURIArr = this.getReferrers("http://entrystore.org/terms/hasGroupMember");
         return array.map(groupResourceURIArr, function(resURI) {
-            return factory.getEntryURIFromURI(this.getEntryStore(), resURI);
+            return this.getEntryStore().getFactory().getEntryURIFromURI(this.getEntryStore(), resURI);
         }, this);
     };
 
@@ -591,6 +590,7 @@ define([
         var es = this.getEntryStore();
         if (force === true || es.getCache().needRefresh(this)) {
             var self = this, entryURI = this.getURI();
+            var factory = this.getEntryStore().getFactory();
             es.getREST().get(factory.getEntryLoadURI(entryURI)).then(function(data) {
                 factory.update(self, data);
                 es.getCache().cache(self, silently);

@@ -4,9 +4,8 @@ define([
     "dojo/_base/array",
 	"dojo/Deferred",
     "dojo/json",
-    "store/Resource",
-	"store/factory"
-], function(lang, array, Deferred, json, Resource, factory) {
+    "store/Resource"
+], function(lang, array, Deferred, json, Resource) {
 
     /**
      * List is a container for other entries in the same context.
@@ -48,7 +47,7 @@ define([
      * @returns {integer}
      */
 	List.prototype.getLimit = function() {
-        return this._limit || factory.getDefaultLimit();
+        return this._limit || this.getEntryStore().getFactory().getDefaultLimit();
 	};
 
     /**

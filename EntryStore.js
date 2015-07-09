@@ -490,6 +490,10 @@ define([
         })
     };
 
+    EntryStore.prototype.getFactory = function() {
+        return factory;
+    }
+
     return EntryStore;
 });
 

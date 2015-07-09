@@ -1,8 +1,7 @@
 /*global define*/
 define([
 	"store/List",
-	"store/factory"
-], function(List, factory) {
+], function(List) {
 	
 	/**
      * @exports store/SearchList
@@ -27,7 +26,7 @@ define([
 		this._query.limit(limit);
 	};
 	SList.prototype.getLimit = function() {
-		return this._query.getLimit()  || factory.getDefaultLimit();
+		return this._query.getLimit()  || this._entryStore.getFactory().getDefaultLimit();
 	};
 
     /**
@@ -46,7 +45,7 @@ define([
 		this._query.offset(offset);
 		var self = this;
 		return this._entryStore.getREST().get(this._query.getQuery(this._entryStore)).then(function(data) {
-			return factory.extractSearchResults(data, self, self._entryStore);
+			return self._entryStore.getFactory().extractSearchResults(data, self, self._entryStore);
 		});
 	};
 	SList.prototype._getEntries = List.prototype._getEntries;

@@ -4,10 +4,9 @@ define([
 	"dojo/Deferred",
 	"dojo/json",
     "store/terms",
-	"store/factory",
 	"rdfjson/Graph",
     "dojo/date/stamp"
-], function(array, Deferred, json, terms, factory, Graph, stamp) {
+], function(array, Deferred, json, terms, Graph, stamp) {
 	
 	/**
      * EntryInfo is a class that contains all the administrative information for an entry.
@@ -76,14 +75,14 @@ define([
      * @returns {String} the id of the entry
      */
     EntryInfo.prototype.getId = function() {
-        return factory.getEntryId(this._entryURI);
+        return this._entryStore.getFactory().getEntryId(this._entryURI);
     };
 
     /**
      * @returns {String}
      */
 	EntryInfo.prototype.getMetadataURI = function() {
-		return factory.getMetadataURI(this._entryURI);
+		return this._entryStore.getFactory().getMetadataURI(this._entryURI);
 	};
 
     /**
@@ -105,7 +104,7 @@ define([
      * @returns {String}
      */
     EntryInfo.prototype.getCachedExternalMetadataURI = function() {
-		return factory.getCachedExternalMetadataURI(this._entryURI);
+		return this._entryStore.getFactory().getCachedExternalMetadataURI(this._entryURI);
 	};
 
     /**
@@ -195,7 +194,8 @@ define([
 	 * @return {Object} an acl object.
 	 */
 	EntryInfo.prototype.getACL = function(asIds) {
-		var f = function(stmt) {
+		var factory = this._entryStore.getFactory();
+        var f = function(stmt) {
             if (asIds) {
                 return factory.getEntryId(stmt.getValue());
             } else {
@@ -247,7 +247,7 @@ define([
 		};
 		acl = acl || {};
 		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-        var base = factory.getResourceBase(this._entry.getEntryStore(), "_principals");
+        var base = this._entryStore.getFactory().getResourceBase(this._entry.getEntryStore(), "_principals");
 		f(this._entryURI, terms.acl.write, acl.admin, base);
 		f(ru, terms.acl.read, acl.rread, base);
 		f(ru, terms.acl.write, acl.rwrite, base);
