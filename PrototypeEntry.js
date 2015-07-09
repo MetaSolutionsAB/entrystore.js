@@ -26,7 +26,7 @@ define([
         }
         id = id || "_newId";
 		var cru = context.getResourceURI();
-		var entryInfo = new EntryInfo(cru + "/entry/"+id);
+		var entryInfo = new EntryInfo(cru + "/entry/"+id, null, context.getEntryStore());
 		entryInfo.setResourceURI(cru + "/resource/"+id);
 		entryInfo.getGraph().create(entryInfo.getEntryURI(), terms.metadata, {type: "uri", value: cru + "/metadata/"+id});
         Entry.apply(this, [context, entryInfo]); //Call the super constructor.
