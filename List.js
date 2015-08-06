@@ -157,10 +157,10 @@ define([
     /**
      * Get size of list.
      *
-     * @returns {integer} the amount of entries in the list.
+     * @returns {integer} the amount of entries in the list, -1 if unknown.
      */
     List.prototype.getSize = function() {
-        return this._size;
+        return typeof this._size === "number" ? this._size : -1;
     };
 
     //=========Helper methods===============

@@ -30,6 +30,13 @@ define([
 	};
 
     /**
+     * Get size of list.
+     *
+     * @returns {integer} the amount of entries in the list, -1 if unknown.
+     */
+    SList.prototype.getSize = List.prototype.getSize;
+
+    /**
      * Retrieves an array of entries contained in this list according to the current page and pagination settings.
      *
      * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
