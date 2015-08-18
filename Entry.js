@@ -446,7 +446,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.canAdministerEntry = function() {
-		return this._rights.administer;
+		return this._rights.administer || false;
 	};
 
     /**
@@ -454,7 +454,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.canReadResource = function() {
-		return this._rights.administer || this._rights.readresource || this._rights.writeresource;
+		return this._rights.administer || this._rights.readresource || this._rights.writeresource || false;
 	};
 
     /**
@@ -462,7 +462,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.canWriteResource = function() {
-		return this._rights.administer || this._rights.writeresource;
+		return this._rights.administer || this._rights.writeresource || false;
 	};
 
     /**
@@ -470,7 +470,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.canReadMetadata = function() {
-		return this._rights.administer || this._rights.readmetadata || this._rights.writemetadata;
+		return this._rights.administer || this._rights.readmetadata || this._rights.writemetadata || false;
 	};
 
     /**
@@ -478,7 +478,7 @@ define([
      * @returns {boolean}
      */
 	Entry.prototype.canWriteMetadata = function() {
-		return this._rights.administer || this._rights.writemetadata;
+		return this._rights.administer || this._rights.writemetadata || false;
 	};
 
     /**
