@@ -182,8 +182,8 @@ define([
 		for (var i=offset; i<offset+limit && i<this._size;i++) {
 			entryURI = this._sortedChildren[i];
 			if (entryURI) {
-				var e = this._cache.get(entryURI);
-				if (careAboutFresh === false || !this._cache.needRefresh(e)) {
+				var e = this._entryStore.getCache().get(entryURI);
+				if (careAboutFresh === false || (e != null && !e.needRefresh())) {
 					results.push(e);
 				} else {
 					needRefresh = true;
