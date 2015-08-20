@@ -1,4 +1,4 @@
-# EntryStore.js
+# EntryStore.js [![Build Status](https://drone.io/bitbucket.org/metasolutions/entrystore.js/status.png)](https://drone.io/bitbucket.org/metasolutions/entrystore.js/latest)
 
 EntryStore.js (short: StoreJS) is a JavaScript library that simplifies the communication with the EntryStore REST API.
 
