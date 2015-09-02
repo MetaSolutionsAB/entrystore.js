@@ -12,11 +12,12 @@ define([
 	"store/SearchList",
 	"store/Graph",
     "store/File",
+    "store/Pipeline",
 	"rdfjson/Graph",
     "store/User",
 	"exports"
 ], function(String, types, json, array, Context, EntryInfo, Entry, List, Group,
-            SearchList, GraphResource, File, Graph, User, exports) {
+            SearchList, GraphResource, File, Pipeline, Graph, User, exports) {
 
     /**
      * This module contains utility methods that encapsulates EntryStores REST layer from the rest of the code.
@@ -95,6 +96,11 @@ define([
                         resource = new GraphResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
                     }
 					break;
+                case types.GT_PIPELINE: //Sync or Async?
+                    if (force || data.resource != null) {
+                        resource = new Pipeline(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
+                    }
+                    break;
                 case types.GT_NONE: //Uploaded file.
                     resource = new File(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 			}

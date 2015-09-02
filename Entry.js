@@ -334,6 +334,13 @@ define([
 		return this.getEntryInfo().getGraphType() === types.GT_GRAPH;
 	};
     /**
+     * Is the resource of this entry of the GraphType graph?
+     * @returns {boolean}
+     */
+    Entry.prototype.isPipeline = function() {
+        return this.getEntryInfo().getGraphType() === types.GT_PIPELINE;
+    };
+    /**
      * Is the resource of this entry of the GraphType string?
      * @returns {boolean}
      */

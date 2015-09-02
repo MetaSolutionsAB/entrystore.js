@@ -14,7 +14,7 @@ define(["store/types"], function(types) {
     //Namespaces
     var ns = "http://entrystore.org/terms/";
     var rdfns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-
+    var xsdns = "http://www.w3.org/2001/XMLSchema#";
 
     var externals = {
         homeContext: ns + "homeContext",
@@ -22,7 +22,26 @@ define(["store/types"], function(types) {
         metadata: ns + "metadata",
         externalMetadata: ns + "externalMetadata",
         rdf: {
-            type: rdfns+"type"
+            type: rdfns + "type"
+        },
+        pipeline: {
+            transform: ns + "transform",
+            transformPriority: ns + "transformPriority",
+            transformType: ns + "transformType",
+            transformArgument: ns + "transformArgument",
+            transformArgumentKey: ns + "transformArgumentKey",
+            transformArgumentValue: ns + "transformArgumentValue",
+            transformDestination: ns + "transformDestination",
+            transformDetectDestination: ns + "transformDetectDestination"
+        },
+        acl: {
+            read: ns + "read",
+            write: ns + "write"
+        },
+        xsd: {
+            integer: xsdns+"integer",
+            float: xsdns+"float",
+            boolean: xsdns+"boolean"
         }
     };
 
@@ -46,6 +65,7 @@ define(["store/types"], function(types) {
 	gt[ns+"List"] = types.GT_LIST;
 	gt[ns+"ResultList"] = types.GT_RESULTLIST;
 	gt[ns+"Graph"] = types.GT_GRAPH;
+    gt[ns+"Pipeline"] = types.GT_PIPELINE;
 	gt[ns+"String"] = types.GT_STRING;
 	gt["default"] = types.GT_NONE; //The default option
     externals.graphType = gt;
@@ -60,11 +80,6 @@ define(["store/types"], function(types) {
 	rt["default"] = types.RT_INFORMATIONRESOURCE; //The default option
     externals.resourceType = rt;
     externals.invResourceType = inv(rt);
-
-    externals.acl = {
-        read: ns + "read",
-        write: ns + "write"
-    };
 
 	return externals;
 });

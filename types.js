@@ -122,7 +122,7 @@ define(
          * The resource is a pipeline, e.g. an entry that can somehow be executed on the server side.
          * @memberof store/types
          * @see store/Entry#isPipeline
-         * @todo remains to be supported in this API
+         * @see store/Pipeline
          */
         GT_PIPELINE: "Pipeline",
 

@@ -7,7 +7,8 @@ define({
         "Cache",
         "List",
         "solr",
-        "File"
+        "File",
+        "Pipeline"
     ],
     repository: "http://localhost:8080/store/",
     reporter: "default"

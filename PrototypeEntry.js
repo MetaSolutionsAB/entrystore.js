@@ -38,6 +38,13 @@ define([
     PrototypeEntry.prototype = new F();
 
 
+    /**
+     * Direct access method for the resource instance for prorotypeEntries.
+     * @returns {store/Resource}
+     */
+    PrototypeEntry.prototype.getResource = function() {
+        return this._resource;
+    }
 
     /**
      * Exposes the {@link store/EntryInfo#setACL setACL} method from {@link store/EntryInfo} on PrototypeEntry

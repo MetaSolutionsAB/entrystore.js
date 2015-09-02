@@ -4,8 +4,9 @@ define([
     'store/types',
 	"./PrototypeEntry",
     "./Resource",
-    "./Graph"
-], function(StringResource, types, PrototypeEntry, Resource, Graph) {
+    "./Graph",
+    "./Pipeline"
+], function(StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) {
 
     /**
      * @exports store/Context
@@ -159,6 +160,20 @@ define([
         var pe = new PrototypeEntry(this, id).setGraphType(types.GT_STRING);
         var ei = pe.getEntryInfo();
             pe._resource = new StringResource(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), str);
+        return pe;
+    };
+
+    /**
+     * Factory method to create a PrototypeEntry whose resource is a {@link store/Pipeline pipeline} that has the current context as container.
+     * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it (returns a promise).
+     *
+     * @param {String} id an optional id for the entry, fails upon commit if an entry exists already with this id.
+     * @returns {store/PrototypeEntry}
+     */
+    Context.prototype.newPipeline = function(id) {
+        var pe = new PrototypeEntry(this, id).setGraphType(types.GT_PIPELINE);
+        var ei = pe.getEntryInfo();
+        pe._resource = new Pipeline(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), {});
         return pe;
     };
 
