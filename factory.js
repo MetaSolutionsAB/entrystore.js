@@ -1,6 +1,6 @@
 /*global define*/
 define([
-    'store/StringResource',
+    'store/String',
     'store/types',
     "dojo/json",
 	"dojo/_base/array",
@@ -10,13 +10,13 @@ define([
     "store/List",
     "store/Group",
 	"store/SearchList",
-	"store/RDFGraph",
-    "store/FileResource",
+	"store/Graph",
+    "store/File",
 	"rdfjson/Graph",
     "store/User",
 	"exports"
-], function(StringResource, types, json, array, Context, EntryInfo, Entry, List, Group,
-            SearchList, RDFGraph, FileResource, Graph, User, exports) {
+], function(String, types, json, array, Context, EntryInfo, Entry, List, Group,
+            SearchList, GraphResource, File, Graph, User, exports) {
 
     /**
      * This module contains utility methods that encapsulates EntryStores REST layer from the rest of the code.
@@ -87,16 +87,16 @@ define([
                     break;
                 case types.GT_STRING:
                     if (force || data.resource != null) {
-                        resource = new StringResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || "");
+                        resource = new String(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || "");
                     }
                     break;
 				case types.GT_GRAPH: //Sync or Async?
 					if (force || data.resource != null) {
-                        resource = new RDFGraph(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
+                        resource = new GraphResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
                     }
 					break;
                 case types.GT_NONE: //Uploaded file.
-                    resource = new FileResource(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
+                    resource = new File(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 			}
 			entry._resource = resource;
             return;

@@ -106,7 +106,7 @@ define(
          * The resource is a RDF graph.
          * @memberof store/types
          * @see store/Entry#isGraph
-         * @see store/RDFGraph
+         * @see store/Graph
          */
         GT_GRAPH: "Graph",
 
@@ -114,7 +114,7 @@ define(
          * The resource is a string.
          * @memberof store/types
          * @see store/Entry#isString
-         * @see store/StringResource
+         * @see store/String
          */
         GT_STRING: "String",
 

@@ -11,8 +11,9 @@ define([], function() {
      * @class
      * @see subclass {@link store/Context}
      * @see subclass {@link store/List}
-     * @see subclass {@link store/RDFGraph}
-     * @see subclass {@link store/StringResource}
+     * @see subclass {@link store/Graph}
+     * @see subclass {@link store/String}
+     * @see subclass {@link store/File}
      * @see subclass {@link store/User}
      * @see subclass {@link store/Group}
      */

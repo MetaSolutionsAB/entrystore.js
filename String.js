@@ -4,9 +4,9 @@ define([
 ], function(Resource) {
 	
 	/**
-     * StringResource is a resource for handling simple strings of data.
+     * String is a resource for handling simple strings of data.
      *
-     * @exports store/StringResource
+     * @exports store/String
      * @param {string} entryURI - URI to an entry where this resource is contained.
      * @param {string} resourceURI - URI to the resource.
      * @param {store/EntryStore} entryStore - the API's repository instance.
@@ -36,8 +36,8 @@ define([
      *     stringresource.setString("New value").commit().then(function() {...});
      *
      * @param {string} string - the new string
-     * @returns {store/StringResource} allows chaining with commit.
-     * @see store/StringResource#commit
+     * @returns {store/String} allows chaining with commit.
+     * @see store/String#commit
      */
     Str.prototype.setString = function(string) {
         this._data = string || "";
@@ -49,7 +49,7 @@ define([
      * Pushes the string back to the repository.
      *
      * @returns {xhrPromise}
-     * @see store/StringResource#setString
+     * @see store/String#setString
      */
     Str.prototype.commit = function() {
         return this._entryStore.getREST().put(this._resourceURI, this._data);

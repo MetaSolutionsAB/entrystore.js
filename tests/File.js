@@ -22,7 +22,7 @@ define([
                 callback();
             }
         },
-        createJSONFileResource: function(test) {
+        createJSONFile: function(test) {
             c.newEntry().commit().then(function (entry) {
                 var r = entry.getResource(true);
                 return r.putJSON({a: "v"}).then(function () {
@@ -35,10 +35,10 @@ define([
                     });
                 });
             }, function () {
-                test.ok(false, "Something went wrong when creating a FileResource entry with JSON content.");
+                test.ok(false, "Something went wrong when creating a File entry with JSON content.");
             });
         },
-        createTextFileResource: function(test) {
+        createTextFile: function(test) {
             c.newEntry().commit().then(function (entry) {
                 var r = entry.getResource(true);
                 return r.putText("test").then(function () {
@@ -51,10 +51,10 @@ define([
                     });
                 });
             }, function () {
-                test.ok(false, "Something went wrong when creating a FileResource entry with text content.");
+                test.ok(false, "Something went wrong when creating a Fileentry with text content.");
             });
         },
-        createXMLFileResource: function(test) {
+        createXMLFile: function(test) {
             c.newEntry().commit().then(function (entry) {
                 var r = entry.getResource(true);
                 var xml = "<book></book>";
@@ -78,7 +78,7 @@ define([
                     });
                 });
             }, function () {
-                test.ok(false, "Something went wrong when creating a FileResource entry with xml content.");
+                test.ok(false, "Something went wrong when creating a File entry with xml content.");
             });
         }
     });

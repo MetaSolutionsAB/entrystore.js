@@ -1,11 +1,11 @@
 /*global define*/
 define([
-    'store/StringResource',
+    'store/String',
     'store/types',
 	"./PrototypeEntry",
     "./Resource",
-    "./RDFGraph"
-], function(StringResource, types, PrototypeEntry, Resource, RDFGraph) {
+    "./Graph"
+], function(StringResource, types, PrototypeEntry, Resource, Graph) {
 
     /**
      * @exports store/Context
@@ -133,7 +133,7 @@ define([
     };
 
     /**
-     * Factory method to create a PrototypeEntry whose resource is a {@link store/RDFGraph Graph} and has the current context as container.
+     * Factory method to create a PrototypeEntry whose resource is a {@link store/Graph Graph} and has the current context as container.
      * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it (returns a promise).
      *
      * @param {rdfjson.Graph} graph - graph to store as a resource.
@@ -143,15 +143,15 @@ define([
     Context.prototype.newGraph = function(graph, id) {
         var pe = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
         var ei = pe.getEntryInfo();
-        pe._resource = new RDFGraph(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), graph || {});
+        pe._resource = new Graph(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), graph || {});
         return pe;
     };
 
     /**
-     * Factory method to create a PrototypeEntry whose resource is a {@link store/StringResource String} that has the current context as container.
+     * Factory method to create a PrototypeEntry whose resource is a {@link store/String String} that has the current context as container.
      * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it (returns a promise).
      *
-     * @param {string=} str an optional string for the StringResource.
+     * @param {string=} str an optional string for the String Resource.
      * @param {String} id an optional id for the entry, fails upon commit if an entry exists already with this id.
      * @returns {store/PrototypeEntry}
      */

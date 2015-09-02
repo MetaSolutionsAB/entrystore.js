@@ -6,9 +6,9 @@ define([
 ], function(json, Resource, Graph) {
 	
 	/**
-     * RDFGraph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
+     * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
      *
-     * @exports store/RDFGraph
+     * @exports store/Graph
      * @param {string} entryURI - URI to an entry where this resource is contained.
      * @param {string} resourceURI - URI to the resource.
      * @param {store/EntryStore} entryStore - the API's repository instance.
@@ -16,7 +16,7 @@ define([
 	 * @class
      * @augments store/Resource
 	 */
-	var RDFGraph = function(entryURI, resourceURI, entryStore, data) {
+	var GraphResource = function(entryURI, resourceURI, entryStore, data) {
         Resource.apply(this, arguments); //Call the super constructor.
         this._graph = data instanceof Graph? data : new Graph(data);
 	};
@@ -24,15 +24,15 @@ define([
     //Inheritance trick
     var F = function() {};
     F.prototype = Resource.prototype;
-    RDFGraph.prototype = new F();
+    GraphResource.prototype = new F();
 
     /**
      * Get the rdf Graph. The returned graph is not a copy, subsequent getGraph calls will return the same instance
-     * as long as the entry has not been refreshed or a new instance set via {@link store/RDFGraph#setGraph setGraph}.
+     * as long as the entry has not been refreshed or a new instance set via {@link store/Graph#setGraph setGraph}.
      *
      * @returns {rdfjson/Graph} will never be null or undefined, although the graph may be empty.
      */
-    RDFGraph.prototype.getGraph = function() {
+    GraphResource.prototype.getGraph = function() {
 		return this._graph;
 	};
 
@@ -40,9 +40,9 @@ define([
      * Set the rdf Graph. To update the graph in the repository call the {@link store/EntryStore#commit commit}.
      *
      * @param {rdfjson/Graph} graph - the new graph, if null or undefined a new empty graph will be set.
-     * @returns store/RDFGraph - to allow chaining with commit.
+     * @returns store/Graph - to allow chaining with commit.
      */
-    RDFGraph.prototype.setGraph = function(graph) {
+    GraphResource.prototype.setGraph = function(graph) {
         this._graph = graph || new Graph();
         return this;
     };
@@ -53,7 +53,7 @@ define([
      * @param {rdfjson/Graph} graph
      * @returns {xhrPromise}
      */
-    RDFGraph.prototype.commit = function() {
+    GraphResource.prototype.commit = function() {
         return this._entryStore.getREST().put(this._resourceURI, json.stringify(this._graph.exportRDFJSON()));
     };
 
@@ -62,13 +62,13 @@ define([
      *
      * @returns {Object}
      */
-    RDFGraph.prototype.getSource = function() {
+    GraphResource.prototype.getSource = function() {
         return this._graph.exportRDFJSON();
     };
 
-    RDFGraph.prototype._update = function(data) {
+    GraphResource.prototype._update = function(data) {
         this._graph = new Graph(data);
     };
 
-	return RDFGraph;
+	return GraphResource;
 });

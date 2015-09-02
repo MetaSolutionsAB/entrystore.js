@@ -208,8 +208,8 @@ define([
      * Provides the resource for this entry if it exists in a promise, e.g. if the graph-type is not none.
      * It is also possible to request the resource directly, i.e. get the resource rather than a promise.
      * This is achieved by specifying the "direct" parameter as true. This always work for Lists, Groups,
-     * and Context resources. For all other resources it will work if the resource, e.g. a RDFGraph,
-     * a StringResource etc. is already loaded. If it is not loaded null will be returned.
+     * and Context resources. For all other resources it will work if the resource, e.g. a Graph,
+     * a String etc. is already loaded. If it is not loaded null will be returned.
      *
      * @returns {store/Resource|resourcePromise}
      */
