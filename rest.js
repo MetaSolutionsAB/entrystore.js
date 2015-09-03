@@ -137,9 +137,8 @@ define([
             }//multipart/form-data
             if (format) {
                 loc_headers["Content-Type"] = format;
-            } else if (lang.isObject(data)) {
-                loc_headers["Content-Type"] = format;
             }
+
             return request.post(uri, {
                 preventCache: true,
                 //handleAs: "json",
