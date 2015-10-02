@@ -107,10 +107,11 @@ define([
         predicate: "metadata.predicate",
         objectLiteral: "metadata.object.literal",
         objectUri: "metadata.object.uri",
-    	metadata_r: "metadata.r",
-    	metadata_rw: "metadata.rw",
-    	resource_r: "resource.r",
-    	resource_rw: "resource_rw"
+    	admin: "acl.admin",
+        metadata_r: "acl.metadata.r",
+    	metadata_rw: "acl.metadata.rw",
+    	resource_r: "acl.resource.r",
+    	resource_rw: "acl.resource.rw"
     };
     
     array.map(methods, function(method) {
