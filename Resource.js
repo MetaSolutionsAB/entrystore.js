@@ -79,6 +79,9 @@ define([], function() {
     Resource.prototype._update = function(data) {
         this._data = data;
     };
+    Resource.prototype.getSource = function() {
+        return this._data;
+    };
 
     return Resource;
 });

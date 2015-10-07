@@ -27,10 +27,10 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
             getContextList: function(test) {
                 var clist = es.getContextList();
                 clist.getEntries().then(function(entries) {
-                    test.ok(entries.length > 0, "No contexts found");
+                    test.failed(entries.length > 0, "List of contexts should only be visible to root.");
                     test.done();
                 }, function() {
-                    test.ok(false, "Failed loading contextList.");
+                    test.ok(true);
                     test.done();
                 });
             },

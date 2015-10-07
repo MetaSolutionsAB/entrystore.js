@@ -8,10 +8,11 @@ define([
     "store/factory",
     "store/types",
     "store/PrototypeEntry",
+    "store/Resource",
     'store/User',
     'store/Auth',
     "dojo/has"
-], function (lang, json, Cache, rest, factory, types, PrototypeEntry, User, Auth, has) {
+], function (lang, json, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
 
     /**
      * EntryStore is the main class that is used to connect to a running server-side EntryStore repository.
@@ -357,9 +358,16 @@ define([
      * @param {string=} id - requested identifier for the group
      * @returns {store/PrototypeEntry}
      */
-    EntryStore.prototype.newGroup = function (id) {
+    EntryStore.prototype.newGroup = function (groupname, id) {
         var _principals = factory.getContext(this, this._baseURI + "_contexts/entry/_principals");
-        return new PrototypeEntry(_principals, id).setGraphType(types.GT_GROUP);
+        var pe = new PrototypeEntry(_principals, id).setGraphType(types.GT_GROUP);
+        if (groupname != null) {
+            var ei = pe.getEntryInfo();
+            var resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
+            resource._update({name: groupname});
+            pe._resource = resource;
+        }
+        return pe;
     };
 
     /**
