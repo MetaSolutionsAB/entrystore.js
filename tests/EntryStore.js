@@ -6,6 +6,11 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
 
 	return nodeunit.testCase({ inGroups: true,
         withoutLogin: {
+            setUp: function(callback) {
+                es.getAuth().logout().then(function() {
+                    callback();
+                });
+            },
             initStore: function(test) {
                 test.ok(es.getBaseURI() === config.repository);
                 test.done();
@@ -27,7 +32,7 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
             getContextList: function(test) {
                 var clist = es.getContextList();
                 clist.getEntries().then(function(entries) {
-                    test.failed(entries.length > 0, "List of contexts should only be visible to root.");
+                    test.ok(entries == null || entries.length === 0, "List of contexts should only be visible to admin.");
                     test.done();
                 }, function() {
                     test.ok(true);
@@ -37,10 +42,10 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
             getPrincipalList: function(test) {
                 var plist = es.getPrincipalList();
                 plist.getEntries().then(function(entries) {
-                    test.ok(entries.length > 0, "No principals found");
+                    test.ok(entries == null || entries.length === 0, "List of principals should only be visible to admin.");
                     test.done();
                 }, function() {
-                    test.ok(false, "Failed loading principalList.");
+                    test.ok(true);
                     test.done();
                 });
             }
@@ -55,6 +60,26 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
                 } else {
                     callback();
                 }
+            },
+            getContextList: function(test) {
+                var clist = es.getContextList();
+                clist.getEntries().then(function(entries) {
+                    test.ok(entries.length > 0, "No contexts found.");
+                    test.done();
+                }, function() {
+                    test.ok(false, "Failed loading of contexts.");
+                    test.done();
+                });
+            },
+            getPrincipalList: function(test) {
+                var plist = es.getPrincipalList();
+                plist.getEntries().then(function(entries) {
+                    test.ok(entries.length > 0, "No principals found");
+                    test.done();
+                }, function() {
+                    test.ok(false, "Failed loading principalList.");
+                    test.done();
+                });
             },
             createContext: function(test) {
                 es.newContext().commit().then(function(entry) {
