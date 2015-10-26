@@ -1,12 +1,14 @@
 /*global define*/
 define([
+    'dojo/_base/lang',
+    'dojo/json',
     'store/String',
     'store/types',
 	"./PrototypeEntry",
     "./Resource",
     "./Graph",
     "./Pipeline"
-], function(StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) {
+], function(lang, json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) {
 
     /**
      * @exports store/Context
