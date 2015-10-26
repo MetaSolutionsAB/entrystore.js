@@ -131,9 +131,9 @@ define([
         if (this._unsortedChildren != null) {
             d.resolve(this._unsortedChildren);
         } else {
-            this.getEntries().then(function() {
+            this.getEntries().then(lang.hitch(this, function() {
                 d.resolve(this._unsortedChildren);
-            });
+            }));
         }
         return d.promise;
     };
