@@ -99,15 +99,16 @@ define([
      * otherwise it will be loaded from the repository. If the entry is already loaded but marked as in need of a refresh
      * it will be refreshed first.
      *
-     * The optional load parameters are provided in a single parameter object with five possible attributes.
+     * The optional load parameters are provided in a single parameter object with six possible attributes.
      * Below we outline these attributes, the first two (forceLoad and direct) applies to all kind of entries while
      * the following three (limit, offset and sort) only applies if the entry is a list:
      *
      * * forceLoad - ignores if the entry is already in the cache and fetches the entry from the repository
-     * * direct - returns the entry from the cache directly rather than returning a promise, if the entry is not in the
-     * cache an undefined value will be returned.
+     * * loadResource - makes sure that entry.getResource(true) will not return null (does not work in combination with direct).
+     * * direct - returns the entry from the cache directly rather than returning a promise,
+     *    if the entry is not in the cache an undefined value will be returned.
      * * limit - only a limited number of children are loaded, -1 means no limit, 0, undefined or if the attribute
-     * is not provided means that the default limit of 20 is used.
+     *    is not provided means that the default limit of 20 is used.
      * * offset - only children from offest and forward is returned, has to be positive to take effect.
      * * sort - information on how to sort the children:
      *     * if sort is not provided at all or an empty object is provided the members of the list will not be sorted,
@@ -157,6 +158,14 @@ define([
         if (optionalLoadParams != null && optionalLoadParams.direct === true) {
             return e;
         }
+        var checkResourceLoaded = function(entry) {
+            if (optionalLoadParams != null && optionalLoadParams.loadResource && entry.getResource() == null) {
+                return entry.getResource().then(function() {
+                    return entry;
+                });
+            }
+            return entry;
+        };
         if (e && !forceLoad) {
             if ((e.isList() || e.isGroup()) && optionalLoadParams != null) {
                 var list = e.getResource(true); //Direct access works for lists and groups.
@@ -164,13 +173,14 @@ define([
                 list.setSort(optionalLoadParams.sort);
             }
 
-            return e.refresh(); //Will only refresh if needed, a promise is returned in any case
+            return e.refresh().then(checkResourceLoaded); //Will only refresh if needed, a promise is returned in any case
         } else {
             var self = this;
             var entryLoadURI = factory.getEntryLoadURI(entryURI, optionalLoadParams);
             return this._rest.get(entryLoadURI).then(function (data) {
                 //The entry, will always be there.
-                return factory.updateOrCreate(entryURI, data, self);
+                var entry = factory.updateOrCreate(entryURI, data, self);
+                return checkResourceLoaded(entry);
             }, function (err) {
                 throw "Failed fetching entry. " + err;
             });
@@ -421,6 +431,18 @@ define([
      */
     EntryStore.prototype.getEntryURI = function (contextId, entryId) {
         return factory.getEntryURI(this, contextId, entryId);
+    };
+
+    /**
+     * Constructs an entry URI from a normal repository URI, e.g. any URI from which is possible
+     * to deduce a contextId and an entryId. Equivalent to calling:
+     * es.getEntryURI(es.getContextId(uri), es.getEntryId(uri))
+     *
+     * @param {string} uri - a URI for the entry, can be a entryURI (obviously), resourceURI (if local), metadataURI, or relationsURI.
+     * @returns {String} - an entry URI
+     */
+    EntryStore.prototype.getEntryURIFromURI = function (uri) {
+        return factory.getEntryURIFromURI(this, uri);
     };
 
     /**
