@@ -64,7 +64,9 @@ define([
 		if (!resource && ei.getEntryType() === types.ET_LOCAL && ei.getResourceType() === types.RT_INFORMATIONRESOURCE) {
 			switch(entry.getEntryInfo().getGraphType()) {
                 case types.GT_CONTEXT: //Synchronous resource, asynchronous methods.
-					resource = getContextForEntry(entry.getResourceURI()+"/", entry.getEntryStore()); //Dummy URL to find the right context.
+					var fakeEntryURI = entry.getEntryStore().getBaseURI()+entry.getId()+"/";
+                    resource = getContextForEntry(fakeEntryURI, entry.getEntryStore()); //Dummy URL to find the right context.
+                    resource._update(data);
 				break;
                 case types.GT_LIST: //Synchronous resource, asynchronous methods.
                 case types.GT_GROUP: //Synchronous resource, asynchronous methods.
