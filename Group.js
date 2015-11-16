@@ -1,7 +1,9 @@
 define([
     "store/List",
-    "store/terms"
-], function(List, terms) {
+    "store/terms",
+    "dojo/json",
+    "dojo/_base/lang"
+], function(List, terms, json, lang) {
 
     /**
      * Group is a subclass of the List resource and contains a list of users.
