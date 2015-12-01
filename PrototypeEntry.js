@@ -4,7 +4,7 @@ define([
 	"store/EntryInfo",
 	"store/terms"
 ], function(Entry, EntryInfo, terms) {
-	
+
 	/**
      * A PrototypeEntry is used to create new entries by collecting information about the initial state of the entry
      * to send along to the repository upon creation.
@@ -28,11 +28,19 @@ define([
 		var cru = context.getResourceURI();
 		var entryInfo = new EntryInfo(cru + "/entry/"+id, null, context.getEntryStore());
         if (context.getId() === "_contexts") {
-            entryInfo.setResourceURI(context.getEntryStore().getBaseURI()+id);
+            entryInfo._resourceURI = context.getEntryStore().getBaseURI()+id;
         } else {
-            entryInfo.setResourceURI(cru + "/resource/"+id);
+            entryInfo._resourceURI = cru + "/resource/"+id;
         }
-		entryInfo.getGraph().create(entryInfo.getEntryURI(), terms.metadata, {type: "uri", value: cru + "/metadata/"+id});
+        var oldSetResourceURI = entryInfo.setResourceURI;
+        entryInfo.setResourceURI = function(uri) {
+            this._resourceURI = uri;
+            oldSetResourceURI.call(this, uri);
+        };
+        entryInfo.getResourceURI = function() {
+            return this._resourceURI;
+        };
+
         Entry.apply(this, [context, entryInfo]); //Call the super constructor.
     };
 
