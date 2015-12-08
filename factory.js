@@ -57,6 +57,18 @@ define([
 		return o;
 	};
 
+    var fixName = function(resource, data) {
+        //Special case of searches and similar when name is provided but not full resource.
+        if (typeof data.name === "string" && resource != null) {
+            if (resource instanceof User) {
+                resource._data = resource._data || {};
+                resource._data.name = data.name;
+            } else { //Context and Group
+                resource._name = data.name;
+            }
+        }
+    };
+
 	var _updateOrCreateResource = function(entry, data, force) {
 		data = data || {};
         var resource = entry.getResource(true);
@@ -107,10 +119,12 @@ define([
                     resource = new File(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 			}
 			entry._resource = resource;
+            fixName(resource, data);
             return;
 		}
 
-		if (entry._resource == null || data.resource == null) {
+		if (resource == null || data.resource == null) {
+            fixName(resource, data);
 			return;
 		}
 		
