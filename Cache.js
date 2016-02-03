@@ -13,6 +13,7 @@ define([], function() {
 		this._listenerCounter = 0;
 		this._listenersIdx = {};
 		this._cacheIdx = {};
+		this._cacheIdxResource = {};
         this._cacheCtrl = {};
 	};
 
@@ -26,6 +27,12 @@ define([], function() {
 	Cache.prototype.cache = function(entry, silently) {
 		var previouslyCached = this._cacheIdx[entry.getURI()] != null;
 		this._cacheIdx[entry.getURI()] = entry;
+        var resArr = this._cacheIdxResource[entry.getResourceURI()];
+        if (typeof resArr === "undefined") {
+            resArr = [];
+            this._cacheIdxResource[entry.getResourceURI()] = resArr;
+        }
+        resArr.push(entry);
         this._cacheCtrl[entry.getURI()] = {date: new Date().getTime()};
 		if (previouslyCached && silently !== true) {
 			this.messageListeners("refreshed", entry);
@@ -73,6 +80,24 @@ define([], function() {
     Cache.prototype.get = function(entryURI) {
 		return this._cacheIdx[entryURI];
 	};
+
+
+    /**
+     * Retrieve all entries that have the specified uri as resource.
+     * Note that since several entries (e.g. links) may have the same uri
+     * as resource this method returns an array. However, in many situations
+     * there will be zero or one entry per uri.
+     *
+     * @param {String} resourceURI
+     * @returns {store/Entry[]} always returns an array, may be empty though.
+     */
+    Cache.prototype.getByResourceURI = function(uri) {
+        var arr = this._cacheIdxResource[uri];
+        if (typeof arr !== "undefined" && typeof arr.slice === "function") {
+            return arr.slice(0);
+        }
+        return [];
+    };
 
     /**
      * Tells wheter the entry is in need of a refresh from the repository.
