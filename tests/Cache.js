@@ -1,5 +1,8 @@
 define(['store/Cache'], function(Cache) {
-	var e1 = {getURI: function() {return "http://example.com/1/entry/1"}};
+	var e1 = {
+		getURI: function() {return "http://example.com/1/entry/1"},
+		getResourceURI: function() {return "http://example.com/1/resource/1"}
+	};
 	
 	return nodeunit.testCase({
 		initCache: function(test) {

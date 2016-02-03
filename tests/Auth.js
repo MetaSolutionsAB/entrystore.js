@@ -9,7 +9,7 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
             cookieSignIn: function(test) {
                 test.expect(1);
                 auth.login("Donald", "donalddonald").then(function(data) {
-                    test.ok(data.user === "Donald");
+                    test.ok(data.user === "donald");
                     test.done();
                 }, function() {
                     test.ok(false, "Could not authenticate user Donald with password donalddonald");
@@ -39,7 +39,7 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
                 test.expect(1);
                 var f = function (topic, data) {
                     if (topic === "login") {
-                        test.ok(data.user === "Donald");
+                        test.ok(data.user === "donald");
                         test.done();
                         auth.removeAuthListener(f);
                     }
@@ -77,7 +77,7 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
             signedInUserEntry: function(test) {
                 test.expect(1);
                 auth.getUserEntry().then(function(entry) {
-                    test.ok(entry.getResource(true).getName() === "Donald");
+                    test.ok(entry.getResource(true).getName() === "donald");
                     test.done();
                 });
             }
