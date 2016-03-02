@@ -130,7 +130,8 @@ define([
             d.reject("The entry \""+this.getURI()+"\" should allow local metadata to be saved, but there is no local metadata.\n"+
                 "This message is a bug in the storejs API.");
         } else {
-            this.getEntryStore().getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON())).then(function() {
+            var es = this.getEntryStore();
+            es.getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON())).then(function() {
                 self.setRefreshNeeded(true);
                 self.refresh().then(function() {
                     d.resolve(self);
@@ -143,7 +144,7 @@ define([
                 d.reject("Failed saving local metadata. "+err);
             });
         }
-		return d.promise;
+		return es.handleAsync(d.promise, "commitMetadata");
 	};
 	
 	/**
@@ -178,7 +179,8 @@ define([
 	 */	
 	Entry.prototype.commitCachedExternalMetadata = function() {
 		var d = new Deferred(), self = this;
-		this.getEntryStore().getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(), json.stringify(this._cachedExternalMetadata.exportRDFJSON())).then(function() {
+        var es = this.getEntryStore();
+        es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(), json.stringify(this._cachedExternalMetadata.exportRDFJSON())).then(function() {
 			self.setRefreshNeeded(true);
 			self.refresh().then(function() {
 				d.resolve(self);
@@ -190,7 +192,7 @@ define([
 		}, function(err) {
 			d.reject("Failed saving cached external metadata. "+err);
 		});
-		return d.promise;
+		return es.handleAsync(d.promise, "commitCachedExternalMetadata");
 	};
 
     /**
@@ -218,17 +220,18 @@ define([
             return this._resource;
         }
         var d = new Deferred();
+        var es = this.getEntryStore();
         if (this._resource) {
             d.resolve(this._resource);
         } else {
-            this.getEntryStore().getREST().get(this.getResourceURI()).then(lang.hitch(this, function(data) {
-                this.getEntryStore().getFactory().updateOrCreateResource(this, {resource: data}, true);
+            es.getREST().get(this.getResourceURI()).then(lang.hitch(this, function(data) {
+                es.getFactory().updateOrCreateResource(this, {resource: data}, true);
                 d.resolve(this._resource);
             }), function(err) {
                 d.reject(err);
             });
         }
-        return d.promise;
+        return es.handleAsync(d.promise, "getResource");
     };
 
     /**
@@ -428,7 +431,7 @@ define([
             var eid = es.getEntryId(uri);
             var cid = es.getContextId(uri);
             uri = es.getEntryURI(cid, eid);
-            return this.getEntryStore().getEntry(uri);
+            return es.handleAsync(this.getEntryStore().getEntry(uri), "getLinkedEntry");
         }
     };
 
@@ -556,10 +559,11 @@ define([
 	 * @return {dojo/promise/Promise} which on success indicates that the deletion has succeded.
 	 */
 	Entry.prototype.del = function(recursive) {
-		if (recursive === true) {
-			return this.getEntryStore().getREST().del(this.getURI()+"?recursive=true");
+		var es = this.getEntryStore();
+        if (recursive === true) {
+			return es.handleAsync(es.getREST().del(this.getURI()+"?recursive=true"), "delEntry");
 		} else {
-			return this.getEntryStore().getREST().del(this.getURI());
+			return es.handleAsync(es.getREST().del(this.getURI()), "delEntry");
 		}
 	};
 
@@ -608,7 +612,7 @@ define([
         } else {
             d.resolve(this);
         }
-        return d.promise;
+        return es.handleAsync(d.promise, "refresh");
     };
 
     return Entry;

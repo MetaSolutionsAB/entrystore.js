@@ -52,7 +52,8 @@ define([
      * @see store/String#setString
      */
     Str.prototype.commit = function() {
-        return this._entryStore.getREST().put(this._resourceURI, this._data);
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, this._data), "commitString");
     };
 
 

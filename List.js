@@ -145,13 +145,14 @@ define([
      * @returns {xhrPromise}
      */
     List.prototype.setAllEntryIds = function(entries) {
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify(entries))
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
             .then(lang.hitch(this, function() {
                 this.needRefresh();
-                return this._entryStore.getEntry(this.getEntryURI()).then(function(oentry) {
+                return es.getEntry(this.getEntryURI()).then(function(oentry) {
                     oentry.setRefreshNeeded();
                 });
-            }));
+            })), "setList");
     };
 
     /**
@@ -203,10 +204,15 @@ define([
 	List.prototype._forceLoadEntries = function(page) {
 		var limit = this.getLimit();
 		var offset = (page || 0) * limit;
-		return this._entryStore.getEntry(this._entryURI, {forceLoad: true, offset: offset, limit: limit, sort: this._sort})
-			.then(lang.hitch(this, function() {
-				return this._getEntries(page, false);
-			}));
+		return this._entryStore.getEntry(this._entryURI, {
+            forceLoad: true,
+            offset: offset,
+            limit: limit,
+            sort: this._sort,
+            asyncContext: "loadListEntries"
+        }).then(lang.hitch(this, function() {
+            return this._getEntries(page, false);
+        }));
 	};
 
     //Data contains allUnsorted array, size, and children.

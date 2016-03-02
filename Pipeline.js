@@ -247,11 +247,12 @@ define([
      * @returns {entryURIArrayPromise} an array of entry URIs that where created/modified by this execution.
      */
     Pipeline.prototype.execute = function(sourceEntry) {
-        var executeURI = sourceEntry.getContext().getResourceURI()+"/execute";
-        return this.getEntryStore().getREST().post(executeURI, json.stringify({
+        var executeURI = sourceEntry.getContext().getResourceURI()+"/execute",
+            es = this.getEntryStore();
+        return es.handleAsync(es.getREST().post(executeURI, json.stringify({
             pipeline: this.getEntryURI(),
             source: sourceEntry.getURI()
-        }));
+        })), "execute");
     };
 
     return Pipeline;

@@ -54,7 +54,7 @@ define([
      * @returns {xhrPromise}
      */
     GraphResource.prototype.commit = function() {
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify(this._graph.exportRDFJSON()));
+        return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, json.stringify(this._graph.exportRDFJSON())), "commitGraph");
     };
 
     /**

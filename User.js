@@ -42,12 +42,13 @@ define([
     User.prototype.setName = function(name) {
         var oldname = this._data.name;
         this._data.name = name;
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify({name: name})).then(function(data) {
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({name: name})).then(function(data) {
             return data;
         }, lang.hitch(this, function(e) {
             this._data.name = oldname;
             throw e;
-        }));
+        })), "setUserName");
     };
 
     /**
@@ -66,12 +67,13 @@ define([
     User.prototype.setLanguage = function(language) {
         var oldlanguage = this._data.language;
         this._data.language = language;
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify({language: language})).then(function(data) {
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({language: language})).then(function(data) {
             return data;
         }, lang.hitch(this, function(e) {
             this._data.language = oldlanguage;
             throw e;
-        }));
+        })), "setUserLanguage");
     };
 
     /**
@@ -81,7 +83,8 @@ define([
      * @returns {xhrPromise}
      */
     User.prototype.setPassword = function(password) {
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify({password: password}));
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({password: password})), "setUserPassword");
     };
 
     /**
@@ -102,11 +105,12 @@ define([
     User.prototype.setHomeContext = function(contextId) {
         var oldhc = this._data.homecontext;
         this._data.homecontext = contextId;
-        return this._entryStore.getREST().put(this._resourceURI, json.stringify({homecontext: contextId}))
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({homecontext: contextId}))
             .then(function(data) {return data;}, lang.hitch(this, function(e) {
                 this._data.homecontext = oldhc;
                 throw e;
-            }));
+            })), "setUserHomeContext");
     };
 
     User.prototype.getSource = function() {

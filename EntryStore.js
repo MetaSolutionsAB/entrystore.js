@@ -45,6 +45,71 @@ define([
     };
 
     /**
+     * Provides a listener that will be called for every asynchronous call being made.
+     * The handler is invoked with the promise from the asynchrounous call
+     * and a callType parameter indicating which asynchronous call that has been made.
+     *
+     * The callType parameter can take the following values:
+     * - getEntry        - an entry is retrieved (EntryStore.getEntry)
+     * - createEntry     - an entry is created   (EntryStore.createEntry)
+     * - createGroupAndContext - a group and context pair is created (EntryStore.createGroupAndContext)
+     * - loadViaProxy    - data is requested via repository proxy (EntryStore.loadViaProxy)
+     * - commitMetadata  - changes to metadata is pushed (Entry.commitMetadata)
+     * - commitCachedExternalMetadata - changes to cached external metadata is pushed (Entry.commitCachedExternalMetadata)
+     * - getResource     - the entrys resource has been requested (Entry.getResource)
+     * - getLinkedEntry  - a linked entry is requested (Entry.getLinkedEntry)
+     * - delEntry        - an entry is deleted (Entry.del)
+     * - refresh         - an entry is refreshed (Entry.refresh)
+     * - setContextName  - the name of a context is changed (Context.setName)
+     * - getUserInfo     - the user information is requested (auth.getUserInfo)
+     * - getUserEntry    - the user entry is requested (auth.getUserEntry)
+     * - login           - logging in (auth.login)
+     * - logout          - logging out (auth.logout)
+     * - commitEntryInfo - pushing changes in entry information (EntryInfo.commit)
+     * - getFile         - the contents of a file resourec is requested (File.get*)
+     * - putFile         - the contents of a file is pushed (File.put*)
+     * - commitGraph     - a graph resource is pushed (Graph.commit)
+     * - commitString    - a string resource is pushed (String.commit)
+     * - setGroupName    - a new name of a group is pushed (Group.setName)
+     * - setUserName     - a new name of a user is pushed (User.setName)
+     * - setUserLanguage - a new preferred language of the user is pushed (User.setLanguage)
+     * - setUserPassword - a new password for the user is pushed (User.setPassword)
+     * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)
+     * - loadListEntries - members of a list are requested (List.getEntries)
+     * - setList         - the list members are changed (List.setAllEntryIds .addEntry .removeEntry)
+     * - search          - a search is being performed (SearchList.getEntries)
+     * - execute         - a pipeline is executed (Pipeline.execute)
+     *
+     * @param {asyncListener} listener
+     */
+    EntryStore.prototype.addAsyncListener = function(listener) {
+        if (this.asyncListeners) {
+            this.asyncListeners.push(listener);
+        } else {
+            this.asyncListeners = [listener];
+        }
+    };
+
+    /**
+     * Removes a previously added listener for asynchronous calls.
+     * @param listener
+     */
+    EntryStore.prototype.removeAsyncListener = function(listener) {
+        if (this.asyncListeners) {
+            this.asyncListeners.splice(this.asyncListeners.indexOf(listener), 1);
+        }
+    };
+
+    EntryStore.prototype.handleAsync = function(promise, context) {
+        if (this.asyncListeners) {
+            for (var i = 0; i< this.asyncListeners.length;i++) {
+                this.asyncListeners[i](promise, context);
+            }
+        }
+        return promise;
+    };
+
+    /**
      * @returns {Auth} where functionality related to authorization are located, including a listener infrastructure.
      */
     EntryStore.prototype.getAuth = function() {
@@ -155,8 +220,14 @@ define([
     EntryStore.prototype.getEntry = function (entryURI, optionalLoadParams) {
         var forceLoad = optionalLoadParams ? optionalLoadParams.forceLoad === true : false;
         var e = this._cache.get(entryURI);
-        if (optionalLoadParams != null && optionalLoadParams.direct === true) {
-            return e;
+        var asyncContext = "getEntry";
+        if (optionalLoadParams != null) {
+            if (optionalLoadParams.asyncContext) {
+                asyncContext = optionalLoadParams.asyncContext;
+            }
+            if (optionalLoadParams.direct === true) {
+                return e;
+            }
         }
         var checkResourceLoaded = function(entry) {
             if (optionalLoadParams != null && optionalLoadParams.loadResource && entry.getResource() == null) {
@@ -173,17 +244,17 @@ define([
                 list.setSort(optionalLoadParams.sort);
             }
 
-            return e.refresh().then(checkResourceLoaded); //Will only refresh if needed, a promise is returned in any case
+            return this.handleAsync(e.refresh().then(checkResourceLoaded), asyncContext); //Will only refresh if needed, a promise is returned in any case
         } else {
             var self = this;
             var entryLoadURI = factory.getEntryLoadURI(entryURI, optionalLoadParams);
-            return this._rest.get(entryLoadURI).then(function (data) {
+            return this.handleAsync(this._rest.get(entryLoadURI).then(function (data) {
                 //The entry, will always be there.
                 var entry = factory.updateOrCreate(entryURI, data, self);
                 return checkResourceLoaded(entry);
             }, function (err) {
                 throw "Failed fetching entry. " + err;
-            });
+            }), asyncContext);
         }
     };
 
@@ -301,7 +372,7 @@ define([
     EntryStore.prototype.createEntry = function (prototypeEntry) {
         var postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
         var postParams = factory.getEntryCreatePostData(prototypeEntry);
-        return this._rest.create(postURI, postParams).then(
+        return this.handleAsync(this._rest.create(postURI, postParams).then(
             lang.hitch(this, function(euri) {
                 //var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
                 var plist = prototypeEntry.getParentList();
@@ -313,7 +384,7 @@ define([
                 }
                 return this.getEntry(euri);
             })
-        );
+        ), "createEntry");
     };
 
     /**
@@ -332,9 +403,9 @@ define([
         if (name != null) {
             uri += "?name="+encodeURIComponent(name);
         }
-        return this._rest.create(uri).then(lang.hitch(this, function(location) {
+        return this.handleAsync(this._rest.create(uri).then(lang.hitch(this, function(location) {
                 return this.getEntry(location);
-        }));
+        })), "createGroupAndContext");
     };
 
     /**
@@ -390,7 +461,7 @@ define([
      */
     EntryStore.prototype.moveEntry = function (entry, fromList, toList) {
         var uri = factory.getMoveURI(entry, fromList, toList, this._baseURI);
-        return this._rest.post(uri, "");
+        return this.handleAsync(this._rest.post(uri, ""), "moveEntry");
     };
 
     /**
@@ -403,7 +474,7 @@ define([
      */
     EntryStore.prototype.loadViaProxy = function (uri, formatHint) {
         var url = factory.getProxyURI(this._baseURI, uri, formatHint);
-        return this._rest.get(url);
+        return this.handleAsync(this._rest.get(url), "loadViaProxy");
     };
 
     /**
@@ -534,6 +605,12 @@ define([
 
     return EntryStore;
 });
+
+/**
+ * @callback asyncListener
+ * @param {dojo/promise/Promise} promise
+ * @param {string} callType
+ */
 
 /**
  * @name entryArrayPromise

@@ -49,20 +49,20 @@ define([
      * @returns {entryInfoPromise}
      */
 	EntryInfo.prototype.commit = function() {
-		var d = new Deferred(), self = this;
-        this._entry.getEntryStore().getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON())).then(function() {
+		var d = new Deferred(), self = this, es = this._entry.getEntryStore();
+        es.getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON())).then(function() {
 			self._entry.setRefreshNeeded(true);
 			self._entry.refresh().then(function() {
 				d.resolve(self);
 			}, function() {
 				//Failed refreshing, but succeded at saving metadata, at least send out message that it needs to be refreshed.
-				self._entry.getEntryStore().getCache().message("refreshed", self);
+				es.getCache().message("refreshed", self);
 				d.resolve(self);
 			});
 		}, function(err) {
 			d.reject("Failed saving entryinfo. "+err);
 		});
-		return d.promise;
+		return es.handleAsync(d.promise, "commitEntryInfo");
 	};
 
     /**

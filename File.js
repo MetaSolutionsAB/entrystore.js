@@ -44,7 +44,7 @@ define([
      * @returns {xhrPromise}
      */
     File.prototype.putFile = function(data) {
-        return lang.hitch(this, function() {
+        return this.getEntryStore().handleAsync(lang.hitch(this, function() {
             if (has("host-browser") && data instanceof Node) {
                 if (data.name == null || data.name === "") {
                     throw "Failure, cannot upload resource from input element unless a name attribute is provided.";
@@ -56,7 +56,7 @@ define([
         })().then(lang.hitch(this, function(res) {
             this.getEntry(true).setRefreshNeeded();
             return res;
-        }));
+        })), "putFile");
     };
 
     /**
@@ -67,11 +67,12 @@ define([
      * @returns {xhrPromise}
      */
     File.prototype.put = function(data, format) {
-        return this.getEntryStore().getREST().put(this.getResourceURI(), data, null, format)
+        var es = this.getEntryStore();
+        return es.handleAsync(es.getREST().put(this.getResourceURI(), data, null, format)
             .then(lang.hitch(this, function(res) {
                 this.getEntry(true).setRefreshNeeded();
                 return res;
-            }));
+            })), "putFile");
     };
 
     /**
@@ -126,8 +127,9 @@ define([
      * a string is returned.
      */
     File.prototype.get = function(direct) {
-        var format = this.getEntry(true).getEntryInfo().getFormat();
-        return this.getEntryStore().getREST().get(this.getResourceURI(), format);
+        var format = this.getEntry(true).getEntryInfo().getFormat(),
+            es = this.getEntryStore();
+        return es.handleAsync(es.getREST().get(this.getResourceURI(), format), "getFile");
     };
 
     /**
@@ -135,7 +137,8 @@ define([
      * as a string in the promise.
      */
     File.prototype.getText = function() {
-        return this.getEntryStore().getREST().get(this.getResourceURI(), "text/plain");
+        var es = this.getEntryStore();
+        return es.handleAsync(this.getEntryStore().getREST().get(this.getResourceURI(), "text/plain"), "getFile");
     };
 
     /**
@@ -143,7 +146,8 @@ define([
      * as a javascript object in the promise.
      */
     File.prototype.getJSON = function() {
-        return this.getEntryStore().getREST().get(this.getResourceURI(), "application/json");
+        var es = this.getEntryStore();
+        return es.handleAsync(es.getREST().get(this.getResourceURI(), "application/json"), "getFile");
     };
 
     /**
@@ -151,7 +155,8 @@ define([
      * in the promise as a XML Document or a string (depending on if you are in browser or not).
      */
     File.prototype.getXML = function() {
-        return this.getEntryStore().getREST().get(this.getResourceURI(), "text/xml");
+        var es = this.getEntryStore();
+        return es.handleAsync(es.getREST().get(this.getResourceURI(), "text/xml"), "getFile");
     };
 
     return File;

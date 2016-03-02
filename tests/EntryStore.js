@@ -61,6 +61,20 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
                     callback();
                 }
             },
+            asyncListenerLogout: function(test) {
+                var al = function(promise, callType) {
+                    test.ok(callType === "logout", "Wrong calltype, should be 'logout'");
+                    promise.then(function() {
+                        authAdminReady = false;
+                        test.done();
+                    }, function() {
+                        test.done();
+                    });
+                };
+                es.addAsyncListener(al);
+                es.getAuth().logout();
+                es.removeAsyncListener(al);
+            },
             getContextList: function(test) {
                 var clist = es.getContextList();
                 clist.getEntries().then(function(entries) {

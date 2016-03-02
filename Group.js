@@ -42,12 +42,12 @@ define([
     Group.prototype.setName = function(name) {
         var oldname = this._name;
         this._name = name;
-        return this._entryStore.getREST().put(this.getEntryURI()+"/name", json.stringify({name: name})).then(function(data) {
+        return this._entryStore.handleAsync(this._entryStore.getREST().put(this.getEntryURI()+"/name", json.stringify({name: name})).then(function(data) {
             return data;
         }, lang.hitch(this, function(e) {
             this._name = oldname;
             throw e;
-        }));
+        })), "setGroupName");
     };
 
     /**

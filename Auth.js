@@ -65,6 +65,7 @@ define(["dojo/Deferred"], function (Deferred) {
                     delete self._uiDef;
                     return userinfo;
                 });
+                this.entrystore.handleAsync(this._uiDef, "getUserInfo");
             }
             return this._uiDef;
         }
@@ -84,7 +85,7 @@ define(["dojo/Deferred"], function (Deferred) {
                 delete this.userEntry;
                 this._ueDef = this.getUserInfo(forceLookup)
                     .then(function (data) {
-                        return self.entrystore.getEntry(self.entrystore.getEntryURI("_principals", data.id));
+                        return self.entrystore.getEntry(self.entrystore.getEntryURI("_principals", data.id), {asyncContext: "getUserEntry"});
                     })
                     .then(function (userEntry) {
                         self.userEntry = userEntry;
@@ -115,7 +116,7 @@ define(["dojo/Deferred"], function (Deferred) {
                 password: password,
                 maxAge: maxAge
         };
-        return this.entrystore.getREST().auth(credentials).then(function(data) {
+        return this.entrystore.handleAsync(this.entrystore.getREST().auth(credentials).then(function(data) {
             if (typeof data === "object" && data.user) {
                 return data;
             } else {
@@ -133,7 +134,7 @@ define(["dojo/Deferred"], function (Deferred) {
             self.entrystore.getCache().allNeedRefresh();
             self.messageListeners("login", data);
             return data;
-        });
+        }), "login");
     };
 
     /**
@@ -146,13 +147,13 @@ define(["dojo/Deferred"], function (Deferred) {
         }
         var credentials = {base: this.entrystore.getBaseURI(), logout: true};
         var self = this;
-        return this.entrystore.getREST().auth(credentials).then(function() {
+        return this.entrystore.handleAsync(this.entrystore.getREST().auth(credentials).then(function() {
             self.userInfo = {user: "guest", id: "_guest"};
             delete self.userEntry;
             self.entrystore.getCache().allNeedRefresh();
             self.messageListeners("logout", self.userInfo);
             return self.userInfo;
-        });
+        }), "logout");
     };
 
     return Auth;

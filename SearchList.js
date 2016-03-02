@@ -51,9 +51,10 @@ define([
 		var offset = (page || 0) * this.getLimit();
 		this._query.offset(offset);
 		var self = this;
-		return this._entryStore.getREST().get(this._query.getQuery(this._entryStore)).then(function(data) {
-			return self._entryStore.getFactory().extractSearchResults(data, self, self._entryStore);
-		});
+		var es = this._entryStore;
+		return es.handleAsync(es.getREST().get(this._query.getQuery(es)).then(function(data) {
+			return es.getFactory().extractSearchResults(data, self, es);
+		}), "search");
 	};
 	SList.prototype._getEntries = List.prototype._getEntries;
 	SList.prototype._update = List.prototype._update;
