@@ -60,7 +60,7 @@ define([
 				d.resolve(self);
 			});
 		}, function(err) {
-			d.reject("Failed saving entryinfo. "+err);
+			d.reject(err);
 		});
 		return es.handleAsync(d.promise, "commitEntryInfo");
 	};

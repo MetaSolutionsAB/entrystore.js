@@ -3,6 +3,7 @@
 define([
     "dojo/_base/lang",
     "dojo/json",
+    "dojo/Deferred",
     "store/Cache",
     "store/rest",
     "store/factory",
@@ -12,7 +13,7 @@ define([
     'store/User',
     'store/Auth',
     "dojo/has"
-], function (lang, json, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
+], function (lang, json, Deferred, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
 
     /**
      * EntryStore is the main class that is used to connect to a running server-side EntryStore repository.
@@ -292,7 +293,7 @@ define([
                 d.reject(err);
             });
         }, function(err) {
-            d.reject("Failed fetching all entries. "+err);
+            d.reject(err);
         });
         return d.promise;
     };

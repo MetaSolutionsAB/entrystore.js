@@ -141,7 +141,7 @@ define([
                     d.resolve(self);
                 });
             }, function(err) {
-                d.reject("Failed saving local metadata. "+err);
+                d.reject(err);
             });
         }
 		return es.handleAsync(d.promise, "commitMetadata");
@@ -190,7 +190,7 @@ define([
 				d.resolve(self);
 			});
 		}, function(err) {
-			d.reject("Failed saving cached external metadata. "+err);
+			d.reject(err);
 		});
 		return es.handleAsync(d.promise, "commitCachedExternalMetadata");
 	};
@@ -607,7 +607,7 @@ define([
                 es.getCache().cache(self, silently);
                 d.resolve(self);
             }, function(err) {
-                d.reject("Failed refreshing entry. "+err);
+                d.reject(err);
             });
         } else {
             d.resolve(this);

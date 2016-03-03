@@ -101,6 +101,8 @@ define([
                     }
                     script.get(uri, {jsonp: "callback"}).then(function(data) {
                         d.resolve(data);
+                    }, function(err) {
+                        d.reject(err);
                     });
                 });
                 return d;
@@ -163,7 +165,7 @@ define([
 				var location = response.getHeader('Location');
 				d.resolve(location);
 			},function(err) {
-				throw "Failed creating. "+err;
+                d.reject(err);
 			});
 			return d.promise;
 		},
