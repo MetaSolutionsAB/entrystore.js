@@ -73,25 +73,31 @@ define([
      * Hence, only use this function if you expect there to be a single entry per resource URI.
      *
      * @param {string} resourceURI is the URI for the resource.
+     * @param {store/Context} context an optional requirement to only look for resources in a specific context.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI) {
+    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI, context) {
         var cache = this._entrystore.getCache();
         var entryArr = cache.getByResourceURI(resourceURI);
-        if (entryArr.length > 0) {
-            var d = new Deferred();
-            d.resolve(entryArr[0]);
-            return d;
-        } else {
-            var list = this._entrystore.createSearchList(solr.resource(resourceURI).limit(1));
-            return list.getEntries(0).then(function(arr) {
-                if (arr.length > 0) {
-                    return arr[0];
-                } else {
-                    throw "No entries for resource with URI: "+resourceURI;
-                }
-            });
+        for (var i=0;i<entryArr.length;i++) {
+            if (context == null || entryArr[i].getContext() === context) {
+                var d = new Deferred();
+                d.resolve(entryArr[i]);
+                return d;
+            }
         }
+        var searchObj = solr.resource(resourceURI).limit(1);
+        if (context != null) {
+            searchObj.context(context);
+        }
+        var list = this._entrystore.createSearchList(searchObj);
+        return list.getEntries(0).then(function(arr) {
+            if (arr.length > 0) {
+                return arr[0];
+            } else {
+                throw "No entries for resource with URI: "+resourceURI;
+            }
+        });
     };
 
     /**
