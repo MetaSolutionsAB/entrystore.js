@@ -76,7 +76,7 @@ define([
      * @returns {store/PrototypeEntry} - to allow the method call to be chained.
      */
     PrototypeEntry.prototype.setResourceURI = function() {
-        EntryInfo.prototype.setResourceURI.apply(this._entryInfo, arguments);
+        this._entryInfo.setResourceURI.apply(this._entryInfo, arguments);
         return this;
     };
 
