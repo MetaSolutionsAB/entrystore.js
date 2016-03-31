@@ -3,8 +3,9 @@
 define([
     "dojo/_base/lang",
     "dojo/Deferred",
+    "rdfjson/namespaces",
     "store/solr"
-], function (lang, Deferred, solr) {
+], function (lang, Deferred, namespaces, solr) {
 
     /**
      * EntryStoreUtil provides utility functionality for working with entries.
@@ -73,31 +74,25 @@ define([
      * Hence, only use this function if you expect there to be a single entry per resource URI.
      *
      * @param {string} resourceURI is the URI for the resource.
-     * @param {store/Context} context an optional requirement to only look for resources in a specific context.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI, context) {
+    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI) {
         var cache = this._entrystore.getCache();
         var entryArr = cache.getByResourceURI(resourceURI);
-        for (var i=0;i<entryArr.length;i++) {
-            if (context == null || entryArr[i].getContext() === context) {
-                var d = new Deferred();
-                d.resolve(entryArr[i]);
-                return d;
-            }
+        if (entryArr.length > 0) {
+            var d = new Deferred();
+            d.resolve(entryArr[0]);
+            return d;
+        } else {
+            var list = this._entrystore.createSearchList(solr.resource(resourceURI).limit(1));
+            return list.getEntries(0).then(function(arr) {
+                if (arr.length > 0) {
+                    return arr[0];
+                } else {
+                    throw "No entries for resource with URI: "+resourceURI;
+                }
+            });
         }
-        var searchObj = solr.resource(resourceURI).limit(1);
-        if (context != null) {
-            searchObj.context(context);
-        }
-        var list = this._entrystore.createSearchList(searchObj);
-        return list.getEntries(0).then(function(arr) {
-            if (arr.length > 0) {
-                return arr[0];
-            } else {
-                throw "No entries for resource with URI: "+resourceURI;
-            }
-        });
     };
 
     /**
@@ -108,6 +103,28 @@ define([
         return this._entrystore.createSearchList(solr.resource(resourceURI));
     };
 
+    /**
+     * Attempting to find a unique entry for a specific type,
+     * if multiple entries exists with the same type the returned promise fails.
+     * You may restrict to a specific context.
+     *
+     * @param {string} typeURI is the rdf:type URI for the entry to match.
+     * @param {store/Context} context restrict to finding the entry in this context
+     * @returns {entryPromise}
+     */
+    EntryStoreUtil.prototype.getEntryListByType = function(typeURI, context) {
+        var et = namespaces.expand(typeURI);
+        var so = solr.rdfType(et).limit(2);
+        if (context) {
+            so.context(context);
+        }
+        return this._entrystore.createSearchList(so).getEntries(0).then(function(entryArr) {
+            if (entryArr.length === 1) {
+                return entryArr[0];
+            }
+            throw "Wrong number of entrys in context / repository";
+        });
+    };
 
     return EntryStoreUtil;
 });
