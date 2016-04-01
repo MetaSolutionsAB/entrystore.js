@@ -112,7 +112,7 @@ define([
      * @param {store/Context} context restrict to finding the entry in this context
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryListByType = function(typeURI, context) {
+    EntryStoreUtil.prototype.getEntryByType = function(typeURI, context) {
         var et = namespaces.expand(typeURI);
         var so = solr.rdfType(et).limit(2);
         if (context) {
