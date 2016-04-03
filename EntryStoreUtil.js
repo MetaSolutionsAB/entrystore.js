@@ -9,12 +9,20 @@ define([
 
     /**
      * EntryStoreUtil provides utility functionality for working with entries.
+     * @param {store/EntryStore} entrystore
      * @exports store/EntryStoreUtil
      * @class
      */
     var EntryStoreUtil = function (entrystore) {
         this._entrystore = entrystore;
         this._preloadIdx = {};
+    };
+
+    /**
+     * @returns {store/EntryStore}
+     */
+    EntryStoreUtil.prototype.getEntryStore = function() {
+        return this._entrystore;
     };
 
     /**
@@ -112,7 +120,7 @@ define([
      * @param {store/Context} context restrict to finding the entry in this context
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByType = function(typeURI, context) {
+    EntryStoreUtil.prototype.getEntryListByType = function(typeURI, context) {
         var et = namespaces.expand(typeURI);
         var so = solr.rdfType(et).limit(2);
         if (context) {
