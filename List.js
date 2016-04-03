@@ -79,6 +79,28 @@ define([
 		return def.promise;
 	};
 
+
+    /**
+     * Executes a callback on each list members in the order provided by the list.
+     * If the provided function return false for one entry the iteration is stopped and
+     * the function is not called for consecutive entries.
+     *
+     * @param {listEntryCallback} func
+     */
+    List.prototype.forEach = function(func) {
+        var page = 0, limit = this.getLimit();
+        var f = lang.hitch(this, function(entries) {
+            if (!array.some(entries, func)) {
+                if (entries.length === limit) {
+                    page++;
+                    this.getEntries(page).then(f);
+                }
+            }
+        });
+
+        this.getEntries(page).then(f);
+    };
+
     /**
      * Adds an entry to this list, on success the entry will be marked as in need of a refresh.
      * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
@@ -245,4 +267,12 @@ define([
 /**
  * @callback stringArrayCallback
  * @param {string[]} idArray
+ */
+
+/**
+ * Callback in list forEach method.
+ *
+ * @callback listEntryCallback
+ * @param {store/Entry} entry
+ * @param {number} index
  */

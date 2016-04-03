@@ -45,6 +45,15 @@ define([
      */
     SList.prototype.getEntries = List.prototype.getEntries;
 
+	/**
+	 * Executes a callback on each list members in the order provided by the solr-search.
+	 * If the provided function return false for one entry the iteration is stopped and
+	 * the function is not called for consecutive matched entries.
+	 *
+	 * @param {listEntryCallback} func
+	 */
+	SList.prototype.forEach = List.prototype.forEach;
+
 	//=====Private methods=============	
 	
 	SList.prototype._forceLoadEntries = function(page) {
