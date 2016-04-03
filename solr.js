@@ -2,8 +2,10 @@
 define([
     'dojo/_base/lang',
 	'dojo/_base/array',
+	'rdfjson/namespaces',
+	'store/SearchList',
 	'store/Context'
-], function(lang, array, Context) {
+], function(lang, array, namespaces, SearchList, Context) {
 	
 	/**
      * Solr query module provides a way to create a query by chaining method calls. For example:
@@ -60,12 +62,19 @@ define([
      * and are therefore also documented separately. Those are for setting a context, a limit, the sorting approach and
      * how to restrict to a title with language.
      *
-     * There is also a method ({@link store/solr#getQuery getQuery}) for getting the query as a string that is
+     * There is also a method ({@link store/Solr#getQuery getQuery}) for getting the query as a string that is
      * used by EntryStore API behind the scenes, you can safely ignore this method.
      *
+	 * @param {store/EntryStore} entrystore is an entrystore instance, needed if the list method is used.
      * @namespace store/solr
      */
-    var solr = function() {};
+    var Solr = function(entrystore) {
+		this._entrystore = entrystore;
+	};
+
+	Solr.prototype.list = function() {
+		return new SearchList(this._entryStore, this);
+	};
 
     var methods = [
         "title",
@@ -115,7 +124,7 @@ define([
     };
     
     array.map(methods, function(method) {
-    	solr.prototype[method] = function(val, not) {
+    	Solr.prototype[method] = function(val, not) {
     		this["_"+method] = val;
     		if (not === true) {
         		this["_"+method+"_not"] = true;
@@ -123,29 +132,41 @@ define([
     		return this;
     	}
     });
-	
+
     //===========Overwrite some functions with better support for instances as well as strings.
-	solr.prototype.context = function(context) {
+	Solr.prototype.context = function(context) {
 		this._context = context instanceof Context ? context.getResourceURI() : context.getResourceURI ? context.getResourceURI() : lang.isString(context) && context !== "" ? context : null;
 		return this;
 	};
+
+	Solr.prototype.rdfType = function(rdfType) {
+		if (lang.isArray(rdfType)) {
+			this._rdfType = array.map(rdfType, function(t) {
+				return namespaces.expand(t);
+			});
+		} else {
+			this._rdfType = namespaces.expand(rdfType);
+		}
+		return this;
+	};
+
 	
     /**
      * If a title has a language set, a dynamic field is created with the pattern "title.en", without multi value support. This is used in the context of sorting.
      * @param title {String} the title to search for
      * @param lang {String} the language of the title for instance "en".
      */
-	solr.prototype.title_lang = function(title, lang) {
+	Solr.prototype.title_lang = function(title, lang) {
 		this._title_lang = {value: title, lang: lang};
 		return this;
 	};
 	
-	solr.prototype.limit = function(limit) {
+	Solr.prototype.limit = function(limit) {
 		this._limit = limit;
 		return this;
 	};
 	
-	solr.prototype.getLimit = function() {
+	Solr.prototype.getLimit = function() {
 		return this._limit;
 	};
 	
@@ -157,17 +178,17 @@ define([
 	 * If no sort is explicitly given the default sort string used is "score+asc".
 	 * @param sort {String} a list of fields together with '+asc' or '+desc', first field has the highest priority when sorting.
 	 */
-	solr.prototype.sort = function(sort) {
+	Solr.prototype.sort = function(sort) {
 		this._sort = sort;
 		return this;
 	};
 	
-	solr.prototype.offset = function(offset) {
+	Solr.prototype.offset = function(offset) {
 		this._offset = offset;
 		return this;
 	};
 	
-	solr.prototype.getQuery = function(entryStore) {
+	Solr.prototype.getQuery = function(entryStore) {
 		var and = [], or, i, j, key;
 		if (this._title_lang != null) {
 			and.push("title."+this._title_lang.lang + ":"+encodeURIComponent(this._title_lang.value.replace(/:/g,"\\:")));
@@ -222,11 +243,11 @@ define([
      * For example:
      * solr.wrappedMethodCall(...).originalMethodCall1().originalMethodCall2() and so on.
      */
-	var c = solr, cp = solr.prototype;
-    solr = {};
-    array.map(methods, function(method) {
+    var solr = {Solr: Solr};
+	var transferMethods = methods.concat(["limit", "offset", "sort", "context", "title_lang"]);
+    array.map(transferMethods, function(method) {
     	solr[method] = function(val, not) {
-    		var solr_instance = new c();
+    		var solr_instance = new Solr();
     		return solr_instance[method].call(solr_instance, val, not);
     	};
     });

@@ -4,6 +4,7 @@ define([
     "dojo/_base/lang",
     "dojo/json",
     "dojo/Deferred",
+    "store/solr",
     "store/Cache",
     "store/rest",
     "store/factory",
@@ -13,7 +14,7 @@ define([
     'store/User',
     'store/Auth',
     "dojo/has"
-], function (lang, json, Deferred, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
+], function (lang, json, solr, Deferred, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
 
     /**
      * EntryStore is the main class that is used to connect to a running server-side EntryStore repository.
@@ -485,11 +486,17 @@ define([
      * In the following code example the solr variable corresponds to the {@link store/solr} query module:
      *
      *     var personType = "http://xmlns.com/foaf/0.1/Person";
-     *     var searchList = entrystore.createSearchList(solr().rdfType(personType));
+     *     var searchList = entrystore.newSolrQuery().rdfType(personType).list();
      *     searchList.setLimit(20).getEntries().then(function(results) {...});
      *
-     * @param {object} query implementation of some sort, e.g. {@link store/solr}.
      * @returns {store/SearchList}
+     */
+    EntryStore.prototype.newSolrQuery = function () {
+        return solr(this);
+    };
+
+    /**
+     * @deprecated use {@link #newSolrQuery} instead.
      */
     EntryStore.prototype.createSearchList = function (query) {
         return factory.createSearchList(this, query);
