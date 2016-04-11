@@ -14,7 +14,7 @@ define([
     'store/User',
     'store/Auth',
     "dojo/has"
-], function (lang, json, solr, Deferred, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
+], function (lang, json, Deferred, solr, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth, has) {
 
     /**
      * EntryStore is the main class that is used to connect to a running server-side EntryStore repository.
@@ -492,7 +492,7 @@ define([
      * @returns {store/SearchList}
      */
     EntryStore.prototype.newSolrQuery = function () {
-        return solr(this);
+        return new solr.Solr(this);
     };
 
     /**

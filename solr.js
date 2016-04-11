@@ -73,7 +73,7 @@ define([
 	};
 
 	Solr.prototype.list = function() {
-		return new SearchList(this._entryStore, this);
+		return new SearchList(this._entrystore, this);
 	};
 
     var methods = [
