@@ -391,12 +391,20 @@ define([
 
     /**
      * Provides a PrototypeEntry for creating a new context.
-     * @param {string=} id - requested identifier for the context
+     * @param {string=} contextname - optional name for the context, can be changed later, must be unique in the _principals context
+     * @param {string=} id - optional requested identifier (entryId) for the context, cannot be changed later, must be unique in the _principals context
      * @returns {store/PrototypeEntry}
      */
-    EntryStore.prototype.newContext = function (id) {
+    EntryStore.prototype.newContext = function (contextname, id) {
         var _contexts = factory.getContext(this, this._baseURI + "_contexts/entry/_contexts");
-        return new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
+        var pe = new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
+        if (contextname != null) {
+            var ei = pe.getEntryInfo();
+            var resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
+            resource._update({name: contextname});
+            pe._resource = resource;
+        }
+        return pe;
     };
 
 
@@ -438,7 +446,8 @@ define([
     };
 
     /**
-     * @param {string=} id - requested identifier for the group
+     * @param {string=} groupname - optional name for the group, can be changed later, must be unique in the _principals context
+     * @param {string=} id - optional requested identifier (entryId) for the group, cannot be changed later, must be unique in the _principals context
      * @returns {store/PrototypeEntry}
      */
     EntryStore.prototype.newGroup = function (groupname, id) {
