@@ -113,6 +113,16 @@ define([
             })), "setUserHomeContext");
     };
 
+
+    /**
+     * Get custom properties.
+     *
+     * @returns {object} - key value pairs of custom properties.
+     */
+    User.prototype.getCustomProperties = function() {
+        return this._data.customProperties || {};
+    };
+
     User.prototype.getSource = function() {
         return this._data;
     };
