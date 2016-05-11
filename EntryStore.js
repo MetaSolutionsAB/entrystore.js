@@ -77,6 +77,7 @@ define([
      * - setUserLanguage - a new preferred language of the user is pushed (User.setLanguage)
      * - setUserPassword - a new password for the user is pushed (User.setPassword)
      * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)
+     * - setUserCustomProperties - new custom properties for the user (User.setCustomProperties)
      * - loadListEntries - members of a list are requested (List.getEntries)
      * - setList         - the list members are changed (List.setAllEntryIds .addEntry .removeEntry)
      * - search          - a search is being performed (SearchList.getEntries)

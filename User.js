@@ -123,6 +123,23 @@ define([
         return this._data.customProperties || {};
     };
 
+    /**
+     * Set a new home context for this user.
+     *
+     * @param {string} contextId - a context id (not the full resource URI).
+     * @returns {xhrPromise}
+     */
+    User.prototype.setCustomProperties = function(customProperties) {
+        var oldcp = this._data.customProperties;
+        this._data.customProperties = customProperties;
+        var es = this._entryStore;
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({customProperties: customProperties}))
+            .then(function(data) {return data;}, lang.hitch(this, function(e) {
+                this._data.customProperties = oldcp;
+                throw e;
+            })), "setUserCustomProperties");
+    };
+
     User.prototype.getSource = function() {
         return this._data;
     };
