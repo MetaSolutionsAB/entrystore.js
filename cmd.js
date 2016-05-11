@@ -20,17 +20,17 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "s
         var f = function(result) {
             if (result == null) {
                 return false;
-            } else if (result.getResourceURI) { //Check if Entry
+            } else if (result instanceof Entry) { //Check if Entry
                 context.e = result;
                 callback(padding+"Variable 'e' now points to the entry: \""+result.getURI()+"\"\n", result);
                 return true;
-            } else if (result.getEntryURI) {
+            } /*else if (result instanceof Resource) {
                 result.getEntry().then(function(entry) {
                     context.e = entry;
                     callback(padding+"Variable 'e' now points to the entry: \""+entry.getURI()+"\"\n", result);
                 });
                 return true;
-            } else if ((result instanceof Array || typeof result == "array") && result.length > 0 && result[0].getResourceURI) { // Check if array of entries.
+            } */else if ((result instanceof Array || typeof result == "array") && result.length > 0 && result[0].getResourceURI) { // Check if array of entries.
                 l("---------------------------------------------------------------------------------------");
                 for (var i=0;i<result.length;i++) {
                     l("["+(context._list_offset+i)+"]  "+result[i].getURI());
@@ -101,7 +101,7 @@ define(["store/EntryStore", "store/Entry", "store/Resource", "rdfjson/print", "s
         context.r = new EntryStore(process.argv[2]);
     }
     if (process.argv.length > 4) {
-        context.r.auth("basic", {user: process.argv[3], password: process.argv[4]});
+        context.r.getAuth().login(process.argv[3], process.argv[4]);
     }
     context.solr = solr;
 
