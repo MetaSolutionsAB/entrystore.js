@@ -4,8 +4,9 @@ define([
 	'dojo/_base/array',
 	'rdfjson/namespaces',
 	'store/SearchList',
-	'store/Context'
-], function(lang, array, namespaces, SearchList, Context) {
+	'store/Context',
+	'md5'
+], function(lang, array, namespaces, SearchList, Context, md5) {
 	
 	/**
      * Solr query module provides a way to create a query by chaining method calls. For example:
@@ -70,6 +71,7 @@ define([
      */
     var Solr = function(entrystore) {
 		this._entrystore = entrystore;
+		this.properties = [];
 	};
 
 	Solr.prototype.list = function() {
@@ -200,7 +202,7 @@ define([
 				key = map[method] || method;
 				if (lang.isString(v)) {
 					if (this["_"+method+"_not"]) {
-						and.push("NOT+" + key + ":"+encodeURIComponent(v.replace(/:/g,"\\:")));
+						and.push("NOT(" + key + ":"+encodeURIComponent(v.replace(/:/g,"\\:"))+")");
 					} else {
 						and.push(key + ":"+encodeURIComponent(v.replace(/:/g,"\\:")));
 					}
@@ -213,13 +215,37 @@ define([
 						}
 					}
 					if (this["_"+method+"_not"]) {
-						and.push("NOT+("+or.join("+OR+")+")");
+						and.push("NOT("+or.join("+OR+")+")");
 					} else {
 						and.push("("+or.join("+OR+")+")");
 					}
 				}
 			}
 		}
+
+		array.forEach(this.properties, function(prop) {
+			var obj =  prop.object;
+			var key = (prop.literal ? "metadata.predicate.literal." :
+				"metadata.predicate.uri.")+prop.md5;
+			if (lang.isString(obj)) {
+				if (prop.notState) {
+					and.push("NOT("+ key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:"))+")");
+				} else {
+					and.push(key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:")));
+				}
+			} else if (lang.isArray(obj)) {
+				var or = [];
+				array.forEach(obj, function(o) {
+					or.push(key + ":"+encodeURIComponent(o.replace(/:/g,"\\:")));
+				}, this);
+				if (prop.notState) {
+					and.push("NOT("+or.join("+OR+")+")");
+				} else {
+					and.push("("+or.join("+OR+")+")");
+				}
+			}
+		}, this);
+
 		var trail = "";
 		if (this._limit != null) {
 			trail = "&limit="+this._limit;
@@ -234,7 +260,36 @@ define([
 		return entryStore.getBaseURI()+"search?type=solr&query="+and.join("+AND+")+trail;
 	};
 
-    /* We want to avoid writing new solr.title("...").type("...") and instead write:
+	Solr.prototype.literalProperty = function(predicate, object, notState) {
+		var key = md5(namespaces.expand(predicate)).substr(0, 8);
+		this.properties.push({
+			md5: key,
+			object: object,
+			notState: notState === true,
+			literal: true
+		});
+		return this;
+	};
+
+	Solr.prototype.uriProperty = function(predicate, object, notState) {
+		var key = md5(namespaces.expand(predicate)).substr(0, 8);
+		if (lang.isArray(object)) {
+			object = lang.map(object, function(o) {
+				return namespaces.expand(o);
+			});
+		} else {
+			object = namespaces.expand(object);
+		}
+		this.properties.push({
+			md5: key,
+			object: object,
+			notState: notState === true,
+			literal: false
+		});
+		return this;
+	};
+
+	/* We want to avoid writing new solr.title("...").type("...") and instead write:
      * solr.title("...").type("...")
      *
      * To achieve this we need to fiddle with the return value (solr).
@@ -244,7 +299,7 @@ define([
      * solr.wrappedMethodCall(...).originalMethodCall1().originalMethodCall2() and so on.
      */
     var solr = {Solr: Solr};
-	var transferMethods = methods.concat(["limit", "offset", "sort", "context", "title_lang"]);
+	var transferMethods = methods.concat(["limit", "offset", "sort", "context", "title_lang", "literalProperty", "uriProperty"]);
     array.map(transferMethods, function(method) {
     	solr[method] = function(val, not) {
     		var solr_instance = new Solr();

@@ -13,6 +13,7 @@ var profile = (function(){
         packages:[
             "dojo",
             "rdfjson",
+            {name: "md5", location: "md5/js", main: "md5.min"},
             {name:"store", location:".."}
         ],
 	    	    

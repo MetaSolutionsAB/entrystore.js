@@ -16,7 +16,13 @@ dojoConfig = {
         {
             name: "store",
             location: ".."
-        },{
+        },
+        {
+            name: "md5",
+            location: "md5/js",
+            main: "md5.min"
+        },
+        {
             name: "tests",
             location: "../tests"
         }],
