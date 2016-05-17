@@ -3,8 +3,9 @@ define([
     "dojo/json",
     "dojo/has",
     "dojo/_base/lang",
-    "store/Resource"
-], function(json, has, lang, Resource) {
+    "store/Resource",
+    "store/factory"
+], function(json, has, lang, Resource, factory) {
 	
 	/**
      * File resources are resources located in the Entrystore repository that have a graph type of none, e.g. none
@@ -44,19 +45,20 @@ define([
      * @returns {xhrPromise}
      */
     File.prototype.putFile = function(data) {
-        return this.getEntryStore().handleAsync(lang.hitch(this, function() {
-            if (has("host-browser") && data instanceof Node) {
-                if (data.name == null || data.name === "") {
-                    throw "Failure, cannot upload resource from input element unless a name attribute is provided.";
-                }
-                return this.getEntryStore().getREST().putFile(this.getResourceURI(), data);
-            } else {
-                //TODO file handle
+        if (has("host-browser") && data instanceof Node) {
+            if (data.name == null || data.name === "") {
+                throw "Failure, cannot upload resource from input element unless a name attribute is provided.";
             }
-        })().then(lang.hitch(this, function(res) {
-            this.getEntry(true).setRefreshNeeded();
-            return res;
-        })), "putFile");
+            var url = factory.getPutFileURI(this.getResourceURI()),
+                entry = this.getEntry(true), es = this.getEntryStore();
+            var markRefreshed = function(res) {
+                entry.setRefreshNeeded();
+                return res;
+            };
+            return es.handleAsync(es.getREST().putFile(url, data).then(markRefreshed), "putFile");
+        } else {
+            //TODO file handle
+        }
     };
 
     /**

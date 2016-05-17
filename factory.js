@@ -395,6 +395,9 @@ define([
 			}
 			return url;
 	};
+	factory.getPutFileURI = function(uri) {
+		return uri+(uri.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true";
+	};
 	factory.setSort = function(sortObject) {
 			sortObj = sortObject;
 	};

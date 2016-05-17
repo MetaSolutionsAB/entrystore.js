@@ -226,9 +226,10 @@ define([
          *
          * @param {string} uri the URI to which we will put the file.
          * @param {data} data - input tag or file handle that corresponds to a file.
+         * @param {string} handleAs the format to handle the response as, either text, xml, html or json (json is default).
          * @todo implement in non-browser environment.
          */
-        putFile: function(uri, data) {
+        putFile: function(uri, data, handleAs) {
             throw "Currently not supported in a non-browser environment!";
         }
 	};
@@ -238,7 +239,7 @@ define([
 			"dojo/request/iframe"
 			], function(win, iframe) {
 
-				rest.putFile = function(uri, data) {
+				rest.putFile = function(uri, data, handleAs) {
                     if(!data.value){ return; }
                     var _newForm;
                     if(has("ie")){
@@ -264,13 +265,11 @@ define([
                             oldParent.appendChild(data);
                         }
                         win.body().removeChild(_newForm);
-                    }
+                    };
 
-                    return iframe(
-                        (uri+(uri.indexOf("?") < 0 ? "?" : "&")+"method=put&textarea=true"),
-                        {
+                    return iframe(uri, {
                             preventCache: true,
-                            handleAs: "json",
+                            handleAs: handleAs || "json",
                             form: _newForm
                         }).then(function(res) {
                             cleanUp();

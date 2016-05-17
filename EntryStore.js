@@ -490,6 +490,35 @@ define([
     };
 
     /**
+     * Pushes a file to the server and gets the result back immediately.
+     * Since browser environments cannot access the local filesystem, the only way to get the contents of a file is to "upload" it and get the contents back from the server.
+     * EntryStore provides the "echo" resource to provide this workaround.
+     *
+     * In a browser environment a file is represented via an input element which references
+     * the file to be uploaded via its value attribute. E.g.:
+     *
+     *       <input type="file" name="uploadFile"/>
+     *
+     * During the uploading process the input tag will be moved temporarily in the DOM tree, it will be
+     * restored to its original position afterwards (both upon success and failure).
+     *
+     * @param {node} data - input element corresponding to the file to upload (echo).
+     * @param {string} handleAs the format to handle the response as, either text, xml, html or json (json is default).
+     * @returns {xhrPromise}
+     */
+    EntryStore.prototype.echoFile = function(data, handleAs) {
+        if (!(data instanceof Node)) {
+            throw "Argument needs to be an input element.";
+        }
+        if (data.name == null || data.name === "") {
+            throw "Failure, cannot upload resource from input element unless a name attribute is provided.";
+        }
+
+        return this.handleAsync(this.getREST().putFile(
+            this.getBaseURI()+"echo", data, handleAs), "echoFile");
+    };
+
+    /**
      * Performing searches against an EntryStore repository is achieved by creating a
      * {@link store/SearchList} which is similar to a regular {@link store/List}.
      * From this list it is possible to get paginated results in form of matching entries.
