@@ -322,7 +322,17 @@ define([
         return this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/creator");
     };
 
-    /**
+	/**
+	 * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
+	 */
+	EntryInfo.prototype.getSize = function() {
+		var extent = this._graph.findFirstValue(this.getResourceURI(), "http://purl.org/dc/terms/extent");
+		if (parseInt(extent) === extent) {
+			return parseInt(extent);
+		}
+	};
+
+	/**
      * @returns {Array} an array of URIs to the contributors using their Entrys resource URIs,
      * e.g. ["http://somerepo/store/_principals/resource/4"], never null although the array might be empty.
      */
