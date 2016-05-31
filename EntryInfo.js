@@ -327,7 +327,7 @@ define([
 	 */
 	EntryInfo.prototype.getSize = function() {
 		var extent = this._graph.findFirstValue(this.getResourceURI(), "http://purl.org/dc/terms/extent");
-		if (parseInt(extent) === extent) {
+		if (parseInt(extent) == extent) {
 			return parseInt(extent);
 		}
 	};
