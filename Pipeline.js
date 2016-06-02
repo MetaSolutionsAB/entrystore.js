@@ -97,10 +97,11 @@ define([
         var arr = array.map(stmts, function(stmt) {
             return stmt.getValue();
         });
+        var self = this;
         arr.sort(function(tr1, tr2) {
-            var pr1 = this.getPriority(tr1);
-            var pr2 = this.getPriority(tr2);
-            return tr1-tr2;
+            var pr1 = self.getPriority(tr1);
+            var pr2 = self.getPriority(tr2);
+            return pr1-pr2;
         });
         return arr;
     };
@@ -114,7 +115,7 @@ define([
      */
     Pipeline.prototype.addTransform = function(type, args) {
         var transforms = this.getTransforms();
-        var priority = transforms.length = 0 ? this.getPriority(transforms[transforms.length-1]) : 0;
+        var priority = transforms.length > 0 ? this.getPriority(transforms[transforms.length-1]) : 0;
         var stmt = this._graph.add(this._resourceURI, terms.pipeline.transform);
         var id = stmt.getValue();
         this.setTransformType(id, type);
@@ -182,7 +183,11 @@ define([
      */
     Pipeline.prototype.transformTypes = {
         TABULAR: "tabular",
-        ROWSTORE: "rowstore"
+        ROWSTORE: "rowstore",
+        QUEUE: "queue",
+        FETCH: "fetch",
+        VALIDATE: "validate",
+        MERGE: "merge"
     };
 
     /**
@@ -200,13 +205,16 @@ define([
      */
     Pipeline.prototype.setTransformType = function(transformId, transformType) {
         this._graph.findAndRemove(transformId, terms.pipeline.transformType);
-        this._graph.add(transformId, terms.pipeline.transformType, {
-            type: "literal", value: transformType})
+        this._graph.addL(transformId, terms.pipeline.transformType, transformType);
     };
 
+
     /**
-     * @param {String} transformId the blank node of a specific transform as retrieved by [getTransforms]{@link store/Pipeline#getTransforms}.
-     * @returns {Object} the arguments for a transform as an object hash with property value pairs.
+     * @param {String} transformId the blank node of a specific transform as retrieved
+     * by [getTransforms]{@link store/Pipeline#getTransforms}.  If no id is provided
+     * arguments from all transforms will be returned in a single merged object.
+     * @returns {Object} the arguments for a transform (or all transforms) as an object
+     * hash with property value pairs.
      */
     Pipeline.prototype.getTransformArguments = function(transformId) {
         var args = {};
@@ -233,25 +241,30 @@ define([
         }, this);
         for (var key in args) if (args.hasOwnProperty(key)) {
             var newarg = this._graph.add(transformId, terms.pipeline.transformArgument);
-            this._graph.add(newarg.getValue(), terms.pipeline.transformArgumentKey,
-                {type: "literal", value: key});
-            this._graph.add(newarg.getValue(), terms.pipeline.transformArgumentValue,
-                {type: "literal", value: args[key]});
+            this._graph.addL(newarg.getValue(), terms.pipeline.transformArgumentKey,key);
+            this._graph.addL(newarg.getValue(), terms.pipeline.transformArgumentValue, args[key]);
         }
     };
 
     /**
-     * Executes the pipeline with the given source entry as input.
+     * Executes the pipeline with the given source entry as input, if not provided the pipeline will be used as sourceentry.
      *
-     * @param {store/Entry} sourceEntry an entry containing some data that is to be transformed, e.g. can be a CSV file.
+     * @param {store/Entry} sourceEntry an optional entry containing some data that is to be transformed, e.g. can be a CSV file.
      * @returns {entryURIArrayPromise} an array of entry URIs that where created/modified by this execution.
      */
     Pipeline.prototype.execute = function(sourceEntry) {
-        var executeURI = sourceEntry.getContext().getResourceURI()+"/execute",
+        var executeURI, source,
             es = this.getEntryStore();
+        if (sourceEntry == null) {
+            source = this.getEntryURI();
+            executeURI = es.getBaseURI() + es.getContextId(source) + "/execute";
+        } else {
+            source = sourceEntry.getURI()
+            executeURI = sourceEntry.getContext().getResourceURI()+"/execute";
+        }
         return es.handleAsync(es.getREST().post(executeURI, json.stringify({
             pipeline: this.getEntryURI(),
-            source: sourceEntry.getURI()
+            source: source
         })), "execute");
     };
 
