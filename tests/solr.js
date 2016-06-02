@@ -15,7 +15,7 @@ define([
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.auth({user: "admin", password: "adminadmin"}).then(function() {
+                es.getAuth().login("admin", "adminadmin").then(function() {
                     ready = true;
                     callback();
                 });
@@ -88,6 +88,35 @@ define([
                     test.ok(false, "Failed performing the search, REST call went wrong: "+err);
                     test.done();
                 });
+        },
+        forEachSearch: function(test) {
+            var callbackCount = 0, endReached = false;
+            es.newSolrQuery().graphType(types.GT_USER).limit(2).list().forEach(function(userEntry, idx) {
+                if (endReached) {
+                    test.ok(false, "End function called before all callbacks.")
+                }
+                test.ok(callbackCount === idx, "Callback index is wrong.")
+                callbackCount++;
+            }).then(function(totalCount) {
+                endReached = true;
+                test.ok(callbackCount === totalCount, "Total count does not agree with amount of callbacks.");
+                test.done();
+            }, function(err) {
+                test.ok(false, "Got error callback from promise unexpectedly: "+err);
+                test.done();
+            });
+        },
+        forEachSearchBreak: function(test) {
+            es.newSolrQuery().graphType(types.GT_USER).limit(2).list().forEach(function(userEntry, index) {
+                test.ok(index < 3, "Callbacks continues after attempt to break.");
+                return index !== 2;
+            }).then(function(totalCount) {
+                test.ok(totalCount === 3, "Total count is wrong, should be 3 as we stopped iteration after entry 3.");
+                test.done();
+            }, function(err) {
+                test.ok(false, "Got error callback from promise unexpectedly: "+err);
+                test.done();
+            });
         }
     });
 });

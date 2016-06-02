@@ -86,19 +86,49 @@ define([
      * the function is not called for consecutive entries.
      *
      * @param {listEntryCallback} func
+     * @return {promise} called with two parameters, the first a boolean saying if all entries where passed, the second an index telling how many entrys iterated over.
      */
-    List.prototype.forEach = function(func) {
-        var page = 0, limit = this.getLimit();
-        var f = lang.hitch(this, function(entries) {
-            if (!array.some(entries, func)) {
-                if (entries.length === limit) {
-                    page++;
-                    this.getEntries(page).then(f);
-                }
-            }
-        });
+    List.prototype.forEach = function(func, onFinish) {
+        var page = 0, idx = 0, limit = this.getLimit(), self = this;
 
-        this.getEntries(page).then(f);
+        var f = function(entries) {
+            var g, h, entriesLength = entries.length;
+            g = function(res) {
+                if (res === false) {
+                    var d = new Deferred();
+                    d.resolve(false);
+                    return d;
+                } else {
+                    return h();
+                }
+            };
+            h = function() {
+                if (entries.length === 0) {
+                    var d = new Deferred();
+                    d.resolve(true);
+                    return d;
+                }
+                var res = func(entries.pop(), idx);
+                idx++;
+                if (typeof res !== "undefined" && typeof res.then === "function") {
+                    return res.then(g);
+                } else {
+                    return g(res);
+                }
+            };
+            return h().then(function(cont) {
+                if (cont !== false && entriesLength === limit) {
+                    page++;
+                    return self.getEntries(page).then(f);
+                } else {
+                    var d = new Deferred();
+                    d.resolve(idx);
+                    return d;
+                }
+            });
+        };
+
+        return this.getEntries(0).then(f);
     };
 
     /**
