@@ -82,7 +82,8 @@ define([
         "title",
         "description",
         "keyword",
-        "tag",
+        "tagLiteral",
+		"tagURI",
         "lang",
         "all",
         "uri",
@@ -113,7 +114,8 @@ define([
     	entryType: "entryType",
     	graphType: "graphType",
     	resourceType: "resourceType",
-    	title_lang: "title.lang",
+    	tagLiteral: "tag.literal",
+		tagURI: "tag.uri",
         subject: "metadata.subject",
         predicate: "metadata.predicate",
         objectLiteral: "metadata.object.literal",
@@ -124,8 +126,8 @@ define([
     	resource_r: "acl.resource.r",
     	resource_rw: "acl.resource.rw"
     };
-    
-    array.map(methods, function(method) {
+
+	array.map(methods, function(method) {
     	Solr.prototype[method] = function(val, not) {
     		this["_"+method] = val;
     		if (not === true) {
