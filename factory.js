@@ -35,7 +35,7 @@ define([
     var factory = exports;
 
 	var sortObj = {sortBy: "title", prio: "List"};
-	var defaultLimit = 20;
+	var defaultLimit = 50;
 
 	var getContextForEntry = function(entryURI, entryStore) {
 		var baseURI = entryStore.getBaseURI();
