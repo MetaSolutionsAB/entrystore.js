@@ -1,13 +1,15 @@
 define([
     'store/EntryStore',
+    'store/EntryStoreUtil',
     'rdfjson/Graph',
     'store/solr',
     'store/types',
     'tests/config'
-], function(EntryStore, Graph, solr, types, config) {
+], function(EntryStore, EntryStoreUtil, Graph, solr, types, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
+    var esu = new EntryStoreUtil(es);
     var c = es.getContextById("1");
     var ready;
     var dct = "http://purl.org/dc/terms/";
@@ -115,6 +117,14 @@ define([
                 test.done();
             }, function(err) {
                 test.ok(false, "Got error callback from promise unexpectedly: "+err);
+                test.done();
+            });
+        },
+        getByGraphType: function(test) {
+            esu.getEntryByGraphType(types.GT_USER).then(function(entry) {
+                test.done();
+            }, function(err) {
+                test.ok(false, "We should be able to find at least one user.");
                 test.done();
             });
         }

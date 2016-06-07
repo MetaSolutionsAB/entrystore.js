@@ -121,16 +121,41 @@ define([
      * @returns {entryPromise}
      */
     EntryStoreUtil.prototype.getEntryByType = function(typeURI, context) {
-        var et = namespaces.expand(typeURI);
-        var so = solr.rdfType(et).limit(2);
+        var query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
         if (context) {
-            so.context(context);
+            query.context(context);
         }
-        return this._entrystore.createSearchList(so).getEntries(0).then(function(entryArr) {
+        return query.list().getEntries(0).then(function(entryArr) {
             if (entryArr.length === 1) {
                 return entryArr[0];
             }
             throw "Wrong number of entrys in context / repository";
+        });
+    };
+
+    /**
+     * Attempting to find one entry for a specific graph type,
+     * if multiple entries exists with the same type the returned promise fails.
+     * You may restrict to a specific context.
+     *
+     * @param {string} graphType is the graph type for the entry to match, e.g. use {@see store/types#GT_USER}.
+     * @param {store/Context} context restrict to finding the entry in this context
+     * @returns {entryPromise}
+     */
+    EntryStoreUtil.prototype.getEntryByGraphType = function(graphType, context) {
+        var query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
+        if (context) {
+            query.context(context);
+        }
+        return query.list().getEntries(0).then(function(entryArr) {
+            if (entryArr.length > 0) {
+                return entryArr[0];
+            }
+            if (context) {
+                throw "No entrys in context with graphType "+graphType;
+            } else {
+                throw "No entrys in repository with graphType "+graphType;
+            }
         });
     };
 
