@@ -107,7 +107,8 @@ define([
         "metadata_r",
         "metadata_rw",
         "resource_r",
-        "resource_rw"
+        "resource_rw",
+		"status"
     ];
     
     var map = {

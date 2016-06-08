@@ -254,18 +254,19 @@ define([
      */
     Pipeline.prototype.execute = function(sourceEntry) {
         var executeURI, source,
-            es = this.getEntryStore();
+            es = this.getEntryStore(),
+            params = {pipeline: this.getEntryURI()};
         if (sourceEntry == null) {
-            source = this.getEntryURI();
-            executeURI = es.getBaseURI() + es.getContextId(source) + "/execute";
+            executeURI = es.getBaseURI() + es.getContextId(this.getEntryURI()) + "/execute";
         } else {
-            source = sourceEntry.getURI()
+            params.source = sourceEntry.getURI();
             executeURI = sourceEntry.getContext().getResourceURI()+"/execute";
         }
-        return es.handleAsync(es.getREST().post(executeURI, json.stringify({
-            pipeline: this.getEntryURI(),
-            source: source
-        })), "execute");
+        return es.handleAsync(es.getREST().post(executeURI, json.stringify(params)), "execute")
+            .then(function(resultStr) {
+                var obj = json.parse(resultStr);
+                return obj.result;
+            });
     };
 
     return Pipeline;

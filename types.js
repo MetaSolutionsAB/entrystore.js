@@ -1,8 +1,8 @@
 /*global define*/
 define(
     /**
-     * Types is a module containing the three different types: GraphType, EntryType and ResourceType shortened
-     * GT, ET and RT.
+     * Types is a module containing the three different types: GraphType, EntryType and
+     * ResourceType shortened GT, ET and RT.
      *
      * @namespace store/types
      */
@@ -127,8 +127,18 @@ define(
         GT_PIPELINE: "Pipeline",
 
         /**
+         * The resource is a pipelineresult, e.g. the result of the execution of a pipeline
+         * on the server side.
+         * @memberof store/types
+         * @see store/Entry#isPipelineResult
+         * @see store/Pipeline
+         */
+        GT_PIPELINERESULT: "PipelineResult",
+
+        /**
          * The resource is available as a digital representation of some sort.
-         * Opposite to resources that have no representation, referred to as {@link store/types.NAMEDRESOURCE named}.
+         * Opposite to resources that have no representation, referred to as
+         * {@link store/types.NAMEDRESOURCE named}.
          * @memberof store/types
          */
         RT_INFORMATIONRESOURCE: "Information",

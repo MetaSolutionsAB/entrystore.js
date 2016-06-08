@@ -282,7 +282,7 @@ define([
         return this._graph.findFirstValue(this.getResourceURI(), "http://purl.org/dc/terms/format");
     };
 
-    /**
+	/**
      * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
      * the updated graph to the repository.
      *
@@ -291,11 +291,31 @@ define([
     EntryInfo.prototype.setFormat = function(format) {
         this._graph.findAndRemove(this.getResourceURI(), "http://purl.org/dc/terms/format");
         if (format != null && format != "") {
-            this._graph.add(this.getResourceURI(), "http://purl.org/dc/terms/format", {type: "literal", value: format});
+            this._graph.addL(this.getResourceURI(), "http://purl.org/dc/terms/format", format);
         }
     };
 
-    /**
+	/**
+	 * @returns {string} the status of this entry, always a URI.
+	 */
+	EntryInfo.prototype.getStatus = function() {
+		return this._graph.findFirstValue(this.getEntryURI(), terms.status.property);
+	};
+
+	/**
+	 * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
+	 * the updated graph to the repository.
+	 *
+	 * @param {string} format - a format in the form application/json or text/plain.
+	 */
+	EntryInfo.prototype.setStatus = function(status) {
+		this._graph.findAndRemove(this.getEntryURI(), terms.status.property);
+		if (status != null && status != "" && status.indexOf("http") === 0) {
+			this._graph.add(this.getEntryURI(), terms.status.property, status);
+		}
+	};
+
+	/**
      * @returns {Date} the date when the entry was created.
      */
     EntryInfo.prototype.getCreationDate = function() {

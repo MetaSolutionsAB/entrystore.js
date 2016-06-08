@@ -21,6 +21,12 @@ define(["store/types"], function(types) {
         resource: ns + "resource",
         metadata: ns + "metadata",
         externalMetadata: ns + "externalMetadata",
+        status: {
+            property: ns+"status",
+            Pending: ns+"Pending",
+            Succeeded: ns+"Success",
+            Failed: ns+"Failed"
+        },
         rdf: {
             type: rdfns + "type"
         },
@@ -66,6 +72,7 @@ define(["store/types"], function(types) {
 	gt[ns+"ResultList"] = types.GT_RESULTLIST;
 	gt[ns+"Graph"] = types.GT_GRAPH;
     gt[ns+"Pipeline"] = types.GT_PIPELINE;
+    gt[ns+"PipelineResult"] = types.GT_PIPELINERESULT;
 	gt[ns+"String"] = types.GT_STRING;
 	gt["default"] = types.GT_NONE; //The default option
     externals.graphType = gt;

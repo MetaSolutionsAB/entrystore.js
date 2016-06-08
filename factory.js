@@ -115,6 +115,7 @@ define([
                         resource = new Pipeline(entry.getURI(), entry.getResourceURI(), entry.getEntryStore(), data.resource || {});
                     }
                     break;
+				case types.GT_PIPELINERESULT: //If local, Pipelineresult resource is a file.
                 case types.GT_NONE: //Uploaded file.
                     resource = new File(entry.getURI(), entry.getResourceURI(), entry.getEntryStore());
 			}

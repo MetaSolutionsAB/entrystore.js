@@ -337,11 +337,18 @@ define([
 		return this.getEntryInfo().getGraphType() === types.GT_GRAPH;
 	};
     /**
-     * Is the resource of this entry of the GraphType graph?
+     * Is the resource of this entry of the GraphType pipeline?
      * @returns {boolean}
      */
     Entry.prototype.isPipeline = function() {
         return this.getEntryInfo().getGraphType() === types.GT_PIPELINE;
+    };
+    /**
+     * Is the resource of this entry of the GraphType pipelineresult?
+     * @returns {boolean}
+     */
+    Entry.prototype.isPipelineResult = function() {
+        return this.getEntryInfo().getGraphType() === types.GT_PIPELINERESULT;
     };
     /**
      * Is the resource of this entry of the GraphType string?
