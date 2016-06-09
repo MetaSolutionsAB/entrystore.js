@@ -13,6 +13,7 @@ define([
 		"Content-Type": "application/json; charset=UTF-8",
         "X-Requested-With": null
 	};
+    var timeout = 30000; //30 seconds
 
     /**
      * Functionality for communicating with the repository via Ajax calls.
@@ -35,7 +36,8 @@ define([
                     "auth_username": credentials.user,
                     "auth_password": credentials.password,
                     "auth_maxage": credentials.maxAge != null ? credentials.maxAge : 604800 //in seconds, 86400 is default and corresponds to a day.
-                };
+
+            };
                 if (has("host-browser")) {
                     return rest.post(credentials.base + "auth/cookie", data);
                 } else {
@@ -54,7 +56,8 @@ define([
                     preventCache: true,
                     handleAs: "json",
                     headers: headers,
-                    withCredentials: true
+                    withCredentials: true,
+                    timeout: timeout
                 });
             }
         },
@@ -108,10 +111,11 @@ define([
                 return d;
             } else {
                 var d = request.get(uri, {
-                        preventCache: true,
-                        handleAs: handleAs,
-                        headers: loc_headers,
-                        withCredentials: true
+                    preventCache: true,
+                    handleAs: handleAs,
+                    headers: loc_headers,
+                    withCredentials: true,
+                    timeout: timeout
                 }).response.then(function(response) {
                         if (response.status === 200) {
                             return response.data;
@@ -146,7 +150,8 @@ define([
                 //handleAs: "json",
                 data: data,
                 headers: loc_headers,
-                withCredentials: true
+                withCredentials: true,
+                timeout: timeout
             });
 		},
 
@@ -195,7 +200,8 @@ define([
 				//handleAs: "json",
 				data: data,
 				headers: loc_headers,
-                withCredentials: true
+                withCredentials: true,
+                timeout: timeout
 			});
 		},
 		
@@ -210,7 +216,8 @@ define([
 				preventCache: true,
 				//handleAs: "json",
 				headers: headers,
-                withCredentials: true
+                withCredentials: true,
+                timeout: timeout
 			});
 		},
 
