@@ -107,6 +107,24 @@ define([
     };
 
     /**
+     * Finds a transform with the given type and returns its id.
+     *
+     * @param transformType the transform type to look for
+     * @returns {string} transform id, undefined if no transform was found for the given type
+     */
+    Pipeline.prototype.getTransformForType = function(transformType) {
+        var transformId;
+        var trIds = this.getTransforms();
+        array.forEach(trIds, function (trId) {
+            //get transform type and check for fetch and get url
+            if (this.getTransformType(trId) === transformType){
+                transformId = trId;
+            }
+        }, this);
+        return transformId;
+    };
+
+    /**
      * Adds a new transform.
      *
      * @param {String} type one of the [getTransforms]{@link store/Pipeline#getTransforms}.
@@ -184,7 +202,7 @@ define([
     Pipeline.prototype.transformTypes = {
         TABULAR: "tabular",
         ROWSTORE: "rowstore",
-        QUEUE: "queue",
+        EMPTY: "empty",
         FETCH: "fetch",
         VALIDATE: "validate",
         MERGE: "merge"
@@ -217,11 +235,11 @@ define([
      * hash with property value pairs.
      */
     Pipeline.prototype.getTransformArguments = function(transformId) {
-        var args = {};
         var stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
         array.forEach(stmts, function(stmt) {
             var key = this._graph.findFirstValue(stmt.getValue(), terms.pipeline.transformArgumentKey);
             var value = this._graph.findFirstValue(stmt.getValue(), terms.pipeline.transformArgumentValue);
+            args = args || {};
             args[key] = value;
         }, this);
         return args;
@@ -243,6 +261,20 @@ define([
             var newarg = this._graph.add(transformId, terms.pipeline.transformArgument);
             this._graph.addL(newarg.getValue(), terms.pipeline.transformArgumentKey,key);
             this._graph.addL(newarg.getValue(), terms.pipeline.transformArgumentValue, args[key]);
+        }
+    };
+
+    /**
+     * Sets or updates an individual property (key-value pair in arguments) of a transform
+     * @param {string} transformId the transform to change the property for
+     * @param {string} key
+     * @param {string} value
+     */
+    Pipeline.prototype.setTransformProperty = function(transformId, key, value) {
+        var obj = this.getTransformArguments(transformId);
+        if (obj != null) {
+            obj[property] = value;
+            this.setTransformArguments(transformId, obj);
         }
     };
 
