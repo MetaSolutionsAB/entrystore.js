@@ -274,7 +274,7 @@ define([
     Pipeline.prototype.setTransformProperty = function(transformId, key, value) {
         var obj = this.getTransformArguments(transformId);
         if (obj != null) {
-            obj[property] = value;
+            obj[key] = value;
             this.setTransformArguments(transformId, obj);
         }
     };
