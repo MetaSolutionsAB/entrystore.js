@@ -266,6 +266,20 @@ define([
     };
 
     /**
+     * Retrieves a transform argument value for a specific transform type and property (key).
+     * @param {string} transformType
+     * @param {string} property
+     * @returns {string}
+     */
+    var getPipelineProperty = function(transformType, property) {
+        var tid = this.getTransformForType(transformType);
+        var obj = this.getTransformArguments(tid);
+        if (obj && obj[property]) {
+            return obj[property];
+        }
+    };
+
+    /**
      * Sets or updates an individual property (key-value pair in arguments) of a transform
      * @param {string} transformId the transform to change the property for
      * @param {string} key
