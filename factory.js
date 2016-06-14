@@ -261,11 +261,13 @@ define([
         var res = uri.match(/\/([^\/]+)\/(entry|resource|metadata|relation)\/([^\?\/]+)(\?.*)?$/);
         if (res) {
             return res[3];
-        } else if (uri.indexOf("/") === -1) {
-            return uri;
+        } else if (uri.lastIndexOf("/") === 0) {
+            return uri.substr(1);
         } else if (!base) {
             return uri.substr(uri.lastIndexOf("/")+1);
-        }
+        } else {
+
+		}
     };
 
     factory.getContextId = function(uri, base) {
