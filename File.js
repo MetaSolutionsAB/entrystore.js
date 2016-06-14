@@ -70,11 +70,7 @@ define([
      */
     File.prototype.put = function(data, format) {
         var es = this.getEntryStore();
-        return es.handleAsync(es.getREST().put(this.getResourceURI(), data, null, format)
-            .then(lang.hitch(this, function(res) {
-                this.getEntry(true).setRefreshNeeded();
-                return res;
-            })), "putFile");
+        return es.handleAsync(es.getREST().put(this.getResourceURI(), data, null, format), "putFile");
     };
 
     /**
