@@ -271,7 +271,7 @@ define([
      * @param {string} property
      * @returns {string}
      */
-    var getPipelineProperty = function(transformType, property) {
+    Pipeline.prototype.getTransformProperty = function(transformType, property) {
         var tid = this.getTransformForType(transformType);
         var obj = this.getTransformArguments(tid);
         if (obj && obj[property]) {
