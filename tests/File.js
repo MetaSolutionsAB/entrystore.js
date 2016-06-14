@@ -26,6 +26,7 @@ define([
             c.newEntry().commit().then(function (entry) {
                 var r = entry.getResource(true);
                 return r.putJSON({a: "v"}).then(function () {
+                    entry.setRefreshNeeded(true);
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "application/json", "Mimetype is not application/json as it should.");
                         return r.getJSON().then(function(data) {
@@ -42,6 +43,7 @@ define([
             c.newEntry().commit().then(function (entry) {
                 var r = entry.getResource(true);
                 return r.putText("test").then(function () {
+                    entry.setRefreshNeeded(true);
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "text/plain", "Mimetype is not text/plain as it should.");
                         return r.getText().then(function(data) {
@@ -63,6 +65,7 @@ define([
                     xml = parser.parseFromString(xml, "text/xml");
                 }
                 return r.putXML(xml).then(function () {
+                    entry.setRefreshNeeded(true);
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "text/xml", "Mimetype is not text/plain as it should.");
                         return r.getXML().then(function (data) {
