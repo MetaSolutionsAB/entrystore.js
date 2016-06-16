@@ -150,10 +150,14 @@ define([
         entry._extractedMetadata = data["extracted-metadata"] ? new Graph(data["extracted-metadata"]) : null;
         entry._relation = data.relations ? new Graph(data.relations): new Graph();
         entry._rights = transformRights(data.rights);
-        //var ei = entry.getEntryInfo();
-        //ei._alias = data.alias;
-        //ei._name = data.name;
-			
+        //Sometimes we get the name that is really part of the resource without getting the full
+		//resource, in this case we store this in the entryinfo.
+		if (data.name || (data.resource && data.resource.name)) {
+			var ei = entry.getEntryInfo();
+			//ei._alias = data.alias;
+			ei._name = data.name || data.resource.name;
+		}
+
 		//TODO fix all these other data. Move some into resource create/update methods.
 		/* 
 			if (data.size) {

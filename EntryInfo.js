@@ -78,6 +78,20 @@ define([
         return this._entryStore.getFactory().getEntryId(this._entryURI);
     };
 
+	/**
+	 * If the entry is a user, group or context there can be a name.
+	 * In general the name is accessed on the resource, but in certain
+	 * situations we do not have the resource yet(not loaded) but we still
+	 * have the name (from a search where the name is provided but not the resource),
+	 * in this case we can access this name here.
+	 *
+	 * @returns {String} a username, groupname or contextname of the entry
+	 */
+	EntryInfo.prototype.getName = function() {
+		return this._name;
+	};
+
+
     /**
      * @returns {String}
      */

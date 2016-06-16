@@ -43,9 +43,14 @@ define([
         var oldname = this._data.name;
         this._data.name = name;
         var es = this._entryStore;
-        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({name: name})).then(function(data) {
-            return data;
-        }, lang.hitch(this, function(e) {
+        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({name: name}))
+            .then(lang.hitch(this, function(data) {
+                var e = this.getEntry(true);
+                if (e) {
+                    e.getEntrInfo()._name = data;
+                }
+                return data;
+        }), lang.hitch(this, function(e) {
             this._data.name = oldname;
             throw e;
         })), "setUserName");
