@@ -235,7 +235,7 @@ define([
      * hash with property value pairs.
      */
     Pipeline.prototype.getTransformArguments = function(transformId) {
-        var args = {};
+        var args;
         var stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
         array.forEach(stmts, function(stmt) {
             var key = this._graph.findFirstValue(stmt.getValue(), terms.pipeline.transformArgumentKey);
