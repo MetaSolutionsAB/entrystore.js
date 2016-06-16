@@ -280,12 +280,14 @@ define([
     };
 
     /**
-     * Sets or updates an individual property (key-value pair in arguments) of a transform
+     * Sets or updates an individual property (key-value pair in arguments) of a transform.
+     * The transform is identified either explicitly by an id or via a transformType (assumed unique).
      * @param {string} transformId the transform to change the property for
      * @param {string} key
      * @param {string} value
      */
     Pipeline.prototype.setTransformProperty = function(transformId, key, value) {
+        if (this._graph.isBlank)
         var obj = this.getTransformArguments(transformId);
         if (obj != null) {
             obj[key] = value;
