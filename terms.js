@@ -31,6 +31,8 @@ define(["store/types"], function(types) {
             type: rdfns + "type"
         },
         pipeline: {
+            pipeline: ns + "pipeline",
+            pipelineData: ns + "pipelineData",
             transform: ns + "transform",
             transformPriority: ns + "transformPriority",
             transformType: ns + "transformType",
