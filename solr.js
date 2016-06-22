@@ -129,10 +129,10 @@ define([
     };
 
 	array.map(methods, function(method) {
-    	Solr.prototype[method] = function(val, not) {
+    	Solr.prototype[method] = function(val, modifier) {
     		this["_"+method] = val;
-    		if (not === true) {
-        		this["_"+method+"_not"] = true;
+    		if (typeof modifier !== "undefined") {
+        		this["_"+method+"_modifier"] = modifier;
     		}
     		return this;
     	}
@@ -203,8 +203,9 @@ define([
 			var v = this["_"+method];
 			if (v != null) {
 				key = map[method] || method;
+				var modifier = this["_"+method+"_modifier"];
 				if (lang.isString(v)) {
-					if (this["_"+method+"_not"]) {
+					if (modifier === true || modifier === "not") {
 						and.push("NOT(" + key + ":"+encodeURIComponent(v.replace(/:/g,"\\:"))+")");
 					} else {
 						and.push(key + ":"+encodeURIComponent(v.replace(/:/g,"\\:")));
@@ -217,8 +218,10 @@ define([
 							or.push(key + ":"+encodeURIComponent(ov.replace(/:/g,"\\:")));
 						}
 					}
-					if (this["_"+method+"_not"]) {
+					if (modifier === true || modifier === "not") {
 						and.push("NOT("+or.join("+OR+")+")");
+					} else if (modifier === "and") {
+						and.push("("+or.join("+AND+")+")");
 					} else {
 						and.push("("+or.join("+OR+")+")");
 					}
@@ -231,7 +234,7 @@ define([
 			var key = (prop.literal ? "metadata.predicate.literal." :
 				"metadata.predicate.uri.")+prop.md5;
 			if (lang.isString(obj)) {
-				if (prop.notState) {
+				if (prop.modifier === true || prop.modifier === "not") {
 					and.push("NOT("+ key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:"))+")");
 				} else {
 					and.push(key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:")));
@@ -241,8 +244,10 @@ define([
 				array.forEach(obj, function(o) {
 					or.push(key + ":"+encodeURIComponent(o.replace(/:/g,"\\:")));
 				}, this);
-				if (prop.notState) {
+				if (prop.modifier === true || prop.modifier === "not") {
 					and.push("NOT("+or.join("+OR+")+")");
+				} else if (prop.modifier === "and") {
+					and.push("("+or.join("+AND+")+")");
 				} else {
 					and.push("("+or.join("+OR+")+")");
 				}
@@ -263,18 +268,18 @@ define([
 		return entryStore.getBaseURI()+"search?type=solr&query="+and.join("+AND+")+trail;
 	};
 
-	Solr.prototype.literalProperty = function(predicate, object, notState) {
+	Solr.prototype.literalProperty = function(predicate, object, modifier) {
 		var key = md5(namespaces.expand(predicate)).substr(0, 8);
 		this.properties.push({
 			md5: key,
 			object: object,
-			notState: notState === true,
+			modifier: modifier,
 			literal: true
 		});
 		return this;
 	};
 
-	Solr.prototype.uriProperty = function(predicate, object, notState) {
+	Solr.prototype.uriProperty = function(predicate, object, modifier) {
 		var key = md5(namespaces.expand(predicate)).substr(0, 8);
 		if (lang.isArray(object)) {
 			object = lang.map(object, function(o) {
@@ -286,7 +291,7 @@ define([
 		this.properties.push({
 			md5: key,
 			object: object,
-			notState: notState === true,
+			modifier: modifier,
 			literal: false
 		});
 		return this;
