@@ -39,6 +39,25 @@ define([], function() {
 		}
 	};
 
+	/**
+	 * Removes a single entry from the cache.
+	 * @param {store/Entry} entry the entry to remove.
+     */
+	Cache.prototype.unCache = function(entry) {
+		delete this._cacheIdx[entry.getURI()];
+		var resArr = this._cacheIdxResource[entry.getResourceURI()];
+		if (typeof resArr !== "undefined") {
+			for (var i = 0; i<resArr.length;i++) {
+				if (resArr[i].getURI() === entry.getURI()) {
+					resArr.splice(i, 1);
+				}
+				if (resArr.length === 0) {
+					delete this._cacheIdxResource[entry.getResourceURI()];
+				}
+			}
+		}
+	};
+
     /**
      * Marks an entry as in need of refresh from the store.
      * All listeners are notified of the entry now being in need of refreshing unless

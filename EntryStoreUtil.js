@@ -159,5 +159,26 @@ define([
         });
     };
 
+    EntryStoreUtil.prototype.removeAll = function(list) {
+        var uris = [], es = this._entrystore,
+            cache = es.getCache(),
+            rest = es.getREST(),
+            f = function() {
+                if (uris.length > 0) {
+                    var uri = uris.pop();
+                    return rest.del(uri).then(f, function(err) {
+                        console.log("Could not remove entry with uri: "+uri+ " continuing anyway.")
+                        return f();
+                    });
+                }
+            };
+        return list.forEach(function(entry) {
+            uris.push(entry.getURI());
+            cache.unCache(entry);
+        }).then(function() {
+            return f();
+        });
+    };
+
     return EntryStoreUtil;
 });
