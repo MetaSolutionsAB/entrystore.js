@@ -7,6 +7,15 @@ define([
 
 
     /**
+     * This module contains utility methods for promises.
+     *
+     * @exports store/promiseUtil
+     * @namespace
+     */
+    var promiseUtil = exports;
+
+
+    /**
      * Asynchronous forEach relying on promises that works in serial rather than parallell.
      * It invokes a function on each item only after the promise from the previous item
      * in the array has succeeded.
@@ -18,9 +27,9 @@ define([
      *
      * @param {array|object} items
      * @param {function} func a function that is applied to each item and must return a promise
-     * @returns {dojo/promise/Promise}
+     * @returns {forEachPromise}
      */
-    exports.forEach = function(items, func) {
+    promiseUtil.forEach = function(items, func) {
         var arr, cursor, onSuccess, d = new Deferred(), onFailure = function(err) {
             d.reject(err);
         };
@@ -62,56 +71,72 @@ define([
         return d;
     };
 
-/*    exports.forEachSuccess = function(itemArr, func) {
-        var arr = itemArr.slice();
-        var success = [], cursor, onSucc = function(result) {
-            success.push(result);
-            cursor();
-        };
-        cursor = function() {
-            if (arr.length > 0) {
-                return func(arr.pop()).then(onSucc, cursor);
-            } else {
-                var d = new Deferred();
-                d.resolve(success);
-                return d;
-            }
-        };
-        cursor();
-    };
+    /**
+     * @name forEachPromise
+     * @extends dojo/promise/Promise
+     * @class
+     */
+    /**
+     * @name forEachPromise#then
+     * @param {forEachCallback} onSuccess
+     * @param {function} onError
+     */
+    /**
+     * @callback forEachCallback
+     * @param {array|object} result
+     */
 
-    exports.forEachResults = function(itemArr, func) {
-        var arr = itemArr.slice();
-        var success = [], errors = [], allCounter = 0, succCounter = 0, errCounter = 0, onSucc, onErr, cursor;
-        onSucc = function(result) {
-            succCounter++;
-            allCounter++;
-            success[allCounter] = result;
+
+    /*    exports.forEachSuccess = function(itemArr, func) {
+            var arr = itemArr.slice();
+            var success = [], cursor, onSucc = function(result) {
+                success.push(result);
+                cursor();
+            };
+            cursor = function() {
+                if (arr.length > 0) {
+                    return func(arr.pop()).then(onSucc, cursor);
+                } else {
+                    var d = new Deferred();
+                    d.resolve(success);
+                    return d;
+                }
+            };
             cursor();
         };
-        onErr = function(err) {
-            errCounter++;
-            allCounter++;
-            errors[allCounter] = err;
+
+        exports.forEachResults = function(itemArr, func) {
+            var arr = itemArr.slice();
+            var success = [], errors = [], allCounter = 0, succCounter = 0, errCounter = 0, onSucc, onErr, cursor;
+            onSucc = function(result) {
+                succCounter++;
+                allCounter++;
+                success[allCounter] = result;
+                cursor();
+            };
+            onErr = function(err) {
+                errCounter++;
+                allCounter++;
+                errors[allCounter] = err;
+                cursor();
+            };
+            cursor = function() {
+                if (arr.length > 0) {
+                    return func(arr.pop()).then(onSucc, onErr);
+                } else {
+                    var d = new Deferred();
+                    if (res)
+                    d.resolve({
+                        success: success,
+                        successCounter: succCounter,
+                        failure: errors,
+                        failureCounter: errCounter
+                    });
+                    return d;
+                }
+            };
             cursor();
         };
-        cursor = function() {
-            if (arr.length > 0) {
-                return func(arr.pop()).then(onSucc, onErr);
-            } else {
-                var d = new Deferred();
-                if (res)
-                d.resolve({
-                    success: success,
-                    successCounter: succCounter,
-                    failure: errors,
-                    failureCounter: errCounter
-                });
-                return d;
-            }
-        };
-        cursor();
-    };
-*/
+    */
     return exports;
 });

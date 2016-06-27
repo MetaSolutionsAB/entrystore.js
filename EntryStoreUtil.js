@@ -159,6 +159,17 @@ define([
         });
     };
 
+    /**
+     * Removes all entries matched by a search in a serial manner,
+     * also empties the cache from loaded entries so it should not overflow
+     * if the searchlist is big.
+     *
+     * The removal is accomplished by first iterating through the searchlist and collecting
+     * uris to all entries that should be removed. After that the entries are removed.
+     *
+     * @param {store/SearchList} list
+     * @returns {successOrFailPromise}
+     */
     EntryStoreUtil.prototype.removeAll = function(list) {
         var uris = [], es = this._entrystore,
             cache = es.getCache(),
@@ -182,3 +193,14 @@ define([
 
     return EntryStoreUtil;
 });
+
+/**
+ * @name successOrFailPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+/**
+ * @name successOrFailPromise#then
+ * @param {function} onSuccess
+ * @param {function} onError
+ */
