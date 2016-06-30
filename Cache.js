@@ -181,5 +181,16 @@ define([], function() {
 		this.messageListeners("allEntriesNeedRefresh");
 	};
 
+	/**
+	 * Clears the cache from all cached entries.
+	 * Warning: all references to entries needs to be discarded as they will not be
+	 * kept in sync with changes.
+	 */
+	Cacke.prototype.clear = function() {
+		this._cacheIdx = {};
+		this._cacheIdxResource = {};
+		this._cacheCtrl = {};
+	};
+
 	return Cache;
 });
