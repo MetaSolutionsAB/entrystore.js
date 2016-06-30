@@ -1,6 +1,6 @@
 /*global define*/
 define([
-	"store/List",
+	"store/List"
 ], function(List) {
 	
 	/**
