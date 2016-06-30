@@ -186,7 +186,7 @@ define([], function() {
 	 * Warning: all references to entries needs to be discarded as they will not be
 	 * kept in sync with changes.
 	 */
-	Cacke.prototype.clear = function() {
+	Cache.prototype.clear = function() {
 		this._cacheIdx = {};
 		this._cacheIdxResource = {};
 		this._cacheCtrl = {};
