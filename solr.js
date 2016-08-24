@@ -231,8 +231,7 @@ define([
 
 		array.forEach(this.properties, function(prop) {
 			var obj =  prop.object;
-			var key = (prop.literal ? "metadata.predicate.literal." :
-				"metadata.predicate.uri.")+prop.md5;
+			var key = "metadata.predicate." + prop.nodetype + "."+prop.md5;
 			if (lang.isString(obj)) {
 				if (prop.modifier === true || prop.modifier === "not") {
 					and.push("NOT("+ key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:"))+")");
@@ -268,13 +267,25 @@ define([
 		return entryStore.getBaseURI()+"search?type=solr&query="+and.join("+AND+")+trail;
 	};
 
+	Solr.prototype.integerProperty = function(predicate, object, modifier) {
+		var key = md5(namespaces.expand(predicate)).substr(0, 8);
+		this.properties.push({
+			md5: key,
+			object: object,
+			modifier: modifier,
+			nodetype: "integer"
+		});
+		return this;
+	};
+
+
 	Solr.prototype.literalProperty = function(predicate, object, modifier) {
 		var key = md5(namespaces.expand(predicate)).substr(0, 8);
 		this.properties.push({
 			md5: key,
 			object: object,
 			modifier: modifier,
-			literal: true
+			nodetype: "literal"
 		});
 		return this;
 	};
@@ -292,7 +303,7 @@ define([
 			md5: key,
 			object: object,
 			modifier: modifier,
-			literal: false
+			nodetype: "uri"
 		});
 		return this;
 	};
