@@ -318,7 +318,7 @@ define([
      * solr.wrappedMethodCall(...).originalMethodCall1().originalMethodCall2() and so on.
      */
     var solr = {Solr: Solr};
-	var transferMethods = methods.concat(["limit", "offset", "sort", "context", "title_lang", "literalProperty", "uriProperty"]);
+	var transferMethods = methods.concat(["limit", "getLimit", "offset", "sort", "context", "title_lang", "literalProperty", "uriProperty"]);
     array.map(transferMethods, function(method) {
     	solr[method] = function(val, not) {
     		var solr_instance = new Solr();
