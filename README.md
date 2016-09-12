@@ -6,7 +6,7 @@ EntryStore.js (short: StoreJS) is a JavaScript library that simplifies the commu
 
 Before you can use entrystore.js you need to make sure all dependencies are available. Simply run:
 
-    $ cd path_to_rdforms
+    $ cd path_to_entrystore.js
     $ npm   install
     $ bower install
 
