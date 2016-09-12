@@ -1,14 +1,19 @@
-<html><body>
-  <script src="config.js"></script>
-  <script src="../libs/dojo/dojo.js"></script>
-  <script type="text/javascript">
-      require(['store/EntryStore'], function(EntryStore) {
-          var es = new EntryStore();
-          es.getEntry(es.getEntryURI("1", "3")).then(function(entry) {
-              alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "http://purl.org/dc/terms/title"));
-          }, function(err) {
-              alert("Failure to load entry: "+err);
-          });
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script src="../libs/requirejs/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    require(["./config"], function(config) {
+        require(['store/EntryStore'], function(EntryStore) {
+            var es = new EntryStore();
+            es.getEntry(es.getEntryURI("1", "3")).then(function(entry) {
+                alert("Loaded entry with title: " + entry.getMetadata().findFirstValue(null, "http://purl.org/dc/terms/title"));
+            }, function(err) {
+                alert("Failure to load entry: " + err);
+            });
+        });
       });
   </script>
 </body></html>

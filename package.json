@@ -1,10 +1,11 @@
 {
   "name": "store",
-  "version": "4.1.0",
+  "version": "4.3.0",
   "main": "main",
   "dependencies": {
+    "requirejs": "~2.1.11",
     "jaguarjs-jsdoc": "0.0.1",
-    "nodeunit": ""
+    "nodeunit": "~0.8.6"
   },
   "description": "Store is a library for working with Entries in EntryStore.",
   "licenses": [

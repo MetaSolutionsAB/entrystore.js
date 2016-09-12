@@ -1,9 +1,9 @@
-var dojoConfig = {
-    async:true,
-    packages: [
-        { name: "store", location: "../.."},
-        { name: "md5", location: "../../libs/md5/js", main: "md5"}
-    ]
-};
-var test_username = "Donald";
-var test_password = "donalddonald";
+define(["../config/deps"], function() {
+    require.config({baseUrl: "../libs"});
+
+    return {
+        test_username: "Donald",
+        test_password: "donalddonald",
+        test_contextId: "1"
+    };
+});
