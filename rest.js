@@ -1,0 +1,339 @@
+/*global define*/
+define([
+    'dojo/_base/array',
+    "require",
+	"dojo/_base/lang",
+    "dojo/Deferred",
+	"dojo/request",
+	"dojo/has"
+], function(array, require, lang, Deferred, request, has) {
+
+	var headers = {
+		"Accept": "application/json",
+		"Content-Type": "application/json; charset=UTF-8",
+        "X-Requested-With": null
+	};
+    var timeout = 30000; //30 seconds
+
+    /**
+     * Functionality for communicating with the repository via Ajax calls.
+     * Authentication is done via cookies and accept headers are in general set to
+     * application/json behind the scenes.
+     *
+     * @exports store/rest
+     * @namespace
+     */
+	var rest = {
+        /**
+         * @param {object} credentials should contain attributes "user", "password", and "maxAge".
+         * MaxAge is the amount of seconds the authorization should be valid.
+         * @returns {xhrPromise}
+         */
+        auth: function(credentials) {
+            delete headers.cookie;
+            if (credentials.logout !== true) {
+                var data = {
+                    "auth_username": credentials.user,
+                    "auth_password": credentials.password,
+                    "auth_maxage": credentials.maxAge != null ? credentials.maxAge : 604800 //in seconds, 86400 is default and corresponds to a day.
+
+            };
+                if (has("host-browser")) {
+                    return rest.post(credentials.base + "auth/cookie", data);
+                } else {
+                    var p = rest.post(credentials.base + "auth/cookie", data);
+                    return p.response.then(function(response) {
+                        var cookies = response.getHeader("set-cookie");
+                        array.some(cookies, function(c) {
+                            if (c.substring(0,11) === "auth_token=") {
+                                headers.cookie = [c];
+                            }
+                        });
+                    });
+                }
+            } else {
+                return request.get(credentials.base + "auth/logout", {
+                    preventCache: true,
+                    handleAs: "json",
+                    headers: headers,
+                    withCredentials: true,
+                    timeout: timeout
+                });
+            }
+        },
+
+        /**
+         * Fetches data from the provided URI.
+         * If a cross-domain call is made and we are in a browser environment a jsonp call is made.
+         *
+         * @param {string} uri - URI to a resource to fetch.
+         * @param {string} format - the format to request as a mimetype.
+         * @returns {xhrPromise}
+         */
+		get: function(uri, format) {
+            var jsonp = false;
+            var loc_headers = headers, handleAs = "json";
+            if (format != null) {
+                loc_headers = lang.clone(headers);
+                loc_headers["Accept"] = format;
+                switch(format) {
+                    case "application/json": //This is the default in the headers.
+                        break;
+                    case "appplication/xml":
+                    case "text/xml":
+                        handleAs = "xml";
+                        break;
+                    default: //All other situations, including text/plain.
+                        handleAs = "text";
+                }
+            }
+
+            if (has("host-browser")) {
+                if (uri.indexOf(window.location.origin) !== 0
+                    && uri.indexOf("/entry/") !== -1) {   //TODO check where jsonp is supported
+                    jsonp = true;
+                }
+            }
+
+            if (jsonp) {
+                var d = new Deferred();
+                require(["dojo/request/script"], function(script) {
+                    var queryParameter = new RegExp('[?&]format=');
+                    if(!queryParameter.test(uri)){
+                        uri += (~uri.indexOf('?') ? '&' : '?') + 'format=application/json';
+                    }
+                    script.get(uri, {jsonp: "callback"}).then(function(data) {
+                        d.resolve(data);
+                    }, function(err) {
+                        d.reject(err);
+                    });
+                });
+                return d;
+            } else {
+                var d = request.get(uri, {
+                    preventCache: true,
+                    handleAs: handleAs,
+                    headers: loc_headers,
+                    withCredentials: true,
+                    timeout: timeout
+                }).response.then(function(response) {
+                        if (response.status === 200) {
+                            return response.data;
+                        } else {
+                            throw "Resource could not be loaded: "+response.text;
+                        }
+                    });
+                return d;
+            }
+		},
+		
+		/**
+         * Posts data to the provided URI.
+         *
+		 * @param {String} uri - an URI to post to.
+		 * @param {String|Object} data - the data to post. If an object the data is sent as form data.
+         * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
+         * @param {string=} format - indicates the content-type of the data, default is application/json, except if the data is an object in which case the default is multipart/form-data.
+         * @return {xhrPromise}
+		 */
+		post: function(uri, data, modDate, format) {
+            var loc_headers = lang.clone(headers);
+            if (modDate) {
+                loc_headers["If-Unmodified-Since"] = modDate;
+            }//multipart/form-data
+            if (format) {
+                loc_headers["Content-Type"] = format;
+            }
+
+            return request.post(uri, {
+                preventCache: true,
+                //handleAs: "json",
+                data: data,
+                headers: loc_headers,
+                withCredentials: true,
+                timeout: timeout
+            });
+		},
+
+        /**
+         * Posts data to a factory resource with the intent to create a new resource.
+         * That is, it posts data and expects a Location header back with information on the created resource.
+         *
+         * @param {string} uri - factory resource, may include parameters.
+         * @param {string|Object} data - the data that is to be posted as a string,
+         * if an object is provided it will be serialized as json.
+         * @returns {createPromise}
+         */
+		create: function(uri, data) {
+			var d = new Deferred();
+			rest.post(uri, data).response.then(function(response) {
+				var location = response.getHeader('Location');
+				d.resolve(location);
+			},function(err) {
+                d.reject(err);
+			});
+			return d.promise;
+		},
+
+		/**
+         * Replaces a resource with a new representation.
+         *
+		 * @param {string} uri the address to put to.
+		 * @param {string|Object} data - the data to put. If an object the data is sent as form data.
+		 * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
+         * @param {string=} format - indicates the content-type of the data.
+         * @param {string=} format - indicates the content-type of the data, default is application/json, except if the data is an object in which case the default is multipart/form-data.
+         * @return {xhrPromise}
+		 */
+		put: function(uri, data, modDate, format) {
+			var loc_headers = lang.clone(headers);
+			if (modDate) {
+				loc_headers["If-Unmodified-Since"] = modDate;			
+			}
+            if (format) {
+                loc_headers["Content-Type"] = format;
+            }  else if (lang.isObject(data)) {
+                loc_headers["Content-Type"] = format;
+            }
+			return request.put(uri, {
+				preventCache: true,
+				//handleAs: "json",
+				data: data,
+				headers: loc_headers,
+                withCredentials: true,
+                timeout: timeout
+			});
+		},
+		
+		/**
+         * Deletes a resource.
+         *
+		 * @param {String} uri of the resource that is to be deleted.
+		 * @return {xhrPromise}
+		 */
+		del: function(uri){
+			return request.del(uri, {
+				preventCache: true,
+				//handleAs: "json",
+				headers: headers,
+                withCredentials: true,
+                timeout: timeout
+			});
+		},
+
+        /**
+         * Put a file to a URI.
+         * In a browser environment a file is represented via an input tag which references
+         * the file to be uploaded via its value attribute.
+         * In non-browser environments the file is typically represented as a file handle.
+         *
+         * > _**Under the hood** the tag is moved into a form in an invisible iframe
+         * which then is submitted. If there is a response it is provided in a textarea which
+         * can be looked into since we are on the same domain._
+         *
+         * @param {string} uri the URI to which we will put the file.
+         * @param {data} data - input tag or file handle that corresponds to a file.
+         * @param {string} handleAs the format to handle the response as, either text, xml, html or json (json is default).
+         * @todo implement in non-browser environment.
+         */
+        putFile: function(uri, data, handleAs) {
+            throw "Currently not supported in a non-browser environment!";
+        }
+	};
+	if (has("host-browser")) {
+		require([
+			"dojo/_base/window",
+			"dojo/request/iframe"
+			], function(win, iframe) {
+
+				rest.putFile = function(uri, data, handleAs) {
+                    if(!data.value){ return; }
+                    var _newForm;
+                    if(has("ie")){
+                        // just to reiterate, IE is a steaming pile of shit.
+                        _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
+                        _newForm.encoding = "multipart/form-data";
+                    } else {
+                        // this is how all other sane browsers do it
+                        _newForm = document.createElement('form');
+                        _newForm.setAttribute("enctype","multipart/form-data");
+                        _newForm.setAttribute("method","post");
+                        _newForm.style.display = "none";
+                    }
+
+                    var oldParent = data.parentElement;
+                    var nextSibling = data.nextSibling;
+                    _newForm.appendChild(data);
+                    win.body().appendChild(_newForm);
+                    var cleanUp = function() {
+                        if (nextSibling) {
+                            oldParent.insertBefore(data, nextSibling);
+                        } else {
+                            oldParent.appendChild(data);
+                        }
+                        win.body().removeChild(_newForm);
+                    };
+
+                    return iframe(uri, {
+                            preventCache: true,
+                            handleAs: handleAs || "json",
+                            form: _newForm
+                        }).then(function(res) {
+                            cleanUp();
+                            return res;
+                        }, function(e) {
+                            cleanUp();
+                            throw e;
+                        });
+                };
+		});
+	}
+	
+	return rest;
+});
+
+/**
+ * @name xhrPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+
+/**
+ * @name xhrPromise#then
+ * @param {xhrSuccessCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+
+/**
+ * This is a succesfull callback method to be provided as first argument in a {@link entrypromise}
+ *
+ * @callback xhrSuccessCallback
+ * @param {string|object|node}
+ */
+
+/**
+ * This is a callback that will be called upon failure, it is supposed to be provided as second argument in a {@link entrypromise}
+ *
+ * @callback xhrFailureCallback
+ * @param {string} error
+ * @param {object} ioArgs
+ */
+
+/**
+ * @name createPromise
+ * @extends xhrPromise
+ * @class
+ */
+
+/**
+ * @name xhrPromise#then
+ * @param {createSuccessCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+
+/**
+ * This is a succesfull callback method that provides a reference to the newly created object.
+ *
+ * @callback createSuccessCallback
+ * @param {string} uri the URI of the newly created resource.
+ */

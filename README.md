@@ -1,10 +1,16 @@
-# EntryStore.js
+# EntryStore.js [![Build Status](https://drone.io/bitbucket.org/metasolutions/entrystore.js/status.png)](https://drone.io/bitbucket.org/metasolutions/entrystore.js/latest)
 
-EntryStore.js (short: StoreJS) is a JavaScript library that simplifies the communication with the EntryStore REST API.
+EntryStore.js is a JavaScript library that simplifies the communication with the EntryStore REST API.
 
 # Installation
 
-Run `lib/INSTALL-dojo.sh` to install Dojo.
+Before you can use entrystore.js you need to make sure all dependencies are available. Simply run:
+
+    $ cd path_to_entrystore.js
+    $ npm   install
+    $ bower install
+
+This requires that you have [nodejs](http://nodejs.org/) and [npm](https://www.npmjs.org/) installed as well as [bower](http://bower.io/). Note: npm installs the nodeunit library used by the tests while bower installs dojo, rdfjson, r.js and the require.js library for loading dependencies according to the AMD specification.
 
 # Development
 
@@ -13,29 +19,15 @@ https://github.com/maqetta/maqetta/wiki/Development-Guide
 
 Except that at this time we do not rely on es5 or a shim, hence we use dojos lang.hitch and array.forEach etc.
 
-The directory `src/rdfjson` originate from the rforms project and are added into the project via
-the [git subtree merge strategy](https://www.kernel.org/pub/software/scm/git/docs/howto/using-merge-subtree.html).
-Hence, never change any files in that directories directly. Instead make the changes
-in the [RDForms repository](https://bitbucket.org/metasolutions/rdforms) and integrate the changes by making a:
-
-    > git pull -s subtree rdfjson master
-
-The following commands were given to include it in the first place (just to remember):
-
-    > git remote add -f rdfjson git@bitbucket.org:metasolutions/rforms.git
-    > git merge -s ours --no-commit rdfjson/master
-    > git read-tree --prefix=src/rdfjson/ -u rdfjson/master:src/rdfjson
-    > git commit -m "Subtree merge of src/rdfjson from RForms repository."
-
 # Build
 
 Run `cd build && ./build.sh`.
 
 The resulting build is located in `release` and the relevant files are:
 
-* `release/dojo/dojo.js` (minified, without logging)
-* `release/dojo/dojo.js.uncompressed.js` (readable, with logging)
-* `release/dojo/dojo.js.consoleStripped.js` (readable, without logging)
+* `release/entrystore.js` (minified, without logging)
+* `release/entrystore.js.uncompressed.js` (readable, with logging)
+* `release/entrystore.js.consoleStripped.js` (readable, without logging)
 
 # Latest Build
 
@@ -81,10 +73,9 @@ Fifth, we need to load the entry and wait for the result using the Promise appro
     es.getEntry(entryURI).then(function(entry) {
     });
 
-Finally we want to do something with the loaded entry. In this example we just fetch the metadata object of the entry and find
-the first value with the dcterms:title property:
+Finally we want to do something with the loaded entry. In this example we just fetch the metadata object of the entry and find the first value with the dcterms:title property:
 
-    alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "http://purl.org/dc/terms/title"));
+    alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "dcterms:title"));
 
 All taken together and packaged into a minimal HTML file the example looks like the following:
 
@@ -96,7 +87,7 @@ All taken together and packaged into a minimal HTML file the example looks like 
               var es = new EntryStore();
               var entryURI = es.getEntryURI("1", "_top");
               es.getEntry(entryURI).then(function(entry) {
-                  alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "http://purl.org/dc/terms/title"));
+                  alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "dcterms:title"));
               }, function(err) {
                   alert("Failure to load entry: "+err);
               });
@@ -109,23 +100,20 @@ See trunk/samples/loadEntry-build.html, but there is also a version that works d
 ## Creating an entry
 To create an entry we need to first authenticate and get a hold of the specific context we want to create the entry in:
 
-    es.auth({user: "donald", password: "donalddonald"}).then(function() {
+    es.getAuth().login("donald", "donalddonald").then(function() {
        var c = es.getContextById("1");
        //more code here
     });
 
-To create an entry involves two steps, first we initiate a new entry by calling newEntry, and then we have the chance of
-providing additional information in the entry before we call the repository via the create command, in this example
-we create the entry directly.
+To create an entry involves two steps, first we initiate a new entry by calling newEntry, and then we have the chance of providing additional information in the entry before we call the repository via the create command, in this example we create the entry directly.
 
     c.newEntry().create().then(function(entry) {
        //Potentially do something further with the created entry.
     });
 
-Taken together the example, looks like (full code in trunk/samples/createEntry-build.html and strip the -build to get the
-version running against the non-built code):
+Taken together the example, looks like (full code in trunk/samples/createEntry-build.html and strip the -build to get the version running against the non-built code):
 
-    es.auth({user: "donald", password: "donalddonald"}).then(function() {
+    es.getAuth().login("donald", "donalddonald").then(function() {
        var c = es.getContextById("1");
        c.newEntry().create().then(function(entry) {
            alert("Created an entry!");
@@ -139,7 +127,9 @@ version running against the non-built code):
 
 # Testing
 
-The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store. The base URL of the instance is configured in `tests/config.js`.
+The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store.
+The base URL of the instance is configured in a file `tests/config.js` that you have to provide,
+for instance by making a copy of `tests/config.js_example` and then adapt it.
 
 The tests are written according to the style of [Nodeunit](https://github.com/caolan/nodeunit).
 
@@ -164,8 +154,7 @@ The current files were generated from the master branch at the 27:th of January 
 
 ## Developing new tests
 
-It is recommended to create a new AMD module for each group of tests. Include it in the `tests/config.js` file
-to make it part of the testsuite.
+It is recommended to create a new AMD module for each group of tests. Include it in the `tests/config.js` file to make it part of the testsuite.
 
 # Command line
 

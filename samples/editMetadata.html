@@ -1,26 +1,31 @@
-<html><body>
-<script src="config.js"></script>
-<script src="../lib/dojo/dojo/dojo.js.uncompressed.js"></script>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script src="../libs/requirejs/require.js"></script>
+</head>
+<body>
 <script type="text/javascript">
-    require(['store/EntryStore'], function(EntryStore) {
-        var es = new EntryStore();
-        es.auth({user: test_username, password: test_password}).then(function() {
-            es.getEntry(es.getEntryURI("1", "5")).then(function(entry) {
-                var md = entry.getMetadata();
-                var stmts = md.find(entry.getResourceURI(), "http://purl.org/dc/terms/title");
-                if (stmts.length > 0) {
-                    stmts[0].setValue("New title at "+new Date());
-                } else {
-                    md.create(entry.getResourceURI(), "http://purl.org/dc/terms/title",
-                            {type: "literal", value: "New title at "+new Date(), language: "en"});
-                }
-                entry.setMetadata(md).then(function() {
-                    alert("Success: changed metadata");
+    require(["./config"], function(config) {
+        require(['store/EntryStore'], function(EntryStore) {
+            var es = new EntryStore();
+            es.getAuth().login(config.test_username, config.test_password).then(function() {
+                es.getEntry(es.getEntryURI("1", "5")).then(function(entry) {
+                    var md = entry.getMetadata();
+                    var stmts = md.find(entry.getResourceURI(), "http://purl.org/dc/terms/title");
+                    if (stmts.length > 0) {
+                        stmts[0].setValue("New title at " + new Date());
+                    } else {
+                        md.create(entry.getResourceURI(), "http://purl.org/dc/terms/title",
+                                {type: "literal", value: "New title at " + new Date(), language: "en"});
+                    }
+                    entry.commitMetadata().then(function() {
+                        alert("Success: changed metadata");
+                    }, function(err) {
+                        alert("Failure: " + err);
+                    });
                 }, function(err) {
-                    alert("Failure: "+err);
+                    alert("Failure: " + err);
                 });
-            }, function(err) {
-                alert("Failure: "+err);
             });
         });
     });

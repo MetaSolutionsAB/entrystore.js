@@ -1,11 +1,11 @@
 <html><body>
-   <script src="../release/entrystore.js"></script>
+   <script src="../release/all.js"></script>
    <script type="text/javascript">
        require(['store/EntryStore'], function(EntryStore) {
            var es = new EntryStore();
-           es.auth({user: "donald", password: "donalddonald"}).then(function() {
+           es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                var c = es.getContextById("1");
-               c.newEntry().create().then(function(entry) {
+               c.newEntry().commit().then(function(entry) {
                    alert("Created an entry!");
                }, function(err) {
                    alert("Failed to create an entry! + err");

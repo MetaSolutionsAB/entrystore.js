@@ -1,15 +1,15 @@
 <html><body>
-  <script src="config.js"></script>
-  <script src="../lib/dojo/dojo/dojo.js.uncompressed.js"></script>
+  <script src="../libs/requirejs/require.js"></script>
   <script type="text/javascript">
-      var test_contextId = "1";
-      require(['store/EntryStore'], function(EntryStore) {
-          var es = new EntryStore();
-          es.auth({user: test_username, password: test_password}).then(function() {
-              es.getContextById(test_contextId).newEntry().create().then(function(entry) {
-                  alert("Created an entry!");
-              }, function(err) {
-                  alert("Failed to create an entry! + err");
+      require(["./config"], function(config) {
+          require(['store/EntryStore'], function(EntryStore) {
+              var es = new EntryStore();
+              es.getAuth().login(config.test_username, config.test_password).then(function() {
+                  es.getContextById(config.test_contextId).newEntry().commit().then(function(entry) {
+                      alert("Created an entry!");
+                  }, function(err) {
+                      alert("Failed to create an entry! + err");
+                  });
               });
           });
       });

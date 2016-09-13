@@ -1,14 +1,10 @@
 define({
     tests: [
         "EntryStore",
-        "Auth",
         "Entry",
         "EntryInfo",
         "Cache",
-        "List",
-        "solr",
-        "File",
-        "Pipeline"
+        "List"
     ],
     repository: "http://localhost:8080/store/",
     reporter: "default"
