@@ -50,7 +50,8 @@ define([
      */
 	EntryInfo.prototype.commit = function() {
 		var d = new Deferred(), self = this, es = this._entry.getEntryStore();
-        es.getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON())).then(function() {
+		var mod = this.getModificationDate();
+		es.getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON()), mod).then(function() {
 			self._entry.setRefreshNeeded(true);
 			self._entry.refresh().then(function() {
 				d.resolve(self);

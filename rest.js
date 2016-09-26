@@ -139,7 +139,7 @@ define([
 		post: function(uri, data, modDate, format) {
             var loc_headers = lang.clone(headers);
             if (modDate) {
-                loc_headers["If-Unmodified-Since"] = modDate;
+                loc_headers["If-Unmodified-Since"] = modDate.toUTCString();
             }//multipart/form-data
             if (format) {
                 loc_headers["Content-Type"] = format;
@@ -188,7 +188,7 @@ define([
 		put: function(uri, data, modDate, format) {
 			var loc_headers = lang.clone(headers);
 			if (modDate) {
-				loc_headers["If-Unmodified-Since"] = modDate;			
+                loc_headers["If-Unmodified-Since"] = modDate.toUTCString();
 			}
             if (format) {
                 loc_headers["Content-Type"] = format;
@@ -209,13 +209,19 @@ define([
          * Deletes a resource.
          *
 		 * @param {String} uri of the resource that is to be deleted.
+         * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
 		 * @return {xhrPromise}
 		 */
-		del: function(uri){
-			return request.del(uri, {
+		del: function(uri, modDate){
+            var loc_headers = lang.clone(headers);
+            if (modDate) {
+                loc_headers["If-Unmodified-Since"] = modDate.toUTCString();
+            }
+
+            return request.del(uri, {
 				preventCache: true,
 				//handleAs: "json",
-				headers: headers,
+				headers: loc_headers,
                 withCredentials: true,
                 timeout: timeout
 			});
