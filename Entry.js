@@ -131,7 +131,8 @@ define([
                 "This message is a bug in the storejs API.");
         } else {
             var es = this.getEntryStore();
-            es.getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON())).then(function() {
+            var mod = this.getEntryInfo().getModificationDate();
+            es.getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON()), mod).then(function() {
                 self.setRefreshNeeded(true);
                 self.refresh().then(function() {
                     d.resolve(self);
@@ -180,7 +181,8 @@ define([
 	Entry.prototype.commitCachedExternalMetadata = function() {
 		var d = new Deferred(), self = this;
         var es = this.getEntryStore();
-        es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(), json.stringify(this._cachedExternalMetadata.exportRDFJSON())).then(function() {
+        var mod = this.getEntryInfo().getModificationDate();
+        es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(), json.stringify(this._cachedExternalMetadata.exportRDFJSON()), mod).then(function() {
 			self.setRefreshNeeded(true);
 			self.refresh().then(function() {
 				d.resolve(self);

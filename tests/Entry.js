@@ -1,8 +1,9 @@
 define([
     'store/EntryStore',
     'rdfjson/Graph',
-    'tests/config'
-], function(EntryStore, Graph, config) {
+    'tests/config',
+    "dojo/date/stamp"
+], function(EntryStore, Graph, config, stamp) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
@@ -233,7 +234,6 @@ define([
             });
         },
 
-
         updateCachedExternalMetadata: function(test) {
             var uri = "http://example.com/";
             c.newRef(uri, uri).commit().then(function(entry) {
@@ -247,6 +247,32 @@ define([
                     test.ok(false, "Something went wrong updating cachedExternalMetadata.");
                     test.done();
                 });
+            });
+        },
+
+        ifUnModifiedSinceCheck: function(test) {
+            c.newEntry().commit().then(function(entry) {
+                var md = entry.getMetadata();
+                var uri = entry.getResourceURI();
+                entry.getMetadata().addL(uri, "dcterms:title", "title1");
+                entry.commitMetadata().then(function() {
+                    test.ok(entry.find(null, "dcterms:title").length === 1, "More than one title added, should not happen.");
+                });
+
+                //Manually set back the date of modification to force 412 status code.
+                var eig = entry.getEntryInfo().getGraph();
+                var stmt = eig.find(entry.getURI(), "http://purl.org/dc/terms/modified")[0];
+                stmt.setValue(stamp.toISOString(new Date("2000")));
+
+                entry.getMetadata().addL(uri, "dcterms:title", "title2");
+                entry.commitMetadata().then(function() {
+                    test.ok(false, "No conflict although saving metadata twice in a row");
+                }, function() {
+                    test.done();
+                });
+            }, function() {
+                test.ok(false, "Could not create an Entry in Context 1.");
+                test.done();
             });
         }
     });

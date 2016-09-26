@@ -58,7 +58,7 @@ define([
             });
         },
         acl: function(test) {
-            c.newEntry().create().then(function(entry) {
+            c.newEntry().commit().then(function(entry) {
                 var ei = entry.getEntryInfo();
                 test.ok(!ei.hasACL(), "ACL present on created entry when no ACL was provided.");
                 var acl = {admin: [es.getEntryURI("_principals", "admin")]};
