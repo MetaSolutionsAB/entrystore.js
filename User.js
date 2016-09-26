@@ -47,7 +47,7 @@ define([
             .then(lang.hitch(this, function(data) {
                 var e = this.getEntry(true);
                 if (e) {
-                    e.getEntrInfo()._name = data;
+                    e.getEntryInfo()._name = data;
                 }
                 return data;
         }), lang.hitch(this, function(e) {
