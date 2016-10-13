@@ -30,23 +30,21 @@ define([
      * @returns {forEachPromise}
      */
     promiseUtil.forEach = function(items, func) {
-        var arr, cursor, onSuccess, d = new Deferred(), onFailure = function(err) {
+        var arr, cursor, d = new Deferred(), onFailure = function(err) {
             d.reject(err);
         };
         if (items instanceof Array) {
             var results = [];
             arr = items.slice();
-            onSuccess = function(result) {
+            cursor = function(result) {
                 results.push(result);
-            };
-            cursor = function() {
                 if (arr.length > 0) {
                     return func(arr.pop()).then(cursor, onFailure);
                 } else {
                     d.resolve(results);
                 }
             };
-            cursor();
+            func(arr.pop()).then(cursor, onFailure);
         } else if (typeof items === "object") {
             arr = [];
             for (var key in items) if (items.hasOwnProperty(key)) {
@@ -54,7 +52,7 @@ define([
             }
 
             var itemKey;
-            onSuccess = function(result) {
+            var onSuccess = function(result) {
                 items[itemKey] = result;
                 cursor();
             };
