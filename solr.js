@@ -293,7 +293,7 @@ define([
 	Solr.prototype.uriProperty = function(predicate, object, modifier) {
 		var key = md5(namespaces.expand(predicate)).substr(0, 8);
 		if (lang.isArray(object)) {
-			object = lang.map(object, function(o) {
+			object = array.map(object, function(o) {
 				return namespaces.expand(o);
 			});
 		} else {
