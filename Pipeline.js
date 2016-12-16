@@ -273,9 +273,11 @@ define([
      */
     Pipeline.prototype.getTransformProperty = function(transformType, property) {
         var tid = this.getTransformForType(transformType);
-        var obj = this.getTransformArguments(tid);
-        if (obj && obj[property]) {
-            return obj[property];
+        if (tid) {
+            var obj = this.getTransformArguments(tid);
+            if (obj && obj[property]) {
+                return obj[property];
+            }
         }
     };
 
