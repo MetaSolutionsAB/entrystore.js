@@ -26,7 +26,11 @@ dojoConfig = {
         }, {
             name: "store",
             location: "."
-        }],
+        }, {
+	    name: "md5",
+	    location: "libs/md5/js/",
+	    main: "md5.min"
+	}],
     deps: ["store/cmd"] // And array of modules to load on "boot"
 };
 
