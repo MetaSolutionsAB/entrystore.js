@@ -44,7 +44,11 @@ define([
                     d.resolve(results);
                 }
             };
-            func(arr.pop()).then(cursor, onFailure);
+            if (arr.length === 0) {
+                d.resolve(results);
+            } else {
+                func(arr.pop()).then(cursor, onFailure);
+            }
         } else if (typeof items === "object") {
             arr = [];
             for (var key in items) if (items.hasOwnProperty(key)) {
