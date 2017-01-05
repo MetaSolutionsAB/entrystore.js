@@ -71,7 +71,6 @@ define([
          * @returns {xhrPromise}
          */
 		get: function(uri, format) {
-            var jsonp = false;
             var loc_headers = headers, handleAs = "json";
             if (format != null) {
                 loc_headers = lang.clone(headers);
@@ -88,14 +87,8 @@ define([
                 }
             }
 
-            if (has("host-browser")) {
-                if (uri.indexOf(window.location.origin) !== 0
-                    && uri.indexOf("/entry/") !== -1) {   //TODO check where jsonp is supported
-                    jsonp = true;
-                }
-            }
-
-            if (jsonp) {
+            //Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
+            if (has("host-browser") && uri.indexOf(window.location.origin) !== 0) {
                 var d = new Deferred();
                 require(["dojo/request/script"], function(script) {
                     var queryParameter = new RegExp('[?&]format=');
