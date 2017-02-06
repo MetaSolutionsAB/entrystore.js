@@ -6,6 +6,7 @@ pipelines:
         script:
           - npm install
           - npm install -g bower
+          - npm install -g jsdoc
           - bower install --allow-root
           - ( cd build && ./build.sh )
           - ( cd jsdoc && ./buildDocs.sh )
