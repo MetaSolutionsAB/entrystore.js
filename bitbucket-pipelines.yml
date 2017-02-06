@@ -8,3 +8,4 @@ pipelines:
           - npm install -g bower
           - bower install --allow-root
           - ( cd build && ./build.sh )
+          - ( cd jsdoc && ./buildDocs.sh )
