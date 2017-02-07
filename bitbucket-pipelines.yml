@@ -4,9 +4,17 @@ pipelines:
   default:
     - step:
         script:
+          - mkdir -p ~/.ssh
+          - echo $SSH_KNOWN_HOSTS >> ~/.ssh/known_hosts
+          - ( umask 077 ; echo $SSH_KEY | base64 --decode --ignore-garbage > ~/.ssh/id_rsa )
+          - apt install jq
+          - export ES_VERSION=`jq -r .version bower.json`
+          - if [ ${#ES_VERSION} -lt 3 || ${#ES_VERSION} -gt 5 ]; then exit 1 ;
           - npm install
           - npm install -g bower
           - npm install -g jsdoc
           - bower install --allow-root
           - ( cd build && ./build.sh )
           - ( cd jsdoc && ./buildDocs.sh )
+          - ( cd release && rsync -arz --delete * "meta1.metasolutions.se:/var/www/entrystore.org/js/$ES_VERSION/" )
+          - ( cd jsdoc && rsync -arz * "meta1.metasolutions.se:/var/www/entrystore.org/js/$ES_VERSION/doc/" )
