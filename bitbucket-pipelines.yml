@@ -7,7 +7,7 @@ pipelines:
           - mkdir -p ~/.ssh
           - echo $SSH_KNOWN_HOSTS >> ~/.ssh/known_hosts
           - ( umask 077 ; echo $SSH_KEY | base64 --decode --ignore-garbage > ~/.ssh/id_rsa )
-          - apt install jq
+          - apt-get install jq
           - export ES_VERSION=`jq -r .version bower.json`
           - if [ ${#ES_VERSION} -lt 3 || ${#ES_VERSION} -gt 5 ]; then exit 1 ;
           - npm install
