@@ -27,10 +27,7 @@ pipelines:
           - curl http://localhost:8181/management/status
           - popd
           - sed 's/:8080\/store/:8181/g' tests/config.js_example > tests/config.js
-          - pushd tests/node
-          - npm install nodeunit
-          - node init.js
-          - popd
+          - ( cd tests/node && npm install nodeunit && node init.js )
           - ( cd build && ./build.sh )
           - ( cd jsdoc && ./buildDocs.sh )
           - ( cd release && rsync -arz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/" )
