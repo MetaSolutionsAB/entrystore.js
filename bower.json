@@ -1,8 +1,9 @@
 {
   "name": "entrystore.js",
-  "version": "4.3.1",
+  "version": "4.4.0-SNAPSHOT",
   "authors": [
-    "Matthias Palmér <matthias@metasolutions.se>"
+    "Matthias Palmér <matthias@metasolutions.se>",
+    "Hannes Ebner <hannes@metasolutions.se>"
   ],
   "description": "EntryStore.js provides an API for working with an EntryStore repository via its REST API.",
   "keywords": [
@@ -18,7 +19,7 @@
     "r.js": "2.3.1",
     "requirejs": "2.3.1"
   },
-  "license": "MIT",
+  "license": "LGPLv3",
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "private": true,
   "ignore": [

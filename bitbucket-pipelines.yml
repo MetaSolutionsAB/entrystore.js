@@ -1,0 +1,35 @@
+image: metasolutions/openjdk-node:latest
+
+pipelines:
+  default:
+    - step:
+        script:
+          - if [ $BITBUCKET_BRANCH != "master" ] && [ $BITBUCKET_BRANCH != "develop" ]; then exit 0 ; fi
+          - node --version
+          - npm --version
+          - mkdir -p ~/.ssh
+          - echo $SSH_KNOWN_HOSTS >> ~/.ssh/known_hosts
+          - ( umask 077 ; echo $SSH_KEY | base64 --decode --ignore-garbage > ~/.ssh/id_rsa )
+          - export ESJS_VERSION=`jq -r .version bower.json`
+          # We allow anything between x.y and x.y.z-SNAPSHOT
+          - if [ ${#ESJS_VERSION} -lt 3 ] || [ ${#ESJS_VERSION} -gt 14 ]; then exit 1 ; fi
+          - npm install
+          - bower install --allow-root
+          - pushd /tmp
+          - git clone --branch $BITBUCKET_BRANCH --depth 1 https://bitbucket.org/metasolutions/entrystore.git
+          - cd entrystore
+          - export ES_VERSION=`cat VERSION.txt`
+          - mvn -q -Dmaven.test.skip=true install
+          - mkdir /tmp/entrystore-test-solr
+          - chmod +x modules/rest-standalone/target/dist/bin/entrystore
+          - nohup modules/rest-standalone/target/dist/bin/entrystore modules/rest/target/entrystore-rest-${ES_VERSION}/WEB-INF/classes/entrystore.properties_test 8181 &
+          - sleep 20
+          - curl http://localhost:8181/management/status
+          - popd
+          - sed 's/:8080\/store/:8181/g' tests/config.js_example > tests/config.js
+          - ( cd tests/node && npm install nodeunit && node init.js )
+          - ( cd build && ./build.sh )
+          - ( cd jsdoc && ./buildDocs.sh )
+          - ( cd release && rsync -arz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/" )
+          - ( cd jsdoc && rsync -arz * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/doc/" )
+          - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.org/js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.org/js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
