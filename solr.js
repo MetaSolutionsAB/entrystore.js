@@ -210,7 +210,7 @@ define([
 					} else {
 						and.push(key + ":"+encodeURIComponent(v.replace(/:/g,"\\:")));
 					}
-				} else if (lang.isArray(v)) {
+				} else if (lang.isArray(v) && v.length > 0) {
 					or = [];
 					for (j=0;j<v.length;j++) {
 						var ov = v[j];
@@ -238,7 +238,7 @@ define([
 				} else {
 					and.push(key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:")));
 				}
-			} else if (lang.isArray(obj)) {
+			} else if (lang.isArray(obj) && obj.length > 0) {
 				var or = [];
 				array.forEach(obj, function(o) {
 					or.push(key + ":"+encodeURIComponent(o.replace(/:/g,"\\:")));
