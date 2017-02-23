@@ -16,6 +16,23 @@ define([
     var timeout = 30000; //30 seconds
 
     /**
+     * Check if requests will be to the same domain, i.e. no CORS.
+     * Must be used in a browser environment.
+     *
+     * @param url
+     * @returns {boolean}
+     */
+    var sameOrigin = function(url) {
+        var loc = window.location, a = document.createElement('a');
+        a.href = url;
+
+        return a.hostname === loc.hostname &&
+            a.port === loc.port &&
+            a.protocol === loc.protocol &&
+            loc.protocol !== 'file:'
+    };
+
+    /**
      * Functionality for communicating with the repository via Ajax calls.
      * Authentication is done via cookies and accept headers are in general set to
      * application/json behind the scenes.
@@ -88,7 +105,7 @@ define([
             }
 
             //Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-            if (has("host-browser") && uri.indexOf(window.location.origin) !== 0) {
+            if (has("host-browser") && !sameOrigin(uri)) {
                 var d = new Deferred();
                 require(["dojo/request/script"], function(script) {
                     var queryParameter = new RegExp('[?&]format=');
