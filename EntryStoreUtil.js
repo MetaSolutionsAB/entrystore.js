@@ -2,10 +2,11 @@
 
 define([
     "dojo/_base/lang",
+    "dojo/_base/array",
     "dojo/Deferred",
     "rdfjson/namespaces",
     "store/solr"
-], function (lang, Deferred, namespaces, solr) {
+], function (lang, array, Deferred, namespaces, solr) {
 
     /**
      * EntryStoreUtil provides utility functionality for working with entries.
@@ -82,18 +83,27 @@ define([
      * Hence, only use this function if you expect there to be a single entry per resource URI.
      *
      * @param {string} resourceURI is the URI for the resource.
+     * @param {store/Context=} context only look for entries in this context, may be left out.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI) {
+    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI, context) {
         var cache = this._entrystore.getCache();
         var entryArr = cache.getByResourceURI(resourceURI);
+        if (context) {
+            entryArr = array.filter(entryArr, function(e) {
+                return e.getContext().getId() === context.getId();
+            });
+        }
         if (entryArr.length > 0) {
             var d = new Deferred();
             d.resolve(entryArr[0]);
             return d;
         } else {
-            var list = this._entrystore.createSearchList(solr.resource(resourceURI).limit(1));
-            return list.getEntries(0).then(function(arr) {
+            var query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
+            if (context) {
+                query.context(context);
+            }
+            return query.list().getEntries(0).then(function(arr) {
                 if (arr.length > 0) {
                     return arr[0];
                 } else {
