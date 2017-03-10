@@ -204,7 +204,7 @@ define([
 			if (v != null) {
 				key = map[method] || method;
 				var modifier = this["_"+method+"_modifier"];
-				if (lang.isString(v)) {
+				if (lang.isString(v) && v !== "") {
 					if (modifier === true || modifier === "not") {
 						and.push("NOT(" + key + ":"+encodeURIComponent(v.replace(/:/g,"\\:"))+")");
 					} else {
