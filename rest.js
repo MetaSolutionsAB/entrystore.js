@@ -23,13 +23,15 @@ define([
      * @returns {boolean}
      */
     var sameOrigin = function(url) {
-        var loc = window.location, a = document.createElement('a');
-        a.href = url;
+        var a1 = document.createElement('a'),
+            a2 = document.createElement('a');
+        a1.href = url;
+        a2.href = window.location.href;
 
-        return a.hostname === loc.hostname &&
-            a.port === loc.port &&
-            a.protocol === loc.protocol &&
-            loc.protocol !== 'file:'
+        return a1.hostname === a2.hostname &&
+            a1.port === a2.port &&
+            a1.protocol === a2.protocol &&
+            a2.protocol !== 'file:'
     };
 
     /**
