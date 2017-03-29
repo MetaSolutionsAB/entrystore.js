@@ -156,7 +156,7 @@ define([
      */
     List.prototype.removeEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
-            entries.splice(entries.indexOf(entry.getId()));
+            entries.splice(entries.indexOf(entry.getId()), 1);
             return this.setAllEntryIds(entries).then(function() {
                 entry.setRefreshNeeded();
             });
