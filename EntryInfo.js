@@ -270,6 +270,31 @@ define([
 		f(mu, terms.acl.write, acl.mwrite, base);
 	};
 
+	EntryInfo.prototype.getMetadataRevisions = function() {
+		var revs = [];
+		var stmts = this._graph.find(null, "owl:sameAs", this.getMetadataURI());
+		if (stmts.length !== 1) {
+			return revs;
+		}
+		var rev = stmts[0].getSubject();
+		var es = this._entryStore;
+		while (rev) {
+			revs.push({
+				uri: rev,
+				time: stamp.fromISOString(this._graph.findFirstValue(rev, "prov:generatedAtTime")),
+				by: es.getEntryURIFromURI(this._graph.findFirstValue(rev, "prov:wasAttributedTo"))
+			});
+			rev = this._graph.findFirstValue(rev, "prov:wasDerivedFrom");
+		}
+		return revs;
+	};
+
+	EntryInfo.prototype.getMetadataRevisionGraph = function(revisionURI) {
+		return this._entryStore.getREST().get(revisionURI).then(function(data) {
+			return new Graph(data);
+		});
+	};
+
     /**
      * @returns {string} the label of the resource of this entry, typically set when uploading a file.
      */
