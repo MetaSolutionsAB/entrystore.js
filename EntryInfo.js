@@ -270,21 +270,26 @@ define([
 		f(mu, terms.acl.write, acl.mwrite, base);
 	};
 
+  EntryInfo.prototype.hasMetadataRevisions = function() {
+		return this._graph.findFirstValue(null, "prov:wasDerivedFrom") != null;
+  }, 
 	EntryInfo.prototype.getMetadataRevisions = function() {
 		var revs = [];
-		var stmts = this._graph.find(null, "owl:sameAs", this.getMetadataURI());
+		var mdURI = this.getMetadataURI();
+		var stmts = this._graph.find(null, "owl:sameAs", mdURI);
 		if (stmts.length !== 1) {
 			return revs;
 		}
-		var rev = stmts[0].getSubject();
+		var uri = stmts[0].getSubject();
 		var es = this._entryStore;
-		while (rev) {
+		while (uri) {
 			revs.push({
-				uri: rev,
-				time: stamp.fromISOString(this._graph.findFirstValue(rev, "prov:generatedAtTime")),
-				by: es.getEntryURIFromURI(this._graph.findFirstValue(rev, "prov:wasAttributedTo"))
+        uri: uri,
+				rev: uri.substr(mdURI.length+5),
+				time: stamp.fromISOString(this._graph.findFirstValue(uri, "prov:generatedAtTime")),
+				by: es.getEntryURIFromURI(this._graph.findFirstValue(uri, "prov:wasAttributedTo"))
 			});
-			rev = this._graph.findFirstValue(rev, "prov:wasDerivedFrom");
+			uri = this._graph.findFirstValue(uri, "prov:wasDerivedFrom");
 		}
 		return revs;
 	};
