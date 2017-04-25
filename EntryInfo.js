@@ -271,8 +271,9 @@ define([
 	};
 
   EntryInfo.prototype.hasMetadataRevisions = function() {
-		return this._graph.findFirstValue(null, "prov:wasDerivedFrom") != null;
-  }, 
+    var mdURI = this.getMetadataURI();
+		return this._graph.findFirstValue(null, "owl:sameAs", mdURI) != null;
+  },
 	EntryInfo.prototype.getMetadataRevisions = function() {
 		var revs = [];
 		var mdURI = this.getMetadataURI();
