@@ -107,7 +107,7 @@ define([
     Entry.prototype.setMetadata = function(graph) {
         this._metadata = graph;
         return this;
-    }
+    };
 
 
     /**
@@ -147,8 +147,52 @@ define([
         }
 		return es.handleAsync(d.promise, "commitMetadata");
 	};
-	
-	/**
+
+    /**
+     * Same as entry.getMetadata().add(entry.getResourceURI(), pred, o)
+     * but instead of returning the created statement it returns the entry itself,
+     * allowing chained method calls.
+     *
+     * @param {string} pred the predicate
+     * @param {object} o the object
+     * @returns {module:store/Entry}
+     */
+    Entry.prototype.add = function(pred, o) {
+        this.getMetadata().add(this.getResourceURI(), pred, o);
+        return this;
+    };
+
+    /**
+     * Same as entry.getMetadata().addL(entry.getResourceURI(), pred, lit, lang)
+     * but instead of returning the created statement it returns the entry itself,
+     * allowing chained method calls.
+     *
+     * @param {string} pred the predicate
+     * @param {string} lit the literal value
+     * @param {string} lang an optional language
+     * @returns {module:store/Entry}
+     */
+    Entry.prototype.addL = function(pred, lit, lang) {
+        this.getMetadata().addL(this.getResourceURI(), pred, lit, lang);
+        return this;
+    };
+
+    /**
+     * Same as entry.getMetadata().addD(entry.getResourceURI(), pred, lit, lang)
+     * but instead of returning the created statement it returns the entry itself,
+     * allowing chained method calls.
+     *
+     * @param {string} pred the predicate
+     * @param {string} lit the literal value
+     * @param {string} dt the datatype (should be a string)
+     * @returns {module:store/Entry}
+     */
+    Entry.prototype.addD = function(pred, lit, dt) {
+        this.getMetadata().addD(this.getResourceURI(), pred, lit, dt);
+        return this;
+    };
+
+    /**
 	 * Cached external metadata can only be provided for entries with entrytype reference or linkreference.
 	 *
      * @return {rdfjson/Graph} - a RDF graph with cached external metadata, typically containing statements
