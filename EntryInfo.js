@@ -270,10 +270,30 @@ define([
 		f(mu, terms.acl.write, acl.mwrite, base);
 	};
 
+  /**
+	 * Checks if there are any metadata revisions for this entry,
+	 * in practise this is always true if provenance is enabled for this entry.
+	 *
+   * @return {boolean} true if there is at least one metadata revision.
+   */
   EntryInfo.prototype.hasMetadataRevisions = function() {
     var mdURI = this.getMetadataURI();
 		return this._graph.findFirstValue(null, "owl:sameAs", mdURI) != null;
-  },
+  };
+
+  /**
+   * Extracts an array of metadata revisions from the graph.
+	 * Each revision is an object that contains:
+	 *   * time - when the change was made (Date)
+	 *   * by   - the user who performed the change (entryURI)
+	 *   * rev  - the revision number (string)
+	 *   * uri  - an URI to this revision (string)
+   *
+	 * The uri of the revision can be used by the method getMetadataRevisionGraph
+	 * to get a hold of the actual new graph that caused the revision.
+	 *
+   * @return {object[]} a sorted array of revisions, latest revision first.
+   */
 	EntryInfo.prototype.getMetadataRevisions = function() {
 		var revs = [];
 		var mdURI = this.getMetadataURI();
@@ -292,9 +312,22 @@ define([
 			});
 			uri = this._graph.findFirstValue(uri, "prov:wasDerivedFrom");
 		}
+		revs.sort(function(r1, r2) {
+			if (r1.time > r2.time) {
+				return -1;
+			} else if (r1.time < r2.time) {
+				return 1;
+			}
+			return 0;
+		});
 		return revs;
 	};
 
+  /**
+	 * Retrieves the metadata graph of a certain revision from its graph.
+   * @param revisionURI
+	 * @return {graphPromise}
+   */
 	EntryInfo.prototype.getMetadataRevisionGraph = function(revisionURI) {
 		return this._entryStore.getREST().get(revisionURI).then(function(data) {
 			return new Graph(data);
@@ -426,4 +459,23 @@ define([
  *
  * @callback entryInfoCallback
  * @param {store/EntryInfo} entry
+ */
+
+/**
+ * Promise that provides an {@link rdfjson/Graph} on success.
+ *
+ * @name graphPromise
+ * @extends dojo/promise/Promise
+ * @class
+ */
+/**
+ * @name graphPromise#then
+ * @param {graphCallback} onSuccess
+ * @param {xhrFailureCallback} onError
+ */
+/**
+ * This is a successful callback method to be provided as first argument in a {@link graphPromise}
+ *
+ * @callback graphCallback
+ * @param {rdfjson/Graph} graph
  */
