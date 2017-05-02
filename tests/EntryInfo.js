@@ -112,6 +112,31 @@ define([
                 });
                 ei.setExternalMetadataURI(mduri); //Resetting old uri, local change that should be reset after save.
             });
+        },
+        metadataRevisions: function(test) {
+            var pe = c.newEntry().addL("dcterms:title", "First").commit().then(function(entry) {
+                test.ok(entry.getEntryInfo().getMetadataRevisions().length === 1);
+                entry.addL("dcterms:description", "Second");
+                return entry.commitMetadata().then(function(entry) {
+                    var ei = entry.getEntryInfo();
+                    var revs = ei.getMetadataRevisions();
+                    test.ok(revs.length === 2);
+                    return ei.getMetadataRevisionGraph(revs[1].uri).then(function(graph) {
+                        test.ok(graph.findFirstValue(null, "dcterms:description") == null);
+                        test.ok(entry.getMetadata().findFirstValue(null, "dcterms:description") != null);
+                        return ei.getMetadataRevisionGraph(ei.getMetadataURI()+"?rev=3")
+                            .then(function() {
+                                test.ok(false, "Should not be able to load non-existing versions");
+                                test.done();
+                            }, function(err) {
+                                test.done();
+                            });
+                    });
+                });
+            }).then(null, function(err) {
+                test.ok(false, "Problem creating entry or updating metadata in context 1");
+                test.done();
+            });
         }
     });
 });

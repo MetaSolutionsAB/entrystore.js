@@ -1,5 +1,8 @@
 /*global define*/
-define(["store/types"], function(types) {
+define([
+    "store/types",
+    "rdfjson/namespaces"
+], function(types, namespaces) {
 
     var inv = function(obj) {
         var iobj = {};
@@ -15,6 +18,7 @@ define(["store/types"], function(types) {
     var ns = "http://entrystore.org/terms/";
     var rdfns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     var xsdns = "http://www.w3.org/2001/XMLSchema#";
+    namespaces.add("prov", "http://www.w3.org/ns/prov#");
 
     var externals = {
         homeContext: ns + "homeContext",
