@@ -310,7 +310,7 @@ define([
 				time: stamp.fromISOString(this._graph.findFirstValue(uri, "prov:generatedAtTime")),
 				by: es.getEntryURIFromURI(this._graph.findFirstValue(uri, "prov:wasAttributedTo"))
 			});
-			uri = this._graph.findFirstValue(uri, "prov:wasDerivedFrom");
+			uri = this._graph.findFirstValue(uri, "prov:wasRevisionOf");
 		}
 		revs.sort(function(r1, r2) {
 			if (r1.time > r2.time) {
