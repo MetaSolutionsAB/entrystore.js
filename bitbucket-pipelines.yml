@@ -20,6 +20,7 @@ pipelines:
           - cd entrystore
           - export ES_VERSION=`cat VERSION.txt`
           - mvn -q -Dmaven.test.skip=true install
+          - mkdir /tmp/entrystore-test-files
           - mkdir /tmp/entrystore-test-solr
           - chmod +x modules/rest-standalone/target/dist/bin/entrystore
           - nohup modules/rest-standalone/target/dist/bin/entrystore modules/rest/target/entrystore-rest-${ES_VERSION}/WEB-INF/classes/entrystore.properties_test 8181 &
