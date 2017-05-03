@@ -7,11 +7,13 @@ define([
      * @exports store/SearchList
      * @param {store/EntryStore} entryStore
      * @param {Object} query
+	 * @param {string} callType parameter provided to asyncListeners on query execution, assumed to be 'search' if left out
 	 * @constructor
 	 */
-	var SList = function(entryStore, query) {
+	var SList = function(entryStore, query, callType) {
 		this._entryStore = entryStore;
 		this._query = query;
+		this._callType = callType || "search";
 		this._sortedChildren = [];
 	};
 
@@ -63,7 +65,7 @@ define([
 		var es = this._entryStore;
 		return es.handleAsync(es.getREST().get(this._query.getQuery(es)).then(function(data) {
 			return es.getFactory().extractSearchResults(data, self, es);
-		}), "search");
+		}), this._callType);
 	};
 	SList.prototype._getEntries = List.prototype._getEntries;
 	SList.prototype._update = List.prototype._update;

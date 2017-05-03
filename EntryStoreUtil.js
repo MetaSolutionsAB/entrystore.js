@@ -84,9 +84,10 @@ define([
      *
      * @param {string} resourceURI is the URI for the resource.
      * @param {store/Context=} context only look for entries in this context, may be left out.
+     * @param {string} asyncCallType the callType used when making the search.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI, context) {
+    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI, context, asyncCallType) {
         var cache = this._entrystore.getCache();
         var entryArr = cache.getByResourceURI(resourceURI);
         if (context) {
@@ -103,7 +104,7 @@ define([
             if (context) {
                 query.context(context);
             }
-            return query.list().getEntries(0).then(function(arr) {
+            return query.list(asyncCallType).getEntries(0).then(function(arr) {
                 if (arr.length > 0) {
                     return arr[0];
                 } else {
@@ -128,14 +129,15 @@ define([
      *
      * @param {string} typeURI is the rdf:type URI for the entry to match.
      * @param {store/Context} context restrict to finding the entry in this context
+     * @param {string} asyncCallType the callType used when making the search.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByType = function(typeURI, context) {
+    EntryStoreUtil.prototype.getEntryByType = function(typeURI, context, asyncCallType) {
         var query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
         if (context) {
             query.context(context);
         }
-        return query.list().getEntries(0).then(function(entryArr) {
+        return query.list(asyncCallType).getEntries(0).then(function(entryArr) {
             if (entryArr.length === 1) {
                 return entryArr[0];
             }
@@ -150,14 +152,15 @@ define([
      *
      * @param {string} graphType is the graph type for the entry to match, e.g. use {@see store/types#GT_USER}.
      * @param {store/Context} context restrict to finding the entry in this context
+     * @param {string} asyncCallType the callType used when making the search.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByGraphType = function(graphType, context) {
+    EntryStoreUtil.prototype.getEntryByGraphType = function(graphType, context, asyncCallType) {
         var query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
         if (context) {
             query.context(context);
         }
-        return query.list().getEntries(0).then(function(entryArr) {
+        return query.list(asyncCallType).getEntries(0).then(function(entryArr) {
             if (entryArr.length > 0) {
                 return entryArr[0];
             }
@@ -188,7 +191,7 @@ define([
                 if (uris.length > 0) {
                     var uri = uris.pop();
                     return rest.del(uri).then(f, function(err) {
-                        console.log("Could not remove entry with uri: "+uri+ " continuing anyway.")
+                        console.log("Could not remove entry with uri: "+uri+ " continuing anyway.");
                         return f();
                     });
                 }

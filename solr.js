@@ -74,8 +74,8 @@ define([
 		this.properties = [];
 	};
 
-	Solr.prototype.list = function() {
-		return new SearchList(this._entrystore, this);
+	Solr.prototype.list = function(asyncCallType) {
+		return new SearchList(this._entrystore, this, asyncCallType);
 	};
 
     var methods = [
