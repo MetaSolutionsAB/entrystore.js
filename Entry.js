@@ -118,7 +118,8 @@ define([
 	 * @return {entryPromise} a promise that on success will contain the current updated entry.
 	 */
 	Entry.prototype.commitMetadata = function() {
-		var d = new Deferred(), self = this;
+    var es = this.getEntryStore();
+	  var d = new Deferred(), self = this;
         if (this.isReference()) {
             d.reject("Entry \""+this.getURI()+"\" is a reference and have no local metadata that can be saved.");
         } else if (!this.canWriteMetadata()) {
@@ -130,7 +131,6 @@ define([
             d.reject("The entry \""+this.getURI()+"\" should allow local metadata to be saved, but there is no local metadata.\n"+
                 "This message is a bug in the storejs API.");
         } else {
-            var es = this.getEntryStore();
             var mod = this.getEntryInfo().getModificationDate();
             es.getREST().put(this.getEntryInfo().getMetadataURI(), json.stringify(this._metadata.exportRDFJSON()), mod).then(function() {
                 self.setRefreshNeeded(true);
