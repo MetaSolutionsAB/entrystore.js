@@ -141,7 +141,7 @@ define([
     List.prototype.addEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.push(entry.getId());
-            return this.setAllEntryIds(entries).then(function() {
+            return this.setAllEntryIds(entries, "addToList").then(function() {
                 entry.setRefreshNeeded();
             });
         }));
@@ -157,7 +157,7 @@ define([
     List.prototype.removeEntry = function(entry) {
         return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.splice(entries.indexOf(entry.getId()), 1);
-            return this.setAllEntryIds(entries).then(function() {
+            return this.setAllEntryIds(entries, "removeFromList").then(function() {
                 entry.setRefreshNeeded();
             });
         }));
@@ -196,7 +196,7 @@ define([
      * @param {string[]} entries - array of entry ids (as strings, not full URIs).
      * @returns {xhrPromise}
      */
-    List.prototype.setAllEntryIds = function(entries) {
+    List.prototype.setAllEntryIds = function(entries, callType) {
         var es = this._entryStore;
         return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
             .then(lang.hitch(this, function() {
@@ -204,7 +204,7 @@ define([
                 return es.getEntry(this.getEntryURI()).then(function(oentry) {
                     oentry.setRefreshNeeded();
                 });
-            })), "setList");
+            })), callType || "setList");
     };
 
     /**

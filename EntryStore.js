@@ -79,7 +79,10 @@ define([
      * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)
      * - setUserCustomProperties - new custom properties for the user (User.setCustomProperties)
      * - loadListEntries - members of a list are requested (List.getEntries)
-     * - setList         - the list members are changed (List.setAllEntryIds .addEntry .removeEntry)
+     * - setList         - the list members are changed via a list
+     * - addToList       - See List.addEntry
+     * - removeFromList  - See List.removeEntry
+     * .removeEntry)
      * - search          - a search is being performed (SearchList.getEntries)
      * - execute         - a pipeline is executed (Pipeline.execute)
      *
