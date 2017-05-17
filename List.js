@@ -139,10 +139,12 @@ define([
      * @returns {xhrPromise}
      */
     List.prototype.addEntry = function(entry) {
-        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+      var self = this;
+      return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.push(entry.getId());
             return this.setAllEntryIds(entries, "addToList").then(function() {
                 entry.setRefreshNeeded();
+                return self.getEntry();
             });
         }));
     };
@@ -155,7 +157,7 @@ define([
      * @returns {xhrPromise}
      */
     List.prototype.removeEntry = function(entry) {
-        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+      return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.splice(entries.indexOf(entry.getId()), 1);
             return this.setAllEntryIds(entries, "removeFromList").then(function() {
                 entry.setRefreshNeeded();
@@ -194,15 +196,16 @@ define([
      * Set a list of entry ids to be contained in this list.
      *
      * @param {string[]} entries - array of entry ids (as strings, not full URIs).
-     * @returns {xhrPromise}
+     * @returns {entryPromise}
      */
     List.prototype.setAllEntryIds = function(entries, callType) {
-        var es = this._entryStore;
-        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
+      var es = this._entryStore;
+      return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
             .then(lang.hitch(this, function() {
                 this.needRefresh();
                 return es.getEntry(this.getEntryURI()).then(function(oentry) {
                     oentry.setRefreshNeeded();
+                    return oentry;
                 });
             })), callType || "setList");
     };
