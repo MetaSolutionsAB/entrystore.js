@@ -229,29 +229,47 @@ define([
 			}
 		}
 
-		array.forEach(this.properties, function(prop) {
-			var obj =  prop.object;
-			var key = "metadata.predicate." + prop.nodetype + "."+prop.md5;
-			if (lang.isString(obj)) {
-				if (prop.modifier === true || prop.modifier === "not") {
-					and.push("NOT("+ key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:"))+")");
-				} else {
-					and.push(key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:")));
-				}
-			} else if (lang.isArray(obj) && obj.length > 0) {
-				var or = [];
-				array.forEach(obj, function(o) {
-					or.push(key + ":"+encodeURIComponent(o.replace(/:/g,"\\:")));
-				}, this);
-				if (prop.modifier === true || prop.modifier === "not") {
-					and.push("NOT("+or.join("+OR+")+")");
-				} else if (prop.modifier === "and") {
-					and.push("("+or.join("+AND+")+")");
-				} else {
-					and.push("("+or.join("+OR+")+")");
-				}
+		if (this.disjunctiveProperties) {
+      var or = [];
+      array.forEach(this.properties, function (prop) {
+        var obj = prop.object;
+        var key = "metadata.predicate." + prop.nodetype + "." + prop.md5;
+        if (lang.isString(obj)) {
+          or.push(key + ":" + encodeURIComponent(obj.replace(/:/g, "\\:")));
+        } else if (lang.isArray(obj) && obj.length > 0) {
+          array.forEach(obj, function (o) {
+            or.push(key + ":" + encodeURIComponent(o.replace(/:/g, "\\:")));
+          });
+        }
+      });
+      if (or.length > 0) {
+        and.push("(" + or.join("+OR+") + ")");
 			}
-		}, this);
+    } else {
+      array.forEach(this.properties, function (prop) {
+        var obj = prop.object;
+        var key = "metadata.predicate." + prop.nodetype + "." + prop.md5;
+        if (lang.isString(obj)) {
+          if (prop.modifier === true || prop.modifier === "not") {
+            and.push("NOT(" + key + ":" + encodeURIComponent(obj.replace(/:/g, "\\:")) + ")");
+          } else {
+            and.push(key + ":" + encodeURIComponent(obj.replace(/:/g, "\\:")));
+          }
+        } else if (lang.isArray(obj) && obj.length > 0) {
+          var or = [];
+          array.forEach(obj, function (o) {
+            or.push(key + ":" + encodeURIComponent(o.replace(/:/g, "\\:")));
+          }, this);
+          if (prop.modifier === true || prop.modifier === "not") {
+            and.push("NOT(" + or.join("+OR+") + ")");
+          } else if (prop.modifier === "and") {
+            and.push("(" + or.join("+AND+") + ")");
+          } else {
+            and.push("(" + or.join("+OR+") + ")");
+          }
+        }
+      }, this);
+    }
 
 		var trail = "";
 		if (this._limit != null) {
@@ -307,6 +325,10 @@ define([
 		});
 		return this;
 	};
+
+	Solr.prototype.disjuntiveProperties = function () {
+		this.disjunctiveProperties = true;
+  };
 
 	/* We want to avoid writing new solr.title("...").type("...") and instead write:
      * solr.title("...").type("...")
