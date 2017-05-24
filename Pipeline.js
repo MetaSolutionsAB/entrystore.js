@@ -327,7 +327,9 @@ define([
             .then(function(resultStr) {
                 var obj = json.parse(resultStr);
                 return obj.result;
-            });
+            }, function(err) {
+            throw err;
+        });
     };
 
     return Pipeline;
