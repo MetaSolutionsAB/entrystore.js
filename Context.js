@@ -209,6 +209,22 @@ define([
         })), "setContextName");
     };
 
+    /**
+     * Finds the user or group that has this context as homecontext if any.
+     *
+     * @returns {entryPromise} if succeeds if context a homecontext of some user or group.
+     */
+    Context.prototype.getHomeContextOf = function() {
+        return this.getEntry().then(function(ctxtEntry) {
+            var es = ctxtEntry.getEntryStore();
+            var groupResourceArr = ctxtEntry.getReferrers("store:homeContext");
+            if (groupResourceArr.length > 0) {
+                return es.getEntry(es.getEntryURIFromURI(groupResourceArr[0]));
+            }
+            throw new Error("No user or group that has this context as home context");
+        });
+    };
+
     /*
         context.addRemoteListener(listener); // websockets; listening to remote changes of this context
         context.removeRemoteListener(listener);

@@ -273,9 +273,11 @@ define([
      */
     Pipeline.prototype.getTransformProperty = function(transformType, property) {
         var tid = this.getTransformForType(transformType);
-        var obj = this.getTransformArguments(tid);
-        if (obj && obj[property]) {
-            return obj[property];
+        if (tid) {
+            var obj = this.getTransformArguments(tid);
+            if (obj && obj[property]) {
+                return obj[property];
+            }
         }
     };
 
@@ -305,12 +307,16 @@ define([
      * Executes the pipeline with the given source entry as input, if not provided the pipeline will be used as sourceentry.
      *
      * @param {store/Entry} sourceEntry an optional entry containing some data that is to be transformed, e.g. can be a CSV file.
+     * @param {object} params additional parameters used in the execution of the pipeline, e.g.
+     * action (with value create, replace or append) and datasetURL pointing to the existing
+     * dataset in rowstore.
      * @returns {entryURIArrayPromise} an array of entry URIs that where created/modified by this execution.
      */
-    Pipeline.prototype.execute = function(sourceEntry) {
+    Pipeline.prototype.execute = function(sourceEntry, params) {
         var executeURI, source,
-            es = this.getEntryStore(),
-            params = {pipeline: this.getEntryURI()};
+            es = this.getEntryStore();
+        params = params || {};
+        params.pipeline = this.getEntryURI();
         if (sourceEntry == null) {
             executeURI = es.getBaseURI() + es.getContextId(this.getEntryURI()) + "/execute";
         } else {
@@ -321,7 +327,9 @@ define([
             .then(function(resultStr) {
                 var obj = json.parse(resultStr);
                 return obj.result;
-            });
+            }, function(err) {
+            throw err;
+        });
     };
 
     return Pipeline;

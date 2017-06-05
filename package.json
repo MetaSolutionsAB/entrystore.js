@@ -1,19 +1,19 @@
 {
   "name": "store",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "main": "main",
   "dependencies": {
     "requirejs": "2.3.1",
     "jaguarjs-jsdoc": "0.0.1",
     "nodeunit": "~0.8.6"
   },
-  "description": "Store is a library for working with Entries in EntryStore.",
+  "description": "Store is a JS-library for working EntryStore.",
   "licenses": [
     {
       "type": "BSD",
       "url": "Some URL here."
     }
   ],
-  "homepage": "TODO",
+  "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "dojoBuild": "package.js"
 }

@@ -132,32 +132,38 @@ define([
     };
 
     /**
-     * Adds an entry to this list, on success the entry will be marked as in need of a refresh.
-     * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
+     * Adds an entry to this list, on success the List entry will be returned (updated with
+     * latest modification date). The added entry will be marked as in need of a
+     * refresh due to stale inv-rel cache. However,since List entry is loaded it may be refreshed
+     * already when method is resolved, it depends if it is in the first page of the list.
      *
      * @param {store/Entry} entry - entry to add to the list.
      * @returns {xhrPromise}
      */
     List.prototype.addEntry = function(entry) {
-        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+      var self = this;
+      return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
             entries.push(entry.getId());
-            return this.setAllEntryIds(entries).then(function() {
+            return this.setAllEntryIds(entries, "addToList").then(function() {
                 entry.setRefreshNeeded();
+                return self.getEntry();
             });
         }));
     };
 
     /**
-     * Removes an entry from this list, on success the entry will be marked as in need of a refresh.
-     * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
-
+     * Removes an entry from this list, on success the List entry will be returned (updated with
+     * latest modification date). The removed entry will not be updated but marked as in need
+     * of a refresh due to stale inv-rel cache. However,since List entry is loaded it may be refreshed
+     * already when method is resolved, it depends if it is in the first page of the list.
+     *
      * @param {store/Entry} entry - entry to be removed from the list.
      * @returns {xhrPromise}
      */
     List.prototype.removeEntry = function(entry) {
-        return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
-            entries.splice(entries.indexOf(entry.getId()));
-            return this.setAllEntryIds(entries).then(function() {
+      return this.getAllEntryIds().then(lang.hitch(this, function(entries) {
+            entries.splice(entries.indexOf(entry.getId()), 1);
+            return this.setAllEntryIds(entries, "removeFromList").then(function() {
                 entry.setRefreshNeeded();
             });
         }));
@@ -194,17 +200,18 @@ define([
      * Set a list of entry ids to be contained in this list.
      *
      * @param {string[]} entries - array of entry ids (as strings, not full URIs).
-     * @returns {xhrPromise}
+     * @returns {entryPromise}
      */
-    List.prototype.setAllEntryIds = function(entries) {
-        var es = this._entryStore;
-        return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
+    List.prototype.setAllEntryIds = function(entries, callType) {
+      var es = this._entryStore;
+      return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
             .then(lang.hitch(this, function() {
                 this.needRefresh();
                 return es.getEntry(this.getEntryURI()).then(function(oentry) {
                     oentry.setRefreshNeeded();
+                    return oentry;
                 });
-            })), "setList");
+            })), callType || "setList");
     };
 
     /**

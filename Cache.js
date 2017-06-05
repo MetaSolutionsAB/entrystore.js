@@ -32,7 +32,9 @@ define([], function() {
             resArr = [];
             this._cacheIdxResource[entry.getResourceURI()] = resArr;
         }
-        resArr.push(entry);
+		if (resArr.indexOf(entry) === -1) {
+			resArr.push(entry);
+		}
         this._cacheCtrl[entry.getURI()] = {date: new Date().getTime()};
 		if (previouslyCached && silently !== true) {
 			this.messageListeners("refreshed", entry);

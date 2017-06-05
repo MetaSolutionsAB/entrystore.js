@@ -74,8 +74,8 @@ define([
 		this.properties = [];
 	};
 
-	Solr.prototype.list = function() {
-		return new SearchList(this._entrystore, this);
+	Solr.prototype.list = function(asyncCallType) {
+		return new SearchList(this._entrystore, this, asyncCallType);
 	};
 
     var methods = [
@@ -140,7 +140,7 @@ define([
 
     //===========Overwrite some functions with better support for instances as well as strings.
 	Solr.prototype.context = function(context) {
-		this._context = context instanceof Context ? context.getResourceURI() : context.getResourceURI ? context.getResourceURI() : lang.isString(context) && context !== "" ? context : null;
+		this._context = context instanceof Context ? context.getResourceURI() : context && context.getResourceURI ? context.getResourceURI() : lang.isString(context) && context !== "" ? context : null;
 		return this;
 	};
 
@@ -204,13 +204,13 @@ define([
 			if (v != null) {
 				key = map[method] || method;
 				var modifier = this["_"+method+"_modifier"];
-				if (lang.isString(v)) {
+				if (lang.isString(v) && v !== "") {
 					if (modifier === true || modifier === "not") {
 						and.push("NOT(" + key + ":"+encodeURIComponent(v.replace(/:/g,"\\:"))+")");
 					} else {
 						and.push(key + ":"+encodeURIComponent(v.replace(/:/g,"\\:")));
 					}
-				} else if (lang.isArray(v)) {
+				} else if (lang.isArray(v) && v.length > 0) {
 					or = [];
 					for (j=0;j<v.length;j++) {
 						var ov = v[j];
@@ -229,29 +229,47 @@ define([
 			}
 		}
 
-		array.forEach(this.properties, function(prop) {
-			var obj =  prop.object;
-			var key = "metadata.predicate." + prop.nodetype + "."+prop.md5;
-			if (lang.isString(obj)) {
-				if (prop.modifier === true || prop.modifier === "not") {
-					and.push("NOT("+ key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:"))+")");
-				} else {
-					and.push(key + ":"+encodeURIComponent(obj.replace(/:/g,"\\:")));
-				}
-			} else if (lang.isArray(obj)) {
-				var or = [];
-				array.forEach(obj, function(o) {
-					or.push(key + ":"+encodeURIComponent(o.replace(/:/g,"\\:")));
-				}, this);
-				if (prop.modifier === true || prop.modifier === "not") {
-					and.push("NOT("+or.join("+OR+")+")");
-				} else if (prop.modifier === "and") {
-					and.push("("+or.join("+AND+")+")");
-				} else {
-					and.push("("+or.join("+OR+")+")");
-				}
+		if (this.disjunctiveProperties) {
+      var or = [];
+      array.forEach(this.properties, function (prop) {
+        var obj = prop.object;
+        var key = "metadata.predicate." + prop.nodetype + "." + prop.md5;
+        if (lang.isString(obj)) {
+          or.push(key + ":" + encodeURIComponent(obj.replace(/:/g, "\\:")));
+        } else if (lang.isArray(obj) && obj.length > 0) {
+          array.forEach(obj, function (o) {
+            or.push(key + ":" + encodeURIComponent(o.replace(/:/g, "\\:")));
+          });
+        }
+      });
+      if (or.length > 0) {
+        and.push("(" + or.join("+OR+") + ")");
 			}
-		}, this);
+    } else {
+      array.forEach(this.properties, function (prop) {
+        var obj = prop.object;
+        var key = "metadata.predicate." + prop.nodetype + "." + prop.md5;
+        if (lang.isString(obj)) {
+          if (prop.modifier === true || prop.modifier === "not") {
+            and.push("NOT(" + key + ":" + encodeURIComponent(obj.replace(/:/g, "\\:")) + ")");
+          } else {
+            and.push(key + ":" + encodeURIComponent(obj.replace(/:/g, "\\:")));
+          }
+        } else if (lang.isArray(obj) && obj.length > 0) {
+          var or = [];
+          array.forEach(obj, function (o) {
+            or.push(key + ":" + encodeURIComponent(o.replace(/:/g, "\\:")));
+          }, this);
+          if (prop.modifier === true || prop.modifier === "not") {
+            and.push("NOT(" + or.join("+OR+") + ")");
+          } else if (prop.modifier === "and") {
+            and.push("(" + or.join("+AND+") + ")");
+          } else {
+            and.push("(" + or.join("+OR+") + ")");
+          }
+        }
+      }, this);
+    }
 
 		var trail = "";
 		if (this._limit != null) {
@@ -293,7 +311,7 @@ define([
 	Solr.prototype.uriProperty = function(predicate, object, modifier) {
 		var key = md5(namespaces.expand(predicate)).substr(0, 8);
 		if (lang.isArray(object)) {
-			object = lang.map(object, function(o) {
+			object = array.map(object, function(o) {
 				return namespaces.expand(o);
 			});
 		} else {
@@ -307,6 +325,10 @@ define([
 		});
 		return this;
 	};
+
+	Solr.prototype.disjuntiveProperties = function () {
+		this.disjunctiveProperties = true;
+  };
 
 	/* We want to avoid writing new solr.title("...").type("...") and instead write:
      * solr.title("...").type("...")

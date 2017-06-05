@@ -56,7 +56,7 @@ define([
      */
     PrototypeEntry.prototype.getResource = function() {
         return this._resource;
-    }
+    };
 
     /**
      * Exposes the {@link store/EntryInfo#setACL setACL} method from {@link store/EntryInfo} on PrototypeEntry

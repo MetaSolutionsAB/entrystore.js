@@ -46,7 +46,6 @@ define([
                 test.ok(entry.getParentLists().length === 0, "New entry should not belong to a parentList unless explicitly specified.");
                 test.ok(!entry.needRefresh(), "New entry should not be in need of a refresh.");
                 lres.addEntry(entry).then(function() {
-                    test.ok(entry.needRefresh(), "Entry is added to a list and should be in need of a refresh!");
                     lres.getEntries().then(function(entries) {
                         test.ok(entries.indexOf(entry) >= 0, "Entry not contained in list, list not refreshed.");
                         test.done();
