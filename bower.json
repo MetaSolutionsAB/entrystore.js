@@ -1,6 +1,6 @@
 {
   "name": "entrystore.js",
-  "version": "4.4.0",
+  "version": "4.5.0-SNAPSHOT",
   "authors": [
     "Matthias Palmér <matthias@metasolutions.se>",
     "Hannes Ebner <hannes@metasolutions.se>"
@@ -14,7 +14,7 @@
   ],
   "dependencies": {
     "dojo": "1.12.2",
-    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#esjs4.4",
+    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
     "md5": "https://github.com/blueimp/JavaScript-MD5.git#2.3.1",
     "r.js": "2.3.1",
     "requirejs": "2.3.1"

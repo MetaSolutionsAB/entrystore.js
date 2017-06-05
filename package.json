@@ -1,6 +1,6 @@
 {
   "name": "store",
-  "version": "4.4.0",
+  "version": "4.5.0-SNAPSHOT",
   "main": "main",
   "dependencies": {
     "requirejs": "2.3.1",
