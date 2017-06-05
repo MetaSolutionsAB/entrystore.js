@@ -29,26 +29,6 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
                 test.ok(c.getId() === "1");
                 test.done();
             },
-            getContextList: function(test) {
-                var clist = es.getContextList();
-                clist.getEntries().then(function(entries) {
-                    test.ok(entries == null || entries.length === 0, "List of contexts should only be visible to admin.");
-                    test.done();
-                }, function() {
-                    test.ok(true);
-                    test.done();
-                });
-            },
-            getPrincipalList: function(test) {
-                var plist = es.getPrincipalList();
-                plist.getEntries().then(function(entries) {
-                    test.ok(entries == null || entries.length === 0, "List of principals should only be visible to admin.");
-                    test.done();
-                }, function() {
-                    test.ok(true);
-                    test.done();
-                });
-            }
         },
         withAdminLogin: {
             setUp: function(callback) {

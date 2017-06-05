@@ -132,8 +132,10 @@ define([
     };
 
     /**
-     * Adds an entry to this list, on success the entry will be marked as in need of a refresh.
-     * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
+     * Adds an entry to this list, on success the List entry will be returned (updated with
+     * latest modification date). The added entry will be marked as in need of a
+     * refresh due to stale inv-rel cache. However,since List entry is loaded it may be refreshed
+     * already when method is resolved, it depends if it is in the first page of the list.
      *
      * @param {store/Entry} entry - entry to add to the list.
      * @returns {xhrPromise}
@@ -150,9 +152,11 @@ define([
     };
 
     /**
-     * Removes an entry from this list, on success the entry will be marked as in need of a refresh.
-     * The reason is that its modification date and inverse relation cache will not be totally correct anymore.
-
+     * Removes an entry from this list, on success the List entry will be returned (updated with
+     * latest modification date). The removed entry will not be updated but marked as in need
+     * of a refresh due to stale inv-rel cache. However,since List entry is loaded it may be refreshed
+     * already when method is resolved, it depends if it is in the first page of the list.
+     *
      * @param {store/Entry} entry - entry to be removed from the list.
      * @returns {xhrPromise}
      */

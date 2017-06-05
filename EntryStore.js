@@ -341,7 +341,7 @@ define([
      * @return {store/List} - the list contains entries which have contexts as resources.
      */
     EntryStore.prototype.getContextList = function () {
-        return factory.getList(this, this._baseURI + "_contexts/entry/_all");
+        return this.newSolrQuery().graphType(types.GT_CONTEXT).list();
     };
 
     /**
@@ -350,7 +350,7 @@ define([
      * @todo May include folders and other entries as well...
      */
     EntryStore.prototype.getPrincipalList = function () {
-        return factory.getList(this, this._baseURI + "_principals/entry/_all");
+        return this.newSolrQuery().graphType([types.GT_USER, types.GT_GROUP]).list();
     };
 
     /**
