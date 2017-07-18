@@ -2,25 +2,29 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link href="style.css" rel="stylesheet"/>
-    <script src="../libs/requirejs/require.js"></script>
-</head>
-<body>
-<script type="text/javascript">
-    require(["./config"], function(config) {
-        require(['store/EntryStore',
-            'dojo/dom-construct',
-            'store/html',
-            'dojo/domReady!'             //Wait until the dom is ready.
-        ], function(EntryStore, construct, html) {
-            var es = new EntryStore();
-            es.getEntry(es.getEntryURI("1", "3")).then(function(entry) {
-                construct.place(html.print(entry), "_contentNode");
-            }, function(err) {
-                alert("Failure to load entry: " + err);
-            });
+    <script src="../release/all.js"></script>
+    <script>
+      require([
+        'store/samples/config',
+        'store/EntryStore',
+        'dojo/dom-construct',
+        'store/html',
+        'dojo/domReady!'             //Wait until the dom is ready.
+      ], function(config, EntryStore, construct, html) {
+        var es = new EntryStore(config.repository);
+        var entryURI = es.getEntryURI(config.contextId, config.entryId);
+        es.getEntry(entryURI).then(function(entry) {
+          construct.place(html.print(entry), "_contentNode");
+        }, function(err) {
+          construct.place("Failure to load entry: " + err, "_contentNode");
         });
-    });
-  </script>
-  <div id="_contentNode"></div>
-  </body>
+      });
+    </script>
+ </head>
+<body>
+<div>
+    <h1>View Entry</h1>
+    <div id="_contentNode"></div>
+</div>
+</body>
 </html>

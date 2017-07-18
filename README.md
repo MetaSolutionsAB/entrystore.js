@@ -23,16 +23,12 @@ Except that at this time we do not rely on es5 or a shim, hence we use dojos lan
 
 Run `cd build && ./build.sh`.
 
-The resulting build is located in `release` and the relevant files are:
-
-* `release/entrystore.js` (minified, without logging)
-* `release/entrystore.js.uncompressed.js` (readable, with logging)
-* `release/entrystore.js.consoleStripped.js` (readable, without logging)
+The resulting build is located in `release` and is called `all.js`.
 
 # Latest Build
 
-The latest build of EntryStore.js is always available from:
-[https://drone.io/bitbucket.org/metasolutions/entrystore.js/files](https://drone.io/bitbucket.org/metasolutions/entrystore.js/files)
+You can also load the latest stable build of EntryStore.js from:
+[http://entrystore.org/js/stable/](http://entrystore.org/js/stable/)
 
 # Getting started with the API
 
@@ -42,7 +38,7 @@ Lets do three examples for getting an idea of how to use the API.
 We start by walking through a complete example for loading an existing entry from an EntryStore repository. First we need to load the
 Entrystore.js library, i.e.:
 
-      <script src="../release/entrystore.js"></script>
+      <script src="../release/all.js"></script>
 
 Second we need to load the part of the API we need, as the EntryStore.js uses the AMD approach you use the require method for this:
 
@@ -63,10 +59,9 @@ CORS and / or hidden iframes to overcome various browser limitations.)
 
 Fourth, we need to construct a URI for the entry to fetch:
 
-    var entryURI = es.getEntryURI("1", "_top")
+    var entryURI = es.getEntryURI("1", "5")
 
-Here we are assuming there is a contextId "1" and a entryId "_top" in the referred to repository, this is always the case if you
-are connecting to an in-memory test installation where some test-suite of data is made available by default, change accordingly otherwise.
+Here we are assuming there is a contextId "1" and a entryId "5" in the referred to repository. For in-memory test installation with the test-suite installed these ids exists by default, change accordingly otherwise.
 
 Fifth, we need to load the entry and wait for the result using the Promise approach (the .then method).
 
@@ -79,13 +74,13 @@ Finally we want to do something with the loaded entry. In this example we just f
 
 All taken together and packaged into a minimal HTML file the example looks like the following:
 
-    //See file in trunk/samples/loadEntry-build.html
+    //See file in trunk/samples/loadEntry-dev.html
     <html><body>
-      <script src="../release/entrystore.js"></script>
+      <script src="../release/all.js"></script>
       <script type="text/javascript">
           require(['store/EntryStore'], function(EntryStore) {
               var es = new EntryStore();
-              var entryURI = es.getEntryURI("1", "_top");
+              var entryURI = es.getEntryURI("1", "5");
               es.getEntry(entryURI).then(function(entry) {
                   alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "dcterms:title"));
               }, function(err) {
@@ -95,7 +90,7 @@ All taken together and packaged into a minimal HTML file the example looks like 
       </script>
     </body></html>
 
-See trunk/samples/loadEntry-build.html, but there is also a version that works directly with the non-built code, see trunk/samples/loadEntry.html
+See trunk/samples/loadEntry-dev.html, but there is also a version that works directly with the built code, see trunk/samples/loadEntry.html
 
 ## Creating an entry
 To create an entry we need to first authenticate and get a hold of the specific context we want to create the entry in:
@@ -111,7 +106,7 @@ To create an entry involves two steps, first we initiate a new entry by calling 
        //Potentially do something further with the created entry.
     });
 
-Taken together the example, looks like (full code in trunk/samples/createEntry-build.html and strip the -build to get the version running against the non-built code):
+Taken together the example, looks like (full code in trunk/samples/createEntry.html):
 
     es.getAuth().login("donald", "donalddonald").then(function() {
        var c = es.getContextById("1");

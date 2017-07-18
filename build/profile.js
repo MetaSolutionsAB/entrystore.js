@@ -1,12 +1,12 @@
 ({
     mainConfigFile: "../config/deps.js",
-    include: ['requireLib', "config/deps"],
+    include: ['requireLib','config/deps'],
     dir: "../release/",
-    baseUrl: "../libs", //Relative to build directory (not relative the html files).
+    baseUrl: "../libs", //Relative to build directory
     name: "all",
     create: true,
     optimize: "uglify", //"none",
-    optimizeCss: "standard",
+    optimizeCss: "none",
     locale: "en",
     extraLocale: ["sv"],
     skipDirOptimize: true,

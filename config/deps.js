@@ -1,4 +1,5 @@
 require.config({
+    baseUrl: "../libs",
     paths: {
         "store": "..",
         "requireLib": "requirejs/require",
@@ -8,15 +9,19 @@ require.config({
     },
     map: {
         "store/rest": {
-            "dojo/request": "dojo/request/xhr", //Force using xhr since we know we are in the browser
-            "dojo/request/iframe": "dojo/request/iframe" //Override above line for iframe path.
+            //Force using xhr since we know we are in the browser
+            "dojo/request": "dojo/request/xhr",
+            //Override above line for paths to iframe and script.
+            "dojo/request/iframe": "dojo/request/iframe",
+            'dojo/request/script': 'dojo/request/script'
         }
     },
     deps: [
         "store/EntryStore",
         "dojo/_base/window",
-        "dojo/request/iframe",
         "dojo/request/xhr",
+        "dojo/request/iframe",
+        "dojo/request/script",
         "dojo/promise/all"
     ]
 });
