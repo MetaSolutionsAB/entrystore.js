@@ -180,7 +180,18 @@ define([
 			var d = new Deferred();
 			rest.post(uri, data).response.then(function(response) {
 				var location = response.getHeader('Location');
-				d.resolve(location);
+				//In some weird cases, like when making requests from file:///
+        // we do not have access to headers.
+				if (!location && response.data) {
+				  var idx = uri.indexOf("?");
+				  if (idx !== -1) {
+            location = uri.substr(0, uri.indexOf("?"));
+          } else {
+				    location = uri;
+          }
+          location += "/entry/"+JSON.parse(response.data).entryId;
+        }
+        d.resolve(location);
 			},function(err) {
                 d.reject(err);
 			});
