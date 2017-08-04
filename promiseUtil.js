@@ -39,7 +39,7 @@ define([
             cursor = function(result) {
                 results.push(result);
                 if (arr.length > 0) {
-                    return func(arr.pop()).then(cursor, onFailure);
+                    return func(arr.shift()).then(cursor, onFailure);
                 } else {
                     d.resolve(results);
                 }
@@ -47,7 +47,7 @@ define([
             if (arr.length === 0) {
                 d.resolve(results);
             } else {
-                func(arr.pop()).then(cursor, onFailure);
+                func(arr.shift()).then(cursor, onFailure);
             }
         } else if (typeof items === "object") {
             arr = [];
@@ -62,7 +62,7 @@ define([
             };
             cursor = function() {
                 if (arr.length > 0) {
-                    itemKey = arr.pop();
+                    itemKey = arr.shift();
                     func(items[itemKey]).then(onSuccess, onFailure);
                 } else {
                     d.resolve(items);
@@ -97,7 +97,7 @@ define([
             };
             cursor = function() {
                 if (arr.length > 0) {
-                    return func(arr.pop()).then(onSucc, cursor);
+                    return func(arr.shift()).then(onSucc, cursor);
                 } else {
                     var d = new Deferred();
                     d.resolve(success);
@@ -124,7 +124,7 @@ define([
             };
             cursor = function() {
                 if (arr.length > 0) {
-                    return func(arr.pop()).then(onSucc, onErr);
+                    return func(arr.shift()).then(onSucc, onErr);
                 } else {
                     var d = new Deferred();
                     if (res)
