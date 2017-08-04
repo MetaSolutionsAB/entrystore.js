@@ -137,6 +137,7 @@ define([
         var stmt = this._graph.add(this._resourceURI, terms.pipeline.transform);
         var id = stmt.getValue();
         this.setTransformType(id, type);
+        this.setPriority(id, priority+1);
         this.setTransformArguments(id, args);
         return id;
     };
