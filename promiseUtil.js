@@ -14,7 +14,6 @@ define([
      */
     var promiseUtil = exports;
 
-
     /**
      * Asynchronous forEach relying on promises that works in serial rather than parallell.
      * It invokes a function on each item only after the promise from the previous item
@@ -39,7 +38,7 @@ define([
             cursor = function(result) {
                 results.push(result);
                 if (arr.length > 0) {
-                    return func(arr.shift()).then(cursor, onFailure);
+                    return promiseUtil.toPromise(func(arr.shift())).then(cursor, onFailure);
                 } else {
                     d.resolve(results);
                 }
@@ -47,7 +46,7 @@ define([
             if (arr.length === 0) {
                 d.resolve(results);
             } else {
-                func(arr.shift()).then(cursor, onFailure);
+              promiseUtil.toPromise(func(arr.shift())).then(cursor, onFailure);
             }
         } else if (typeof items === "object") {
             arr = [];
@@ -63,7 +62,7 @@ define([
             cursor = function() {
                 if (arr.length > 0) {
                     itemKey = arr.shift();
-                    func(items[itemKey]).then(onSuccess, onFailure);
+                    promiseUtil.toPromise(func(items[itemKey])).then(onSuccess, onFailure);
                 } else {
                     d.resolve(items);
                 }
@@ -71,6 +70,27 @@ define([
             cursor();
         }
         return d;
+    };
+
+    /**
+     * Makes sure a value is a promise, if needed wraps it as a promise.
+     * If the value the false boolean it is interpreted as a reject.
+     *
+     * @param value the value to wrap in a promise, if it already is a promise it is returned.
+     * @return {Promise}
+     */
+    promiseUtil.toPromise = function(value) {
+        if (typeof value === "object" && typeof value.then === "function") {
+            return value;
+        } else {
+            var d = new Deferred();
+            if (value === false) {
+                d.reject(value);
+            } else {
+                d.resolve(value);
+            }
+            return d;
+        }
     };
 
     /**
