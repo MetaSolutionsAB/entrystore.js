@@ -1,11 +1,17 @@
 require([
     'dojo/_base/array',
-    'tests/config'
-], function (array, config) {
+    'dojo/has',
+  'tests/config'
+], function (array, has, config) {
 
     var deps = array.map(config.tests, function(cls) {
         return "store/tests/"+cls;
     });
+    if (!has("host-browser") && config.nodeTests) {
+        array.forEach(config.nodeTests, function(cls) {
+          deps.push("store/tests/"+cls);
+        });
+    }
     require(deps, function() {
         var testClasses = Array.prototype.slice.call(arguments, 0);
         var nuConf = {};
