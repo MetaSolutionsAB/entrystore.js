@@ -254,19 +254,20 @@ define([
          * Put a file to a URI.
          * In a browser environment a file is represented via an input tag which references
          * the file to be uploaded via its value attribute.
-         * In non-browser environments the file is typically represented as a file handle.
+         * In node environments the file is represented as a stream constructed via
+         * fs.createReadStream('file.txt').
          *
          * > _**Under the hood** the tag is moved into a form in an invisible iframe
          * which then is submitted. If there is a response it is provided in a textarea which
          * can be looked into since we are on the same domain._
          *
          * @param {string} uri the URI to which we will put the file.
-         * @param {data} data - input tag or file handle that corresponds to a file.
-         * @param {string} handleAs the format to handle the response as, either text, xml, html or json (json is default).
-         * @todo implement in non-browser environment.
+         * @param {data} data - input tag or stream that may for instance correspond to a file
+         * in a nodejs setting.
          */
-        putFile: function(uri, data, handleAs) {
-            throw "Currently not supported in a non-browser environment!";
+        putFile: function(uri, data, format) {
+            return rest.put(uri, data, null, format);
+//            throw "Currently not supported in a non-browser environment!";
         }
 	};
 	if (has("host-browser")) {
@@ -275,7 +276,7 @@ define([
 			"dojo/request/iframe"
 			], function(win, iframe) {
 
-				rest.putFile = function(uri, data, handleAs) {
+				rest.putFile = function(uri, data) {
                     if(!data.value){ return; }
                     var _newForm;
                     if(has("ie")){
@@ -305,7 +306,7 @@ define([
 
                     return iframe(uri, {
                             preventCache: true,
-                            handleAs: handleAs || "json",
+                            handleAs: "json",
                             form: _newForm
                         }).then(function(res) {
                             cleanUp();

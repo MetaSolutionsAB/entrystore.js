@@ -36,29 +36,30 @@ define([
      * During the uploading process the input tag will be moved temporarily in the DOM tree, it will be
      * restored to its original position afterwards (both upon success and failure).
      *
-     * In non-browser environments the file is typically represented as a file handle.
+     * In a nodejs environments the file is leveraged as a stream, i.e.:
+     * res.putFile(fs.createReadStream('file.txt'));
      *
-     * @param {node|fileHandle} data - input tag or file handle that corresponds to a file, .
-     * @todo implement in non-browser environment and for xml.
+     * @param {node|fileHandle} data - input tag or file handle that corresponds to a file.
+     * @param {text} format - indicates the mimetype of the data
      * @todo fix-if-modified-since
-     * @todo fix xml
      * @returns {xhrPromise}
      */
-    File.prototype.putFile = function(data) {
+    File.prototype.putFile = function(data, format) {
+        var url;
         if (has("host-browser") && data instanceof Node) {
-            if (data.name == null || data.name === "") {
-                throw "Failure, cannot upload resource from input element unless a name attribute is provided.";
-            }
-            var url = factory.getPutFileURI(this.getResourceURI()),
-                entry = this.getEntry(true), es = this.getEntryStore();
+          if (data.name == null || data.name === "") {
+            throw "Failure, cannot upload resource from input element unless a name attribute is provided.";
+          }
+          url = factory.getPutFileURI(this.getResourceURI());
+        } else {
+          url = this.getResourceURI();
+        }
+        entry = this.getEntry(true), es = this.getEntryStore();
             var markRefreshed = function(res) {
                 entry.setRefreshNeeded();
                 return res;
             };
-            return es.handleAsync(es.getREST().putFile(url, data).then(markRefreshed), "putFile");
-        } else {
-            //TODO file handle
-        }
+            return es.handleAsync(es.getREST().putFile(url, data, format).then(markRefreshed), "putFile");
     };
 
     /**

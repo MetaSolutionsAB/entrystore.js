@@ -2,8 +2,9 @@ define([
     'dojo/_base/lang',
     'dojo/has',
     'store/EntryStore',
-    'tests/config'
-], function(lang, has, EntryStore, config) {
+    'tests/config',
+    'dojo/node!fs',
+], function(lang, has, EntryStore, config, fs) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
@@ -38,6 +39,25 @@ define([
             }, function () {
                 test.ok(false, "Something went wrong when creating a File entry with JSON content.");
             });
+        },
+        uploadFile: function(test) {
+          c.newEntry().commit().then(function (entry) {
+            var r = entry.getResource(true);
+            return r.putFile(fs.createReadStream('./test.jpg'), 'image/jpg').then(function () {
+                entry.setRefreshNeeded(true);
+                return entry.refresh().then(function () {
+                  test.ok(entry.getEntryInfo().getFormat() === "image/jpg",
+                    "Mimetype is not image/jpg it should.");
+                  test.ok(entry.getEntryInfo().getSize() > 0, "Binary size is 0.");
+                  return r.get().then(function (data) {
+                    test.ok(data.length > 0, "Test image is empty.");
+                    test.done();
+                  });
+                });
+              });
+          }, function () {
+            test.ok(false, "Something went wrong when uploading a jpg-file.");
+          });
         },
         createTextFile: function(test) {
             c.newEntry().commit().then(function (entry) {
