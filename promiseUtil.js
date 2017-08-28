@@ -80,7 +80,7 @@ define([
      * @return {Promise}
      */
     promiseUtil.toPromise = function(value) {
-        if (typeof value === "object" && typeof value.then === "function") {
+        if (typeof value === "object" && value !== null && typeof value.then === "function") {
             return value;
         } else {
             var d = new Deferred();
