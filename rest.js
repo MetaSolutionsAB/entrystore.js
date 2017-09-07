@@ -264,6 +264,7 @@ define([
          * @param {string} uri the URI to which we will put the file.
          * @param {data} data - input tag or stream that may for instance correspond to a file
          * in a nodejs setting.
+         * @param {string} format the format to handle the response as, either text, xml, html or json (json is default).
          */
         putFile: function(uri, data, format) {
             return rest.put(uri, data, null, format);
@@ -276,7 +277,7 @@ define([
 			"dojo/request/iframe"
 			], function(win, iframe) {
 
-				rest.putFile = function(uri, data) {
+				rest.putFile = function(uri, data, format) {
                     if(!data.value){ return; }
                     var _newForm;
                     if(has("ie")){
@@ -306,7 +307,7 @@ define([
 
                     return iframe(uri, {
                             preventCache: true,
-                            handleAs: "json",
+                            handleAs: format || "json",
                             form: _newForm
                         }).then(function(res) {
                             cleanUp();
