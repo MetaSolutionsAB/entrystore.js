@@ -46,20 +46,26 @@ define([
 
     /**
      * Pushes the entry information to the repository, e.g. posts to basepath/store/{contextId}/entry/{entryId}
+		 * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+		 * if information is stale, also it will not automatically refresh with the latest date
      * @returns {entryInfoPromise}
      */
-	EntryInfo.prototype.commit = function() {
+	EntryInfo.prototype.commit = function(ignoreIfUnmodifiedSinceCheck) {
 		var d = new Deferred(), self = this, es = this._entry.getEntryStore();
-		var mod = this.getModificationDate();
+		var mod = ignoreIfUnmodifiedSinceCheck === true ? undefined : this.getModificationDate();
 		es.getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON()), mod).then(function() {
-			self._entry.setRefreshNeeded(true);
-			self._entry.refresh().then(function() {
+			if (ignoreIfUnmodifiedSinceCheck !== true) {
+				self._entry.setRefreshNeeded(true);
+				self._entry.refresh().then(function () {
+					d.resolve(self);
+				}, function () {
+					//Failed refreshing, but succeded at saving metadata, at least send out message that it needs to be refreshed.
+					es.getCache().message("refreshed", self);
+					d.resolve(self);
+        });
+			} else {
 				d.resolve(self);
-			}, function() {
-				//Failed refreshing, but succeded at saving metadata, at least send out message that it needs to be refreshed.
-				es.getCache().message("refreshed", self);
-				d.resolve(self);
-			});
+			}
 		}, function(err) {
 			d.reject(err);
 		});
