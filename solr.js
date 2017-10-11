@@ -269,7 +269,7 @@ define([
           }
         }
       }, this);
-    }
+    };
 
 		var trail = "";
 		if (this._limit != null) {
@@ -281,12 +281,19 @@ define([
 		if (this._sort) {
 			trail = trail + "&sort=" + (this._sort || "score+asc");
 		}
-		
+		if (this.facets) {
+			trail += "&facetFields=" + (this.facets.join(","));
+		}
 		return entryStore.getBaseURI()+"search?type=solr&query="+and.join("+AND+")+trail;
 	};
 
+	var shorten = function(predicate) {
+    return md5(namespaces.expand(predicate)).substr(0, 8);
+	};
+	Solr.prototype.shorten = shorten;
+
 	Solr.prototype.integerProperty = function(predicate, object, modifier) {
-		var key = md5(namespaces.expand(predicate)).substr(0, 8);
+		var key = shorten(predicate);
 		this.properties.push({
 			md5: key,
 			object: object,
@@ -298,7 +305,7 @@ define([
 
 
 	Solr.prototype.literalProperty = function(predicate, object, modifier) {
-		var key = md5(namespaces.expand(predicate)).substr(0, 8);
+		var key = shorten(predicate);
 		this.properties.push({
 			md5: key,
 			object: object,
@@ -309,7 +316,7 @@ define([
 	};
 
 	Solr.prototype.uriProperty = function(predicate, object, modifier) {
-		var key = md5(namespaces.expand(predicate)).substr(0, 8);
+		var key = shorten(predicate);
 		if (lang.isArray(object)) {
 			object = array.map(object, function(o) {
 				return namespaces.expand(o);
@@ -330,7 +337,31 @@ define([
 		this.disjunctiveProperties = true;
   };
 
-	/* We want to avoid writing new solr.title("...").type("...") and instead write:
+  Solr.prototype.facet = function(facet, predicate) {
+    this.facets = this.facets || [];
+    if (predicate) {
+    	this.facet2predicate = this.facet2predicate || {};
+    	this.facet2predicate[facet] = namespaces.expand(predicate);
+		}
+    this.facets.push(facet);
+    return this;
+  };
+
+  Solr.prototype.literalFacet = function(predicate) {
+		this.facet("metadata.predicate.literal_s."+shorten(predicate), predicate);
+		return this;
+	};
+
+  Solr.prototype.uriFacet = function(predicate) {
+    this.facet("metadata.predicate.uri."+shorten(predicate), predicate);
+    return this;
+  };
+
+  Solr.prototype.integerFacet = function(predicate) {
+    this.facet("metadata.predicate.integer."+shorten(predicate), predicate);
+    return this;
+  };
+ 	/* We want to avoid writing new solr.title("...").type("...") and instead write:
      * solr.title("...").type("...")
      *
      * To achieve this we need to fiddle with the return value (solr).
@@ -340,7 +371,7 @@ define([
      * solr.wrappedMethodCall(...).originalMethodCall1().originalMethodCall2() and so on.
      */
     var solr = {Solr: Solr};
-	var transferMethods = methods.concat(["limit", "getLimit", "offset", "sort", "context", "title_lang", "literalProperty", "uriProperty"]);
+	var transferMethods = methods.concat(["limit", "getLimit", "offset", "sort", "context", "title_lang", "literalProperty", "uriProperty", "shorten", "facet", "uriFacet", "literalFacet", "integerFacet"]);
     array.map(transferMethods, function(method) {
     	solr[method] = function(val, not) {
     		var solr_instance = new Solr();
