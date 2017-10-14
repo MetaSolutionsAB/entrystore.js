@@ -4,6 +4,11 @@
   "main": "main",
   "dependencies": {
     "requirejs": "2.3.1",
+    "rdfjson": "git+https://bitbucket.org/metasolutions/rdfjson.git#develop",
+    "blueimp-md5": "git+https://github.com/blueimp/JavaScript-MD5.git#v2.3.1",
+    "dojo": "1.12.2"
+  },
+  "devDependencies": {
     "jaguarjs-jsdoc": "0.0.1",
     "nodeunit": "~0.8.6"
   },
