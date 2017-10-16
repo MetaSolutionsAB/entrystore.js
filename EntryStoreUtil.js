@@ -1,30 +1,22 @@
-/*global define*/
-
-define([
-    "dojo/_base/lang",
-    "dojo/_base/array",
-    "dojo/Deferred",
-    "rdfjson/namespaces",
-    "store/solr"
-], function (lang, array, Deferred, namespaces, solr) {
-
-    /**
-     * EntryStoreUtil provides utility functionality for working with entries.
-     * @param {store/EntryStore} entrystore
-     * @exports store/EntryStoreUtil
-     * @class
-     */
-    var EntryStoreUtil = function (entrystore) {
-        this._entrystore = entrystore;
-        this._preloadIdx = {};
-    };
+define([], () =>
+  /**
+   * EntryStoreUtil provides utility functionality for working with entries.
+   * @param {store/EntryStore} entrystore
+   * @exports store/EntryStoreUtil
+   * @class
+   */
+  class {
+    constructor(entrystore) {
+      this._entrystore = entrystore;
+      this._preloadIdx = {};
+    }
 
     /**
      * @returns {store/EntryStore}
      */
-    EntryStoreUtil.prototype.getEntryStore = function() {
-        return this._entrystore;
-    };
+    getEntryStore() {
+      return this._entrystore;
+    }
 
     /**
      * Preload entries of a specific type.
@@ -35,47 +27,49 @@ define([
      * @param {store/context} inContext if provided limits the preload to a specific context.
      * @returns {store/Entry}
      */
-    EntryStoreUtil.prototype.preloadEntries = function(ofType, inContext) {
-        var preloadForType = this._preloadIdx[ofType];
-        if (preloadForType) {
-            if (inContext) {
-                var promise = preloadForType[inContext.getEntryURI()];
-                if (promise) {
-                    return promise;
-                }
-            } else if (preloadForType.noContext) {
-                return preloadForType.noContext;
-            }
-        } else {
-            preloadForType = this._preloadIdx[ofType] = {};
-        }
-
-        var searchObj = solr.resourceType(ofType).limit(100);
+    preloadEntries(ofType, inContext) {
+      let preloadForType = this._preloadIdx[ofType];
+      let promise;
+      if (preloadForType) {
         if (inContext) {
-            searchObj.context(inContext);
+          promise = preloadForType[inContext.getEntryURI()];
+          if (promise) {
+            return promise;
+          }
+        } else if (preloadForType.noContext) {
+          return preloadForType.noContext;
         }
-        var list = this._entrystore.createSearchList(searchObj);
-        var promise = list.getEntries(0);
-        if (inContext) {
-            preloadForType[inContext.getEntryURI()] = promise;
-        } else {
-            preloadForType.noContext = promise;
-        }
-        return promise;
-    };
+      } else {
+        preloadForType = {};
+        this._preloadIdx[ofType] = preloadForType;
+      }
 
-    EntryStoreUtil.prototype.clearPreloadEntriesDuplicateCheck = function(ofType, inContext) {
-        if (ofType) {
-            var preloadForType = this._preloadIdx[ofType];
-            if (preloadForType && inContext) {
-                delete preloadForType[inContext.getEntryURI()];
-            } else {
-                delete this._preloadIdx[ofType];
-            }
+      const searchObj = this._entrystore.newSolrQuery().resourceType(ofType).limit(100);
+      if (inContext) {
+        searchObj.context(inContext);
+      }
+      const list = searchObj.list();
+      promise = list.getEntries(0);
+      if (inContext) {
+        preloadForType[inContext.getEntryURI()] = promise;
+      } else {
+        preloadForType.noContext = promise;
+      }
+      return promise;
+    }
+
+    clearPreloadEntriesDuplicateCheck(ofType, inContext) {
+      if (ofType) {
+        const preloadForType = this._preloadIdx[ofType];
+        if (preloadForType && inContext) {
+          delete preloadForType[inContext.getEntryURI()];
         } else {
-            this._preloadIdx = {};
+          delete this._preloadIdx[ofType];
         }
-    };
+      } else {
+        this._preloadIdx = {};
+      }
+    }
 
     /**
      * Retrieves an entry for a resource URI, note that if there are several entries that all
@@ -87,40 +81,34 @@ define([
      * @param {string} asyncCallType the callType used when making the search.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByResourceURI = function(resourceURI, context, asyncCallType) {
-        var cache = this._entrystore.getCache();
-        var entryArr = cache.getByResourceURI(resourceURI);
-        if (context) {
-            entryArr = array.filter(entryArr, function(e) {
-                return e.getContext().getId() === context.getId();
-            });
+    getEntryByResourceURI(resourceURI, context, asyncCallType) {
+      const cache = this._entrystore.getCache();
+      let entryArr = cache.getByResourceURI(resourceURI);
+      if (context) {
+        entryArr = entryArr.filter(e => e.getContext().getId() === context.getId());
+      }
+      if (entryArr.length > 0) {
+        return Promise.resolve(entryArr[0]);
+      }
+      const query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
+      if (context) {
+        query.context(context);
+      }
+      return query.list(asyncCallType).getEntries(0).then((arr) => {
+        if (arr.length > 0) {
+          return arr[0];
         }
-        if (entryArr.length > 0) {
-            var d = new Deferred();
-            d.resolve(entryArr[0]);
-            return d;
-        } else {
-            var query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
-            if (context) {
-                query.context(context);
-            }
-            return query.list(asyncCallType).getEntries(0).then(function(arr) {
-                if (arr.length > 0) {
-                    return arr[0];
-                } else {
-                    throw "No entries for resource with URI: "+resourceURI;
-                }
-            });
-        }
-    };
+        throw new Error(`No entries for resource with URI: ${resourceURI}`);
+      });
+    }
 
     /**
      * @param {string} resourceURI is the URI for the resource.
      * @returns {store/Entry}
      */
-    EntryStoreUtil.prototype.getEntryListByResourceURI = function(resourceURI) {
-        return this._entrystore.createSearchList(solr.resource(resourceURI));
-    };
+    getEntryListByResourceURI(resourceURI) {
+      return this._entrystore.newSolrQuery().resource(resourceURI).list();
+    }
 
     /**
      * Attempting to find a unique entry for a specific type,
@@ -132,45 +120,46 @@ define([
      * @param {string} asyncCallType the callType used when making the search.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByType = function(typeURI, context, asyncCallType) {
-        var query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
-        if (context) {
-            query.context(context);
+    getEntryByType(typeURI, context, asyncCallType) {
+      const query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
+      if (context) {
+        query.context(context);
+      }
+      return query.list(asyncCallType).getEntries(0).then((entryArr) => {
+        if (entryArr.length === 1) {
+          return entryArr[0];
         }
-        return query.list(asyncCallType).getEntries(0).then(function(entryArr) {
-            if (entryArr.length === 1) {
-                return entryArr[0];
-            }
-            throw "Wrong number of entrys in context / repository";
-        });
-    };
+        throw new Error('Wrong number of entrys in context / repository');
+      });
+    }
 
     /**
      * Attempting to find one entry for a specific graph type,
      * if multiple entries exists with the same type the returned promise fails.
      * You may restrict to a specific context.
      *
-     * @param {string} graphType is the graph type for the entry to match, e.g. use {@see store/types#GT_USER}.
+     * @param {string} graphType is the graph type for the entry to match, e.g. use
+     * {@see store/types#GT_USER}.
      * @param {store/Context} context restrict to finding the entry in this context
      * @param {string} asyncCallType the callType used when making the search.
      * @returns {entryPromise}
      */
-    EntryStoreUtil.prototype.getEntryByGraphType = function(graphType, context, asyncCallType) {
-        var query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
-        if (context) {
-            query.context(context);
+    getEntryByGraphType(graphType, context, asyncCallType) {
+      const query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
+      if (context) {
+        query.context(context);
+      }
+      return query.list(asyncCallType).getEntries(0).then((entryArr) => {
+        if (entryArr.length > 0) {
+          return entryArr[0];
         }
-        return query.list(asyncCallType).getEntries(0).then(function(entryArr) {
-            if (entryArr.length > 0) {
-                return entryArr[0];
-            }
-            if (context) {
-                throw "No entrys in context with graphType "+graphType;
-            } else {
-                throw "No entrys in repository with graphType "+graphType;
-            }
-        });
-    };
+        if (context) {
+          throw new Error(`No entrys in context with graphType ${graphType}`);
+        } else {
+          throw new Error(`No entrys in repository with graphType ${graphType}`);
+        }
+      });
+    }
 
     /**
      * Removes all entries matched by a search in a serial manner,
@@ -183,29 +172,27 @@ define([
      * @param {store/SearchList} list
      * @returns {successOrFailPromise}
      */
-    EntryStoreUtil.prototype.removeAll = function(list) {
-        var uris = [], es = this._entrystore,
-            cache = es.getCache(),
-            rest = es.getREST(),
-            f = function() {
-                if (uris.length > 0) {
-                    var uri = uris.pop();
-                    return rest.del(uri).then(f, function(err) {
-                        console.log("Could not remove entry with uri: "+uri+ " continuing anyway.");
-                        return f();
-                    });
-                }
-            };
-        return list.forEach(function(entry) {
-            uris.push(entry.getURI());
-            cache.unCache(entry);
-        }).then(function() {
+    removeAll(list) {
+      const uris = [];
+      const es = this._entrystore;
+      const cache = es.getCache();
+      const rest = es.getREST();
+      const f = () => {
+        if (uris.length > 0) {
+          const uri = uris.pop();
+          return rest.del(uri).then(f, () => {
+            console.log(`Could not remove entry with uri: ${uri} continuing anyway.`);
             return f();
-        });
-    };
-
-    return EntryStoreUtil;
-});
+          });
+        }
+        return undefined;
+      };
+      return list.forEach((entry) => {
+        uris.push(entry.getURI());
+        cache.unCache(entry);
+      }).then(() => f());
+    }
+  });
 
 /**
  * @name successOrFailPromise

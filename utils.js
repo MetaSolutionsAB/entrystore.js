@@ -1,77 +1,69 @@
-/*global define*/
 define([
-    "exports",
-    "dojo/promise/all",
-    "dojo/_base/array"
-], function(exports, all, array) {
+  'exports',
+], (exports) => {
+  exports.getRelatedToEntryURIs = (fromEntry) => {
+    const es = fromEntry.getEntryStore();
+    const base = fromEntry.getEntryStore().getBaseURI();
+    const relatedEntryURIs = [];
+    fromEntry.getMetadata().find().forEach((stmt) => {
+      if (stmt.getType() === 'uri') {
+        const obj = stmt.getValue();
+        if (obj.indexOf(base) === 0) {
+          const uri = es.getEntryURI(es.getContextId(obj), es.getEntryId(obj));
+          relatedEntryURIs.push(uri);
+        }
+      }
+    });
+    return relatedEntryURIs;
+  };
 
-    exports.getRelatedToEntryURIs = function(fromEntry) {
-        var es = fromEntry.getEntryStore();
-        var base = fromEntry.getEntryStore().getBaseURI();
-        var relatedEntryURIs = [];
-        array.forEach(fromEntry.getMetadata().find(), function(stmt) {
-            if (stmt.getType() === "uri") {
-                var obj = stmt.getValue();
-                if (obj.indexOf(base) === 0) {
-                    var uri = es.getEntryURI(es.getContextId(obj), es.getEntryId(obj));
-                    relatedEntryURIs.push(uri);
-                }
-            }
-        });
-        return relatedEntryURIs;
-    };
+  exports.getRelatedToEntries = (fromEntry) => {
+    const es = fromEntry.getEntryStore();
+    return Promise.all(exports.getRelatedToEntryURIs(fromEntry).map(uri => es.getEntry(uri)));
+  };
 
-    exports.getRelatedToEntries = function(fromEntry) {
-        var es = fromEntry.getEntryStore();
-        return all(array.map(exports.getRelatedToEntryURIs(fromEntry), function(uri) {
-            return es.getEntry(uri);
-        }));
-    };
+  exports.remove = (entry) => {
+    const es = entry.getEntryStore();
+    const cache = es.getCache();
+    const refStmts = entry.getReferrersGraph().find();
+    const entryPromises = refStmts.map((stmt) => {
+      const subj = stmt.getSubject();
+      const euri = es.getEntryURI(es.getContextId(subj), es.getEntryId(subj));
+      return es.getEntry(euri);
+    });
+    return entry.del().then(() => Promise.all(entryPromises).then((arr) => {
+      const promises = refStmts.map((stmt, idx) => {
+        const md = arr[idx].getMetadata();
+        md.remove(stmt);
+        return arr[idx].commitMetadata();
+      });
+      const uris = exports.getRelatedToEntryURIs(entry);
+      uris.forEach((uri) => {
+        const e = cache.get(uri);
+        if (e != null) {
+          e.setRefreshNeeded();
+          promises.push(e.refresh());
+        }
+      });
+      return Promise.all(promises);
+    }));
+  };
 
-    exports.remove = function(entry) {
-        var es = entry.getEntryStore();
-        var cache = es.getCache();
-        var refStmts =  entry.getReferrersGraph().find();
-        var entryPromises = array.map(refStmts, function(stmt) {
-            var subj = stmt.getSubject();
-            var euri = es.getEntryURI(es.getContextId(subj), es.getEntryId(subj));
-            return es.getEntry(euri);
-        });
-        return entry.del().then(function() {
-            return all(entryPromises).then(function(arr) {
-                var promises = array.map(refStmts, function(stmt, idx) {
-                    var md = arr[idx].getMetadata();
-                    md.remove(stmt);
-                    return arr[idx].commitMetadata();
-                });
-                var uris = exports.getRelatedToEntryURIs(entry);
-                array.forEach(uris, function(uri) {
-                    var e = cache.get(uri);
-                    if (e != null) {
-                        e.setRefreshNeeded();
-                        promises.push(e.refresh());
-                    }
-                });
-                return all(promises);
-            });
-        });
-    };
+  exports.addRelation = (fromEntry, property, toEntry) => {
+    fromEntry.getMetadata().add(fromEntry.getResourceURI(), property, toEntry.getResourceURI());
+    return fromEntry.commitMetadata().then(() => {
+      toEntry.setRefreshNeeded();
+      return toEntry.refresh();
+    });
+  };
 
-    exports.addRelation = function(fromEntry, property, toEntry) {
-        fromEntry.getMetadata().add(fromEntry.getResourceURI(), property, toEntry.getResourceURI());
-        return fromEntry.commitMetadata().then(function() {
-            toEntry.setRefreshNeeded();
-            return toEntry.refresh();
-        });
-    };
+  exports.removeRelation = (fromEntry, property, toEntry) => {
+    fromEntry.getMetadata().remove(fromEntry.getResourceURI(), property, { type: 'uri', value: toEntry.getResourceURI() });
+    return fromEntry.commitMetadata().then(() => {
+      toEntry.setRefreshNeeded();
+      return toEntry.refresh();
+    });
+  };
 
-    exports.removeRelation = function(fromEntry, property, toEntry) {
-        fromEntry.getMetadata().remove(fromEntry.getResourceURI(), property, {type: "uri", value: toEntry.getResourceURI()});
-        return fromEntry.commitMetadata().then(function() {
-            toEntry.setRefreshNeeded();
-            return toEntry.refresh();
-        });
-    };
-
-    return exports;
+  return exports;
 });
