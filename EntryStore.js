@@ -436,9 +436,7 @@ define([
       if (name != null) {
         uri += `?name=${encodeURIComponent(name)}`;
       }
-      return this.handleAsync(this._rest.create(uri).then(lang.hitch(this, (location) => {
-        return this.getEntry(location);
-      })), 'createGroupAndContext');
+      return this.handleAsync(this._rest.create(uri).then(lang.hitch(this, location => this.getEntry(location))), 'createGroupAndContext');
     }
 
     /**
@@ -528,11 +526,9 @@ define([
      * it will be restored to its original position afterwards (both upon success and failure).
      *
      * @param {node} data - input element corresponding to the file to upload (echo).
-     * @param {string} handleAs the format to handle the response as, either text, xml, html or
-     * json (json is default).
      * @returns {xhrPromise}
      */
-    echoFile(data, handleAs) {
+    echoFile(data) {
       if (!(data instanceof Node)) {
         throw new Error('Argument needs to be an input element.');
       }
@@ -542,7 +538,16 @@ define([
       }
 
       return this.handleAsync(this.getREST().putFile(
-        `${this.getBaseURI()}echo`, data, handleAs), 'echoFile');
+        `${this.getBaseURI()}echo`, data, 'text').then((rawData) => {
+          const idx = rawData.indexOf('\n');
+          const status = parseInt(rawData.substr(0, idx).split(':')[1], 10);
+          if (status !== 200) {
+            const err = new Error(`HTTP status code: ${status}`);
+            err.status = status;
+            throw err;
+          }
+          return rawData.substr(idx + 1);
+        }), 'echoFile');
     }
 
     /**
