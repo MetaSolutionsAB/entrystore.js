@@ -639,6 +639,17 @@ define([
     }
 
     /**
+     *  To get status resource
+     *
+     * @param {string} uri
+     * @returns {Object}
+     */
+    getStatus() {
+      var uri = this._baseURI+"management/status?extended";
+      return this.handleAsync(this._rest.get(uri));
+    }
+
+    /**
      * The cache where all entries are cached after loading.
      *
      * @returns {store/Cache}
