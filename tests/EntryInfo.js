@@ -33,7 +33,7 @@ define([
                 test.ok(mo > yesterday && mo < tomorrow, "Modification date seems to be incorrect");
                 test.ok(mo >= cr, "Modification date should be same as creation date after first creation.");
                 entry.setMetadata(new Graph({"http://example.com": {"http://purl.org/dc/terms/title": [{value: "A title", type: "literal"}]}}))
-                    .commitMetadata().then(function() {
+                    .commitMetadata().then(function(entry) {
                         test.ok(ei.getModificationDate() > mo, "Modification date not changed after metadata was updated.");
                         test.done();
                     });

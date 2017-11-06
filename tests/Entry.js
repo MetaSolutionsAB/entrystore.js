@@ -256,7 +256,7 @@ define([
                 var uri = entry.getResourceURI();
                 entry.getMetadata().addL(uri, "dcterms:title", "title1");
                 entry.commitMetadata().then(function() {
-                    test.ok(entry.find(null, "dcterms:title").length === 1, "More than one title added, should not happen.");
+                    test.ok(entry.getMetadata().find(null, "dcterms:title").length === 1, "More than one title added, should not happen.");
                 });
 
                 //Manually set back the date of modification to force 412 status code.
