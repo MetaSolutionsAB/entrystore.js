@@ -3,7 +3,7 @@
   "version": "4.5.0-SNAPSHOT",
   "main": "main",
   "dependencies": {
-    "requirejs": "2.3.1",
+    "requirejs": "2.3.5",
     "rdfjson": "git+https://bitbucket.org/metasolutions/rdfjson.git#develop",
     "blueimp-md5": "git+https://github.com/blueimp/JavaScript-MD5.git#v2.3.1",
     "dojo": "1.12.2"

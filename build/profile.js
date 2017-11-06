@@ -2,7 +2,7 @@
     mainConfigFile: "../config/deps.js",
     include: ['requireLib','config/deps'],
     dir: "../release/",
-    baseUrl: "../libs", //Relative to build directory
+    baseUrl: "../node_modules", //Relative to build directory
     name: "all",
     create: true,
     optimize: "uglify", //"none",
