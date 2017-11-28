@@ -84,7 +84,16 @@ define([
                 });
             });
         },
-        linkEntry: function(test) {
+      updateMetadataViaPrototype: function(test) {
+        var pe = c.newEntry().commit().then(function(e1) {
+          return c.newEntry(e1.getId()).addL(dct + "title", "Some title2").commitMetadata();
+        }).then(() => {
+          test.done();
+        }, () => {
+          test.ok(false, "Failed to update metadata via prototypeentry and a given entryid");
+        });
+      },
+      linkEntry: function(test) {
             var uri = "http://example.com/";
             c.newLink(uri).commit().then(function(entry) {
                 test.ok(entry.isLink(), "Failed to create a link.");

@@ -210,7 +210,7 @@ define([
       if (format) {
         locHeaders['Content-Type'] = format;
       } else if (typeof data === 'object') {
-        locHeaders['Content-Type'] = format;
+        locHeaders['Content-Type'] = 'application/json';
       }
       return request.put(uri, {
         preventCache: true,
