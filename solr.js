@@ -158,7 +158,7 @@ define([
   };
 
   Solr.prototype.rdfType = function (rdfType) {
-    if (lang.isArray(rdfType)) {
+    if (Array.isArray(rdfType)) {
       this._rdfType = array.map(rdfType, t => namespaces.expand(t));
     } else {
       this._rdfType = namespaces.expand(rdfType);
@@ -226,7 +226,7 @@ define([
           } else {
             and.push(`${key}:${encodeURIComponent(v.replace(/:/g, '\\:'))}`);
           }
-        } else if (lang.isArray(v) && v.length > 0) {
+        } else if (Array.isArray(v) && v.length > 0) {
           const or = [];
           for (j = 0; j < v.length; j++) {
             const ov = v[j];
@@ -252,7 +252,7 @@ define([
         const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
         if (lang.isString(obj)) {
           or.push(`${key}:${encodeURIComponent(obj.replace(/:/g, '\\:'))}`);
-        } else if (lang.isArray(obj) && obj.length > 0) {
+        } else if (Array.isArray(obj) && obj.length > 0) {
           array.forEach(obj, (o) => {
             or.push(`${key}:${encodeURIComponent(o.replace(/:/g, '\\:'))}`);
           });
@@ -271,7 +271,7 @@ define([
           } else {
             and.push(`${key}:${encodeURIComponent(obj.replace(/:/g, '\\:'))}`);
           }
-        } else if (lang.isArray(obj) && obj.length > 0) {
+        } else if (Array.isArray(obj) && obj.length > 0) {
           const or = [];
           array.forEach(obj, (o) => {
             or.push(`${key}:${encodeURIComponent(o.replace(/:/g, '\\:'))}`);
@@ -331,16 +331,11 @@ define([
   };
 
   Solr.prototype.uriProperty = function (predicate, object, modifier) {
-    let _object = object;
     const key = shorten(predicate);
-    if (lang.isArray(_object)) {
-      _object = _object.map(o => namespaces.expand(o));
-    } else {
-      _object = namespaces.expand(_object);
-    }
+
     this.properties.push({
       md5: key,
-      _object,
+      object: Array.isArray(object) ? object.map(o => namespaces.expand(o)) : namespaces.expand(object),
       modifier,
       nodetype: 'uri',
     });
