@@ -84,7 +84,7 @@ define([
      * @param {string} format - the format to request as a mimetype.
      * @returns {xhrPromise}
      */
-    get(uri, format) {
+    get(uri, format, nonJSONP = false) {
       let _uri = uri;
       let locHeaders = headers;
       let handleAs = 'json';
@@ -104,7 +104,7 @@ define([
       }
 
       // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-      if (has('host-browser') && !sameOrigin(_uri)) {
+      if (has('host-browser') && !sameOrigin(_uri) && !nonJSONP) {
         return new Promise((resolve, reject) => {
           require(['dojo/request/script'], (script) => {
             const queryParameter = new RegExp('[?&]format=');
