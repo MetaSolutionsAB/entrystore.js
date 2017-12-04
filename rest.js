@@ -82,6 +82,7 @@ define([
      *
      * @param {string} uri - URI to a resource to fetch.
      * @param {string} format - the format to request as a mimetype.
+     * @param {boolean} nonJSONP - stop JSONP handling (default false)
      * @returns {xhrPromise}
      */
     get(uri, format, nonJSONP = false) {
