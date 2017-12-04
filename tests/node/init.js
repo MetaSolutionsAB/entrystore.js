@@ -4,7 +4,7 @@ requirejs = require("requirejs");
 
 requirejs.config({
     nodeRequire: require,
-    baseUrl: "../../libs",
+    baseUrl: "../../node_modules",
     deps: [
         "../../config/node-deps.js",
         'tests/config',

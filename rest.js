@@ -82,9 +82,10 @@ define([
      *
      * @param {string} uri - URI to a resource to fetch.
      * @param {string} format - the format to request as a mimetype.
+     * @param {boolean} nonJSONP - stop JSONP handling (default false)
      * @returns {xhrPromise}
      */
-    get(uri, format) {
+    get(uri, format, nonJSONP = false) {
       let _uri = uri;
       let locHeaders = headers;
       let handleAs = 'json';
@@ -104,7 +105,7 @@ define([
       }
 
       // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-      if (has('host-browser') && !sameOrigin(_uri)) {
+      if (has('host-browser') && !sameOrigin(_uri) && !nonJSONP) {
         return new Promise((resolve, reject) => {
           require(['dojo/request/script'], (script) => {
             const queryParameter = new RegExp('[?&]format=');
@@ -210,7 +211,7 @@ define([
       if (format) {
         locHeaders['Content-Type'] = format;
       } else if (typeof data === 'object') {
-        locHeaders['Content-Type'] = format;
+        locHeaders['Content-Type'] = 'application/json';
       }
       return request.put(uri, {
         preventCache: true,

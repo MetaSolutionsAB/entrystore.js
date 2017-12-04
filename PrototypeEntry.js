@@ -2,7 +2,8 @@ define([
   'store/Entry',
   'store/EntryInfo',
   'store/terms',
-], (Entry, EntryInfo, terms) =>
+  'dojo/json',
+], (Entry, EntryInfo, terms, json) =>
   /**
    * A PrototypeEntry is used to create new entries by collecting information about the initial
    * state of the entry to send along to the repository upon creation.
@@ -166,21 +167,32 @@ define([
     }
 
     /**
-     * Committing just metadata not allowed on a PrototypeEntry since there is no
-     * entry in the repository yet. Use commit to create the entire entry instead.
+     * Allowed as a way to save metadata for an
+     * entry that is assumed to exist with a given entry id.
      * @override
      */
-    static commitMetadata() {
-      throw new Error('Not supported on PrototypeEntry, call commit instead.');
+    commitMetadata() {
+      if (!this.specificId) {
+        throw new Error('The entryId must have been specified for allowing metadata to be saved.');
+      }
+      const es = this.getEntryStore();
+
+      return es.handleAsync(es.getREST().put(this.getEntryInfo().getMetadataURI(),
+        json.stringify(this.getMetadata().exportRDFJSON())), 'commitMetadata');
     }
 
     /**
-     * Committing just cached external metadata is not allowed on a PrototypeEntry since there is no
-     * entry in the repository yet. Use commit to create the entire entry instead.
+     * Allowed as a way to save cached external metadata for an entry that is assumed to
+     * exist with a given entry id.
      * @override
      */
-    static commitCachedExternalMetadata() {
-      throw new Error('Not supported on PrototypeEntry, call commit instead.');
+    commitCachedExternalMetadata() {
+      if (!this.specificId) {
+        throw new Error('The entryId must have been specified for allowing cached external metadata to be saved.');
+      }
+      const es = this.getEntryStore();
+      return es.handleAsync(es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
+        json.stringify(this._cachedExternalMetadata.exportRDFJSON())), 'commitCachedExternalMetadata');
     }
 
     /**

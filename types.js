@@ -167,5 +167,5 @@ define(
      * @memberof store/types
      */
     RT_UNKNOWN: 'Unknown',
-  },
+  }
 );

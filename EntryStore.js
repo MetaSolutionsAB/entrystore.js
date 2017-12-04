@@ -508,7 +508,7 @@ define([
      */
     loadViaProxy(uri, formatHint) {
       const url = factory.getProxyURI(this._baseURI, uri);
-      return this.handleAsync(this._rest.get(url, formatHint), 'loadViaProxy');
+      return this.handleAsync(this._rest.get(url, formatHint, true), 'loadViaProxy');
     }
 
     /**
