@@ -344,6 +344,7 @@ define([
 
   Solr.prototype.disjuntiveProperties = function () {
     this.disjunctiveProperties = true;
+    return this;
   };
 
   Solr.prototype.facet = function (facet, predicate) {
