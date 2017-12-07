@@ -58,7 +58,7 @@ define([], () => {
       if (!this._uiDef) {
         const self = this;
         delete this.userInfo;
-        this._uiDef = this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`).then((userinfo) => {
+        this._uiDef = this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`, null, true).then((userinfo) => {
           self.userInfo = userinfo;
           delete self._uiDef;
           return userinfo;
@@ -114,7 +114,7 @@ define([], () => {
           if (typeof data === 'object' && data.user) {
             return data;
           }
-          return self.entrystore._rest.get(`${self.entrystore._baseURI}auth/user`);
+          return self.entrystore._rest.get(`${self.entrystore._baseURI}auth/user`, null, true);
         })
         .then((data) => {
           if (self._uiDef) {
