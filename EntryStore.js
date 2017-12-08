@@ -268,7 +268,7 @@ define([
       }
       const self = this;
       const entryLoadURI = factory.getEntryLoadURI(entryURI, optionalLoadParams);
-      return this.handleAsync(this._rest.get(entryLoadURI).then((data) => {
+      return this.handleAsync(this._rest.get(entryLoadURI, null, true).then((data) => {
         // The entry, will always be there.
         const entry = factory.updateOrCreate(entryURI, data, self);
         return checkResourceLoaded(entry);
