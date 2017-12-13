@@ -110,7 +110,7 @@ define([
           require(['dojo/request/script'], (script) => {
             const queryParameter = new RegExp('[?&]format=');
             if (!queryParameter.test(_uri)) {
-              _uri += `${_uri.indexOf('?') !== -1 ? '&' : '?'}format=application/json`;
+              _uri += `${_uri.includes('?') ? '&' : '?'}format=application/json`;
             }
             script.get(_uri, { jsonp: 'callback' }).then((data) => {
               resolve(data);
