@@ -144,7 +144,7 @@ define([
   });
 
   // ===========Overwrite some functions with better support for instances as well as strings.
-  Solr.prototype.context = function (context) {
+  Solr.prototype.context = function (context, modifier = false) {
     if (context instanceof Context) {
       this._context = context.getResourceURI();
     } else if (context && context.getResourceURI) {
@@ -154,6 +154,11 @@ define([
     } else {
       this._context = null;
     }
+
+    if (this._context && modifier) {
+      this._context_modifier = modifier;
+    }
+
     return this;
   };
 
