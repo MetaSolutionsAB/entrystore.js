@@ -86,11 +86,12 @@ define([
      * @returns {xhrPromise}
      */
     get(uri, format, nonJSONP = false) {
+      const locHeaders = Object.assign({}, headers);
+      delete locHeaders['Content-Type'];
+
       let _uri = uri;
-      let locHeaders = headers;
       let handleAs = 'json';
       if (format != null) {
-        locHeaders = Object.assign({}, headers);
         locHeaders.Accept = format;
         switch (format) {
           case 'application/json': // This is the default in the headers.
@@ -232,6 +233,7 @@ define([
      */
     del(uri, modDate) {
       const locHeaders = Object.assign({}, headers);
+      delete locHeaders['Content-Type'];
       if (modDate) {
         locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
       }
