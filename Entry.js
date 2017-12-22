@@ -611,10 +611,14 @@ define([
      */
     del(recursive) {
       const es = this.getEntryStore();
+      const unCache = () => {
+        es.getCache().unCache(this);
+      };
       if (recursive === true) {
-        return es.handleAsync(es.getREST().del(`${this.getURI()}?recursive=true`), 'delEntry');
+        return es.handleAsync(es.getREST().del(`${this.getURI()}?recursive=true`)
+          .then(unCache), 'delEntry');
       }
-      return es.handleAsync(es.getREST().del(this.getURI()), 'delEntry');
+      return es.handleAsync(es.getREST().del(this.getURI()).then(unCache), 'delEntry');
     }
 
     /**
