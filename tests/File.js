@@ -2,7 +2,7 @@ define([
     'dojo/_base/lang',
     'dojo/has',
     'store/EntryStore',
-    'tests/config'
+    'tests/config',
 ], function(lang, has, EntryStore, config) {
 	//browsers have the global nodeunit already available
 

@@ -1,17 +1,19 @@
-<html><body>
-  <script src="../libs/requirejs/require.js"></script>
-  <script type="text/javascript">
-      require(["./config"], function(config) {
-          require(['store/EntryStore'], function(EntryStore) {
-              var es = new EntryStore();
-              es.getAuth().login(config.test_username, config.test_password).then(function() {
-                  es.getContextById(config.test_contextId).newEntry().commit().then(function(entry) {
-                      alert("Created an entry!");
-                  }, function(err) {
-                      alert("Failed to create an entry! + err");
-                  });
-              });
-          });
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link href="style.css" rel="stylesheet"/>
+  <script src="../release/all.js"></script>
+  <script>
+    require(['store/samples/config', 'store/EntryStore'], function(config, EntryStore) {
+      var es = new EntryStore(config.repository);
+      es.getAuth().login(config.username, config.password).then(function() {
+        es.getContextById(config.contextId).newEntry().commit().then(function(entry) {
+          alert("Created an entry!");
+        }, function(err) {
+          alert("Failed to create an entry! + err");
+        });
       });
+    });
   </script>
-</body></html>
+</head>
+</html>

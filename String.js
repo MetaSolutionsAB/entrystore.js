@@ -1,34 +1,29 @@
-/*global define*/
 define([
-    "store/Resource"
-], function(Resource) {
-	
-	/**
-     * String is a resource for handling simple strings of data.
-     *
-     * @exports store/String
-     * @param {string} entryURI - URI to an entry where this resource is contained.
-     * @param {string} resourceURI - URI to the resource.
-     * @param {store/EntryStore} entryStore - the API's repository instance.
-     * @param {string} data - the actual string, may the empty string, but not null or undefined.
-	 * @constructor
-     * @extends store/Resource
-	 */
-	var Str = function(entryURI, resourceURI, entryStore, data) {
-        Resource.apply(this, arguments); //Call the super constructor.
-        this._data = data;
-	};
-    //Inheritance trick
-    var F = function() {};
-    F.prototype = Resource.prototype;
-    Str.prototype = new F();
+  'store/Resource',
+], Resource =>
+  /**
+   * String is a resource for handling simple strings of data.
+   *
+   * @exports store/String
+   * @param {string} entryURI - URI to an entry where this resource is contained.
+   * @param {string} resourceURI - URI to the resource.
+   * @param {store/EntryStore} entryStore - the API's repository instance.
+   * @param {string} data - the actual string, may the empty string, but not null or undefined.
+   * @constructor
+   * @extends store/Resource
+   */
+  class extends Resource {
+    constructor(entryURI, resourceURI, entryStore, data) {
+      super(entryURI, resourceURI, entryStore); // Call the super constructor.
+      this._data = data;
+    }
 
     /**
      * @returns {string} may be an empty string, never null or undefined.
      */
-    Str.prototype.getString = function() {
-        return this._data;
-    };
+    getString() {
+      return this._data;
+    }
 
     /**
      * Set a new string, does not save it to the repository, use commit for that. E.g.
@@ -39,11 +34,10 @@ define([
      * @returns {store/String} allows chaining with commit.
      * @see store/String#commit
      */
-    Str.prototype.setString = function(string) {
-        this._data = string || "";
-        return this;
-	};
-
+    setString(string) {
+      this._data = string || '';
+      return this;
+    }
 
     /**
      * Pushes the string back to the repository.
@@ -51,15 +45,12 @@ define([
      * @returns {xhrPromise}
      * @see store/String#setString
      */
-    Str.prototype.commit = function() {
-        var es = this._entryStore;
-        return es.handleAsync(es.getREST().put(this._resourceURI, this._data), "commitString");
-    };
+    commit() {
+      const es = this._entryStore;
+      return es.handleAsync(es.getREST().put(this._resourceURI, this._data), 'commitString');
+    }
 
-
-    Str.prototype.getSource = function() {
-        return this._data;
-    };
-
-    return Str;
-});
+    getSource() {
+      return this._data;
+    }
+  });

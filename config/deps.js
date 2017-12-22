@@ -1,22 +1,34 @@
 require.config({
-    paths: {
-        "store": "..",
-        "requireLib": "requirejs/require",
-        "md5": "md5/js/md5.min",
-        "config": "../config",
-        "tests": "../tests"
+  baseUrl: '../node_modules',
+  paths: {
+    store: '..',
+    requireLib: 'requirejs/require',
+    config: '../config',
+    tests: '../tests',
+  },
+  packages: [
+    {
+      name: 'md5',
+      location: 'blueimp-md5/js',
+      main: 'md5.min',
     },
-    map: {
-        "store/rest": {
-            "dojo/request": "dojo/request/xhr", //Force using xhr since we know we are in the browser
-            "dojo/request/iframe": "dojo/request/iframe" //Override above line for iframe path.
-        }
+  ],
+
+  map: {
+    'store/rest': {
+            // Force using xhr since we know we are in the browser
+      'dojo/request': 'dojo/request/xhr',
+            // Override above line for paths to iframe and script.
+      'dojo/request/iframe': 'dojo/request/iframe',
+      'dojo/request/script': 'dojo/request/script',
     },
-    deps: [
-        "store/EntryStore",
-        "dojo/_base/window",
-        "dojo/request/iframe",
-        "dojo/request/xhr",
-        "dojo/promise/all"
-    ]
+  },
+  deps: [
+    'store/EntryStore',
+    'dojo/_base/window',
+    'dojo/request/xhr',
+    'dojo/request/iframe',
+    'dojo/request/script',
+    'dojo/promise/all',
+  ],
 });

@@ -1,168 +1,173 @@
-/*global define*/
+/* global define*/
 define([
-	"dojo/_base/array",
-	"dojo/Deferred",
-	"dojo/json",
-    "store/terms",
-	"rdfjson/Graph",
-    "dojo/date/stamp"
-], function(array, Deferred, json, terms, Graph, stamp) {
-	
-	/**
-     * EntryInfo is a class that contains all the administrative information for an entry.
-     * @exports store/EntryInfo
-     * @param {String} entryURI must be provided unless the graph contains a statement with the store:resource property which allows us to infer the entryURI.
-	 * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as statements
-     * @param {store/EntryStore} entryStore
-	 * @class
-	 */
-	var EntryInfo = function(entryURI, graph, entryStore) {
-		this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
-		this._graph = graph || new Graph();
-		this._entryStore = entryStore;
-	};
+  'dojo/json',
+  'store/terms',
+  'rdfjson/Graph',
+  'dojo/date/stamp',
+], (json, terms, Graph, stamp) =>
+  /**
+   * EntryInfo is a class that contains all the administrative information for an entry.
+   * @exports store/EntryInfo
+   * @param {String} entryURI must be provided unless the graph contains a statement with
+   * the store:resource property which allows us to infer the entryURI.
+   * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
+   * statements
+   * @param {store/EntryStore} entryStore
+   * @class
+   */
+  class {
+    constructor(entryURI, graph, entryStore) {
+      this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
+      this._graph = graph || new Graph();
+      this._entryStore = entryStore;
+    }
 
     /**
      * @returns {store/Entry}
      */
-	EntryInfo.prototype.getEntry = function() {
-		return this._entry;
-	};
+    getEntry() {
+      return this._entry;
+    }
 
     /**
      * @param {rdfjson/Graph} graph
      */
-	EntryInfo.prototype.setGraph = function(graph) {
-		this._graph = graph;
-	};
+    setGraph(graph) {
+      this._graph = graph;
+    }
 
     /**
      * @return {rdfjson/Graph}
      */
-	EntryInfo.prototype.getGraph = function() {
-		return this._graph;
-	};
-
+    getGraph() {
+      return this._graph;
+    }
 
     /**
-     * Pushes the entry information to the repository, e.g. posts to basepath/store/{contextId}/entry/{entryId}
+     * Pushes the entry information to the repository, e.g. posts to
+     * basepath/store/{contextId}/entry/{entryId}
+     * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+     * if information is stale, also it will not automatically refresh with the latest date
      * @returns {entryInfoPromise}
      */
-	EntryInfo.prototype.commit = function() {
-		var d = new Deferred(), self = this, es = this._entry.getEntryStore();
-		var mod = this.getModificationDate();
-		es.getREST().put(this.getEntryURI(), json.stringify(this._graph.exportRDFJSON()), mod).then(function() {
-			self._entry.setRefreshNeeded(true);
-			self._entry.refresh().then(function() {
-				d.resolve(self);
-			}, function() {
-				//Failed refreshing, but succeded at saving metadata, at least send out message that it needs to be refreshed.
-				es.getCache().message("refreshed", self);
-				d.resolve(self);
-			});
-		}, function(err) {
-			d.reject(err);
-		});
-		return es.handleAsync(d.promise, "commitEntryInfo");
-	};
+    commit(ignoreIfUnmodifiedSinceCheck) {
+      const es = this._entry.getEntryStore();
+      const mod = ignoreIfUnmodifiedSinceCheck === true ? undefined : this.getModificationDate();
+      const p = es.getREST().put(this.getEntryURI(),
+        json.stringify(this._graph.exportRDFJSON()), mod)
+        .then(() => {
+          if (ignoreIfUnmodifiedSinceCheck !== true) {
+            this._entry.setRefreshNeeded(true);
+            return this._entry.refresh().then(() => this, () => {
+              // Failed refreshing, but succeded at saving metadata,
+              // at least send out message that it needs to be refreshed.
+              es.getCache().message('refreshed', this);
+              return this;
+            });
+          }
+          return this;
+        });
+      return es.handleAsync(p, 'commitEntryInfo');
+    }
 
     /**
      * @returns {String}
      */
-	EntryInfo.prototype.getEntryURI = function() {
-		return this._entryURI;
-	};
+    getEntryURI() {
+      return this._entryURI;
+    }
+
     /**
      * @returns {String} the id of the entry
      */
-    EntryInfo.prototype.getId = function() {
-        return this._entryStore.getFactory().getEntryId(this._entryURI);
-    };
+    getId() {
+      return this._entryStore.getFactory().getEntryId(this._entryURI);
+    }
 
-	/**
-	 * If the entry is a user, group or context there can be a name.
-	 * In general the name is accessed on the resource, but in certain
-	 * situations we do not have the resource yet(not loaded) but we still
-	 * have the name (from a search where the name is provided but not the resource),
-	 * in this case we can access this name here.
-	 *
-	 * @returns {String} a username, groupname or contextname of the entry
-	 */
-	EntryInfo.prototype.getName = function() {
-		return this._name;
-	};
-
+    /**
+     * If the entry is a user, group or context there can be a name.
+     * In general the name is accessed on the resource, but in certain
+     * situations we do not have the resource yet(not loaded) but we still
+     * have the name (from a search where the name is provided but not the resource),
+     * in this case we can access this name here.
+     *
+     * @returns {String} a username, groupname or contextname of the entry
+     */
+    getName() {
+      return this._name;
+    }
 
     /**
      * @returns {String}
      */
-	EntryInfo.prototype.getMetadataURI = function() {
-		return this._entryStore.getFactory().getMetadataURI(this._entryURI);
-	};
+    getMetadataURI() {
+      return this._entryStore.getFactory().getMetadataURI(this._entryURI);
+    }
 
     /**
      * @returns {String}
      */
-	EntryInfo.prototype.getExternalMetadataURI = function() {
-		return this._graph.findFirstValue(this._entryURI, terms.externalMetadata); //TODO will only exist for LinkReferences and References.
-	};
+    getExternalMetadataURI() {
+      // TODO will only exist for LinkReferences and References.
+      return this._graph.findFirstValue(this._entryURI, terms.externalMetadata);
+    }
 
     /**
      * @param {String} uri
      */
-	EntryInfo.prototype.setExternalMetadataURI = function(uri) {
-		this._graph.findAndRemove(this._entryURI, terms.externalMetadata);
-		this._graph.create(this._entryURI, terms.externalMetadata, {type: "uri", value: uri});
-	};
+    setExternalMetadataURI(uri) {
+      this._graph.findAndRemove(this._entryURI, terms.externalMetadata);
+      this._graph.create(this._entryURI, terms.externalMetadata, { type: 'uri', value: uri });
+    }
 
     /**
      * @returns {String}
      */
-    EntryInfo.prototype.getCachedExternalMetadataURI = function() {
-		return this._entryStore.getFactory().getCachedExternalMetadataURI(this._entryURI);
-	};
+    getCachedExternalMetadataURI() {
+      return this._entryStore.getFactory().getCachedExternalMetadataURI(this._entryURI);
+    }
 
     /**
      * @returns {String}
      */
-    EntryInfo.prototype.getResourceURI = function() {
-		return this._graph.findFirstValue(this._entryURI, terms.resource);		
-	};
+    getResourceURI() {
+      return this._graph.findFirstValue(this._entryURI, terms.resource);
+    }
 
     /**
      * @param {String} uri
      */
-    EntryInfo.prototype.setResourceURI = function(uri) {
-		var oldResourceURI = this.getResourceURI();
-		this._graph.findAndRemove(this._entryURI, terms.resource);
-		this._graph.create(this._entryURI, terms.resource, {type: "uri", value: uri});
-		if (oldResourceURI) {
-            var stmts = this._graph.find(oldResourceURI);
-            for (var i=0;i<stmts.length;i++) {
-                stmts[i].setSubject(uri);
-            }
+    setResourceURI(uri) {
+      const oldResourceURI = this.getResourceURI();
+      this._graph.findAndRemove(this._entryURI, terms.resource);
+      this._graph.create(this._entryURI, terms.resource, { type: 'uri', value: uri });
+      if (oldResourceURI) {
+        const stmts = this._graph.find(oldResourceURI);
+        for (let i = 0; i < stmts.length; i++) {
+          stmts[i].setSubject(uri);
         }
-	};
+      }
+    }
 
     /**
      * @returns {String} one of the entryTypes
      * @see store/terms#entryType
      */
-    EntryInfo.prototype.getEntryType = function() {
-		var et = this._graph.findFirstValue(this._entryURI, terms.rdf.type);
-		return terms.entryType[et || "default"];
-	};
+    getEntryType() {
+      const et = this._graph.findFirstValue(this._entryURI, terms.rdf.type);
+      return terms.entryType[et || 'default'];
+    }
 
-    var getResourceType = function(entry, vocab) {
-        var stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
-        for (var i=0;i<stmts.length;i++) {
-            var t = vocab[stmts[i].getValue()];
-            if (t != null) {
-                return t;
-            }
+    static getResourceTypeHelper(entry, vocab) {
+      const stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
+      for (let i = 0; i < stmts.length; i++) {
+        const t = vocab[stmts[i].getValue()];
+        if (t != null) {
+          return t;
         }
-        return vocab["default"];
-    };
+      }
+      return vocab.default;
+    }
 
     /**
      * the resource type of the entry, e.g. "Information", "Resolvable" etc.
@@ -172,9 +177,9 @@ define([
      *
      * @returns {String}
      */
-    EntryInfo.prototype.getResourceType = function() {
-		return getResourceType(this, terms.resourceType);
-	};
+    getResourceType() {
+      return this.constructor.getResourceTypeHelper(this, terms.resourceType);
+    }
 
     /**
      * the graph type of the entry, e.g. "User", "List", "String", etc.
@@ -184,263 +189,270 @@ define([
      *
      * @returns {String}
      */
-	EntryInfo.prototype.getGraphType = function() {
-		return getResourceType(this, terms.graphType);
-	};
+    getGraphType() {
+      return this.constructor.getResourceTypeHelper(this, terms.graphType);
+    }
 
-
-	//TODO: change to entryURI instead of resourceURI for principalURIs.
-	/**
-	 * The acl object returned looks like:
-	 * {
-	 *		admin:  [principalURI1, principalURI2, ...],
-	 *		rread:  [principalURI3, ...],
-	 *		rwrite: [principalURI4, ...],
-	 *		mread:  [principalURI5, ...],
-	 *		mwrite: [principalURI6, ...]
-	 * }
-	 * 
-	 * There will always be an array for each key, it might be empty though.
-	 * The principalURI* will always be an URI to the resource of a user or group entry.
-	 * 
-	 * Please note that a non empty acl overrides any defaults from the surrounding context.
-	 *
+    // TODO: change to entryURI instead of resourceURI for principalURIs.
+    /**
+     * The acl object returned looks like:
+     * {
+     *   admin:  [principalURI1, principalURI2, ...],
+     *   rread:  [principalURI3, ...],
+     *   rwrite: [principalURI4, ...],
+     *   mread:  [principalURI5, ...],
+     *   mwrite: [principalURI6, ...]
+     * }
+     *
+     * There will always be an array for each key, it might be empty though.
+     * The principalURI* will always be an URI to the resource of a user or group entry.
+     *
+     * Please note that a non empty acl overrides any defaults from the surrounding context.
+     *
      * @param {boolean} asIds - if true the principalURIs are shortened to entry identifiers.
-	 * @return {Object} an acl object.
-	 */
-	EntryInfo.prototype.getACL = function(asIds) {
-		var factory = this._entryStore.getFactory();
-        var f = function(stmt) {
-            if (asIds) {
-                return factory.getEntryId(stmt.getValue());
-            } else {
-                return stmt.getValue();
-            }
-        };  //Statement > object value.
-		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-		var acl = {
-			admin:	array.map(this._graph.find(this._entryURI, terms.acl.write), f),
-			rread:	array.map(this._graph.find(ru, terms.acl.read), f),
-			rwrite:	array.map(this._graph.find(ru, terms.acl.write), f),
-			mread:	array.map(this._graph.find(mu, terms.acl.read), f),
-			mwrite:	array.map(this._graph.find(mu, terms.acl.write), f)
-		};
-        acl.contextOverride = acl.admin.length !== 0 || acl.rread.length !== 0 || acl.rwrite.length !== 0
-            || acl.mread.length !== 0 || acl.mwrite.length !== 0;
-        return acl;
-	};
+     * @return {Object} an acl object.
+     */
+    getACL(asIds) {
+      const factory = this._entryStore.getFactory();
+      const f = function (stmt) {
+        if (asIds) {
+          return factory.getEntryId(stmt.getValue());
+        }
+        return stmt.getValue();
+      };  // Statement > object value.
+      const ru = this.getResourceURI();
+      const mu = this.getMetadataURI();
+      const acl = {
+        admin: this._graph.find(this._entryURI, terms.acl.write).map(f),
+        rread: this._graph.find(ru, terms.acl.read).map(f),
+        rwrite: this._graph.find(ru, terms.acl.write).map(f),
+        mread: this._graph.find(mu, terms.acl.read).map(f),
+        mwrite: this._graph.find(mu, terms.acl.write).map(f),
+      };
+      acl.contextOverride = acl.admin.length !== 0 || acl.rread.length !== 0
+        || acl.rwrite.length !== 0 || acl.mread.length !== 0 || acl.mwrite.length !== 0;
+      return acl;
+    }
 
     /**
      * if the entry has an explicit ACL or if the containing contexts ACL is used.
      *
      * @returns {boolean}
      */
-    EntryInfo.prototype.hasACL = function() {
-        return this.getACL().contextOverride;
-    };
-
-	/**
-	 * Replaces the current acl with the provided acl. The acl object is the same as you get from the getACL call.
-	 * The first difference is that the acl object from this method is allowed to be empty
-	 * or leave out some keys that are not to be set.
-     * The second difference is that it allows entryIds as values in the arrays, not only full resource URIs,
-     * both have to refer to principals though.
-	 * 
-	 * @param {Object} acl same kind of object you get from getACL.
-	 */
-	EntryInfo.prototype.setACL = function(acl) {
-        var g = this._graph;
-		var f = function(subj, pred, principals, base) {
-			g.findAndRemove(subj, pred);
-			array.forEach(principals || [], function(principal) {
-                if (principal.length < base.length || principal.indexOf(base) !== 0) { //principal is entry id.
-                    g.add(subj, pred, {type: "uri", value: base+principal});
-                } else {
-                    g.add(subj, pred, {type: "uri", value: principal}); //principal is a full entry resource uri.
-                }
-			});
-		};
-		acl = acl || {};
-		var ru = this.getResourceURI(), mu = this.getMetadataURI();
-        var base = this._entryStore.getFactory().getResourceBase(this._entry.getEntryStore(), "_principals");
-		f(this._entryURI, terms.acl.write, acl.admin, base);
-		f(ru, terms.acl.read, acl.rread, base);
-		f(ru, terms.acl.write, acl.rwrite, base);
-		f(mu, terms.acl.read, acl.mread, base);
-		f(mu, terms.acl.write, acl.mwrite, base);
-	};
-
-  /**
-	 * Checks if there are any metadata revisions for this entry,
-	 * in practise this is always true if provenance is enabled for this entry.
-	 *
-   * @return {boolean} true if there is at least one metadata revision.
-   */
-  EntryInfo.prototype.hasMetadataRevisions = function() {
-    var mdURI = this.getMetadataURI();
-		return this._graph.findFirstValue(null, "owl:sameAs", mdURI) != null;
-  };
-
-  /**
-   * Extracts an array of metadata revisions from the graph.
-	 * Each revision is an object that contains:
-	 *   * time - when the change was made (Date)
-	 *   * by   - the user who performed the change (entryURI)
-	 *   * rev  - the revision number (string)
-	 *   * uri  - an URI to this revision (string)
-   *
-	 * The uri of the revision can be used by the method getMetadataRevisionGraph
-	 * to get a hold of the actual new graph that caused the revision.
-	 *
-   * @return {object[]} a sorted array of revisions, latest revision first.
-   */
-	EntryInfo.prototype.getMetadataRevisions = function() {
-		var revs = [];
-		var mdURI = this.getMetadataURI();
-		var stmts = this._graph.find(null, "owl:sameAs", mdURI);
-		if (stmts.length !== 1) {
-			return revs;
-		}
-		var uri = stmts[0].getSubject();
-		var es = this._entryStore;
-		while (uri) {
-			revs.push({
-        uri: uri,
-				rev: uri.substr(mdURI.length+5),
-				time: stamp.fromISOString(this._graph.findFirstValue(uri, "prov:generatedAtTime")),
-				by: es.getEntryURIFromURI(this._graph.findFirstValue(uri, "prov:wasAttributedTo"))
-			});
-			uri = this._graph.findFirstValue(uri, "prov:wasRevisionOf");
-		}
-		revs.sort(function(r1, r2) {
-			if (r1.time > r2.time) {
-				return -1;
-			} else if (r1.time < r2.time) {
-				return 1;
-			}
-			return 0;
-		});
-		return revs;
-	};
-
-  /**
-	 * Retrieves the metadata graph of a certain revision from its graph.
-   * @param revisionURI
-	 * @return {graphPromise}
-   */
-	EntryInfo.prototype.getMetadataRevisionGraph = function(revisionURI) {
-		return this._entryStore.getREST().get(revisionURI).then(function(data) {
-			return new Graph(data);
-		});
-	};
+    hasACL() {
+      return this.getACL().contextOverride;
+    }
 
     /**
-     * @returns {string} the label of the resource of this entry, typically set when uploading a file.
+     * Replaces the current acl with the provided acl.
+     * The acl object is the same as you get from the getACL call.
+     * The first difference is that the acl object from this method is allowed to be empty
+     * or leave out some keys that are not to be set.
+     * The second difference is that it allows entryIds as values in the arrays,
+     * not only full resource URIs, both have to refer to principals though.
+     *
+     * @param {Object} acl same kind of object you get from getACL.
      */
-    EntryInfo.prototype.getLabel = function() {
-        return this._graph.findFirstValue(this.getResourceURI(), "http://www.w3.org/2000/01/rdf-schema#label");
-    };
+    setACL(acl) {
+      const g = this._graph;
+      const f = function (subj, pred, principals, base) {
+        g.findAndRemove(subj, pred);
+        (principals || []).forEach((principal) => {
+          if (principal.length < base.length || principal.indexOf(base) !== 0) {
+            // principal is entry id.
+            g.add(subj, pred, { type: 'uri', value: base + principal });
+          } else {
+            // principal is a full entry resource uri.
+            g.add(subj, pred, { type: 'uri', value: principal });
+          }
+        });
+      };
+      const _acl = acl || {};
+      const ru = this.getResourceURI();
+      const mu = this.getMetadataURI();
+      const base = this._entryStore.getFactory().getResourceBase(this._entry.getEntryStore(), '_principals');
+      f(this._entryURI, terms.acl.write, _acl.admin, base);
+      f(ru, terms.acl.read, _acl.rread, base);
+      f(ru, terms.acl.write, _acl.rwrite, base);
+      f(mu, terms.acl.read, _acl.mread, base);
+      f(mu, terms.acl.write, _acl.mwrite, base);
+    }
 
     /**
-     * Sets a new label of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
+     * Checks if there are any metadata revisions for this entry,
+     * in practise this is always true if provenance is enabled for this entry.
+     *
+     * @return {boolean} true if there is at least one metadata revision.
+     */
+    hasMetadataRevisions() {
+      const mdURI = this.getMetadataURI();
+      return this._graph.findFirstValue(null, 'owl:sameAs', mdURI) != null;
+    }
+
+    /**
+     * Extracts an array of metadata revisions from the graph.
+     * Each revision is an object that contains:
+     *   * time - when the change was made (Date)
+     *   * by   - the user who performed the change (entryURI)
+     *   * rev  - the revision number (string)
+     *   * uri  - an URI to this revision (string)
+     *
+     * The uri of the revision can be used by the method getMetadataRevisionGraph
+     * to get a hold of the actual new graph that caused the revision.
+     *
+     * @return {object[]} a sorted array of revisions, latest revision first.
+     */
+    getMetadataRevisions() {
+      const revs = [];
+      const mdURI = this.getMetadataURI();
+      const stmts = this._graph.find(null, 'owl:sameAs', mdURI);
+      if (stmts.length !== 1) {
+        return revs;
+      }
+      let uri = stmts[0].getSubject();
+      const es = this._entryStore;
+      while (uri) {
+        revs.push({
+          uri,
+          rev: uri.substr(mdURI.length + 5),
+          time: stamp.fromISOString(this._graph.findFirstValue(uri, 'prov:generatedAtTime')),
+          by: es.getEntryURIFromURI(this._graph.findFirstValue(uri, 'prov:wasAttributedTo')),
+        });
+        uri = this._graph.findFirstValue(uri, 'prov:wasRevisionOf');
+      }
+      revs.sort((r1, r2) => {
+        if (r1.time > r2.time) {
+          return -1;
+        } else if (r1.time < r2.time) {
+          return 1;
+        }
+        return 0;
+      });
+      return revs;
+    }
+
+    /**
+     * Retrieves the metadata graph of a certain revision from its graph.
+     * @param revisionURI
+     * @return {graphPromise}
+     */
+    getMetadataRevisionGraph(revisionURI) {
+      return this._entryStore.getREST().get(revisionURI).then(data => new Graph(data));
+    }
+
+    /**
+     * @returns {string} the label of the resource of this entry,
+     * typically set when uploading a file.
+     */
+    getLabel() {
+      return this._graph.findFirstValue(this.getResourceURI(), 'http://www.w3.org/2000/01/rdf-schema#label');
+    }
+
+    /**
+     * Sets a new label of the resource in the graph, call
+     * {@link store/EntryInfo#commit commit} to push
      * the updated graph to the repository.
      *
      * @param {string} label - a new label for the resource.
      */
-    EntryInfo.prototype.setLabel = function(label) {
-        this._graph.findAndRemove(this.getResourceURI(), "http://www.w3.org/2000/01/rdf-schema#label");
-        if (label != null && label != "") {
-            this._graph.add(this.getResourceURI(), "http://www.w3.org/2000/01/rdf-schema#label", {type: "literal", value: label});
-        }
-    };
+    setLabel(label) {
+      this._graph.findAndRemove(this.getResourceURI(), 'http://www.w3.org/2000/01/rdf-schema#label');
+      if (label != null && label !== '') {
+        this._graph.add(this.getResourceURI(), 'http://www.w3.org/2000/01/rdf-schema#label', {
+          type: 'literal',
+          value: label,
+        });
+      }
+    }
 
     /**
      * @returns {string} the format of the resource of this entry.
      */
-    EntryInfo.prototype.getFormat = function() {
-        return this._graph.findFirstValue(this.getResourceURI(), "http://purl.org/dc/terms/format");
-    };
+    getFormat() {
+      return this._graph.findFirstValue(this.getResourceURI(), 'http://purl.org/dc/terms/format');
+    }
 
-	/**
-     * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
-     * the updated graph to the repository.
+    /**
+     * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit}
+     * to push the updated graph to the repository.
      *
      * @param {string} format - a format in the form application/json or text/plain.
      */
-    EntryInfo.prototype.setFormat = function(format) {
-        this._graph.findAndRemove(this.getResourceURI(), "http://purl.org/dc/terms/format");
-        if (format != null && format != "") {
-            this._graph.addL(this.getResourceURI(), "http://purl.org/dc/terms/format", format);
-        }
-    };
-
-	/**
-	 * @returns {string} the status of this entry, always a URI.
-	 */
-	EntryInfo.prototype.getStatus = function() {
-		return this._graph.findFirstValue(this.getEntryURI(), terms.status.property);
-	};
-
-	/**
-	 * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit} to push
-	 * the updated graph to the repository.
-	 *
-	 * @param {string} format - a format in the form application/json or text/plain.
-	 */
-	EntryInfo.prototype.setStatus = function(status) {
-		this._graph.findAndRemove(this.getEntryURI(), terms.status.property);
-		if (status != null && status != "" && status.indexOf("http") === 0) {
-			this._graph.add(this.getEntryURI(), terms.status.property, status);
-		}
-	};
-
-	/**
-     * @returns {Date} the date when the entry was created.
-     */
-    EntryInfo.prototype.getCreationDate = function() {
-        var d = this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/created");
-        return stamp.fromISOString(d); //Must always exist.
-    };
+    setFormat(format) {
+      this._graph.findAndRemove(this.getResourceURI(), 'http://purl.org/dc/terms/format');
+      if (format != null && format !== '') {
+        this._graph.addL(this.getResourceURI(), 'http://purl.org/dc/terms/format', format);
+      }
+    }
 
     /**
-     * @returns {Date} the date of last modification (according to the repository, local changes are not reflected).
+     * @returns {string} the status of this entry, always a URI.
      */
-    EntryInfo.prototype.getModificationDate = function() {
-        var d = this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/modified");
-        if (d != null) {
-            return stamp.fromISOString(d);
-        } else {
-            return this.getCreationDate();
-        }
-    };
+    getStatus() {
+      return this._graph.findFirstValue(this.getEntryURI(), terms.status.property);
+    }
+
+    /**
+     * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit}
+     * to push the updated graph to the repository.
+     *
+     * @param {string} format - a format in the form application/json or text/plain.
+     */
+    setStatus(status) {
+      this._graph.findAndRemove(this.getEntryURI(), terms.status.property);
+      if (status != null && status !== '' && status.indexOf('http') === 0) {
+        this._graph.add(this.getEntryURI(), terms.status.property, status);
+      }
+    }
+
+    /**
+     * @returns {Date} the date when the entry was created.
+     */
+    getCreationDate() {
+      const d = this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/created');
+      return stamp.fromISOString(d); // Must always exist.
+    }
+
+    /**
+     * @returns {Date} the date of last modification (according to the repository,
+     * local changes are not reflected).
+     */
+    getModificationDate() {
+      const d = this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/modified');
+      if (d != null) {
+        return stamp.fromISOString(d);
+      }
+      return this.getCreationDate();
+    }
 
     /**
      * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
      */
-    EntryInfo.prototype.getCreator = function() {
-        return this._graph.findFirstValue(this.getEntryURI(), "http://purl.org/dc/terms/creator");
-    };
+    getCreator() {
+      return this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/creator');
+    }
 
-	/**
-	 * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
-	 */
-	EntryInfo.prototype.getSize = function() {
-		var extent = this._graph.findFirstValue(this.getResourceURI(), "http://purl.org/dc/terms/extent");
-		if (parseInt(extent) == extent) {
-			return parseInt(extent);
-		}
-	};
+    /**
+     * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
+     */
+    getSize() {
+      const extent = this._graph.findFirstValue(this.getResourceURI(), 'http://purl.org/dc/terms/extent');
+// eslint-disable-next-line eqeqeq
+      if (parseInt(extent, 10) == extent) {
+        return parseInt(extent, 10);
+      }
+      return undefined;
+    }
 
-	/**
+    /**
      * @returns {Array} an array of URIs to the contributors using their Entrys resource URIs,
      * e.g. ["http://somerepo/store/_principals/resource/4"], never null although the array might be empty.
      */
-    EntryInfo.prototype.getContributors = function() {
-        return array.map(this._graph.find(this.getEntryURI(), "http://purl.org/dc/terms/contributor"), function(statement) {return statement.getValue();});
-    };
-
-    return EntryInfo;
-});
+    getContributors() {
+      return this._graph.find(this.getEntryURI(),
+        'http://purl.org/dc/terms/contributor').map(statement => statement.getValue());
+    }
+  });
 
 /**
  * Promise that provides an {@link store/Entry} on success.
@@ -455,7 +467,8 @@ define([
  * @param {xhrFailureCallback} onError
  */
 /**
- * This is a successful callback method to be provided as first argument in a {@link entryInfoPromise}
+ * This is a successful callback method to be provided as first argument in a
+ * {@link entryInfoPromise}
  *
  * @callback entryInfoCallback
  * @param {store/EntryInfo} entry
