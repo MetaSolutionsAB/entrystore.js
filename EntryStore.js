@@ -5,7 +5,7 @@ define([
   'dojo/Deferred',
   'store/solr',
   'store/Cache',
-  'store/rest',
+  'store/Rest',
   'store/factory',
   'store/types',
   'store/PrototypeEntry',
@@ -13,7 +13,7 @@ define([
   'store/User',
   'store/Auth',
   'dojo/has',
-], (lang, json, Deferred, solr, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth,
+], (lang, json, Deferred, solr, Cache, Rest, factory, types, PrototypeEntry, Resource, User, Auth,
     has) =>
   /**
    * EntryStore is the main class that is used to connect to a running server-side EntryStore
@@ -28,9 +28,6 @@ define([
    */
   class {
     constructor(baseURI, credentials) {
-      /**
-       * @type {String}
-       */
       if (has('host-browser') && baseURI == null) {
         this._baseURI = `${window.location.origin}/store/`;
       } else {
@@ -46,7 +43,7 @@ define([
         this.auth(credentials);
       }
       this._contexts = {};
-      this._rest = rest;
+      this._rest = new Rest();
     }
 
     /**

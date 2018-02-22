@@ -3,12 +3,6 @@ define([
   'dojo/request',
   'dojo/has',
 ], (require, request, has) => {
-  const headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json; charset=UTF-8',
-    'X-Requested-With': null,
-  };
-  const timeout = 30000; // 30 seconds
 
   /**
    * Check if requests will be to the same domain, i.e. no CORS.
@@ -30,21 +24,79 @@ define([
   };
 
   /**
-   * Functionality for communicating with the repository via Ajax calls.
+   * This class encapsulates functionality for communicating with the repository via Ajax calls.
    * Authentication is done via cookies and accept headers are in general set to
    * application/json behind the scenes.
    *
-   * @exports store/rest
+   * @exports store/Rest
    * @namespace
    */
-  const rest = {
+  return class {
+    constructor() {
+      this.timeout = 30000; // 30 seconds
+      this.headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Requested-With': null,
+      };
+      const rest = this;
+      if (has('host-browser')) {
+        require([
+          'dojo/_base/window',
+          'dojo/request/iframe',
+        ], (win, iframe) => {
+          rest.putFile = (uri, data, format) => {
+            if (!data.value) {
+              return undefined;
+            }
+            let _newForm;
+            if (has('ie')) {
+              // just to reiterate, IE is a steaming pile of shit.
+              _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
+              _newForm.encoding = 'multipart/form-data';
+            } else {
+              // this is how all other sane browsers do it
+              _newForm = document.createElement('form');
+              _newForm.setAttribute('enctype', 'multipart/form-data');
+              _newForm.setAttribute('method', 'post');
+              _newForm.style.display = 'none';
+            }
+
+            const oldParent = data.parentElement;
+            const nextSibling = data.nextSibling;
+            _newForm.appendChild(data);
+            win.body().appendChild(_newForm);
+            const cleanUp = () => {
+              if (nextSibling) {
+                oldParent.insertBefore(data, nextSibling);
+              } else {
+                oldParent.appendChild(data);
+              }
+              win.body().removeChild(_newForm);
+            };
+
+            return iframe(uri, {
+              preventCache: true,
+              handleAs: format || 'json',
+              form: _newForm,
+            }).then((res) => {
+              cleanUp();
+              return res;
+            }, (e) => {
+              cleanUp();
+              throw e;
+            });
+          };
+        });
+      }
+    }
     /**
      * @param {object} credentials should contain attributes "user", "password", and "maxAge".
      * MaxAge is the amount of seconds the authorization should be valid.
      * @returns {xhrPromise}
      */
     auth(credentials) {
-      delete headers.cookie;
+      delete this.headers.cookie;
       if (credentials.logout !== true) {
         const data = {
           auth_username: credentials.user,
@@ -53,14 +105,14 @@ define([
           auth_maxage: credentials.maxAge != null ? credentials.maxAge : 604800,
         };
         if (has('host-browser')) {
-          return rest.post(`${credentials.base}auth/cookie`, data);
+          return this.post(`${credentials.base}auth/cookie`, data);
         }
-        const p = rest.post(`${credentials.base}auth/cookie`, data);
+        const p = this.post(`${credentials.base}auth/cookie`, data);
         return p.response.then((response) => {
           const cookies = response.getHeader('set-cookie');
           cookies.some((c) => {
             if (c.substring(0, 11) === 'auth_token=') {
-              headers.cookie = [c];
+              this.headers.cookie = [c];
               return true;
             }
             return false;
@@ -70,11 +122,11 @@ define([
       return request.get(`${credentials.base}auth/logout`, {
         preventCache: true,
         handleAs: 'json',
-        headers,
+        headers: this.headers,
         withCredentials: true,
-        timeout,
+        timeout: this.timeout,
       });
-    },
+    }
 
     /**
      * Fetches data from the provided URI.
@@ -86,7 +138,7 @@ define([
      * @returns {xhrPromise}
      */
     get(uri, format, nonJSONP = false) {
-      const locHeaders = Object.assign({}, headers);
+      const locHeaders = Object.assign({}, this.headers);
       delete locHeaders['Content-Type'];
 
       let _uri = uri;
@@ -126,14 +178,14 @@ define([
         handleAs,
         headers: locHeaders,
         withCredentials: true,
-        timeout,
+        timeout: this.timeout,
       }).response.then((response) => {
         if (response.status === 200) {
           return response.data;
         }
         throw new Error(`Resource could not be loaded: ${response.text}`);
       });
-    },
+    }
 
     /**
      * Posts data to the provided URI.
@@ -147,7 +199,7 @@ define([
      * @return {xhrPromise}
      */
     post(uri, data, modDate, format) {
-      const locHeaders = Object.assign({}, headers);
+      const locHeaders = Object.assign({}, this.headers);
       if (modDate) {
         locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
       }// multipart/form-data
@@ -161,9 +213,9 @@ define([
         data,
         headers: locHeaders,
         withCredentials: true,
-        timeout,
+        timeout: this.timeout,
       });
-    },
+    }
 
     /**
      * Posts data to a factory resource with the intent to create a new resource.
@@ -176,7 +228,7 @@ define([
      * @returns {createPromise}
      */
     create(uri, data) {
-      return rest.post(uri, data).response.then((response) => {
+      return this.post(uri, data).response.then((response) => {
         let location = response.getHeader('Location');
         // In some weird cases, like when making requests from file:///
         // we do not have access to headers.
@@ -191,7 +243,7 @@ define([
         }
         return location;
       });
-    },
+    }
 
     /**
      * Replaces a resource with a new representation.
@@ -205,7 +257,7 @@ define([
      * @return {xhrPromise}
      */
     put(uri, data, modDate, format) {
-      const locHeaders = Object.assign({}, headers);
+      const locHeaders = Object.assign({}, this.headers);
       if (modDate) {
         locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
       }
@@ -220,9 +272,9 @@ define([
         data,
         headers: locHeaders,
         withCredentials: true,
-        timeout,
+        timeout: this.timeout,
       });
-    },
+    }
 
     /**
      * Deletes a resource.
@@ -232,7 +284,7 @@ define([
      * @return {xhrPromise}
      */
     del(uri, modDate) {
-      const locHeaders = Object.assign({}, headers);
+      const locHeaders = Object.assign({}, this.headers);
       delete locHeaders['Content-Type'];
       if (modDate) {
         locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
@@ -243,9 +295,9 @@ define([
         // handleAs: "json",
         headers: locHeaders,
         withCredentials: true,
-        timeout,
+        timeout: this.timeout,
       });
-    },
+    }
 
     /**
      * Put a file to a URI.
@@ -265,61 +317,9 @@ define([
      * (json is default).
      */
     putFile(uri, data, format) {
-      return rest.put(uri, data, null, format);
-//            throw "Currently not supported in a non-browser environment!";
-    },
+      return this.put(uri, data, null, format);
+    }
   };
-  if (has('host-browser')) {
-    require([
-      'dojo/_base/window',
-      'dojo/request/iframe',
-    ], (win, iframe) => {
-      rest.putFile = (uri, data, format) => {
-        if (!data.value) {
-          return undefined;
-        }
-        let _newForm;
-        if (has('ie')) {
-          // just to reiterate, IE is a steaming pile of shit.
-          _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
-          _newForm.encoding = 'multipart/form-data';
-        } else {
-          // this is how all other sane browsers do it
-          _newForm = document.createElement('form');
-          _newForm.setAttribute('enctype', 'multipart/form-data');
-          _newForm.setAttribute('method', 'post');
-          _newForm.style.display = 'none';
-        }
-
-        const oldParent = data.parentElement;
-        const nextSibling = data.nextSibling;
-        _newForm.appendChild(data);
-        win.body().appendChild(_newForm);
-        const cleanUp = () => {
-          if (nextSibling) {
-            oldParent.insertBefore(data, nextSibling);
-          } else {
-            oldParent.appendChild(data);
-          }
-          win.body().removeChild(_newForm);
-        };
-
-        return iframe(uri, {
-          preventCache: true,
-          handleAs: format || 'json',
-          form: _newForm,
-        }).then((res) => {
-          cleanUp();
-          return res;
-        }, (e) => {
-          cleanUp();
-          throw e;
-        });
-      };
-    });
-  }
-
-  return rest;
 });
 
 /**
