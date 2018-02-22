@@ -239,6 +239,23 @@ define([
     }
 
     /**
+     * @param {String} transformId the blank node of a specific transform as retrieved
+     * by [getTransforms]{@link store/Pipeline#getTransforms}.
+     * @returns {Array} of arguments' keys
+     */
+    getTransformArgumentsKeys(transformId = null) {
+      const args = [];
+      if (transformId) {
+        const stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
+        stmts.forEach((stmt) => {
+          const keys = this._graph.find(stmt.getValue(), terms.pipeline.transformArgumentKey);
+          args.push(keys.map(key => key.getValue()));
+        }, this);
+      }
+      return args;
+    }
+
+    /**
      * Replaces the current arguments with those provided.
      * @param {String} transformId the blank node of a specific transform as retrieved by
      * [getTransforms]{@link store/Pipeline#getTransforms}.
