@@ -23,6 +23,7 @@ define([
     externalMetadata: `${ns}externalMetadata`,
     status: {
       property: `${ns}status`,
+      InProgress: `${ns}InProgress`,
       Pending: `${ns}Pending`,
       Succeeded: `${ns}Success`,
       Failed: `${ns}Failed`,

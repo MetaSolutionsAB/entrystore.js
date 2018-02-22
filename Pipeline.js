@@ -1,9 +1,8 @@
 /* global define*/
 define([
-  'dojo/json',
   './terms',
   './Graph',
-], (json, terms, Graph) => {
+], (terms, Graph) => {
   /**
    * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
    * specific type and takes a set of arguments.
@@ -240,6 +239,23 @@ define([
     }
 
     /**
+     * @param {String} transformId the blank node of a specific transform as retrieved
+     * by [getTransforms]{@link store/Pipeline#getTransforms}.
+     * @returns {Array} of arguments' keys
+     */
+    getTransformArgumentsKeys(transformId = null) {
+      const args = [];
+      if (transformId) {
+        const stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
+        stmts.forEach((stmt) => {
+          const keys = this._graph.find(stmt.getValue(), terms.pipeline.transformArgumentKey);
+          args.push(keys.map(key => key.getValue()));
+        }, this);
+      }
+      return args;
+    }
+
+    /**
      * Replaces the current arguments with those provided.
      * @param {String} transformId the blank node of a specific transform as retrieved by
      * [getTransforms]{@link store/Pipeline#getTransforms}.
@@ -322,9 +338,9 @@ define([
         _params.source = sourceEntry.getURI();
         executeURI = `${sourceEntry.getContext().getResourceURI()}/execute`;
       }
-      return es.handleAsync(es.getREST().post(executeURI, json.stringify(_params)), 'execute')
+      return es.handleAsync(es.getREST().post(executeURI, JSON.stringify(_params)), 'execute')
         .then((resultStr) => {
-          const obj = json.parse(resultStr);
+          const obj = JSON.parse(resultStr);
           return obj.result;
         }, (err) => {
           throw err;
