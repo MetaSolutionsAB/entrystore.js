@@ -8,7 +8,7 @@ define([], () => {
    * @param {store/EntryStore} entrystore - a repository instance.
    * @class
    */
-  return class {
+  const Auth = class {
     constructor(entrystore) {
       this.entrystore = entrystore;
       this._listenerCounter = 0;
@@ -150,6 +150,7 @@ define([], () => {
       }), 'logout');
     }
   };
+  return Auth;
 });
 
 /**

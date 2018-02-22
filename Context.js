@@ -7,7 +7,7 @@ define([
   './Resource',
   './Graph',
   './Pipeline',
-], (json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) =>
+], (json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) => {
   /**
    * @exports store/Context
    * @param {String} entryURI in which this context is a resource.
@@ -16,7 +16,7 @@ define([
    * @class
    * @augments store/Resource
    */
-  class extends Resource {
+  const Context = class extends Resource {
     /**
      * Retrieves a list of entries in the context.
      *
@@ -247,4 +247,6 @@ define([
     _update(data) {
       this._name = data.alias || data.name; // TODO, change to only name after clean-up
     }
-  });
+  };
+  return Context;
+});

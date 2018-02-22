@@ -2,7 +2,7 @@ define([
   'rdfjson/Graph',
   'store/types',
   'dojo/json',
-], (Graph, types, json) =>
+], (Graph, types, json) => {
   /**
    * Entrys are at the center of this API. Entrys holds together metadata, external metadata,
    * resources, access control, and provenance. Hence, entrys appear in the majority of methods,
@@ -22,7 +22,7 @@ define([
    * @param {store/EntryStore} entryStore the repository for this entry
    * @class
    */
-  class {
+  const Entry = class {
     constructor(context, entryInfo) {
       this._context = context;
       this._entryInfo = entryInfo;
@@ -201,6 +201,10 @@ define([
       }
 
       return this._cachedExternalMetadata;
+    }
+
+    getInferredMetadata() {
+      return this._inferredMetadata;
     }
 
     /**
@@ -561,7 +565,7 @@ define([
       let acl = this.getEntryInfo().getACL();
       if (acl.contextOverride) {
         return ['rwrite', 'rread', 'mwrite', 'mread'].some(key =>
-        acl[key].indexOf(guestprincipal) !== -1);
+          acl[key].indexOf(guestprincipal) !== -1);
       }
       const ce = this.getContext().getEntry(true);
       if (ce == null) {
@@ -668,7 +672,9 @@ define([
       }
       return es.handleAsync(p, 'refresh');
     }
-  });
+  };
+  return Entry;
+});
 
 /**
  * Promise that provides an {@link store/Entry} on success.

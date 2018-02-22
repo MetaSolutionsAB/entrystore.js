@@ -1,11 +1,11 @@
-define([], () =>
+define([], () => {
   /**
    * EntryStoreUtil provides utility functionality for working with entries.
    * @param {store/EntryStore} entrystore
    * @exports store/EntryStoreUtil
    * @class
    */
-  class {
+  const EntryStoreUtil = class {
     constructor(entrystore) {
       this._entrystore = entrystore;
       this._preloadIdx = {};
@@ -192,7 +192,9 @@ define([], () =>
         cache.unCache(entry);
       }).then(() => f());
     }
-  });
+  };
+  return EntryStoreUtil;
+});
 
 /**
  * @name successOrFailPromise

@@ -4,7 +4,7 @@ define([
   'store/terms',
   'rdfjson/Graph',
   'dojo/date/stamp',
-], (json, terms, Graph, stamp) =>
+], (json, terms, Graph, stamp) => {
   /**
    * EntryInfo is a class that contains all the administrative information for an entry.
    * @exports store/EntryInfo
@@ -15,7 +15,7 @@ define([
    * @param {store/EntryStore} entryStore
    * @class
    */
-  class {
+  const EntryInfo = class {
     constructor(entryURI, graph, entryStore) {
       this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
       this._graph = graph || new Graph();
@@ -452,7 +452,9 @@ define([
       return this._graph.find(this.getEntryURI(),
         'http://purl.org/dc/terms/contributor').map(statement => statement.getValue());
     }
-  });
+  };
+  return EntryInfo;
+});
 
 /**
  * Promise that provides an {@link store/Entry} on success.

@@ -152,6 +152,7 @@ define([
   const _updateEntry = (entry, data) => {
     entry._metadata = data.metadata ? new Graph(data.metadata) : null;
     entry._cachedExternalMetadata = data['cached-external-metadata'] ? new Graph(data['cached-external-metadata']) : null;
+    entry._inferredMetadata = data.inferred ? new Graph(data.inferred) : null;
     entry._extractedMetadata = data['extracted-metadata'] ? new Graph(data['extracted-metadata']) : null;
     entry._relation = data.relations ? new Graph(data.relations) : new Graph();
     entry._rights = transformRights(data.rights);

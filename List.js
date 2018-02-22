@@ -1,7 +1,7 @@
 define([
   'dojo/json',
   'store/Resource',
-], (json, Resource) =>
+], (json, Resource) => {
   /**
    * List is a container for other entries in the same context.
    * A single entry may appear in multiple lists (multiple parent lists) unless if it is a list
@@ -15,7 +15,7 @@ define([
    * @class
    * @augments store/Resource
    */
-  class extends Resource {
+  const ListResource = class extends Resource {
     constructor(entryURI, resourceURI, entryStore) {
       super(entryURI, resourceURI, entryStore);
       this._cache = entryStore.getCache();
@@ -264,7 +264,9 @@ define([
       this._size = data.size || children.length;
       this._unsortedChildren = data.allUnsorted || children.map(entry => entry.getId());
     }
-  });
+  };
+  return ListResource;
+});
 
 /**
  * Promise that provides an array of entry ids (not full URIs) on success.

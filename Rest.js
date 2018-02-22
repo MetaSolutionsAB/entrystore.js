@@ -3,7 +3,6 @@ define([
   'dojo/request',
   'dojo/has',
 ], (require, request, has) => {
-
   /**
    * Check if requests will be to the same domain, i.e. no CORS.
    * Must be used in a browser environment.
@@ -31,7 +30,7 @@ define([
    * @exports store/Rest
    * @namespace
    */
-  return class {
+  const Rest = class {
     constructor() {
       this.timeout = 30000; // 30 seconds
       this.headers = {
@@ -320,6 +319,7 @@ define([
       return this.put(uri, data, null, format);
     }
   };
+  return Rest;
 });
 
 /**

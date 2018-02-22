@@ -3,7 +3,7 @@ define([
   'dojo/json',
   'store/Resource',
   'rdfjson/Graph',
-], (json, Resource, Graph) =>
+], (json, Resource, Graph) => {
   /**
    * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
    *
@@ -15,7 +15,7 @@ define([
    * @class
    * @augments store/Resource
    */
-  class extends Resource {
+  const GraphResource = class extends Resource {
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore); // Call the super constructor.
       this._graph = data instanceof Graph ? data : new Graph(data);
@@ -69,4 +69,6 @@ define([
     _update(data) {
       this._graph = new Graph(data);
     }
-  });
+  };
+  return GraphResource;
+});

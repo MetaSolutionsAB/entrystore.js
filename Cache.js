@@ -1,4 +1,4 @@
-define([], () =>
+define([], () => {
   /**
    * Caches loaded entries and keeps track of which entries that need to be updated (refreshed).
    * The cache also provides a listener functionality that allows you to be notified of
@@ -7,7 +7,7 @@ define([], () =>
    * @exports store/Cache
    * @class
    */
-  class {
+  const Cache = class {
     constructor() {
       this._listenerCounter = 0;
       this._listenersIdx = {};
@@ -190,4 +190,6 @@ define([], () =>
       this._cacheIdxResource = {};
       this._cacheCtrl = {};
     }
-  });
+  };
+  return Cache;
+});

@@ -2,7 +2,7 @@ define([
   'store/List',
   'store/terms',
   'dojo/json',
-], (List, terms, json) =>
+], (List, terms, json) => {
   /**
    * Group is a subclass of the List resource and contains a list of users.
    * The group resource URI can be referred to from access control lists.
@@ -14,7 +14,7 @@ define([
    * @class
    * @augments store.List
    */
-  class extends List {
+  const Group = class extends List {
     /**
      * Get the name of the group, this is a a unique name (username) in the current
      * repository's _principals context.
@@ -92,4 +92,6 @@ define([
       super._update(data, children);
       this._name = data.name;
     }
-  });
+  };
+  return Group;
+});

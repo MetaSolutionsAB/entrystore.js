@@ -1,6 +1,6 @@
 define([
   'store/Resource',
-], Resource =>
+], (Resource) => {
   /**
    * String is a resource for handling simple strings of data.
    *
@@ -12,7 +12,7 @@ define([
    * @constructor
    * @extends store/Resource
    */
-  class extends Resource {
+  const StringResource = class extends Resource {
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore); // Call the super constructor.
       this._data = data;
@@ -53,4 +53,6 @@ define([
     getSource() {
       return this._data;
     }
-  });
+  };
+  return StringResource;
+});

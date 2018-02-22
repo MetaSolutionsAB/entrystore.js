@@ -1,4 +1,4 @@
-define([], () =>
+define([], () => {
   /**
    * This is the base class for resources contained by entries, do not use directly,
    * instead use a subclass.
@@ -16,7 +16,7 @@ define([], () =>
    * @see subclass {@link store/User}
    * @see subclass {@link store/Group}
    */
-  class {
+  const Resource = class {
     constructor(entryURI, resourceURI, entryStore) {
       this._entryURI = entryURI;
       this._resourceURI = resourceURI;
@@ -86,7 +86,9 @@ define([], () =>
     getSource() {
       return this._data;
     }
-  });
+  };
+  return Resource;
+});
 /**
  * @name resourcePromise
  * @extends dojo/promise/Promise

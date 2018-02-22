@@ -2,7 +2,7 @@
 define([
   'dojo/json',
   'store/Resource',
-], (json, Resource) =>
+], (json, Resource) => {
   /**
    * User instances are resources corresponding to users that can be authenticated to access
    * the EntryStore repository. The user resource URI can be referred to from access control lists.
@@ -15,7 +15,7 @@ define([
    * @class
    * @extends store/Resource
    */
-  class extends Resource {
+  const User = class extends Resource {
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore);
       this._data = data;
@@ -146,4 +146,6 @@ define([
     getSource() {
       return this._data;
     }
-  });
+  };
+  return User;
+});
