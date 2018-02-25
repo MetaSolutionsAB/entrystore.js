@@ -7,12 +7,8 @@ define([
    * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
    * specific type and takes a set of arguments.
    *
+   * @class
    * @exports store/Pipeline
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
-   * @constructor
    * @extends store/Resource
    */
   const Pipeline = class extends Graph {

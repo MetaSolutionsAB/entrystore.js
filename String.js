@@ -4,15 +4,17 @@ define([
   /**
    * String is a resource for handling simple strings of data.
    *
+   * @class
    * @exports store/String
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @param {string} data - the actual string, may the empty string, but not null or undefined.
-   * @constructor
    * @extends store/Resource
    */
   const StringResource = class extends Resource {
+    /**
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     * @param {string} data - the actual string, may the empty string, but not null or undefined.
+     */
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore); // Call the super constructor.
       this._data = data;

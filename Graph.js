@@ -7,15 +7,17 @@ define([
   /**
    * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
    *
-   * @exports store/Graph
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
    * @class
+   * @exports store/Graph
    * @augments store/Resource
    */
   const GraphResource = class extends Resource {
+    /**
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
+     */
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore); // Call the super constructor.
       this._graph = data instanceof Graph ? data : new Graph(data);

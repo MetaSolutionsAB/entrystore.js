@@ -3,13 +3,15 @@ define([
 ], (List) => {
   /**
    * @exports store/SearchList
-   * @param {store/EntryStore} entryStore
-   * @param {Object} query
-   * @param {string} callType parameter provided to asyncListeners on query execution,
-   * assumed to be 'search' if left out
-   * @constructor
+   * @class
    */
   const SearchList = class {
+    /**
+     * @param {store/EntryStore} entryStore
+     * @param {Object} query
+     * @param {string} callType parameter provided to asyncListeners on query execution,
+     * assumed to be 'search' if left out
+     */
     constructor(entryStore, query, callType) {
       this._entryStore = entryStore;
       this._query = query;

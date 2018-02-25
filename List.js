@@ -8,14 +8,16 @@ define([
    * itself. To avoid circular references list entries are only allowed to appear in one parent
    * list.
    *
-   * @exports store/List
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
    * @class
+   * @exports store/List
    * @augments store/Resource
    */
   const ListResource = class extends Resource {
+    /**
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     */
     constructor(entryURI, resourceURI, entryStore) {
       super(entryURI, resourceURI, entryStore);
       this._cache = entryStore.getCache();

@@ -18,15 +18,17 @@ define([
     /**
      * EntryStore is the main class that is used to connect to a running server-side EntryStore
      * repository.
-     * @module store/EntryStre
-     * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
-     * may be left out and
-     * guessed if run in a browser environment (appends "/store/" to the window.location.origin)
-     * @param {Object=} credentials - same as provided in the {@link store/EntryStore#auth auth}
-     * method.
+     * @module store/EntryStore
      * @class
      */
   const EntryStore = class {
+      /**
+       * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
+       * may be left out and
+       * guessed if run in a browser environment (appends "/store/" to the window.location.origin)
+       * @param {Object=} credentials - same as provided in the {@link store/EntryStore#auth auth}
+       * method.
+       */
     constructor(baseURI, credentials) {
       if (has('host-browser') && baseURI == null) {
         this._baseURI = `${window.location.origin}/store/`;

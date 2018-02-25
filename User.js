@@ -7,15 +7,17 @@ define([
    * User instances are resources corresponding to users that can be authenticated to access
    * the EntryStore repository. The user resource URI can be referred to from access control lists.
    *
-   * @exports store/User
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @param {Object} data - information about the user, e.g. object containing name and homecontext.
    * @class
+   * @exports store/User
    * @extends store/Resource
    */
   const User = class extends Resource {
+    /**
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     * @param {Object} data - information about the user, e.g. object with name and homecontext.
+     */
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore);
       this._data = data;

@@ -13,14 +13,16 @@ define([
    * changed in an entry, e.g. the entry, graph and resource types, but are crucial before creation.
    * Hence, some methods have been introduced to cover for this need.
    *
-   * @exports store/PrototypeEntry
-   * @param {store/Context} context where this prototypeEntry belongs.
-   * @param {string} id - entry identifier, if not unique in the context the subsequent commit will
-   * fail
    * @class
+   * @exports store/PrototypeEntry
    * @augments store/Entry
    */
   const PrototypeEntry = class extends Entry {
+    /**
+     * @param {store/Context} context where this prototypeEntry belongs.
+     * @param {string} id - entry identifier, if not unique in the context the subsequent commit
+     * will fail.
+     */
     constructor(context, id) {
       const _id = id || '_newId';
       const cru = context.getResourceURI();

@@ -9,11 +9,10 @@ define([
   './Pipeline',
 ], (json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) => {
   /**
-   * @exports store/Context
-   * @param {String} entryURI in which this context is a resource.
-   * @param {String} resourceURI
-   * @param {store/EntryStore} entryStore
+   * Methods for interacting with the EntryStore repository scoped to a specific context.
+   *
    * @class
+   * @exports store/Context
    * @augments store/Resource
    */
   const Context = class extends Resource {
@@ -37,6 +36,8 @@ define([
     /**
      * Convenience method, to retrieve an entry from this context.
      *
+     * @param {string} entryId
+     * @param {object} optionalLoadParams same parameter as in {@see store/EntryStore#getEntry}
      * @returns {entryPromise}
      * @see store/EntryStore#getEntry
      */

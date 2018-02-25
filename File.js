@@ -9,11 +9,8 @@ define([
    * File resources are resources located in the Entrystore repository that have a graph type of
    * none, e.g. none of the special cases for which there are special treatment in EntryStore.
    *
-   * @exports store/File
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
    * @class
+   * @exports store/File
    * @extends store/Resource
    */
   const FileResource = class extends Resource {

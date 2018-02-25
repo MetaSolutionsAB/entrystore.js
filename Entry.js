@@ -17,12 +17,13 @@ define([
    * only those that have corresponding set methods are really unique for this class.
    *
    * @exports store/Entry
-   * @param {store/Context} context container for this entry
-   * @param {store/EntryInfo} entryInfo defines the basics of this entry
-   * @param {store/EntryStore} entryStore the repository for this entry
    * @class
    */
   const Entry = class {
+    /**
+     * @param {store/Context} context container for this entry
+     * @param {store/EntryInfo} entryInfo defines the basics of this entry
+     */
     constructor(context, entryInfo) {
       this._context = context;
       this._entryInfo = entryInfo;
