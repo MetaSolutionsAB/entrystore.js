@@ -3,7 +3,6 @@ define([], () => {
    * This is the base class for resources contained by entries, do not use directly,
    * instead use a subclass.
    *
-   * @class
    * @exports store/Resource
    * @see subclass {@link store/Context}
    * @see subclass {@link store/List}

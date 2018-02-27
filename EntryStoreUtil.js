@@ -2,7 +2,6 @@ define([], () => {
   /**
    * EntryStoreUtil provides utility functionality for working with entries.
    * @exports store/EntryStoreUtil
-   * @class
    */
   const EntryStoreUtil = class {
     /**

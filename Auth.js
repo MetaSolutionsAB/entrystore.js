@@ -5,7 +5,6 @@ define([], () => {
    * EntryStore is the main class that is used to connect to a running server-side
    * EntryStore repository.
    * @exports store/Auth
-   * @class
    */
   const Auth = class {
     /**

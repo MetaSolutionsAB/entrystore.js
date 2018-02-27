@@ -7,9 +7,7 @@ define([
    * Group is a subclass of the List resource and contains a list of users.
    * The group resource URI can be referred to from access control lists.
    *
-   * @class
    * @exports store/Group
-   * @augments store.List
    */
   const Group = class extends List {
     /**

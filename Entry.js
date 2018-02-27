@@ -17,7 +17,6 @@ define([
    * only those that have corresponding set methods are really unique for this class.
    *
    * @exports store/Entry
-   * @class
    */
   const Entry = class {
     /**

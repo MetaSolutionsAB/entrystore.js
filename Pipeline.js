@@ -7,9 +7,7 @@ define([
    * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
    * specific type and takes a set of arguments.
    *
-   * @class
    * @exports store/Pipeline
-   * @extends store/Resource
    */
   const Pipeline = class extends Graph {
     /**

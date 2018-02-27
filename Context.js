@@ -1,8 +1,8 @@
 /* global define*/
 define([
   'dojo/json',
-  'store/String',
-  'store/types',
+  './String',
+  './types',
   './PrototypeEntry',
   './Resource',
   './Graph',
@@ -11,9 +11,7 @@ define([
   /**
    * Methods for interacting with the EntryStore repository scoped to a specific context.
    *
-   * @class
    * @exports store/Context
-   * @augments store/Resource
    */
   const Context = class extends Resource {
     /**

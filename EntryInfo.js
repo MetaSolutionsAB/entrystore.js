@@ -8,7 +8,6 @@ define([
   /**
    * EntryInfo is a class that contains all the administrative information of an entry.
    * @exports store/EntryInfo
-   * @class
    */
   const EntryInfo = class {
     /**

@@ -4,15 +4,13 @@ define([
 ], (json, Resource) => {
   /**
    * List is a container for other entries in the same context.
-   * A single entry may appear in multiple lists (multiple parent lists) unless if it is a list
-   * itself. To avoid circular references list entries are only allowed to appear in one parent
-   * list.
+   * A single entry may appear in multiple lists (multiple parent lists) unless if it is
+   * a list itself. To avoid circular references list entries are only allowed to appear
+   * in one parent list.
    *
-   * @class
    * @exports store/List
-   * @augments store/Resource
    */
-  const ListResource = class extends Resource {
+  const List = class extends Resource {
     /**
      * @param {string} entryURI - URI to an entry where this resource is contained.
      * @param {string} resourceURI - URI to the resource.
@@ -267,7 +265,7 @@ define([
       this._unsortedChildren = data.allUnsorted || children.map(entry => entry.getId());
     }
   };
-  return ListResource;
+  return List;
 });
 
 /**

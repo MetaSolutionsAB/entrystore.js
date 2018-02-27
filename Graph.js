@@ -7,9 +7,7 @@ define([
   /**
    * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
    *
-   * @class
    * @exports store/Graph
-   * @augments store/Resource
    */
   const GraphResource = class extends Resource {
     /**

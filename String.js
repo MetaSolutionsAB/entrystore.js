@@ -4,9 +4,7 @@ define([
   /**
    * String is a resource for handling simple strings of data.
    *
-   * @class
    * @exports store/String
-   * @extends store/Resource
    */
   const StringResource = class extends Resource {
     /**

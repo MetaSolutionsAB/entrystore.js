@@ -3,7 +3,6 @@ define([
 ], (List) => {
   /**
    * @exports store/SearchList
-   * @class
    */
   const SearchList = class {
     /**
@@ -20,7 +19,7 @@ define([
     }
 
     /**
-     * the query instance, e.g. an instance of store/solr, associated with this SearchList.
+     * the query instance, e.g. an instance of store/SolrQuery, associated with this SearchList.
      * @returns {Object}
      */
     getQuery() {

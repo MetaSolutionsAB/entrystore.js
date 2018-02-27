@@ -28,7 +28,6 @@ define([
    * application/json behind the scenes.
    *
    * @exports store/Rest
-   * @namespace
    */
   const Rest = class {
     constructor() {

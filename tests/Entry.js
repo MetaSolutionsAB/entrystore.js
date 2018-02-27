@@ -42,6 +42,26 @@ define([
                 test.done();
             });
         },
+        createEntryWithId: function(test) {
+          c.newEntry('tomato').commit().then((e1) => {
+            test.ok(e1.getId() === 'tomato', "Entry could not be created with specific id" +
+              " 'tomato'!");
+            return e1.del().then(() => {
+              c.newEntry('tomato').commit().then((e2) => {
+                test.ok(e2.getId() === 'tomato', "Entry could not be created with specific id" +
+                  " 'banana'!");
+                e2.del();
+                test.done();
+              }, () => {
+                test.ok(false, 'Not allowed to create entry with id that already existed');
+                test.done();
+              });
+            });
+          }, () => {
+            test.ok(false, "Failed creating entry with specific Id 'tomato' in context 1.");
+            test.done();
+          });
+        },
         createNamedEntry: function(test) {
             c.newNamedEntry().commit().then(function(entry) {
                 test.ok(entry.getId() != null, "Entry created but without id!");

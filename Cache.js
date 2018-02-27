@@ -5,7 +5,6 @@ define([], () => {
    * when entries are updated.
    *
    * @exports store/Cache
-   * @class
    */
   const Cache = class {
     constructor() {

@@ -13,9 +13,7 @@ define([
    * changed in an entry, e.g. the entry, graph and resource types, but are crucial before creation.
    * Hence, some methods have been introduced to cover for this need.
    *
-   * @class
    * @exports store/PrototypeEntry
-   * @augments store/Entry
    */
   const PrototypeEntry = class extends Entry {
     /**

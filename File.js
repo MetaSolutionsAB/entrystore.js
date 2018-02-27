@@ -9,9 +9,7 @@ define([
    * File resources are resources located in the Entrystore repository that have a graph type of
    * none, e.g. none of the special cases for which there are special treatment in EntryStore.
    *
-   * @class
    * @exports store/File
-   * @extends store/Resource
    */
   const FileResource = class extends Resource {
     /**
