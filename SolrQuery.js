@@ -186,6 +186,15 @@ define([
       return this._q('resource', val, modifier);
     }
     /**
+     * Matches the entryURI of the entry.
+     *
+     * @param {string|array} val
+     * @param {true|false|string} modifier
+     * @return {store/SolrQuery}
+     */
+    uri(val, modifier) {
+      return this._q('uri', val, modifier);
+    }    /**
      * Matches all types of the resourceURI, i.e.
      * all URIs pointed to via rdf:type from the resourceURI.
      *
