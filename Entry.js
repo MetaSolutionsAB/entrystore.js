@@ -111,10 +111,11 @@ define([
      * Will push the metadata for this entry to the repository.
      * If metadata has been set for an entry with EntryType 'reference'
      * the entrytype will change to 'linkreference' upon a successful commit.
-     *
+     * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+     * if information is stale, also it will not automatically refresh with the latest date
      * @return {entryPromise} a promise that on success will contain the current updated entry.
      */
-    commitMetadata() {
+    commitMetadata(ignoreIfUnmodifiedSinceCheck) {
       let p;
       const es = this.getEntryStore();
       if (this.isReference()) {
@@ -127,6 +128,10 @@ define([
       } else if (this._metadata == null) {
         p = Promise.reject(`The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`);
       } else {
+        if (ignoreIfUnmodifiedSinceCheck) {
+          p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
+            json.stringify(this._metadata.exportRDFJSON())).then(() => this);
+        }
         const mod = this.getEntryInfo().getModificationDate();
         p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
           json.stringify(this._metadata.exportRDFJSON()), mod)
