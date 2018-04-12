@@ -7,8 +7,44 @@ define([
   'store/EntryStore',
   'md5',
 ], (lang, array, namespaces, SearchList, Context, EntryStore, md5) => {
+  const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:').replace(/%20/g, '%2520'));
   const shorten = function (predicate) {
     return md5(namespaces.expand(predicate)).substr(0, 8);
+  };
+  const buildQuery = (struct, isAnd) => {
+    const terms = [];
+    Object.keys(struct).forEach((key) => {
+      let val = struct[key];
+      val = Array.isArray(val) ? val.map(v => namespaces.expand(v)) : namespaces.expand(val);
+      switch (key) {
+        case 'or':
+          terms.push(buildQuery(val, false));
+          break;
+        case 'and':
+          terms.push(buildQuery(val, true));
+          break;
+        default:
+          if (lang.isString(val)) {
+            terms.push(`${key}:${encodeURIComponent(val.replace(/:/g, '\\:'))}`);
+          } else if (Array.isArray(val)) {
+            const or = [];
+            val.forEach((o) => {
+              or.push(`${key}:${encodeURIComponent(o.replace(/:/g, '\\:'))}`);
+            });
+            if (or.length > 1) {
+              terms.push(`(${or.join('+OR+')})`);
+            } else {
+              terms.push(`${or.join('+OR+')}`);
+            }
+          } else if (typeof val === 'object') {
+            // TODO
+          }
+      }
+    });
+    if (terms.length > 1) {
+      return '('+terms.join(isAnd ? '+AND+' : '+OR+')+')';
+    }
+    return terms.join(`${isAnd ? '+AND+' : '+OR+'}`);
   };
   /**
    * The SolrQuery class provides a way to create a query by chaining method calls according to
@@ -57,6 +93,8 @@ define([
       this.properties = [];
       this.params = {};
       this.modifiers = {};
+      this._and = [];
+      this._or = [];
     }
 
     /**
@@ -385,6 +423,51 @@ define([
     }
 
     /**
+     * Provide a query in the form of an object structure where the toplevel attributes
+     * are disjunctive (OR:ed together). The following example will query for things that
+     * are typed as vedgetables AND have the word 'tomato' in either the title OR description:
+     * query.rdfType('ex:Vedgetable).or({
+     *   title: 'tomato',
+     *   description: 'tomato'
+     * });
+     *
+     * Note, the name of the method ('or') does not refers to how the object structure is
+     * combined with the rest of the query, only how the inner parts of the object structure
+     * is combined. To change the toplevel behaviour of the query from an and to an or,
+     * use the disjunctive method.
+     *
+     * @param {object} struct
+     * @return {store/SolrQuery}
+     */
+    or(struct) {
+      this._or.push(struct);
+      return this;
+    }
+
+    /**
+     * Provide a query in the form of an object structure where the toplevel attributes
+     * are conjunctive (AND:ed together). The following example will query for things that
+     * are typed as vedgetables OR typed as fruit AND has a title that contains the word 'orange':
+     * query.disjunctive().rdfType('ex:Vedgetable).and({
+     *   rdfType: 'ex:Fruit',
+     *   title: 'Orange',
+     * });
+     *
+     * Note, the name of the method ('and') does not refers to how the object structure is
+     * combined with the rest of the query, only how the inner parts of the object structure
+     * is combined. In this example we have change the toplevel behaviour of the query to
+     * become disjunctive (being OR:ed together), this is to make the query more representative
+     * since there is no need for the grouping of the object structure otherwise.
+     *
+     * @param {object} struct
+     * @return {store/SolrQuery}
+     */
+    and(struct) {
+      this._and.push(struct);
+      return this;
+    }
+
+    /**
      * @deprecated
      */
 //eslint-disable-next-line
@@ -561,18 +644,36 @@ define([
       return this;
     }
     /**
-     * Tell the query construction to make the different fields to be disjunctive rather than
+     * Tell the query construction to make the fields added via the property methods
+     * (uriProperty, literalProperty and integerProperty) to be disjunctive rather than
+     * conjunctive. For example:
+     *
+     *     es.newSolrQuery().disjuntiveProperties().literalProperty("dcterms:title", "banana")
+     *          .uriProperty("dcterms:subject", "ex:Banana");
+     *
+     * Will search for entries that have either a "banana" in the title or a relation to
+     * ex:Banana via dcterms:subject. The default, without disjunctiveProperties being called
+     * is to create a conjunction, i.e. AND them together.
+     *
+     * @return {store/SolrQuery}
+     */
+    disjuntiveProperties() {
+      this.disjunctiveProperties = true;
+      return this;
+    }
+    /**
+     * Tell the query construction to make top level fields disjunctive rather than
      * conjunctive. For example
      *
-     *     es.newSolrQuery().disjuntiveProperties().title("banana").description("tomato")
+     *     es.newSolrQuery().disjuntive().title("banana").description("tomato")
      *
      * Will search for entries that have either a "banana" in the title or "tomato" in the
      * description rather than entries that have both which is the default.
      *
      * @return {store/SolrQuery}
      */
-    disjuntiveProperties() {
-      this.disjunctiveProperties = true;
+    disjuntive() {
+      this.disjunctive = true;
       return this;
     }
     /**
@@ -622,7 +723,7 @@ define([
         }
       });
 
-      if (this.disjunctiveProperties) {
+      if (this.disjunctiveProperties || this.disjunctive) {
         const or = [];
         array.forEach(this.properties, (prop) => {
           const obj = prop.object;
@@ -663,6 +764,12 @@ define([
           }
         }, this);
       }
+      this._and.forEach((struct) => {
+        and.push(buildQuery(struct, true));
+      });
+      this._or.forEach((struct) => {
+        and.push(buildQuery(struct, false));
+      });
 
       let trail = '';
       if (this._limit != null) {
@@ -677,7 +784,7 @@ define([
       if (this.facets) {
         trail += `&facetFields=${this.facets.join(',')}`;
       }
-      return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join('+AND+')}${trail}`;
+      return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(this.disjunctive ? '+OR' : '+AND+')}${trail}`;
     }
     /**
      * @param page
