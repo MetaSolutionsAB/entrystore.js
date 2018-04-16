@@ -24,7 +24,7 @@ define([
    * @return {*}
    */
   const solrFriendly = (key, term) => {
-    let and = term.split(' ');
+    let and = term.trim().replace(/\s\s+/g, ' ').split(' ');
     if (isNgram(key)) {
       and = and.map(t => (t.length < ngramLimit ? encodeStr(t) :
         encodeStr(t.substr(0, ngramLimit))));
