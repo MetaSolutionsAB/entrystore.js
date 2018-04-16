@@ -7,9 +7,29 @@ define([
   'store/EntryStore',
   'md5',
 ], (lang, array, namespaces, SearchList, Context, EntryStore, md5) => {
-  const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:').replace(/%20/g, '%2520'));
-  const shorten = function (predicate) {
-    return md5(namespaces.expand(predicate)).substr(0, 8);
+  const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:'));
+  const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);
+  const ngramLimit = 15;
+  const isNgram = key => key.indexOf('title') === 0
+    || key.indexOf('tag.literal') === 0
+    || (key.indexOf('metadata.predicate.literal') === 0 &&
+      key.indexOf('metadata.predicate.literal_s') !== 0);
+  /**
+   * Empty spaces in search term should be interpreted as AND instead of the default OR.
+   * In addition, fields indexed as text_ngram will have to be shortened to the ngram max limit
+   * as they will not match otherwise.
+   *
+   * @param key
+   * @param term
+   * @return {*}
+   */
+  const solrFriendly = (key, term) => {
+    let and = term.split(' ');
+    if (isNgram(key)) {
+      and = and.map(t => (t.length < ngramLimit ? encodeStr(t) :
+        encodeStr(t.substr(0, ngramLimit))));
+    }
+    return and.length === 1 ? encodeStr(and[0]) : `(${and.join('+AND+')})`;
   };
   const buildQuery = (struct, isAnd) => {
     const terms = [];
@@ -25,11 +45,11 @@ define([
           break;
         default:
           if (lang.isString(val)) {
-            terms.push(`${key}:${encodeURIComponent(val.replace(/:/g, '\\:'))}`);
+            terms.push(`${key}:${solrFriendly(key, val)}`);
           } else if (Array.isArray(val)) {
             const or = [];
             val.forEach((o) => {
-              or.push(`${key}:${encodeURIComponent(o.replace(/:/g, '\\:'))}`);
+              or.push(`${key}:${solrFriendly(key, o)}`);
             });
             if (or.length > 1) {
               terms.push(`(${or.join('+OR+')})`);
@@ -42,10 +62,11 @@ define([
       }
     });
     if (terms.length > 1) {
-      return '('+terms.join(isAnd ? '+AND+' : '+OR+')+')';
+      return `(${terms.join(isAnd ? '+AND+' : '+OR+')})`;
     }
     return terms.join(`${isAnd ? '+AND+' : '+OR+'}`);
   };
+
   /**
    * The SolrQuery class provides a way to create a query by chaining method calls according to
    * the builder pattern. For example:
@@ -694,23 +715,23 @@ define([
     getQuery() {
       const and = [];
       if (this._title_lang != null) {
-        and.push(`title.${this._title_lang.lang}:${encodeURIComponent(this._title_lang.value
-          .replace(/:/g, '\\:'))}`);
+        and.push(`title.${this._title_lang.lang}:${solrFriendly(this._title_lang.lang,
+          this._title_lang.value)}`);
       }
       Object.keys(this.params).forEach((key) => {
         const v = this.params[key];
         const modifier = this.modifiers[key];
         if (lang.isString(v) && v !== '') {
           if (modifier === true || modifier === 'not') {
-            and.push(`NOT(${key}:${encodeURIComponent(v.replace(/:/g, '\\:'))})`);
+            and.push(`NOT(${key}:${solrFriendly(key, v)})`);
           } else {
-            and.push(`${key}:${encodeURIComponent(v.replace(/:/g, '\\:'))}`);
+            and.push(`${key}:${solrFriendly(key, v)}`);
           }
         } else if (Array.isArray(v) && v.length > 0) {
           const or = [];
           v.forEach((ov) => {
             if (lang.isString(ov)) {
-              or.push(`${key}:${encodeURIComponent(ov.replace(/:/g, '\\:'))}`);
+              or.push(`${key}:${solrFriendly(key, ov)}`);
             }
           });
           if (modifier === true || modifier === 'not') {
@@ -729,10 +750,10 @@ define([
           const obj = prop.object;
           const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
           if (lang.isString(obj)) {
-            or.push(`${key}:${encodeURIComponent(obj.replace(/:/g, '\\:'))}`);
+            or.push(`${key}:${solrFriendly(key, obj)}`);
           } else if (Array.isArray(obj) && obj.length > 0) {
             array.forEach(obj, (o) => {
-              or.push(`${key}:${encodeURIComponent(o.replace(/:/g, '\\:'))}`);
+              or.push(`${key}:${solrFriendly(key, o)}`);
             });
           }
         });
@@ -745,14 +766,14 @@ define([
           const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
           if (lang.isString(obj)) {
             if (prop.modifier === true || prop.modifier === 'not') {
-              and.push(`NOT(${key}:${encodeURIComponent(obj.replace(/:/g, '\\:'))})`);
+              and.push(`NOT(${key}:${solrFriendly(key, obj)})`);
             } else {
-              and.push(`${key}:${encodeURIComponent(obj.replace(/:/g, '\\:'))}`);
+              and.push(`${key}:${solrFriendly(key, obj)}`);
             }
           } else if (Array.isArray(obj) && obj.length > 0) {
             const or = [];
             array.forEach(obj, (o) => {
-              or.push(`${key}:${encodeURIComponent(o.replace(/:/g, '\\:'))}`);
+              or.push(`${key}:${solrFriendly(key, o)}`);
             }, this);
             if (prop.modifier === true || prop.modifier === 'not') {
               and.push(`NOT(${or.join('+OR+')})`);
