@@ -20,5 +20,9 @@
     }
   ],
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
-  "dojoBuild": "package.js"
+  "dojoBuild": "package.js",
+  "scripts": {
+    "build": "./build/build.sh"
+  }
+
 }
