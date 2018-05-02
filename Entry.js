@@ -1,8 +1,7 @@
-define([
-  'rdfjson/Graph',
-  'store/types',
-  'dojo/json',
-], (Graph, types, json) => {
+  const Graph = require('rdfjson/Graph');
+  import { types } from './types';
+  const json = require('dojo/json');
+
   /**
    * Entrys are at the center of this API. Entrys holds together metadata, external metadata,
    * resources, access control, and provenance. Hence, entrys appear in the majority of methods,
@@ -678,8 +677,8 @@ define([
       return es.handleAsync(p, 'refresh');
     }
   };
-  return Entry;
-});
+
+  export { Entry };
 
 /**
  * Promise that provides an {@link store/Entry} on success.

@@ -1,7 +1,6 @@
-define([
-  'dojo/json',
-  'store/Resource',
-], (json, Resource) => {
+const json = require('dojo/json');
+import { Resource } from './Resource';
+
   /**
    * List is a container for other entries in the same context.
    * A single entry may appear in multiple lists (multiple parent lists) unless if it is
@@ -265,8 +264,8 @@ define([
       this._unsortedChildren = data.allUnsorted || children.map(entry => entry.getId());
     }
   };
-  return List;
-});
+  
+  export { List };
 
 /**
  * Promise that provides an array of entry ids (not full URIs) on success.

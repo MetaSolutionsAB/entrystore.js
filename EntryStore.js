@@ -1,20 +1,18 @@
 /* eslint-disable class-methods-use-this */
-define([
-  'dojo/_base/lang',
-  'dojo/json',
-  'dojo/Deferred',
-  'store/SolrQuery',
-  'store/Cache',
-  'store/Rest',
-  'store/factory',
-  'store/types',
-  'store/PrototypeEntry',
-  'store/Resource',
-  'store/User',
-  'store/Auth',
-  'dojo/has',
-], (lang, json, Deferred, SolrQuery, Cache, Rest, factory, types, PrototypeEntry, Resource, User,
-    Auth, has) => {
+ const lang = require('dojo/_base/lang');
+ const json = require('dojo/json');
+ const Deferred = require('dojo/Deferred');
+ import { SolrQuery } from './SolrQuery';
+ import { Cache } from './Cache';
+ import { Rest } from './Rest';
+ import { factory } from './factory';
+ import { types } from './types';
+ import { PrototypeEntry } from './PrototypeEntry';
+ import { Resource } from './Resource';
+ import { User } from './User';
+ import { Auth } from './Auth';
+ const has = require('dojo/has');
+
   /**
    * EntryStore is the main class that is used to connect to a running server-side EntryStore
    * repository.
@@ -694,8 +692,7 @@ define([
       return factory;
     }
   };
-  return EntryStore;
-});
+  export { EntryStore };
 
 /**
  * @callback asyncListener

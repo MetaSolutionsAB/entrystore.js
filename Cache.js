@@ -1,4 +1,3 @@
-define([], () => {
   /**
    * Caches loaded entries and keeps track of which entries that need to be updated (refreshed).
    * The cache also provides a listener functionality that allows you to be notified of
@@ -190,5 +189,5 @@ define([], () => {
       this._cacheCtrl = {};
     }
   };
-  return Cache;
-});
+
+  export { Cache };

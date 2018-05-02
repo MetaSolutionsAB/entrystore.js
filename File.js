@@ -1,10 +1,10 @@
-define([
-  'dojo/json',
-  'dojo/has',
-  'dojo/_base/lang',
-  'store/Resource',
-  'store/factory',
-], (json, has, lang, Resource, factory) => {
+  const json = require('dojo/json');
+  const has = require('dojo/has');
+  const lang = require('dojo/_base/lang');
+
+  import { Resource } from './Resource';
+  import { factory } from './factory';
+
   /**
    * File resources are resources located in the Entrystore repository that have a graph type of
    * none, e.g. none of the special cases for which there are special treatment in EntryStore.
@@ -147,5 +147,5 @@ define([
       return es.handleAsync(es.getREST().get(this.getResourceURI(), 'text/xml'), 'getFile');
     }
   };
-  return FileResource;
-});
+
+  export { FileResource };

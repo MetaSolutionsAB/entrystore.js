@@ -1,21 +1,18 @@
-define([
-  'store/String',
-  'store/types',
-  'dojo/json',
-  'store/Context',
-  'store/EntryInfo',
-  'store/Entry',
-  'store/List',
-  'store/Group',
-  'store/SearchList',
-  'store/Graph',
-  'store/File',
-  'store/Pipeline',
-  'rdfjson/Graph',
-  'store/User',
-  'exports',
-], (ResourceString, types, json, Context, EntryInfo, Entry, List, Group,
-    SearchList, GraphResource, File, Pipeline, Graph, User, exports) => {
+  import { ResourceString } from './String';
+  import { types } from './types';
+  const json = require('dojo/json');
+  import { Context } from './Context';
+  import { EntryInfo } from './EntryInfo';
+  import { Entry } from './Entry';
+  import { List } from './List';
+  import { Group } from './Group';
+  import { SearchList } from './SearchList';
+  import { GraphResource } from './Graph';
+  import { File } from './File';
+  import { Pipeline } from './Pipeline';
+  const Graph = require('rdfjson/Graph');
+  import { User } from './User';
+
   /**
    * This module contains utility methods that encapsulates EntryStores REST layer from the rest
    * of the code. It is intended to be used internally by the EntryStore.js API,
@@ -31,7 +28,7 @@ define([
    * @exports store/factory
    * @namespace
    */
-  const factory = exports;
+  const factory = {};
 
   let sortObj = { sortBy: 'title', prio: 'List' };
   let defaultLimit = 50;
@@ -406,5 +403,4 @@ define([
     defaultLimit = limit;
   };
 
-  return factory;
-});
+  export { factory };

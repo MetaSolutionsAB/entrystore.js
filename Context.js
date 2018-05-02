@@ -1,13 +1,12 @@
 /* global define*/
-define([
-  'dojo/json',
-  './String',
-  './types',
-  './PrototypeEntry',
-  './Resource',
-  './Graph',
-  './Pipeline',
-], (json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) => {
+  const json = require('dojo/json');
+  import { StringResource } from './String';
+  import { types } from './types';
+  import { PrototypeEntry } from './PrototypeEntry';
+  import { Resource } from './Resource';
+  import { Graph } from './Graph';
+  import { Pipeline } from './Pipeline';
+
   /**
    * Methods for interacting with the EntryStore repository scoped to a specific context.
    *
@@ -247,5 +246,5 @@ define([
       this._name = data.alias || data.name; // TODO, change to only name after clean-up
     }
   };
-  return Context;
-});
+
+  export { Context };

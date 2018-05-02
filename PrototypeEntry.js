@@ -1,9 +1,9 @@
-define([
-  'store/Entry',
-  'store/EntryInfo',
-  'store/terms',
-  'dojo/json',
-], (Entry, EntryInfo, terms, json) => {
+import { Entry } from 'store/Entry';
+import { EntryInfo } from 'store/EntryInfo';
+import { terms } from 'store/terms';
+
+const json = require('dojo/json');
+
   /**
    * A PrototypeEntry is used to create new entries by collecting information about the initial
    * state of the entry to send along to the repository upon creation.
@@ -213,5 +213,4 @@ define([
       return this._context.getEntryStore().createEntry(this);
     }
   };
-  return PrototypeEntry;
-});
+  export { PrototypeEntry };

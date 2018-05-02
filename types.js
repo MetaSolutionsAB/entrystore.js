@@ -1,4 +1,3 @@
-define([], () => {
   /**
    * Types is a module containing the three different types: GraphType, EntryType and
    * ResourceType shortened GT, ET and RT.
@@ -149,5 +148,5 @@ define([], () => {
      */
     RT_UNKNOWN: 'Unknown',
   };
-  return types;
-});
+
+  export { types };

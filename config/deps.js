@@ -9,12 +9,12 @@ require.config({
   packages: [
     {
       name: 'md5',
-      location: 'blueimp-md5/js',
+      location: 'blueimp-md5/js', // reference just needs to change in imports
       main: 'md5.min',
     },
   ],
 
-  map: {
+  map: { // Can we map using webpack? Why are we mapping I wonder. Perhaps it could be explicit.
     'store/Rest': {
             // Force using xhr since we know we are in the browser
       'dojo/request': 'dojo/request/xhr',

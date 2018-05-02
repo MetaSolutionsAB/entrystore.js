@@ -1,13 +1,10 @@
-define([
-  'exports',
-], (exports) => {
   /**
    * This module contains utility methods for promises.
    *
    * @exports store/promiseUtil
    * @namespace
    */
-  const promiseUtil = exports;
+  const promiseUtil = {};
 
   /**
    * Asynchronous forEach relying on promises that works in serial rather than parallell.
@@ -80,8 +77,8 @@ define([
     }
     return Promise.resolve(value);
   };
-  return exports;
-});
+
+  export { promiseUtil };
 
 /**
  * @name forEachPromise

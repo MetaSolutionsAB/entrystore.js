@@ -1,7 +1,6 @@
-define([
-  'store/types',
-  'rdfjson/namespaces',
-], (types, namespaces) => {
+import { types } from './types';
+const namespaces = require('rdfjson/namespaces');
+
   const inv = (obj) => {
     const iobj = {};
     Object.keys(obj).forEach((key) => {
@@ -92,5 +91,4 @@ define([
   terms.resourceType = rt;
   terms.invResourceType = inv(rt);
 
-  return terms;
-});
+  export { terms };

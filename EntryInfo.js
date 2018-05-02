@@ -1,10 +1,9 @@
 /* global define*/
-define([
-  'dojo/json',
-  'store/terms',
-  'rdfjson/Graph',
-  'dojo/date/stamp',
-], (json, terms, Graph, stamp) => {
+const json = require('dojo/json');
+import { terms } from './terms';
+const Graph = require('rdfjson/Graph');
+const stamp = require('dojo/date/stamp');
+
   /**
    * EntryInfo is a class that contains all the administrative information of an entry.
    * @exports store/EntryInfo
@@ -454,8 +453,8 @@ define([
         'http://purl.org/dc/terms/contributor').map(statement => statement.getValue());
     }
   };
-  return EntryInfo;
-});
+
+export { EntryInfo };
 
 /**
  * Promise that provides an {@link store/Entry} on success.

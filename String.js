@@ -1,6 +1,4 @@
-define([
-  'store/Resource',
-], (Resource) => {
+import { Resource } from './Resource',
   /**
    * String is a resource for handling simple strings of data.
    *
@@ -54,5 +52,5 @@ define([
       return this._data;
     }
   };
-  return StringResource;
-});
+
+  export { StringResource };

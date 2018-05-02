@@ -1,12 +1,11 @@
-define([
-  'dojo/_base/lang',
-  'dojo/_base/array',
-  'rdfjson/namespaces',
-  'store/SearchList',
-  'store/Context',
-  'store/EntryStore',
-  'md5',
-], (lang, array, namespaces, SearchList, Context, EntryStore, md5) => {
+const lang = require('dojo/_base/lang');
+const array = require('dojo/_base/array');
+const namespace = require('rdfjson/namespaces');
+import { SearchList } from './SearchList';
+import { Context } from './Context';
+import { EntryStore } from 'EntryStore';
+import { md5 } from 'md5';
+
   const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:'));
   const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);
   const ngramLimit = 15;
@@ -825,5 +824,4 @@ define([
     }
   };
 
-  return SolrQuery;
-});
+  export { SolrQuery };

@@ -1,4 +1,3 @@
-define([], () => {
   let _listenerCounter = 0;
 
   /**
@@ -151,8 +150,7 @@ define([], () => {
       }), 'logout');
     }
   };
-  return Auth;
-});
+  export { Auth };
 
 /**
  * @name userInfoPromise

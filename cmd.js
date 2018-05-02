@@ -1,5 +1,9 @@
+import { EntryStore } from './EntryStore';
+import { Entry } from './Entry';
+import { Resource } from './Resource';
+const rdfprint = require('rdfjson/print');
+
 /* global define*/
-define(['store/EntryStore', 'store/Entry', 'store/Resource', 'rdfjson/print'], (EntryStore, Entry, Resource, rdfprint) => {
     // The following code only works in node.js as it depends on repl and vm being available as global variables.
     // Tested against version 0.6.10
 
@@ -257,4 +261,3 @@ define(['store/EntryStore', 'store/Entry', 'store/Resource', 'rdfjson/print'], (
     lt('last', w, 'The result of the last command, independent of what it was.');
     lt('result', w, 'If the last command resulted in a promise (a sort of callback), the result variable holds what is returned in this callback');
   };
-});

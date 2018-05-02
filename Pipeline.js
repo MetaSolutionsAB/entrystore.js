@@ -1,8 +1,6 @@
-/* global define*/
-define([
-  './terms',
-  './Graph',
-], (terms, Graph) => {
+import { terms } from './terms';
+import { Graph } from './Graph';
+
   /**
    * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
    * specific type and takes a set of arguments.
@@ -355,8 +353,7 @@ define([
     MERGE: 'merge',
   };
 
-  return Pipeline;
-});
+  export { Pipeline };
 
 /**
  * Promise that provides an array of entry URIs on success.

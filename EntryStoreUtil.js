@@ -1,4 +1,3 @@
-define([], () => {
   /**
    * EntryStoreUtil provides utility functionality for working with entries.
    * @exports store/EntryStoreUtil
@@ -194,8 +193,8 @@ define([], () => {
       }).then(() => f());
     }
   };
-  return EntryStoreUtil;
-});
+
+  export { EntryStoreUtil };
 
 /**
  * @name successOrFailPromise

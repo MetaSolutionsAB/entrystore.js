@@ -1,15 +1,12 @@
-/* global define,rdfjson*/
-define([
-  'exports',
-  'rdfjson/print',
-], (exports, print) => {
+const print = require('rdfjson/print');
+
   /**
    * A module that contain utility methods for generating html for entries.
    *
    * @exports store/html
    * @namespace
    */
-  const html = exports;
+  const html = {};
   // The above construction seem to be needed because of jsdoc3 issues with not detecting the
   // exports variable.
 
@@ -103,4 +100,5 @@ define([
     strs.push('</div></div>');
     return strs.join('');
   };
-});
+
+  export { html };

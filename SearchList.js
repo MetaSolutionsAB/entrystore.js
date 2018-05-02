@@ -1,6 +1,6 @@
-define([
   'store/List',
-], (List) => {
+  import { List } from './List';
+
   /**
    * @exports store/SearchList
    */
@@ -125,5 +125,4 @@ define([
   SearchList.prototype._getEntries = List.prototype._getEntries;
   SearchList.prototype._update = List.prototype._update;
 
-  return SearchList;
-});
+  export { SearchList };

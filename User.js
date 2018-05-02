@@ -1,8 +1,6 @@
-/* global define*/
-define([
-  'dojo/json',
-  'store/Resource',
-], (json, Resource) => {
+  const json = require('dojo/json');
+  const Resource = require('store/Resource');
+
   /**
    * User instances are resources corresponding to users that can be authenticated to access
    * the EntryStore repository. The user resource URI can be referred to from access control lists.
@@ -147,5 +145,5 @@ define([
       return this._data;
     }
   };
-  return User;
-});
+
+  export { User };

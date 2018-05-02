@@ -1,9 +1,8 @@
-/* global define*/
-define([
-  'dojo/json',
-  'store/Resource',
-  'rdfjson/Graph',
-], (json, Resource, Graph) => {
+const json = require('dojo/json');
+const Graph = require('rdfjson/Graph');
+
+import { Resource } from './Resource';
+
   /**
    * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
    *
@@ -70,5 +69,5 @@ define([
       this._graph = new Graph(data);
     }
   };
-  return GraphResource;
-});
+
+export { GraphResource };
