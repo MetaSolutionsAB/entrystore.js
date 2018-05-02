@@ -28,8 +28,10 @@ define([
     if (isNgram(key)) {
       and = and.map(t => (t.length < ngramLimit ? encodeStr(t) :
         encodeStr(t.substr(0, ngramLimit))));
+    } else {
+      and = and.map(t => encodeStr(t));
     }
-    return and.length === 1 ? encodeStr(and[0]) : `(${and.join('+AND+')})`;
+    return and.length === 1 ? and[0] : `(${and.join('+AND+')})`;
   };
   const buildQuery = (struct, isAnd) => {
     const terms = [];
