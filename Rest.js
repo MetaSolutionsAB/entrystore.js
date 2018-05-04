@@ -1,8 +1,6 @@
-define([
-  'require',
-  'dojo/request',
-  'dojo/has',
-], (require, request, has) => {
+  const request = require('dojo/request');
+  const has = request('dojo/has');
+
   /**
    * Check if requests will be to the same domain, i.e. no CORS.
    * Must be used in a browser environment.
@@ -318,8 +316,8 @@ define([
       return this.put(uri, data, null, format);
     }
   };
-  return Rest;
-});
+
+export { Rest };
 
 /**
  * @name xhrPromise
