@@ -4,7 +4,7 @@ const namespace = require('rdfjson/namespaces');
 import { SearchList } from './SearchList';
 import { Context } from './Context';
 import { EntryStore } from 'EntryStore';
-import { md5 } from 'md5';
+import { md5 } from 'blueimp-md5';
 
   const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:'));
   const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);

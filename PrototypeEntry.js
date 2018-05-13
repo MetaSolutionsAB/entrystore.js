@@ -1,6 +1,6 @@
-import { Entry } from 'store/Entry';
-import { EntryInfo } from 'store/EntryInfo';
-import { terms } from 'store/terms';
+import { Entry } from 'Entry';
+import { EntryInfo } from 'EntryInfo';
+import { terms } from 'terms';
 
 const json = require('dojo/json');
 

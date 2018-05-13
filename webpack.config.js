@@ -4,19 +4,22 @@ const DojoWebpackPlugin = require('dojo-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 
-module.exports = {
-  entry: './package.js',
+const config = {
+  entry: './index.js',
+  devtool: '#inline-source-map',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'spa.js',
-    //library: 'spa',
-    //libraryTarget: "umd"
+    filename: 'all.js',
+    library: 'EntryStore',
+    libraryTarget: "umd"
   },
   plugins: [
     //new CleanWebpackPlugin(),
     new DojoWebpackPlugin({
-      loaderConfig: require('./loaderConfig')({dojoRoot: './libs'}),
+      loaderConfig: require('./loaderConfig')({dojoRoot: './node_modules'}),
     }),
     //new UglifyJSPlugin(),
   ],
 };
+
+module.exports = config;

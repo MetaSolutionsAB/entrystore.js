@@ -1,5 +1,5 @@
   const json = require('dojo/json');
-  const Resource = require('store/Resource');
+  const Resource = require('Resource');
 
   /**
    * User instances are resources corresponding to users that can be authenticated to access

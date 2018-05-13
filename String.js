@@ -1,4 +1,4 @@
-import { Resource } from './Resource',
+import { Resource } from './Resource';
   /**
    * String is a resource for handling simple strings of data.
    *

@@ -1,4 +1,3 @@
-  'store/List',
   import { List } from './List';
 
   /**
