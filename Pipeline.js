@@ -1,5 +1,5 @@
 import { terms } from './terms';
-import { Graph } from './Graph';
+import { GraphResource } from './Graph';
 
   /**
    * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
@@ -7,7 +7,7 @@ import { Graph } from './Graph';
    *
    * @exports store/Pipeline
    */
-  const Pipeline = class extends Graph {
+  const Pipeline = class extends GraphResource {
     /**
      * The destination where the result (in the form of a single RDF graph) should
      * end up (within the specified entry's graph resource).

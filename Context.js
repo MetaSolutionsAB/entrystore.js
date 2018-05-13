@@ -4,7 +4,7 @@
   import { types } from './types';
   import { PrototypeEntry } from './PrototypeEntry';
   import { Resource } from './Resource';
-  import { Graph } from './Graph';
+  import { GraphResource } from './Graph';
   import { Pipeline } from './Pipeline';
 
   /**
@@ -156,7 +156,7 @@
     newGraph(graph, id) {
       const pe = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
       const ei = pe.getEntryInfo();
-      pe._resource = new Graph(ei.getEntryURI(), ei.getResourceURI(),
+      pe._resource = new GraphResource(ei.getEntryURI(), ei.getResourceURI(),
         this.getEntryStore(), graph || {});
       return pe;
     }

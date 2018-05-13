@@ -1,4 +1,4 @@
-  import { ResourceString } from './String';
+  import { StringResource } from './String';
   import { types } from './types';
   const json = require('dojo/json');
   import { Context } from './Context';
@@ -8,7 +8,7 @@
   import { Group } from './Group';
   import { SearchList } from './SearchList';
   import { GraphResource } from './Graph';
-  import { File } from './File';
+  import { FileResource } from './File';
   import { Pipeline } from './Pipeline';
   const Graph = require('rdfjson/Graph');
   import { User } from './User';
@@ -104,7 +104,7 @@
           break;
         case types.GT_STRING:
           if (force || _data.resource != null) {
-            resource = new ResourceString(uri, ruri, es, _data.resource || '');
+            resource = new StringResource(uri, ruri, es, _data.resource || '');
           }
           break;
         case types.GT_GRAPH: // Sync or Async?
@@ -119,7 +119,7 @@
           break;
         case types.GT_PIPELINERESULT: // If local, Pipelineresult resource is a file.
         case types.GT_NONE: // Uploaded file.
-          resource = new File(uri, ruri, es);
+          resource = new FileResource(uri, ruri, es);
           break;
         default:
       }
