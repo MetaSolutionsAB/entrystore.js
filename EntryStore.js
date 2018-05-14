@@ -1,6 +1,5 @@
 /* eslint-disable class-methods-use-this */
  const lang = require('dojo/_base/lang');
- const json = require('dojo/json');
  const Deferred = require('dojo/Deferred');
  import { SolrQuery } from './SolrQuery';
  import { Cache } from './Cache';
@@ -682,10 +681,8 @@
      * @returns {dojo/promise/Promise}
      */
     info() {
-      require(['dojo/text!package.json'], (data) => {
-        const p = json.parse(data);
-        return { version: p.version };
-      });
+      const packageJSON = require('package.json');
+      return { version: packageJSON.version };
     }
 
     getFactory() {
