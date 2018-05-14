@@ -1,5 +1,6 @@
-  const request = require('dojo/request');
-  const has = request('dojo/has');
+//const request = require('dojo/request');
+const has = require('dojo/has');
+import superagent from 'superagent';
 
   /**
    * Check if requests will be to the same domain, i.e. no CORS.
@@ -115,13 +116,16 @@
           });
         });
       }
-      return request.get(`${credentials.base}auth/logout`, {
-        preventCache: true,
-        handleAs: 'json',
-        headers: this.headers,
-        withCredentials: true,
-        timeout: this.timeout,
-      });
+
+      const logoutRequestResult = superagent.get(`${credentials.base}auth/logout`)
+        .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+        .accept('application/json')
+        .withCredentials()
+        .timeout({ response: this.timeout });
+
+      Object.entries(this.headers).map( keyVal => logoutRequestResult.set(keyVal[0], keyval[1]) );
+
+      return logoutRequestResult;
     }
 
     /**
@@ -169,18 +173,21 @@
           });
         });
       }
-      return request.get(_uri, {
-        preventCache: true,
-        handleAs,
-        headers: locHeaders,
-        withCredentials: true,
-        timeout: this.timeout,
-      }).response.then((response) => {
-        if (response.status === 200) {
-          return response.data;
-        }
-        throw new Error(`Resource could not be loaded: ${response.text}`);
-      });
+      const getRequest = superagent.get(_uri)
+        .accept(handleAs)
+        .timeout({ response: this.timeout })
+        .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+        .withCredentials();
+
+      Object.entries(locHeaders).map( keyVal => getRequest.set(keyVal[0], keyval[1]) );
+
+      return getRequest
+        .then((response) => {
+          if (response.status === 200) {
+            return response.data;
+          }
+          throw new Error(`Resource could not be loaded: ${response.text}`);
+        });
     }
 
     /**
@@ -203,14 +210,16 @@
         locHeaders['Content-Type'] = format;
       }
 
-      return request.post(uri, {
-        preventCache: true,
-        // handleAs: "json",
-        data,
-        headers: locHeaders,
-        withCredentials: true,
-        timeout: this.timeout,
-      });
+      const postRequest = superagent.post(uri)
+        .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+        //.accept(handleAs)
+        .send( data )
+        .withCredentials()
+        .timeout({ response: this.timeout });
+
+      Object.entries(locHeaders).map( keyVal => postRequest.set(keyVal[0], keyval[1]) );
+
+      return postRequest;
     }
 
     /**
@@ -262,14 +271,16 @@
       } else if (typeof data === 'object') {
         locHeaders['Content-Type'] = 'application/json';
       }
-      return request.put(uri, {
-        preventCache: true,
-        // handleAs: "json",
-        data,
-        headers: locHeaders,
-        withCredentials: true,
-        timeout: this.timeout,
-      });
+
+      const putRequest = superagent.put(uri)
+        .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+        .send( data )
+        .withCredentials()
+        .timeout({ response: this.timeout });
+
+      Object.entries(locHeaders).map( keyVal => putRequest.set(keyVal[0], keyval[1]) );
+
+      return putRequest;
     }
 
     /**
@@ -286,13 +297,14 @@
         locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
       }
 
-      return request.del(uri, {
-        preventCache: true,
-        // handleAs: "json",
-        headers: locHeaders,
-        withCredentials: true,
-        timeout: this.timeout,
-      });
+      const deleteRequest = superagent.del(uri)
+        .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+        .withCredentials()
+        .timeout({ response: this.timeout });
+
+      Object.entries(locHeaders).map( keyVal => deleteRequest.set(keyVal[0], keyval[1]) );
+
+      return deleteRequest;
     }
 
     /**
