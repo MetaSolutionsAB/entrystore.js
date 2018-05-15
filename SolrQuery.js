@@ -361,7 +361,7 @@ define([
      * @return {store/SolrQuery}
      */
     publicRead(isPublic = true) {
-      return this._q('public', isPublic === true ? 'true' : 'false', modifier);
+      return this._q('public', isPublic === true ? 'true' : 'false');
     }
     /**
      * Matches only entries with explicitly ACL stating user(s) has admin rights
