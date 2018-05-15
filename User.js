@@ -1,5 +1,5 @@
   const json = require('dojo/json');
-  const Resource = require('Resource');
+  import { Resource } from 'Resource';
 
   /**
    * User instances are resources corresponding to users that can be authenticated to access
@@ -7,7 +7,7 @@
    *
    * @exports store/User
    */
-  const User = class extends Resource {
+  class User extends Resource {
     /**
      * @param {string} entryURI - URI to an entry where this resource is contained.
      * @param {string} resourceURI - URI to the resource.

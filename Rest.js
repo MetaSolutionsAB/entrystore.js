@@ -1,6 +1,7 @@
 //const request = require('dojo/request');
 const has = require('dojo/has');
 import superagent from 'superagent';
+const jsonp = require('superagent-jsonp');
 
   /**
    * Check if requests will be to the same domain, i.e. no CORS.
@@ -37,6 +38,7 @@ import superagent from 'superagent';
         'X-Requested-With': null,
       };
       const rest = this;
+      /* TODO: @scazan uncomment this with a file upload solution
       if (has('host-browser')) {
         require([
           'dojo/_base/window',
@@ -86,6 +88,7 @@ import superagent from 'superagent';
           };
         });
       }
+      */
     }
     /**
      * @param {object} credentials should contain attributes "user", "password", and "maxAge".
@@ -160,17 +163,21 @@ import superagent from 'superagent';
       // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
       if (has('host-browser') && !sameOrigin(_uri) && !nonJSONP) {
         return new Promise((resolve, reject) => {
-          require(['dojo/request/script'], (script) => {
             const queryParameter = new RegExp('[?&]format=');
             if (!queryParameter.test(_uri)) {
               _uri += `${_uri.includes('?') ? '&' : '?'}format=application/json`;
             }
-            script.get(_uri, { jsonp: 'callback' }).then((data) => {
-              resolve(data);
+          superagent.get(_uri)
+            .use(jsonp({
+                timeout: 160,
+              })
+            ) // Need this timeout to prevent an issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
+            .then( data => {
+              console.log(data);
+              resolve(data.body);
             }, (err) => {
               reject(err);
             });
-          });
         });
       }
       const getRequest = superagent.get(_uri)
