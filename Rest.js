@@ -108,8 +108,8 @@ const jsonp = require('superagent-jsonp');
           return this.post(`${credentials.base}auth/cookie`, data);
         }
         const p = this.post(`${credentials.base}auth/cookie`, data);
-        return p.response.then((response) => {
-          const cookies = response.getHeader('set-cookie');
+        return p.then((response) => {
+          const cookies = response.headers['set-cookie'];
           cookies.some((c) => {
             if (c.substring(0, 11) === 'auth_token=') {
               this.headers.cookie = [c];
@@ -163,21 +163,22 @@ const jsonp = require('superagent-jsonp');
       // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
       if (has('host-browser') && !sameOrigin(_uri) && !nonJSONP) {
         return new Promise((resolve, reject) => {
-            const queryParameter = new RegExp('[?&]format=');
-            if (!queryParameter.test(_uri)) {
-              _uri += `${_uri.includes('?') ? '&' : '?'}format=application/json`;
-            }
+          const queryParameter = new RegExp('[?&]format=');
+          if (!queryParameter.test(_uri)) {
+            _uri += `${_uri.includes('?') ? '&' : '?'}format=application/json`;
+          }
+
           superagent.get(_uri)
             .use(jsonp({
                 timeout: 160,
               })
             ) // Need this timeout to prevent an issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
             .then( data => {
-              console.log(data);
               resolve(data.body);
             }, (err) => {
               reject(err);
             });
+
         });
       }
       const getRequest = superagent.get(_uri)
@@ -191,7 +192,7 @@ const jsonp = require('superagent-jsonp');
       return getRequest
         .then((response) => {
           if (response.status === 200) {
-            return response.data;
+            return response.body;
           }
           throw new Error(`Resource could not be loaded: ${response.text}`);
         });
@@ -220,13 +221,13 @@ const jsonp = require('superagent-jsonp');
       const postRequest = superagent.post(uri)
         .query( {'request.preventCache': parseInt(Math.random() * 10000, 10)} )
         .send( data )
-        // serialize the object into a format that the backend is used to (no JSON strings)
+      // serialize the object into a format that the backend is used to (no JSON strings)
         .serialize(obj =>
           Object.entries(obj)
-            .map( keyVal =>
-              keyVal[0] + "=" + keyVal[1] + "&"
-            )
-            .join("")
+          .map( keyVal =>
+            keyVal[0] + "=" + keyVal[1] + "&"
+          )
+          .join("")
         )
         .withCredentials()
         .timeout({ response: this.timeout });
@@ -247,18 +248,19 @@ const jsonp = require('superagent-jsonp');
      * @returns {createPromise}
      */
     create(uri, data) {
-      return this.post(uri, data).response.then((response) => {
-        let location = response.getHeader('Location');
+      return this.post(uri, data).then((response) => {
+        //let location = response.getHeader('Location');
+        let location = response.headers['location'];
         // In some weird cases, like when making requests from file:///
         // we do not have access to headers.
-        if (!location && response.data) {
+        if (!location && response.body) {
           const idx = uri.indexOf('?');
           if (idx !== -1) {
             location = uri.substr(0, uri.indexOf('?'));
           } else {
             location = uri;
           }
-          location += `/entry/${JSON.parse(response.data).entryId}`;
+          location += `/entry/${JSON.parse(response.body).entryId}`;
         }
         return location;
       });
