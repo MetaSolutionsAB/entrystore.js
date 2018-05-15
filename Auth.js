@@ -111,6 +111,7 @@
       };
       return this.entrystore.handleAsync(this.entrystore.getREST().auth(credentials)
         .then((data) => {
+          console.log('HERE');
           if (typeof data === 'object' && data.user) {
             return data;
           }

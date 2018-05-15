@@ -126,7 +126,7 @@ const jsonp = require('superagent-jsonp');
         .withCredentials()
         .timeout({ response: this.timeout });
 
-      Object.entries(this.headers).map( keyVal => logoutRequestResult.set(keyVal[0], keyval[1]) );
+      Object.entries(this.headers).map( keyVal => logoutRequestResult.set(keyVal[0], keyVal[1]) );
 
       return logoutRequestResult;
     }
@@ -186,7 +186,7 @@ const jsonp = require('superagent-jsonp');
         .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
         .withCredentials();
 
-      Object.entries(locHeaders).map( keyVal => getRequest.set(keyVal[0], keyval[1]) );
+      Object.entries(locHeaders).map( keyVal => getRequest.set(keyVal[0], keyVal[1]) );
 
       return getRequest
         .then((response) => {
@@ -218,13 +218,20 @@ const jsonp = require('superagent-jsonp');
       }
 
       const postRequest = superagent.post(uri)
-        .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
-        //.accept(handleAs)
+        .query( {'request.preventCache': parseInt(Math.random() * 10000, 10)} )
         .send( data )
+        // serialize the object into a format that the backend is used to (no JSON strings)
+        .serialize(obj =>
+          Object.entries(obj)
+            .map( keyVal =>
+              keyVal[0] + "=" + keyVal[1] + "&"
+            )
+            .join("")
+        )
         .withCredentials()
         .timeout({ response: this.timeout });
 
-      Object.entries(locHeaders).map( keyVal => postRequest.set(keyVal[0], keyval[1]) );
+      Object.entries(locHeaders).map( keyVal => postRequest.set(keyVal[0], keyVal[1]) );
 
       return postRequest;
     }
@@ -285,7 +292,7 @@ const jsonp = require('superagent-jsonp');
         .withCredentials()
         .timeout({ response: this.timeout });
 
-      Object.entries(locHeaders).map( keyVal => putRequest.set(keyVal[0], keyval[1]) );
+      Object.entries(locHeaders).map( keyVal => putRequest.set(keyVal[0], keyVal[1]) );
 
       return putRequest;
     }
@@ -309,7 +316,7 @@ const jsonp = require('superagent-jsonp');
         .withCredentials()
         .timeout({ response: this.timeout });
 
-      Object.entries(locHeaders).map( keyVal => deleteRequest.set(keyVal[0], keyval[1]) );
+      Object.entries(locHeaders).map( keyVal => deleteRequest.set(keyVal[0], keyVal[1]) );
 
       return deleteRequest;
     }
