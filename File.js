@@ -1,4 +1,3 @@
-  const json = require('dojo/json');
   const has = require('dojo/has');
   const lang = require('dojo/_base/lang');
 
@@ -78,7 +77,7 @@
      * @returns {xhrPromise}
      */
     putJSON(obj) {
-      return this.put(json.stringify(obj));
+      return this.put(JSON.stringify(obj));
     }
 
     /**
@@ -103,7 +102,7 @@
             throw new Error('Xmlserializer not supported');
           }
         }
-      } else if (!lang.isString(_xml)) {
+      } else if ((typeof _xml) !== "string") {
         throw new Error('Unsupported format of parameter xml to method putAsXML');
       }
       return this.put(_xml, 'text/xml');
