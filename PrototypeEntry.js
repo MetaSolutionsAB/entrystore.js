@@ -2,8 +2,6 @@ import { Entry } from 'Entry';
 import { EntryInfo } from 'EntryInfo';
 import { terms } from 'terms';
 
-const json = require('dojo/json');
-
   /**
    * A PrototypeEntry is used to create new entries by collecting information about the initial
    * state of the entry to send along to the repository upon creation.

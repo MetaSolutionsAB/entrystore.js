@@ -1,5 +1,4 @@
   const has = require('dojo/has');
-  const lang = require('dojo/_base/lang');
 
   import { Resource } from './Resource';
   import { factory } from './factory';

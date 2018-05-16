@@ -2,13 +2,12 @@ define([
   'dojo/_base/window',
   'dojo/dom-attr',
   'dojo/dom-construct',
-  'dojo/json',
   'dojo/query',
   'store/EntryStore',
   'store/factory',
   'store/html',
   'dojo/domReady!',
-], (win, attr, construct, json, query, EntryStore, factory, html) => {
+], (win, attr, construct, query, EntryStore, factory, html) => {
   let entryURI = window._entryURI || window.location.href;
   if (entryURI.indexOf('?') !== -1) {
     entryURI = entryURI.substr(0, entryURI.indexOf('?'));

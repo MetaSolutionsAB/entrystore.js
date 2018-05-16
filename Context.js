@@ -1,5 +1,4 @@
 /* global define*/
-  const json = require('dojo/json');
   import { StringResource } from './String';
   import { types } from './types';
   import { PrototypeEntry } from './PrototypeEntry';

@@ -1,5 +1,3 @@
-const lang = require('dojo/_base/lang');
-const array = require('dojo/_base/array');
 const namespaces = require('rdfjson/namespaces');
 import { SearchList } from './SearchList';
 import { Context } from './Context';

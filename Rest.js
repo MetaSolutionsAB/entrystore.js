@@ -1,4 +1,3 @@
-//const request = require('dojo/request');
 const has = require('dojo/has');
 import superagent from 'superagent';
 const jsonp = require('superagent-jsonp');

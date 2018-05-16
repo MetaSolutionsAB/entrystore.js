@@ -1,4 +1,3 @@
-const json = require('dojo/json');
 const Graph = require('rdfjson/Graph');
 
 import { Resource } from './Resource';
