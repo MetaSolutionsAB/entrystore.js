@@ -41,7 +41,7 @@ import { md5 } from 'blueimp-md5';
           terms.push(buildQuery(val, true));
           break;
         default:
-          if (lang.isString(val)) {
+          if (typeof val === 'string') {
             terms.push(`${key}:${solrFriendly(key, val)}`);
           } else if (Array.isArray(val)) {
             const or = [];
@@ -430,7 +430,7 @@ import { md5 } from 'blueimp-md5';
     context(context, modifier = false) {
       if (context && context.getResourceURI) {
         return this._q('context', context.getResourceURI(), modifier);
-      } else if (lang.isString(context) && context !== '') {
+      } else if (((typeof context) === 'string') && context !== '') {
         if (context.indexOf('http') === 0) {
           return this._q('context', context, modifier);
         }
@@ -718,7 +718,7 @@ import { md5 } from 'blueimp-md5';
       Object.keys(this.params).forEach((key) => {
         const v = this.params[key];
         const modifier = this.modifiers[key];
-        if (lang.isString(v) && v !== '') {
+        if ((typeof v === 'string') && v !== '') {
           if (modifier === true || modifier === 'not') {
             and.push(`NOT(${key}:${solrFriendly(key, v)})`);
           } else {
@@ -727,7 +727,7 @@ import { md5 } from 'blueimp-md5';
         } else if (Array.isArray(v) && v.length > 0) {
           const or = [];
           v.forEach((ov) => {
-            if (lang.isString(ov)) {
+            if ((typeof ov === 'string') ) {
               or.push(`${key}:${solrFriendly(key, ov)}`);
             }
           });
@@ -746,7 +746,7 @@ import { md5 } from 'blueimp-md5';
         array.forEach(this.properties, (prop) => {
           const obj = prop.object;
           const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
-          if (lang.isString(obj)) {
+          if (typeof obj === 'string') {
             or.push(`${key}:${solrFriendly(key, obj)}`);
           } else if (Array.isArray(obj) && obj.length > 0) {
             array.forEach(obj, (o) => {
@@ -761,7 +761,7 @@ import { md5 } from 'blueimp-md5';
         this.properties.forEach((prop) => {
           const obj = prop.object;
           const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
-          if (lang.isString(obj)) {
+          if (typeof obj === 'string') {
             if (prop.modifier === true || prop.modifier === 'not') {
               and.push(`NOT(${key}:${solrFriendly(key, obj)})`);
             } else {
