@@ -1,8 +1,7 @@
 define([
-    'store/EntryStore',
-    'rdfjson/Graph',
+    '../libs/rdfjson/Graph',
     'tests/config'
-], function(EntryStore, Graph, config) {
+], function(Graph, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
@@ -16,7 +15,7 @@ define([
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
+                es.auth({user: "test@metasolutions.se", password: "testtest"}).then(function() {
                     ready = true;
                     callback();
                 });

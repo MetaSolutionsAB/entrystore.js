@@ -1,9 +1,8 @@
 define([
-    'dojo/_base/lang',
-    'dojo/has',
-    'store/EntryStore',
+    '../libs/dojo/_base/lang',
+    '../libs/dojo/has',
     'tests/config'
-], function(lang, has, EntryStore, config) {
+], function(lang, has, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
@@ -14,7 +13,7 @@ define([
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.getAuth().login("Donald", "donalddonald").then(function() {
+                es.getAuth().login("test@metasolutions.se", "testtest").then(function() {
                     ready = true;
                     callback();
                 });

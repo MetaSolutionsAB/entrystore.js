@@ -1,4 +1,4 @@
-define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
+define(['tests/config'], function(config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
@@ -8,23 +8,23 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
         authorize: {
             cookieSignIn: function(test) {
                 test.expect(1);
-                auth.login("Donald", "donalddonald").then(function(data) {
+                auth.login("test@metasolutions.se", "testtest").then(function(data) {
                     test.ok(data.user === "donald");
                     test.done();
                 }, function() {
-                    test.ok(false, "Could not authenticate user Donald with password donalddonald");
+                    test.ok(false, "Could not authenticate test user with password testtest");
                     test.done();
                 });
             },
             cookieSignOut: function(test) {
                 test.expect(1);
-                auth.login("Donald", "donalddonald").then(function() {
+                auth.login("test@metasolutions.se", "testtest").then(function() {
                     return auth.logout().then(function(data) {
-                        test.ok(data.user === "guest", "Failed sign out from account Donald.");
+                        test.ok(data.user === "guest", "Failed sign out from test account");
                         test.done();
                     });
                 }, function() {
-                    test.ok(false, "Could not de-authenticate user Donald.");
+                    test.ok(false, "Could not de-authenticate test user");
                     test.done();
                 });
             }
@@ -39,13 +39,13 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
                 test.expect(1);
                 var f = function (topic, data) {
                     if (topic === "login") {
-                        test.ok(data.user === "donald");
+                        test.ok(data.user === "test@metasolutions.se");
                         test.done();
                         auth.removeAuthListener(f);
                     }
                 };
                 auth.addAuthListener(f);
-                auth.login("Donald", "donalddonald");
+                auth.login("test@metasolutions.se", "testtest");
             },
             guestUserEntry: function(test) {
                 test.expect(1);
@@ -58,7 +58,7 @@ define(['store/EntryStore', 'tests/config'], function(EntryStore, config) {
         },
         fromUserListeners: {
             setUp: function (callback) {
-                auth.login("Donald", "donalddonald").then(function() {
+                auth.login("test@metasolutions.se", "testtest").then(function() {
                     callback();
                 });
             },

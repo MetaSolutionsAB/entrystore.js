@@ -3,25 +3,24 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="nodeunit.css" type="text/css" media="screen" />
     <script src="nodeunit.js"></script>
-    <script src="../../libs/requirejs/require.js"></script>
 </head>
   <body>
+    <script src="../../dist/all.js"></script>
+    <script src="../../libs/requirejs/require.js"></script>
   <script type="text/javascript">
-      require(["../../config/deps"], function() {
-          require.config({baseUrl: "../../libs"});
+    require = requirejs;
+          require.config({baseUrl: "../../"});
           require([
               'tests/config',
-              'dojo/domReady!'             //Wait until the dom is ready.
           ], function(config) {
               if (config.repository == null) {
                   //Override the default repository location with what can be detected, (might be the same).
                   config.repository = window.location.origin + "/store/";
               }
               //Load the runner which will execute immediately based on what is available in the config.
-              require(['store/tests/executeAllTests'], function() {
+              require(['tests/executeAllTestsES6'], function() {
               });
           });
-      });
   </script>
   </body>
 </html>

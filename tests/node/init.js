@@ -8,6 +8,6 @@ requirejs.config({
     deps: [
         "../../config/node-deps.js",
         'tests/config',
-        'store/tests/executeAllTests'
+        'store/tests/executeAllTestsES6'
     ]
 });

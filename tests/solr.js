@@ -1,10 +1,9 @@
 define([
-    'store/EntryStore',
     'store/EntryStoreUtil',
-    'rdfjson/Graph',
+    '../libs/rdfjson/Graph',
     'store/types',
     'tests/config'
-], function(EntryStore, EntryStoreUtil, Graph, types, config) {
+], function(EntryStoreUtil, Graph, types, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
