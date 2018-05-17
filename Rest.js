@@ -95,7 +95,8 @@ const jsonp = require('superagent-jsonp');
 
             // TODO @scazan should this be the return value?
             return res;
-      };
+        };
+      }
     }
     /**
      * @param {object} credentials should contain attributes "user", "password", and "maxAge".
@@ -168,7 +169,7 @@ const jsonp = require('superagent-jsonp');
       }
 
       // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-      if ( isBrowser() ) && !sameOrigin(_uri) && !nonJSONP) {
+      if ( isBrowser() && !sameOrigin(_uri) && !nonJSONP) {
         return new Promise((resolve, reject) => {
           const queryParameter = new RegExp('[?&]format=');
           if (!queryParameter.test(_uri)) {
