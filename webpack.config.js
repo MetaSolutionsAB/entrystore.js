@@ -9,6 +9,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const config = {
   entry: './index.js',
   devtool: '#inline-source-map',
+  mode: 'development',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'all.js',
