@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
- const lang = require('dojo/_base/lang');
  const Deferred = require('dojo/Deferred');
  import { SolrQuery } from './SolrQuery';
  import { Cache } from './Cache';
@@ -10,6 +9,7 @@
  import { Resource } from './Resource';
  import { User } from './User';
  import { Auth } from './Auth';
+import { isBrowser } from './utils';
  const has = require('dojo/has');
 
   /**
@@ -26,7 +26,7 @@
      * method.
      */
     constructor(baseURI, credentials) {
-      if (has('host-browser') && baseURI == null) {
+      if (isBrowser() && baseURI == null) {
         this._baseURI = `${window.location.origin}/store/`;
       } else {
         this._baseURI = baseURI;
