@@ -1,4 +1,4 @@
-const has = require('dojo/has');
+import { isBrowser, isIE } from './utils';
 import superagent from 'superagent';
 const jsonp = require('superagent-jsonp');
 
@@ -36,19 +36,16 @@ const jsonp = require('superagent-jsonp');
         'Content-Type': 'application/json; charset=UTF-8',
         'X-Requested-With': null,
       };
+
       const rest = this;
-      /* TODO: @scazan uncomment this with a file upload solution
-      if (has('host-browser')) {
-        require([
-          'dojo/_base/window',
-          'dojo/request/iframe',
-        ], (win, iframe) => {
+
+      if (isBrowser()) {
           rest.putFile = (uri, data, format) => {
             if (!data.value) {
               return undefined;
             }
             let _newForm;
-            if (has('ie')) {
+            if ( isIE() ) {
               // just to reiterate, IE is a steaming pile of shit.
               _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
               _newForm.encoding = 'multipart/form-data';
@@ -63,31 +60,42 @@ const jsonp = require('superagent-jsonp');
             const oldParent = data.parentElement;
             const nextSibling = data.nextSibling;
             _newForm.appendChild(data);
-            win.body().appendChild(_newForm);
+            document.body.appendChild(_newForm);
             const cleanUp = () => {
               if (nextSibling) {
                 oldParent.insertBefore(data, nextSibling);
               } else {
                 oldParent.appendChild(data);
               }
-              win.body().removeChild(_newForm);
+              document.body.removeChild(_newForm);
             };
 
-            return iframe(uri, {
-              preventCache: true,
-              handleAs: format || 'json',
-              form: _newForm,
-            }).then((res) => {
-              cleanUp();
-              return res;
-            }, (e) => {
-              cleanUp();
-              throw e;
+            const stubForm = new FormData();
+            const files = data.files;
+
+            Object.entries(files).map( keyVal => {
+              // is the item a File?
+              if (keyVal[1] instanceof File) {
+                stubForm.append(keyVal[0], keyVal[1]);
+              }
             });
-          };
-        });
-      }
-      */
+
+            const res = superagent.put(uri)
+              .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+              .accept(format || 'application/json')
+              .send( stubform )
+              .then( () => {
+                cleanUp();
+                return res;
+              })
+              .catch( (e) => {
+                cleanUp();
+                throw e;
+              });
+
+            // TODO @scazan should this be the return value?
+            return res;
+      };
     }
     /**
      * @param {object} credentials should contain attributes "user", "password", and "maxAge".
@@ -103,7 +111,7 @@ const jsonp = require('superagent-jsonp');
           // in seconds, 86400 is default and corresponds to a day.
           auth_maxage: credentials.maxAge != null ? credentials.maxAge : 604800,
         };
-        if (has('host-browser')) {
+        if ( isBrowser() ) {
           return this.post(`${credentials.base}auth/cookie`, data);
         }
         const p = this.post(`${credentials.base}auth/cookie`, data);
@@ -160,7 +168,7 @@ const jsonp = require('superagent-jsonp');
       }
 
       // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-      if (has('host-browser') && !sameOrigin(_uri) && !nonJSONP) {
+      if ( isBrowser() ) && !sameOrigin(_uri) && !nonJSONP) {
         return new Promise((resolve, reject) => {
           const queryParameter = new RegExp('[?&]format=');
           if (!queryParameter.test(_uri)) {

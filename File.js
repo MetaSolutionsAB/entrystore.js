@@ -1,4 +1,4 @@
-  const has = require('dojo/has');
+import { isBrowser } from './utils';
 
   import { Resource } from './Resource';
   import { factory } from './factory';
@@ -31,7 +31,7 @@
     putFile(data, format) {
       let url;
       // noinspection AmdModulesDependencies
-      if (has('host-browser') && data instanceof Node) {
+      if (isBrowser() && data instanceof Node) {
         if (data.name == null || data.name === '') {
           throw new Error('Failure, cannot upload resource from input element unless a name' +
             ' attribute is provided.');
@@ -89,7 +89,7 @@
      */
     putXML(xml) {
       let _xml = xml;
-      if (has('host-browser') && _xml instanceof Document) {
+      if (isBrowser() && _xml instanceof Document) {
         try {
           // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
           _xml = (new XMLSerializer()).serializeToString(_xml);
