@@ -13,7 +13,7 @@ define([
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.auth({user: "test@metasolutions.se", password: "testtest"}).then(function() {
+                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                     c.newList().create().then(function(listentry) {
                         lst = listentry;
                         c.newEntry().setParentList(lst).create().then(function(entry1) {

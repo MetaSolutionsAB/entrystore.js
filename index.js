@@ -27,6 +27,7 @@ import { Resource } from './Resource';
 import { SearchList } from './SearchList';
 import { StringResource as String } from './String';
 import { User } from './User';
+import { terms } from './terms';
 
 
 
@@ -57,4 +58,6 @@ export {
   User,
 };
 
+EntryStore.util = EntryStoreUtil;
+EntryStore.terms = terms;
 export default EntryStore;

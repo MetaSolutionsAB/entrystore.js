@@ -13,7 +13,7 @@ define([
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.getAuth().login("test@metasolutions.se", "testtest").then(function() {
+                es.getAuth().login("Donald", "donalddonald").then(function() {
                     ready = true;
                     callback();
                 });

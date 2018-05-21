@@ -13,7 +13,7 @@ define([
     return nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
-                es.auth({user: "test@metasolutions.se", password: "testtest"}).then(function() {
+                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
                     ready = true;
                     callback();
                 });
@@ -110,7 +110,9 @@ define([
           test.done();
         }, () => {
           test.ok(false, "Failed to update metadata via prototypeentry and a given entryid");
+          test.done();
         });
+
       },
       linkEntry: function(test) {
             var uri = "http://example.com/";

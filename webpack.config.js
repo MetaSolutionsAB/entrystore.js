@@ -1,8 +1,8 @@
 const path = require('path');
 const DojoWebpackPlugin = require('dojo-webpack-plugin');
+const BundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 
-//const CleanWebpackPlugin = require('clean-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 
@@ -18,7 +18,7 @@ const config = {
     libraryTarget: "umd"
   },
   plugins: [
-    //new CleanWebpackPlugin(),
+    //new BundleAnalyzer(),
     new DojoWebpackPlugin({
       loaderConfig: require('./loaderConfig'),
       buildEnvironment: {dojoRoot: './node_modules'},

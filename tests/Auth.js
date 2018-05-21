@@ -8,23 +8,23 @@ define(['tests/config'], function(config) {
         authorize: {
             cookieSignIn: function(test) {
                 test.expect(1);
-                auth.login("test@metasolutions.se", "testtest").then(function(data) {
+                auth.login("Donald", "donalddonald").then(function(data) {
                     test.ok(data.user === "donald");
                     test.done();
                 }, function() {
-                    test.ok(false, "Could not authenticate test user with password testtest");
+                    test.ok(false, "Could not authenticate user Donald with password donalddonald");
                     test.done();
                 });
             },
             cookieSignOut: function(test) {
                 test.expect(1);
-                auth.login("test@metasolutions.se", "testtest").then(function() {
+                auth.login("Donald", "donalddonald").then(function() {
                     return auth.logout().then(function(data) {
-                        test.ok(data.user === "guest", "Failed sign out from test account");
+                        test.ok(data.user === "guest", "Failed sign out from account Donald.");
                         test.done();
                     });
                 }, function() {
-                    test.ok(false, "Could not de-authenticate test user");
+                    test.ok(false, "Could not de-authenticate user Donald.");
                     test.done();
                 });
             }
@@ -39,13 +39,13 @@ define(['tests/config'], function(config) {
                 test.expect(1);
                 var f = function (topic, data) {
                     if (topic === "login") {
-                        test.ok(data.user === "test@metasolutions.se");
+                        test.ok(data.user === "donald");
                         test.done();
                         auth.removeAuthListener(f);
                     }
                 };
                 auth.addAuthListener(f);
-                auth.login("test@metasolutions.se", "testtest");
+                auth.login("Donald", "donalddonald");
             },
             guestUserEntry: function(test) {
                 test.expect(1);
@@ -58,7 +58,7 @@ define(['tests/config'], function(config) {
         },
         fromUserListeners: {
             setUp: function (callback) {
-                auth.login("test@metasolutions.se", "testtest").then(function() {
+                auth.login("Donald", "donalddonald").then(function() {
                     callback();
                 });
             },

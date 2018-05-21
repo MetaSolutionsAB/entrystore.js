@@ -2,7 +2,6 @@ define(['tests/config'], function(config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
-  console.log('created new es', es);
     var authAdminReady;
 
 	return nodeunit.testCase({ inGroups: true,

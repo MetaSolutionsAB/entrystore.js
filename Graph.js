@@ -52,7 +52,7 @@ import { Resource } from './Resource';
      */
     commit() {
       return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-        json.stringify(this._graph.exportRDFJSON())), 'commitGraph');
+        JSON.stringify(this._graph.exportRDFJSON())), 'commitGraph');
     }
 
     /**

@@ -25,11 +25,6 @@ function getConfig(env) {
         lib: '.',
       },
       {
-        name: 'dijit',
-        location: env.dojoRoot + '/dijit',
-        lib: '.',
-      },
-      {
         name: 'spa',
         location: '../..',
       }

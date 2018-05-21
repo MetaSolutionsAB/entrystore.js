@@ -33,7 +33,7 @@ define(['tests/config'], function(config) {
         withAdminLogin: {
             setUp: function(callback) {
                 if (!authAdminReady) {
-                    es.getAuth().login("admin", "adminiadmini").then(function() {
+                    es.getAuth().login("admin", "adminadmin").then(function() {
                         authAdminReady = true;
                         callback();
                     });
