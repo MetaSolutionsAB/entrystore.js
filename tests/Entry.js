@@ -1,9 +1,9 @@
 define([
-    '../libs/rdfjson/Graph',
-    'tests/config',
-    "../libs/dojo/date/stamp"
+  '../libs/rdfjson/Graph',
+  'tests/config',
+  "../libs/dojo/date/stamp"
 ], function(Graph, config, stamp) {
-	//browsers have the global nodeunit already available
+  //browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
