@@ -59,20 +59,21 @@ define([
     return o;
   };
 
-  const fixNameAndDisabled = (resource, data) => {
+  const fixNameAndDisabled = (resObj, data) => {
+    const { resource } = data;
     // Special case of searches and similar when name is provided but not full resource.
-    if (resource != null) {
-      if (typeof data.name === 'string') {
-        if (resource instanceof User) {
-          resource._data = resource._data || {};
-          resource._data.name = data.name;
+    if (resObj != null) {
+      if (resource && typeof resource.name === 'string') {
+        if (resObj instanceof User) {
+          resObj._data = resObj._data || {};
+          resObj._data.name = resource.name;
         } else { // Context and Group
-          resource._name = data.name;
+          resObj._name = resource.name;
         }
       }
-      if (resource instanceof User) {
-        resource._data = resource._data || {};
-        resource._data.disabled = data.disabled;
+      if (resObj instanceof User) {
+        resObj._data = resource._data || {};
+        resObj._data.disabled = resource.disabled;
       }
     }
   };
