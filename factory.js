@@ -72,8 +72,10 @@ define([
         }
       }
       if (resObj instanceof User) {
-        resObj._data = resource._data || {};
-        resObj._data.disabled = resource.disabled;
+        resObj._data = resObj._data || {};
+        if (resource && typeof resource.disabled === 'boolean') {
+          resObj._data.disabled = resource.disabled;
+        }
       }
     }
   };
