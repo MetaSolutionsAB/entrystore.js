@@ -1,5 +1,4 @@
 /* global define*/
-const json = require('dojo/json');
 import { terms } from './terms';
 const Graph = require('rdfjson/Graph');
 const stamp = require('dojo/date/stamp');
@@ -54,7 +53,7 @@ const stamp = require('dojo/date/stamp');
       const es = this._entry.getEntryStore();
       const mod = ignoreIfUnmodifiedSinceCheck === true ? undefined : this.getModificationDate();
       const p = es.getREST().put(this.getEntryURI(),
-        json.stringify(this._graph.exportRDFJSON()), mod)
+        JSON.stringify(this._graph.exportRDFJSON()), mod)
         .then(() => {
           if (ignoreIfUnmodifiedSinceCheck !== true) {
             this._entry.setRefreshNeeded(true);

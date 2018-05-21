@@ -1,6 +1,5 @@
   const Graph = require('rdfjson/Graph');
   import { types } from './types';
-  const json = require('dojo/json');
 
   /**
    * Entrys are at the center of this API. Entrys holds together metadata, external metadata,
@@ -129,11 +128,11 @@
       } else {
         if (ignoreIfUnmodifiedSinceCheck) {
           p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
-            json.stringify(this._metadata.exportRDFJSON())).then(() => this);
+            JSON.stringify(this._metadata.exportRDFJSON())).then(() => this);
         }
         const mod = this.getEntryInfo().getModificationDate();
         p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
-          json.stringify(this._metadata.exportRDFJSON()), mod)
+          JSON.stringify(this._metadata.exportRDFJSON()), mod)
           .then(() => {
             this.setRefreshNeeded(true);
             return this.refresh().then(() => this, () => {
@@ -234,7 +233,7 @@
       const es = this.getEntryStore();
       const mod = this.getEntryInfo().getModificationDate();
       const d = es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
-        json.stringify(this._cachedExternalMetadata.exportRDFJSON()), mod)
+        JSON.stringify(this._cachedExternalMetadata.exportRDFJSON()), mod)
         .then(() => {
           self.setRefreshNeeded(true);
           return self.refresh().then(() => self, () => {
