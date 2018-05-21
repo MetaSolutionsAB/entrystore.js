@@ -77,6 +77,7 @@ define([
      * - commitString    - a string resource is pushed (String.commit)
      * - setGroupName    - a new name of a group is pushed (Group.setName)
      * - setUserName     - a new name of a user is pushed (User.setName)
+     * - setUserDisabled - a new disabled state of a user is pushed (User.setDisabled)
      * - setUserLanguage - a new preferred language of the user is pushed (User.setLanguage)
      * - setUserPassword - a new password for the user is pushed (User.setPassword)
      * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)

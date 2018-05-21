@@ -99,6 +99,19 @@ define([
     }
 
     /**
+     * If the entry is a user there can be a disabled state.
+     * In general the disabled state is accessed on the resource, but in certain
+     * situations we do not have the resource yet(not loaded) but we still
+     * have the disabled state (from a search where the disabled state is provided
+     * but not the resource), in this case we can access the disabled state here.
+     *
+     * @returns {boolean} a disabled state of a user
+     */
+    isDisabled() {
+      return this._disabled;
+    }
+
+    /**
      * @returns {String}
      */
     getMetadataURI() {

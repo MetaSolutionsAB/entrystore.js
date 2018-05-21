@@ -54,6 +54,40 @@ define([
     }
 
     /**
+     * Check if the user is disabled. Disabled users cannot sign in, although they still exist
+     * for lookup, e.g. when presenting creators and contributors.
+     * @returns {boolean}
+     */
+    isDisabled() {
+      return this._data.disabled === true;
+    }
+
+    /**
+     * Set the user to be disabled or not.
+     * @param {boolean} disabled
+     * @returns {xhrPromise}
+     */
+    setDisabled(disabled) {
+      if (disabled === this.isDisabled()) {
+        return Promise.resolve(true);
+      }
+      const olddisabled = this._data.disabled === true;
+      this._data.disabled = disabled;
+      return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
+        json.stringify({ disabled }))
+        .then((data) => {
+          const e = this.getEntry(true);
+          if (e) {
+            e.getEntryInfo()._disabled = disabled;
+          }
+          return data;
+        }, (e) => {
+          this._data.disabled = olddisabled;
+          throw e;
+        }), 'setUserDisabled');
+    }
+
+    /**
      * Get the preferred language of the user.
      * @returns {string}
      */

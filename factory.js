@@ -59,14 +59,20 @@ define([
     return o;
   };
 
-  const fixName = (resource, data) => {
+  const fixNameAndDisabled = (resource, data) => {
     // Special case of searches and similar when name is provided but not full resource.
-    if (typeof data.name === 'string' && resource != null) {
+    if (resource != null) {
+      if (typeof data.name === 'string') {
+        if (resource instanceof User) {
+          resource._data = resource._data || {};
+          resource._data.name = data.name;
+        } else { // Context and Group
+          resource._name = data.name;
+        }
+      }
       if (resource instanceof User) {
         resource._data = resource._data || {};
-        resource._data.name = data.name;
-      } else { // Context and Group
-        resource._name = data.name;
+        resource._data.disabled = data.disabled;
       }
     }
   };
@@ -127,12 +133,12 @@ define([
         default:
       }
       entry._resource = resource;
-      fixName(resource, _data);
+      fixNameAndDisabled(resource, _data);
       return;
     }
 
     if (resource == null || _data.resource == null) {
-      fixName(resource, _data);
+      fixNameAndDisabled(resource, _data);
       return;
     }
 
@@ -162,6 +168,12 @@ define([
       const ei = entry.getEntryInfo();
       // ei._alias = data.alias;
       ei._name = data.name || data.resource.name;
+    }
+    // Sometimes we get the disabled state that is really part of the resource
+    // without getting the full resource, in this case we store this in the entryinfo.
+    if (data.disabled || (data.resource && data.resource.disabled)) {
+      const ei = entry.getEntryInfo();
+      ei._disabled = data.disabled || data.resource.disabled;
     }
     return entry;
   };
