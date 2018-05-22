@@ -1,21 +1,19 @@
 require([
-    'dojo/_base/array',
-    'dojo/has',
   'tests/config'
-], function (array, has, config) {
+], function ( config) {
 
-    var deps = array.map(config.tests, function(cls) {
-        return "store/tests/"+cls;
+    var deps = config.tests.map( function(cls) {
+        return "tests/"+cls;
     });
-    if (!has("host-browser") && config.nodeTests) {
-        array.forEach(config.nodeTests, function(cls) {
-          deps.push("store/tests/"+cls);
-        });
-    }
+    //if (!has("host-browser") && config.nodeTests) {
+        //array.forEach(config.nodeTests, function(cls) {
+          //deps.push("store/tests/"+cls);
+        //});
+    //}
     require(deps, function() {
         var testClasses = Array.prototype.slice.call(arguments, 0);
         var nuConf = {};
-        array.forEach(deps, function(dep, idx) {
+        deps.forEach( function(dep, idx) {
             var test = testClasses[idx];
             if (test.inGroups) {
                 for (var group in test) if (test.hasOwnProperty(group) && group != "inGroups") {

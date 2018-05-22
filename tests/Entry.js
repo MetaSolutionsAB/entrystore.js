@@ -1,5 +1,5 @@
 define([
-  '../libs/rdfjson/Graph',
+  '../node_modules/rdfjson/Graph',
   'tests/config',
   "../libs/dojo/date/stamp"
 ], function(Graph, config, stamp) {
@@ -162,7 +162,10 @@ define([
         graphEntry: function(test) {
             var g = new Graph();
             g.add("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
-            c.newGraph(g).commit().then(function(entry) {
+
+          console.log(Graph);
+
+           c.newGraph(g).commit().then(function(entry) {
                 test.ok(entry.isGraph(), "Entry created, but it is not a graph as expected.");
                 entry.getResource().then(function(res) {
                     test.ok(res.getGraph().find().length === 1, "The created graph Entry does save the provided graph upon creation");

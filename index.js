@@ -60,4 +60,7 @@ export {
 
 EntryStore.util = EntryStoreUtil;
 EntryStore.terms = terms;
+EntryStore.types = types;
+EntryStore.Cache = Cache;
+
 export default EntryStore;
