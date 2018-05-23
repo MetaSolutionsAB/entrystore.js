@@ -1,13 +1,12 @@
-define([], function() {
 
-  const Cache = EntryStore.Cache;
+  import { Cache } from '../';
 
   var e1 = {
     getURI: function() {return "http://example.com/1/entry/1"},
     getResourceURI: function() {return "http://example.com/1/resource/1"}
   };
 
-  return nodeunit.testCase({
+  export default nodeunit.testCase({
     initCache: function(test) {
       var c = new Cache();
       test.ok(c != null);
@@ -38,4 +37,3 @@ define([], function() {
       c.allNeedRefresh();
     }
   })
-});

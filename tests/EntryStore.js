@@ -1,10 +1,10 @@
-define(['tests/config'], function(config) {
-	//browsers have the global nodeunit already available
+import config from './config';
+import {EntryStore} from '../';
 
     var es = new EntryStore(config.repository);
     var authAdminReady;
 
-	return nodeunit.testCase({ inGroups: true,
+export default nodeunit.testCase({ inGroups: true,
         withoutLogin: {
             setUp: function(callback) {
                 es.getAuth().logout().then(function() {
@@ -106,4 +106,3 @@ define(['tests/config'], function(config) {
             }
         }
     });
-});

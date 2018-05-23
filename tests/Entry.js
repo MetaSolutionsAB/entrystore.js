@@ -1,16 +1,17 @@
-define([
-  '../node_modules/rdfjson/Graph',
-  'tests/config',
-  "../libs/dojo/date/stamp"
-], function(Graph, config, stamp) {
-  //browsers have the global nodeunit already available
+const stamp = require('../libs/dojo/date/stamp');
+
+import { EntryStore } from '../';
+import config from './config';
+const Graph = require('rdfjson/Graph');
+
+
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.auth({user: "Donald", password: "donalddonald"}).then(function() {
@@ -163,8 +164,6 @@ define([
             var g = new Graph();
             g.add("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
 
-          console.log(Graph);
-
            c.newGraph(g).commit().then(function(entry) {
                 test.ok(entry.isGraph(), "Entry created, but it is not a graph as expected.");
                 entry.getResource().then(function(res) {
@@ -309,4 +308,3 @@ define([
             });
         }
     });
-});

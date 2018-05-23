@@ -513,7 +513,6 @@ import md5 from 'blueimp-md5';
      * @return {store/SolrQuery}
      */
     literalProperty(predicate, object, modifier, indexType = 'text') {
-      console.log(md5);
       const key = shorten(predicate);
       let it;
       switch (indexType) {

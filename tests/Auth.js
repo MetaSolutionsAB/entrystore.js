@@ -1,10 +1,11 @@
-define(['tests/config'], function(config) {
+import config from './config';
+import {EntryStore} from '../';
   //browsers have the global nodeunit already available
 
   var es = new EntryStore(config.repository);
   var auth = es.getAuth();
 
-  return nodeunit.testCase({ inGroups: true,
+  export default nodeunit.testCase({ inGroups: true,
     authorize: {
       cookieSignIn: function(test) {
         test.expect(1);
@@ -83,4 +84,3 @@ define(['tests/config'], function(config) {
       }
     }
   });
-});

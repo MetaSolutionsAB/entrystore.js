@@ -31,6 +31,7 @@
   "dojoBuild": "package.js",
   "scripts": {
     "build": "./build/build.sh",
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "test": "webpack --config webpack.config.test.js"
   }
 }

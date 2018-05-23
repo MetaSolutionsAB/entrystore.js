@@ -1,15 +1,14 @@
-define([
-    'tests/config',
-    '../libs/dojo/node!fs',
-], function(config, fs) {
-	//browsers have the global nodeunit already available
+const fs = require( '../libs/dojo/node!fs');
+import { EntryStore } from '../';
+import config from './config';
+const Graph = require('rdfjson/Graph');
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.auth({user: "Donald", password: "donalddonald"}).then(function() {
@@ -40,4 +39,3 @@ define([
           });
         },
     });
-});

@@ -1,16 +1,15 @@
-define([
-    '../libs/dojo/_base/lang',
-    '../libs/dojo/has',
-    'tests/config',
-], function(lang, has, config) {
-	//browsers have the global nodeunit already available
+const lang = require('../libs/dojo/_base/lang');
+const has = require('../libs/dojo/has');
+
+import config from './config';
+import {EntryStore} from '../';
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.auth({user: "Donald", password: "donalddonald"}).then(function() {
@@ -46,6 +45,7 @@ define([
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "text/plain", "Mimetype is not text/plain as it should.");
                         return r.getText().then(function(data) {
+                          console.log(data);
                             test.ok(lang.isString(data) && data === "test", "Text not set correctly as resource.");
                             test.done();
                         });
@@ -84,4 +84,3 @@ define([
             });
         }
     });
-});

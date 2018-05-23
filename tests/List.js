@@ -1,8 +1,6 @@
-define([
-    '../libs/rdfjson/Graph',
-    'tests/config'
-], function(Graph, config) {
-	//browsers have the global nodeunit already available
+import { EntryStore } from '../';
+import config from './config';
+const Graph = require('rdfjson/Graph');
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
@@ -10,7 +8,7 @@ define([
     var dct = "http://purl.org/dc/terms/";
     var lst, e1, e2;
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.auth({user: "Donald", password: "donalddonald"}).then(function() {
@@ -80,4 +78,3 @@ define([
             });
         }
     });
-});
