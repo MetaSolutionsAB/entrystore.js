@@ -7,7 +7,8 @@ define([
   'store/EntryStore',
   'md5',
 ], (lang, array, namespaces, SearchList, Context, EntryStore, md5) => {
-  const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:'));
+  const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:')
+    .replace(/\(/g, '\\(').replace(/\)/g, '\\)'));
   const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);
   const ngramLimit = 15;
   const isNgram = key => key.indexOf('title') === 0
