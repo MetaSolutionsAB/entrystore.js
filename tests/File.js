@@ -1,4 +1,4 @@
-const lang = require('../libs/dojo/_base/lang');
+const _ = require('lodash');
 const has = require('../libs/dojo/has');
 
 import config from './config';
@@ -28,7 +28,7 @@ import {EntryStore} from '../';
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "application/json", "Mimetype is not application/json as it should.");
                         return r.getJSON().then(function(data) {
-                            test.ok(lang.isObject(data) && data.a === "v", "Json not set correctly.");
+                            test.ok(_.isObject(data) && data.a === "v", "Json not set correctly.");
                             test.done();
                         });
                     });
@@ -46,7 +46,7 @@ import {EntryStore} from '../';
                         test.ok(entry.getEntryInfo().getFormat() === "text/plain", "Mimetype is not text/plain as it should.");
                         return r.getText().then(function(data) {
                           console.log(data);
-                            test.ok(lang.isString(data) && data === "test", "Text not set correctly as resource.");
+                            test.ok(_.isString(data) && data === "test", "Text not set correctly as resource.");
                             test.done();
                         });
                     });
@@ -73,7 +73,7 @@ import {EntryStore} from '../';
                                 "XML not stored correctly, document contains other xml than sent.");
                                 test.done();
                             } else {
-                                test.ok(lang.isString(data) && data === "<book></book>", "XMl not set correctly as a resource.");
+                                test.ok(_.isString(data) && data === "<book></book>", "XMl not set correctly as a resource.");
                                 test.done();
                             }
                         });
