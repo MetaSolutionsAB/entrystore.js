@@ -39,13 +39,12 @@ import {EntryStore} from '../';
         },
         createTextFile: function(test) {
             c.newEntry().commit().then(function (entry) {
-                var r = entry.getResource(true);
-                return r.putText("test").then(function () {
+                var resource = entry.getResource(true);
+                return resource.putText("test").then(function () {
                     entry.setRefreshNeeded(true);
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "text/plain", "Mimetype is not text/plain as it should.");
-                        return r.getText().then(function(data) {
-                          console.log(data);
+                        return resource.getText().then(function(data) {
                             test.ok(_.isString(data) && data === "test", "Text not set correctly as resource.");
                             test.done();
                         });

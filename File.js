@@ -124,6 +124,7 @@ import { isBrowser } from './utils';
      */
     getText() {
       const es = this.getEntryStore();
+
       return es.handleAsync(this.getEntryStore().getREST().get(this.getResourceURI(), 'text/plain'), 'getFile');
     }
 

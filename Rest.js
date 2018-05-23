@@ -195,11 +195,22 @@ const jsonp = require('superagent-jsonp');
         .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
         .withCredentials();
 
+      if(handleAs === 'xml') {
+        getRequest.parse(async (res, fn) => {
+          const parser = new DOMParser();
+          const parsedDocument = parser.parseFromString(res.text, 'application/xml');
+          return parsedDocument;
+        });
+      }
+
       Object.entries(locHeaders).map( keyVal => getRequest.set(keyVal[0], keyVal[1]) );
 
       return getRequest
         .then((response) => {
-          if (response.status === 200) {
+          if (response.statusCode === 200) {
+            if(handleAs === 'text') {
+              return response.text;
+            }
             return response.body;
           }
           throw new Error(`Resource could not be loaded: ${response.text}`);
