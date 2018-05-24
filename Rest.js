@@ -83,6 +83,7 @@ const jsonp = require('superagent-jsonp');
             const res = superagent.put(uri)
               .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
               .accept(format || 'application/json')
+              .withCredentials()
               .send( stubForm )
               .then( () => {
                 cleanUp();
