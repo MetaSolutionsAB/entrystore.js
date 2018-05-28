@@ -1,7 +1,7 @@
 const namespaces = require('rdfjson/namespaces');
 import { SearchList } from './SearchList';
 import { Context } from './Context';
-import { EntryStore } from 'EntryStore';
+import { EntryStore } from './EntryStore';
 import md5 from 'blueimp-md5';
 
   const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:'));

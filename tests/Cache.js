@@ -1,4 +1,5 @@
 
+const nodeunit = require('nodeunit');
   import { Cache } from '../';
 
   var e1 = {

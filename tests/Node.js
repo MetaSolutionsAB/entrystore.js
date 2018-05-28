@@ -1,4 +1,5 @@
 const fs = require( '../libs/dojo/node!fs');
+const nodeunit = require('nodeunit');
 import { EntryStore } from '../';
 import config from './config';
 const Graph = require('rdfjson/Graph');

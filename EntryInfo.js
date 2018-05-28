@@ -1,7 +1,7 @@
 /* global define*/
 import { terms } from './terms';
 const Graph = require('rdfjson/Graph');
-const stamp = require('dojo/date/stamp');
+import moment from 'moment';
 
   /**
    * EntryInfo is a class that contains all the administrative information of an entry.
@@ -305,6 +305,7 @@ const stamp = require('dojo/date/stamp');
       const revs = [];
       const mdURI = this.getMetadataURI();
       const stmts = this._graph.find(null, 'owl:sameAs', mdURI);
+
       if (stmts.length !== 1) {
         return revs;
       }
@@ -314,7 +315,7 @@ const stamp = require('dojo/date/stamp');
         revs.push({
           uri,
           rev: uri.substr(mdURI.length + 5),
-          time: stamp.fromISOString(this._graph.findFirstValue(uri, 'prov:generatedAtTime')),
+          time: moment(this._graph.findFirstValue(uri, 'prov:generatedAtTime')).toDate(),
           by: es.getEntryURIFromURI(this._graph.findFirstValue(uri, 'prov:wasAttributedTo')),
         });
         uri = this._graph.findFirstValue(uri, 'prov:wasRevisionOf');
@@ -409,7 +410,7 @@ const stamp = require('dojo/date/stamp');
      */
     getCreationDate() {
       const d = this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/created');
-      return stamp.fromISOString(d); // Must always exist.
+      return moment(d).toDate(); // Must always exist.
     }
 
     /**
@@ -419,7 +420,7 @@ const stamp = require('dojo/date/stamp');
     getModificationDate() {
       const d = this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/modified');
       if (d != null) {
-        return stamp.fromISOString(d);
+        return moment(d).toDate();
       }
       return this.getCreationDate();
     }

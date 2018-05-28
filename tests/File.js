@@ -1,6 +1,7 @@
 const _ = require('lodash');
-const has = require('../libs/dojo/has');
+const nodeunit = require('nodeunit');
 
+import {isBrowser} from '../utils';
 import config from './config';
 import {EntryStore} from '../';
 
@@ -58,7 +59,7 @@ import {EntryStore} from '../';
             c.newEntry().commit().then(function (entry) {
                 var r = entry.getResource(true);
                 var xml = "<book></book>";
-                if (has("host-browser")) {
+                if (isBrowser()) {
                     var parser=new DOMParser();
                     xml = parser.parseFromString(xml, "text/xml");
                 }
@@ -67,7 +68,7 @@ import {EntryStore} from '../';
                     return entry.refresh().then(function () {
                         test.ok(entry.getEntryInfo().getFormat() === "text/xml", "Mimetype is not text/plain as it should.");
                         return r.getXML().then(function (data) {
-                            if (has("host-browser")) {
+                            if (isBrowser()) {
                                 test.ok(data instanceof Document && data.firstChild.nodeName === "book",
                                 "XML not stored correctly, document contains other xml than sent.");
                                 test.done();

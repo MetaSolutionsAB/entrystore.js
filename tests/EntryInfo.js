@@ -1,6 +1,7 @@
 import { EntryStore } from '../';
 import config from './config';
 const Graph = require('rdfjson/Graph');
+const nodeunit = require('nodeunit');
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");

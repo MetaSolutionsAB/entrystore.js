@@ -1,4 +1,3 @@
-const json = require('dojo/json');
 import { Resource } from './Resource';
 
   /**
@@ -186,7 +185,7 @@ import { Resource } from './Resource';
      */
     setAllEntryIds(entries, callType) {
       const es = this._entryStore;
-      return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify(entries))
+      return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify(entries))
         .then(() => {
           this.needRefresh();
           return es.getEntry(this.getEntryURI()).then((oentry) => {

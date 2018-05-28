@@ -1,3 +1,4 @@
+const nodeunit = require('nodeunit');
 import config from './config';
 import Auth from './Auth';
 import Cache from './Cache';

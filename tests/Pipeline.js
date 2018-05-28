@@ -1,5 +1,4 @@
-const lang = require('../libs/dojo/_base/lang');
-const has = require('../libs/dojo/has');
+const nodeunit = require('nodeunit');
 import config from './config';
 import { EntryStore } from '../';
 

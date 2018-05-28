@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
- const Deferred = require('dojo/Deferred');
  import { SolrQuery } from './SolrQuery';
  import { Cache } from './Cache';
  import { Rest } from './Rest';
@@ -10,7 +9,6 @@
  import { User } from './User';
  import { Auth } from './Auth';
 import { isBrowser } from './utils';
- const has = require('dojo/has');
 
   /**
    * EntryStore is the main class that is used to connect to a running server-side EntryStore
@@ -287,7 +285,7 @@ import { isBrowser } from './utils';
      * @returns {entryArrayPromise} upon success the promise returns an array of entries.
      */
     getListEntries(entryURI, sort, limit, page) {
-      const d = new Deferred();
+      const d = new Promise();
       const op = {};
       if (sort != null) {
         op.sort = sort;
@@ -681,7 +679,7 @@ import { isBrowser } from './utils';
      * @returns {dojo/promise/Promise}
      */
     info() {
-      const packageJSON = require('package.json');
+      const packageJSON = require('./package.json');
       return { version: packageJSON.version };
     }
 

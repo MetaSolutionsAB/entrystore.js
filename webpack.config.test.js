@@ -1,5 +1,5 @@
 const path = require('path');
-const DojoWebpackPlugin = require('dojo-webpack-plugin');
+//const DojoWebpackPlugin = require('dojo-webpack-plugin');
 const webpack = require('webpack');
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
@@ -15,10 +15,10 @@ const config = {
     libraryTarget: 'umd',
   },
   plugins: [
-    new DojoWebpackPlugin({
-      loaderConfig: require('./loaderConfig'),
-      buildEnvironment: {dojoRoot: './node_modules'},
-    }),
+    //new DojoWebpackPlugin({
+      //loaderConfig: require('./loaderConfig'),
+      //buildEnvironment: {dojoRoot: './node_modules'},
+    //}),
   ],
 };
 

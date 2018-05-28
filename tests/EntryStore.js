@@ -1,5 +1,6 @@
 import config from './config';
 import {EntryStore} from '../';
+const nodeunit = require('nodeunit');
 
     var es = new EntryStore(config.repository);
     var authAdminReady;

@@ -1,5 +1,4 @@
-  const json = require('dojo/json');
-  import { Resource } from 'Resource';
+  import { Resource } from './Resource';
 
   /**
    * User instances are resources corresponding to users that can be authenticated to access
@@ -38,7 +37,7 @@
       const oldname = this._data.name;
       this._data.name = name;
       const es = this._entryStore;
-      return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({ name }))
+      return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ name }))
         .then((data) => {
           const e = this.getEntry(true);
           if (e) {
@@ -68,7 +67,7 @@
       const oldlanguage = this._data.language;
       this._data.language = language;
       const es = this._entryStore;
-      return es.handleAsync(es.getREST().put(this._resourceURI, json.stringify({ language }))
+      return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ language }))
         .then(data => data, (e) => {
           this._data.language = oldlanguage;
           throw e;
@@ -84,7 +83,7 @@
     setPassword(password) {
       const es = this._entryStore;
       return es.handleAsync(es.getREST().put(this._resourceURI,
-        json.stringify({ password })), 'setUserPassword');
+        JSON.stringify({ password })), 'setUserPassword');
     }
 
     /**
@@ -107,7 +106,7 @@
       this._data.homecontext = contextId;
       const es = this._entryStore;
       return es.handleAsync(es.getREST().put(this._resourceURI,
-        json.stringify({ homecontext: contextId }))
+        JSON.stringify({ homecontext: contextId }))
         .then(data => data, (e) => {
           this._data.homecontext = oldhc;
           throw e;
@@ -134,7 +133,7 @@
       this._data.customProperties = customProperties;
       const es = this._entryStore;
       return es.handleAsync(es.getREST().put(this._resourceURI,
-        json.stringify({ customProperties }))
+        JSON.stringify({ customProperties }))
         .then(data => data, (e) => {
           this._data.customProperties = oldcp;
           throw e;

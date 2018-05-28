@@ -16,7 +16,6 @@ import { Resource } from './Resource';
      */
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore); // Call the super constructor.
-      console.log(data instanceof Graph);
       this._graph = data instanceof Graph ? data : new Graph(data);
     }
 

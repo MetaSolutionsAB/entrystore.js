@@ -1,8 +1,8 @@
-const stamp = require('../libs/dojo/date/stamp');
-
 import { EntryStore } from '../';
 import config from './config';
+import moment from 'moment';
 const Graph = require('rdfjson/Graph');
+const nodeunit = require('nodeunit');
 
 
 
@@ -294,7 +294,7 @@ const Graph = require('rdfjson/Graph');
                 //Manually set back the date of modification to force 412 status code.
                 var eig = entry.getEntryInfo().getGraph();
                 var stmt = eig.find(entry.getURI(), "http://purl.org/dc/terms/modified")[0];
-                stmt.setValue(stamp.toISOString(new Date("2000")));
+                stmt.setValue(moment(new Date("2000")).toISOString());
 
                 entry.getMetadata().addL(uri, "dcterms:title", "title2");
                 entry.commitMetadata().then(function() {

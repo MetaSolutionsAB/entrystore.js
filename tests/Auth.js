@@ -1,6 +1,7 @@
 import config from './config';
 import {EntryStore} from '../';
-  //browsers have the global nodeunit already available
+import { isBrowser } from '../utils';
+const nodeunit = require('nodeunit');
 
   var es = new EntryStore(config.repository);
   var auth = es.getAuth();

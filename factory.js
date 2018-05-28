@@ -1,6 +1,5 @@
   import { StringResource } from './String';
   import { types } from './types';
-  const json = require('dojo/json');
   import { Context } from './Context';
   import { EntryInfo } from './EntryInfo';
   import { Entry } from './Entry';
@@ -371,7 +370,7 @@
       postData['cached-external-metadata'] = cemd.exportRDFJSON();
       empty = false;
     }
-    return empty ? '' : json.stringify(postData);
+    return empty ? '' : JSON.stringify(postData);
   };
 
   factory.getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
