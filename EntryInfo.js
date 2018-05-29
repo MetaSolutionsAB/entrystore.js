@@ -115,7 +115,7 @@ define([
      * @returns {String}
      */
     getMetadataURI() {
-      return this._entryStore.getFactory().getMetadataURI(this._entryURI);
+      return this._entryStore.getFactory().getMetadataURIFromURI(this._entryStore, this._entryURI);
     }
 
     /**
