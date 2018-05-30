@@ -1,6 +1,4 @@
 const path = require('path');
-const DojoWebpackPlugin = require('dojo-webpack-plugin');
-const BundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const webpack = require('webpack');
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
@@ -18,16 +16,26 @@ const config = {
     libraryTarget: "umd"
   },
   plugins: [
-    //new BundleAnalyzer(),
-    new DojoWebpackPlugin({
-      loaderConfig: require('./loaderConfig'),
-      buildEnvironment: {dojoRoot: './node_modules'},
-    }),
     //new webpack.NormalModuleReplacementPlugin(/^dojo\/text!/, function(data) {
       //data.request = data.request.replace(/^dojo\/text!/, "!!raw-loader!");
     //}),
     //new UglifyJSPlugin(),
   ],
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['es2015'],
+          }
+
+        }
+      },
+    ],
+  },
 };
 
 module.exports = config;
