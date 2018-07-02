@@ -24,9 +24,9 @@ define([
    * @param term
    * @return {*}
    */
-  const solrFriendly = (key, term) => {
+  const solrFriendly = (key, term, isFacet) => {
     let and = term.trim().replace(/\s\s+/g, ' ').split(' ');
-    if (isNgram(key)) {
+    if (isNgram(key) && isFacet !== true) {
       and = and.map(t => (t.length < ngramLimit ? encodeStr(t) :
         encodeStr(t.substr(0, ngramLimit))));
     } else {
@@ -549,6 +549,7 @@ define([
       }
       this.properties.push({
         md5: key,
+        pred: predicate,
         object,
         modifier,
         nodetype: it,
@@ -568,6 +569,7 @@ define([
       const key = shorten(predicate);
       this.properties.push({
         md5: key,
+        pred: predicate,
         object,
         modifier,
         nodetype: 'integer',
@@ -588,6 +590,7 @@ define([
 
       this.properties.push({
         md5: key,
+        pred: predicate,
         object: Array.isArray(object) ? object.map(o => namespaces.expand(o)) :
           namespaces.expand(object),
         modifier,
@@ -648,9 +651,11 @@ define([
      */
     facet(facet, predicate) {
       this.facets = this.facets || [];
+      this.facetpredicates = this.facetpredicates || {};
       if (predicate) {
         this.facet2predicate = this.facet2predicate || {};
         this.facet2predicate[facet] = namespaces.expand(predicate);
+        this.facetpredicates[predicate] = true;
       }
       this.facets.push(facet);
       return this;
@@ -768,10 +773,10 @@ define([
           const obj = prop.object;
           const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
           if (lang.isString(obj)) {
-            or.push(`${key}:${solrFriendly(key, obj)}`);
+            or.push(`${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])}`);
           } else if (Array.isArray(obj) && obj.length > 0) {
             array.forEach(obj, (o) => {
-              or.push(`${key}:${solrFriendly(key, o)}`);
+              or.push(`${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`);
             });
           }
         });
@@ -784,14 +789,14 @@ define([
           const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
           if (lang.isString(obj)) {
             if (prop.modifier === true || prop.modifier === 'not') {
-              and.push(`NOT(${key}:${solrFriendly(key, obj)})`);
+              and.push(`NOT(${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])})`);
             } else {
-              and.push(`${key}:${solrFriendly(key, obj)}`);
+              and.push(`${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])}`);
             }
           } else if (Array.isArray(obj) && obj.length > 0) {
             const or = [];
             array.forEach(obj, (o) => {
-              or.push(`${key}:${solrFriendly(key, o)}`);
+              or.push(`${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`);
             }, this);
             if (prop.modifier === true || prop.modifier === 'not') {
               and.push(`NOT(${or.join('+OR+')})`);
