@@ -119,6 +119,7 @@ define([
       this.modifiers = {};
       this._and = [];
       this._or = [];
+      this.facetpredicates = {};
     }
 
     /**
@@ -651,7 +652,6 @@ define([
      */
     facet(facet, predicate) {
       this.facets = this.facets || [];
-      this.facetpredicates = this.facetpredicates || {};
       if (predicate) {
         this.facet2predicate = this.facet2predicate || {};
         this.facet2predicate[facet] = namespaces.expand(predicate);
@@ -766,7 +766,6 @@ define([
           }
         }
       });
-
       if (this.disjunctiveProperties || this.disjunctive) {
         const or = [];
         array.forEach(this.properties, (prop) => {
