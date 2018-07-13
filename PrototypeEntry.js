@@ -3,7 +3,7 @@ define([
   'store/EntryInfo',
   'store/terms',
   'dojo/json',
-], (Entry, EntryInfo, terms, json) =>
+], (Entry, EntryInfo, terms, json) => {
   /**
    * A PrototypeEntry is used to create new entries by collecting information about the initial
    * state of the entry to send along to the repository upon creation.
@@ -14,13 +14,13 @@ define([
    * Hence, some methods have been introduced to cover for this need.
    *
    * @exports store/PrototypeEntry
-   * @param {store/Context} context where this prototypeEntry belongs.
-   * @param {string} id - entry identifier, if not unique in the context the subsequent commit will
-   * fail
-   * @class
-   * @augments store/Entry
    */
-  class extends Entry {
+  const PrototypeEntry = class extends Entry {
+    /**
+     * @param {store/Context} context where this prototypeEntry belongs.
+     * @param {string} id - entry identifier, if not unique in the context the subsequent commit
+     * will fail.
+     */
     constructor(context, id) {
       const _id = id || '_newId';
       const cru = context.getResourceURI();
@@ -212,4 +212,6 @@ define([
     commit() {
       return this._context.getEntryStore().createEntry(this);
     }
-  });
+  };
+  return PrototypeEntry;
+});

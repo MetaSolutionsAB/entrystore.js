@@ -1,13 +1,9 @@
-define([], () =>
+define([], () => {
   /**
    * This is the base class for resources contained by entries, do not use directly,
    * instead use a subclass.
    *
    * @exports store/Resource
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @class
    * @see subclass {@link store/Context}
    * @see subclass {@link store/List}
    * @see subclass {@link store/Graph}
@@ -16,7 +12,12 @@ define([], () =>
    * @see subclass {@link store/User}
    * @see subclass {@link store/Group}
    */
-  class {
+  const Resource = class {
+    /**
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     */
     constructor(entryURI, resourceURI, entryStore) {
       this._entryURI = entryURI;
       this._resourceURI = resourceURI;
@@ -86,7 +87,9 @@ define([], () =>
     getSource() {
       return this._data;
     }
-  });
+  };
+  return Resource;
+});
 /**
  * @name resourcePromise
  * @extends dojo/promise/Promise

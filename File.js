@@ -4,19 +4,14 @@ define([
   'dojo/_base/lang',
   'store/Resource',
   'store/factory',
-], (json, has, lang, Resource, factory) =>
+], (json, has, lang, Resource, factory) => {
   /**
    * File resources are resources located in the Entrystore repository that have a graph type of
    * none, e.g. none of the special cases for which there are special treatment in EntryStore.
    *
    * @exports store/File
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @class
-   * @extends store/Resource
    */
-  class extends Resource {
+  const FileResource = class extends Resource {
     /**
      * Pushes a file to the server for this resource.
      * In a browser environment a file is represented via an input tag which references
@@ -37,10 +32,11 @@ define([
      */
     putFile(data, format) {
       let url;
+      // noinspection AmdModulesDependencies
       if (has('host-browser') && data instanceof Node) {
         if (data.name == null || data.name === '') {
           throw new Error('Failure, cannot upload resource from input element unless a name' +
-          ' attribute is provided.');
+            ' attribute is provided.');
         }
         url = factory.getPutFileURI(this.getResourceURI());
       } else {
@@ -150,4 +146,6 @@ define([
       const es = this.getEntryStore();
       return es.handleAsync(es.getREST().get(this.getResourceURI(), 'text/xml'), 'getFile');
     }
-  });
+  };
+  return FileResource;
+});

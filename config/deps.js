@@ -15,7 +15,7 @@ require.config({
   ],
 
   map: {
-    'store/rest': {
+    'store/Rest': {
             // Force using xhr since we know we are in the browser
       'dojo/request': 'dojo/request/xhr',
             // Override above line for paths to iframe and script.

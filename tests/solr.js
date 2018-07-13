@@ -2,10 +2,9 @@ define([
     'store/EntryStore',
     'store/EntryStoreUtil',
     'rdfjson/Graph',
-    'store/solr',
     'store/types',
     'tests/config'
-], function(EntryStore, EntryStoreUtil, Graph, solr, types, config) {
+], function(EntryStore, EntryStoreUtil, Graph, types, config) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);

@@ -3,9 +3,9 @@ define([
   'dojo/_base/lang',
   'dojo/json',
   'dojo/Deferred',
-  'store/solr',
+  'store/SolrQuery',
   'store/Cache',
-  'store/rest',
+  'store/Rest',
   'store/factory',
   'store/types',
   'store/PrototypeEntry',
@@ -13,24 +13,22 @@ define([
   'store/User',
   'store/Auth',
   'dojo/has',
-], (lang, json, Deferred, solr, Cache, rest, factory, types, PrototypeEntry, Resource, User, Auth,
-    has) =>
+], (lang, json, Deferred, SolrQuery, Cache, Rest, factory, types, PrototypeEntry, Resource, User,
+    Auth, has) => {
   /**
    * EntryStore is the main class that is used to connect to a running server-side EntryStore
    * repository.
    * @exports store/EntryStore
-   * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
-   * may be left out and
-   * guessed if run in a browser environment (appends "/store/" to the window.location.origin)
-   * @param {Object=} credentials - same as provided in the {@link store/EntryStore#auth auth}
-   * method.
-   * @class
    */
-  class {
+  const EntryStore = class {
+    /**
+     * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
+     * may be left out and
+     * guessed if run in a browser environment (appends "/store/" to the window.location.origin)
+     * @param {Object=} credentials - same as provided in the {@link store/EntryStore#auth auth}
+     * method.
+     */
     constructor(baseURI, credentials) {
-      /**
-       * @type {String}
-       */
       if (has('host-browser') && baseURI == null) {
         this._baseURI = `${window.location.origin}/store/`;
       } else {
@@ -46,7 +44,7 @@ define([
         this.auth(credentials);
       }
       this._contexts = {};
-      this._rest = rest;
+      this._rest = new Rest();
     }
 
     /**
@@ -73,12 +71,13 @@ define([
      * - login           - logging in (auth.login)
      * - logout          - logging out (auth.logout)
      * - commitEntryInfo - pushing changes in entry information (EntryInfo.commit)
-     * - getFile         - the contents of a file resourec is requested (File.get*)
+     * - getFile         - the contents of a file resource is requested (File.get*)
      * - putFile         - the contents of a file is pushed (File.put*)
      * - commitGraph     - a graph resource is pushed (Graph.commit)
      * - commitString    - a string resource is pushed (String.commit)
      * - setGroupName    - a new name of a group is pushed (Group.setName)
      * - setUserName     - a new name of a user is pushed (User.setName)
+     * - setUserDisabled - a new disabled state of a user is pushed (User.setDisabled)
      * - setUserLanguage - a new preferred language of the user is pushed (User.setLanguage)
      * - setUserPassword - a new password for the user is pushed (User.setPassword)
      * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)
@@ -121,7 +120,7 @@ define([
     }
 
     /**
-     * @returns {Auth} where functionality related to authorization are located,
+     * @returns {store/Auth} where functionality related to authorization are located,
      * including a listener infrastructure.
      */
     getAuth() {
@@ -175,7 +174,8 @@ define([
     /**
      * Fetches an entry given an entryURI. If the entry is already loaded and available in the
      * cache it will be returned directly, otherwise it will be loaded from the repository.
-     * If the entry is already loaded but marked as in need of a refresh it will be refreshed first.
+     * If the entry is already loaded but marked as in need of a refresh it will be refreshed
+     * first.
      *
      * The optional load parameters are provided in a single parameter object with six possible
      * attributes. Below we outline these attributes, the first two (forceLoad and direct) applies
@@ -189,12 +189,12 @@ define([
      *    if the entry is not in the cache an undefined value will be returned.
      * limit - only a limited number of children are loaded, -1 means no limit, 0, undefined
      *    or if the attribute is not provided means that the default limit of 20 is used.
-     * offset - only children from offest and forward is returned, must be positive to take effect.
+     * offset - only children from offest and forward is returned, must be positive.
      * sort - information on how to sort the children:
      *     * if sort is not provided at all or an empty object is provided the members of the
      *       list will not be sorted, instead the list's natural order will be used
      *     * if sort is given as null the defaults will be used ({sortBy: "title", prio: "List"}).
-     *     * if sort is given as a non emtpy object the following attributes are taken into account:
+     *     * if sort is given as a non emtpy object the following attributes are considered:
      *       ** sortBy - the attribute instructs which metadata field to sort the children by,
      *          i.e., title, created, modified, or size.
      *       ** lang - if sort is title and the title is provided in several languages a
@@ -268,7 +268,7 @@ define([
       }
       const self = this;
       const entryLoadURI = factory.getEntryLoadURI(entryURI, optionalLoadParams);
-      return this.handleAsync(this._rest.get(entryLoadURI, null, true).then((data) => {
+      return this.handleAsync(this._rest.get(entryLoadURI).then((data) => {
         // The entry, will always be there.
         const entry = factory.updateOrCreate(entryURI, data, self);
         return checkResourceLoaded(entry);
@@ -321,8 +321,9 @@ define([
 
     /**
      * Retrieves a Context instance via its id. Note that this method returns directly without
-     * checking with the EntryStore repository that the context exists. Hence successive operations
-     * via this context instance may fail if the context does not exist in the EntryStore
+     * checking with the EntryStore repository that the context exists. Hence successive
+     * operations via this context instance may fail if the context does not exist in the
+     * EntryStore
      * repository.
      *
      * Note that in EntryStore everything is connected to entries. Hence a context is nothing else
@@ -330,12 +331,11 @@ define([
      * the context as well as the default ownership and access control that applies to all entries
      * inside of this context.
      *
-     * To get a hold of the contexts own entry use the {@link store/Resource#getEntry getEntry}
+     * To get a hold of the contexts own entry use the {@link store/Resource#getEntry}
      * method on the context (inherited from the generic {@link store/Resource} class.
      *
-     * Advanced: Entrys corresponding to contexts are stored in the special _contexts context which,
-     * since it is a context,
-     * contains its own entry.
+     * Advanced: Entrys corresponding to contexts are stored in the special _contexts
+     * context which, since it is a context, contains its own entry.
      *
      * @param {string} contextId - identifier for the context (not necessarily the same as the
      * alias/name for the context)
@@ -529,16 +529,17 @@ define([
      * @returns {xhrPromise}
      */
     echoFile(data) {
+      // noinspection AmdModulesDependencies
       if (!(data instanceof Node)) {
         throw new Error('Argument needs to be an input element.');
       }
       if (data.name == null || data.name === '') {
         throw new Error('Failure, cannot upload resource from input element unless a name' +
-        ' attribute is provided.');
+          ' attribute is provided.');
       }
 
-      return this.handleAsync(this.getREST().putFile(
-        `${this.getBaseURI()}echo`, data, 'text').then((rawData) => {
+      return this.handleAsync(this.getREST().putFile(`${this.getBaseURI()}echo`, data, 'text')
+        .then((rawData) => {
           const idx = rawData.indexOf('\n');
           const status = parseInt(rawData.substr(0, idx).split(':')[1], 10);
           if (status !== 200) {
@@ -554,17 +555,16 @@ define([
      * Performing searches against an EntryStore repository is achieved by creating a
      * {@link store/SearchList} which is similar to a regular {@link store/List}.
      * From this list it is possible to get paginated results in form of matching entries.
-     * In the following code example the solr variable corresponds to the {@link store/solr}
-     * query module:
+     * For example:
      *
      *     var personType = "http://xmlns.com/foaf/0.1/Person";
      *     var searchList = entrystore.newSolrQuery().rdfType(personType).list();
      *     searchList.setLimit(20).getEntries().then(function(results) {...});
      *
-     * @returns {store/SearchList}
+     * @returns {store/SolrQuery}
      */
     newSolrQuery() {
-      return new solr.Solr(this);
+      return new SolrQuery(this);
     }
 
     /**
@@ -582,6 +582,16 @@ define([
      */
     getEntryURI(contextId, entryId) {
       return factory.getEntryURI(this, contextId, entryId);
+    }
+
+    /**
+     * Constructs an metadata URI from the id for the context and the specific entry.
+     * @param {string} contextId - an identifier for the context the entry belongs to
+     * @param {string} entryId - an identifier for the entry
+     * @returns {String} - an entry URI
+     */
+    getMetadataURI(contextId, entryId) {
+      return factory.getMetadataURI(this, contextId, entryId);
     }
 
     /**
@@ -645,7 +655,7 @@ define([
      * @returns {Object}
      */
     getStatus() {
-      var uri = this._baseURI+"management/status?extended";
+      const uri = `${this._baseURI}management/status?extended`;
       return this.handleAsync(this._rest.get(uri));
     }
 
@@ -662,7 +672,7 @@ define([
      * The loading mechanism are performed via REST calls, this REST module can be
      * used for doing manual lookups outside of the scope of this API.
      *
-     * @returns {store/rest}
+     * @returns {store/Rest}
      */
     getREST() {
       return this._rest;
@@ -694,7 +704,9 @@ define([
     getFactory() {
       return factory;
     }
-  });
+  };
+  return EntryStore;
+});
 
 /**
  * @callback asyncListener

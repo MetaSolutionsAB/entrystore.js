@@ -16,13 +16,15 @@ define([
   const xsdns = 'http://www.w3.org/2001/XMLSchema#';
   namespaces.add('prov', 'http://www.w3.org/ns/prov#');
 
-  const externals = {
+  const terms = {
     homeContext: `${ns}homeContext`,
     resource: `${ns}resource`,
     metadata: `${ns}metadata`,
     externalMetadata: `${ns}externalMetadata`,
+    reasoningFacts: `${ns}reasoningFacts`,
     status: {
       property: `${ns}status`,
+      InProgress: `${ns}InProgress`,
       Pending: `${ns}Pending`,
       Succeeded: `${ns}Success`,
       Failed: `${ns}Failed`,
@@ -60,8 +62,8 @@ define([
   et[`${ns}LinkReference`] = types.ET_LINKREF;
   et[`${ns}Reference`] = types.ET_REF;
   et.default = types.ET_LOCAL;   // The default option
-  externals.entryType = et;
-  externals.invEntryType = inv(et);
+  terms.entryType = et;
+  terms.invEntryType = inv(et);
 
     // GraphType
   const gt = {};
@@ -77,8 +79,8 @@ define([
   gt[`${ns}PipelineResult`] = types.GT_PIPELINERESULT;
   gt[`${ns}String`] = types.GT_STRING;
   gt.default = types.GT_NONE; // The default option
-  externals.graphType = gt;
-  externals.invGraphType = inv(gt);
+  terms.graphType = gt;
+  terms.invGraphType = inv(gt);
 
     // ResourceType
   const rt = {};
@@ -87,8 +89,8 @@ define([
   rt[`${ns}NamedResource`] = types.RT_NAMEDRESOURCE;
   rt[`${ns}Unknown`] = types.RT_UNKNOWN;
   rt.default = types.RT_INFORMATIONRESOURCE; // The default option
-  externals.resourceType = rt;
-  externals.invResourceType = inv(rt);
+  terms.resourceType = rt;
+  terms.invResourceType = inv(rt);
 
-  return externals;
+  return terms;
 });

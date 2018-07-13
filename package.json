@@ -1,10 +1,10 @@
 {
   "name": "store",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "main": "main",
   "dependencies": {
     "requirejs": "2.3.5",
-    "rdfjson": "git+https://bitbucket.org/metasolutions/rdfjson.git#1.3",
+    "rdfjson": "git+https://bitbucket.org/metasolutions/rdfjson.git#1.4",
     "blueimp-md5": "git+https://github.com/blueimp/JavaScript-MD5.git#v2.3.1",
     "dojo": "1.12.2"
   },
@@ -13,12 +13,6 @@
     "nodeunit": "~0.8.6"
   },
   "description": "Store is a JS-library for working EntryStore.",
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "Some URL here."
-    }
-  ],
-  "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
-  "dojoBuild": "package.js"
+  "license": "LGPL-3.0-or-later",
+  "homepage": "https://bitbucket.org/metasolutions/entrystore.js"
 }

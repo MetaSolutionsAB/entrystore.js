@@ -1,22 +1,19 @@
 /* global define*/
 define([
   'dojo/json',
-  'store/String',
-  'store/types',
+  './String',
+  './types',
   './PrototypeEntry',
   './Resource',
   './Graph',
   './Pipeline',
-], (json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) =>
+], (json, StringResource, types, PrototypeEntry, Resource, Graph, Pipeline) => {
   /**
+   * Methods for interacting with the EntryStore repository scoped to a specific context.
+   *
    * @exports store/Context
-   * @param {String} entryURI in which this context is a resource.
-   * @param {String} resourceURI
-   * @param {store/EntryStore} entryStore
-   * @class
-   * @augments store/Resource
    */
-  class extends Resource {
+  const Context = class extends Resource {
     /**
      * Retrieves a list of entries in the context.
      *
@@ -37,6 +34,8 @@ define([
     /**
      * Convenience method, to retrieve an entry from this context.
      *
+     * @param {string} entryId
+     * @param {object} optionalLoadParams same parameter as in {@see store/EntryStore#getEntry}
      * @returns {entryPromise}
      * @see store/EntryStore#getEntry
      */
@@ -247,4 +246,6 @@ define([
     _update(data) {
       this._name = data.alias || data.name; // TODO, change to only name after clean-up
     }
-  });
+  };
+  return Context;
+});

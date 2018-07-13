@@ -3,13 +3,14 @@ define([
 ], (List) => {
   /**
    * @exports store/SearchList
-   * @param {store/EntryStore} entryStore
-   * @param {Object} query
-   * @param {string} callType parameter provided to asyncListeners on query execution,
-   * assumed to be 'search' if left out
-   * @constructor
    */
   const SearchList = class {
+    /**
+     * @param {store/EntryStore} entryStore
+     * @param {Object} query
+     * @param {string} callType parameter provided to asyncListeners on query execution,
+     * assumed to be 'search' if left out
+     */
     constructor(entryStore, query, callType) {
       this._entryStore = entryStore;
       this._query = query;
@@ -18,7 +19,7 @@ define([
     }
 
     /**
-     * the query instance, e.g. an instance of store/solr, associated with this SearchList.
+     * the query instance, e.g. an instance of store/SolrQuery, associated with this SearchList.
      * @returns {Object}
      */
     getQuery() {

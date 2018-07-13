@@ -5,10 +5,11 @@ define([], () => {
    * EntryStore is the main class that is used to connect to a running server-side
    * EntryStore repository.
    * @exports store/Auth
-   * @param {store/EntryStore} entrystore - a repository instance.
-   * @class
    */
-  return class {
+  const Auth = class {
+    /**
+     * @param {store/EntryStore} entrystore - a repository instance.
+     */
     constructor(entrystore) {
       this.entrystore = entrystore;
       this._listenerCounter = 0;
@@ -150,6 +151,7 @@ define([], () => {
       }), 'logout');
     }
   };
+  return Auth;
 });
 
 /**

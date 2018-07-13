@@ -4,18 +4,19 @@ define([
   'store/terms',
   'rdfjson/Graph',
   'dojo/date/stamp',
-], (json, terms, Graph, stamp) =>
+], (json, terms, Graph, stamp) => {
   /**
-   * EntryInfo is a class that contains all the administrative information for an entry.
+   * EntryInfo is a class that contains all the administrative information of an entry.
    * @exports store/EntryInfo
-   * @param {String} entryURI must be provided unless the graph contains a statement with
-   * the store:resource property which allows us to infer the entryURI.
-   * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
-   * statements
-   * @param {store/EntryStore} entryStore
-   * @class
    */
-  class {
+  const EntryInfo = class {
+    /**
+     * @param {String} entryURI must be provided unless the graph contains a statement with
+     * the store:resource property which allows us to infer the entryURI.
+     * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
+     * statements
+     * @param {store/EntryStore} entryStore
+     */
     constructor(entryURI, graph, entryStore) {
       this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
       this._graph = graph || new Graph();
@@ -98,10 +99,23 @@ define([
     }
 
     /**
+     * If the entry is a user there can be a disabled state.
+     * In general the disabled state is accessed on the resource, but in certain
+     * situations we do not have the resource yet(not loaded) but we still
+     * have the disabled state (from a search where the disabled state is provided
+     * but not the resource), in this case we can access the disabled state here.
+     *
+     * @returns {boolean} a disabled state of a user
+     */
+    isDisabled() {
+      return this._disabled;
+    }
+
+    /**
      * @returns {String}
      */
     getMetadataURI() {
-      return this._entryStore.getFactory().getMetadataURI(this._entryURI);
+      return this._entryStore.getFactory().getMetadataURIFromURI(this._entryStore, this._entryURI);
     }
 
     /**
@@ -452,7 +466,9 @@ define([
       return this._graph.find(this.getEntryURI(),
         'http://purl.org/dc/terms/contributor').map(statement => statement.getValue());
     }
-  });
+  };
+  return EntryInfo;
+});
 
 /**
  * Promise that provides an {@link store/Entry} on success.

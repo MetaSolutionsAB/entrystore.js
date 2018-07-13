@@ -2,20 +2,20 @@
 define([
   'dojo/json',
   'store/Resource',
-], (json, Resource) =>
+], (json, Resource) => {
   /**
    * User instances are resources corresponding to users that can be authenticated to access
    * the EntryStore repository. The user resource URI can be referred to from access control lists.
    *
    * @exports store/User
-   * @param {string} entryURI - URI to an entry where this resource is contained.
-   * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
-   * @param {Object} data - information about the user, e.g. object containing name and homecontext.
-   * @class
-   * @extends store/Resource
    */
-  class extends Resource {
+  const User = class extends Resource {
+    /**
+     * @param {string} entryURI - URI to an entry where this resource is contained.
+     * @param {string} resourceURI - URI to the resource.
+     * @param {store/EntryStore} entryStore - the API's repository instance.
+     * @param {Object} data - information about the user, e.g. object with name and homecontext.
+     */
     constructor(entryURI, resourceURI, entryStore, data) {
       super(entryURI, resourceURI, entryStore);
       this._data = data;
@@ -51,6 +51,40 @@ define([
           this._data.name = oldname;
           throw e;
         }), 'setUserName');
+    }
+
+    /**
+     * Check if the user is disabled. Disabled users cannot sign in, although they still exist
+     * for lookup, e.g. when presenting creators and contributors.
+     * @returns {boolean}
+     */
+    isDisabled() {
+      return this._data.disabled === true;
+    }
+
+    /**
+     * Set the user to be disabled or not.
+     * @param {boolean} disabled
+     * @returns {xhrPromise}
+     */
+    setDisabled(disabled) {
+      if (disabled === this.isDisabled()) {
+        return Promise.resolve(true);
+      }
+      const olddisabled = this._data.disabled === true;
+      this._data.disabled = disabled;
+      return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
+        json.stringify({ disabled }))
+        .then((data) => {
+          const e = this.getEntry(true);
+          if (e) {
+            e.getEntryInfo()._disabled = disabled;
+          }
+          return data;
+        }, (e) => {
+          this._data.disabled = olddisabled;
+          throw e;
+        }), 'setUserDisabled');
     }
 
     /**
@@ -146,4 +180,6 @@ define([
     getSource() {
       return this._data;
     }
-  });
+  };
+  return User;
+});

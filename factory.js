@@ -59,14 +59,23 @@ define([
     return o;
   };
 
-  const fixName = (resource, data) => {
+  const fixNameAndDisabled = (resObj, data) => {
+    const { resource } = data;
     // Special case of searches and similar when name is provided but not full resource.
-    if (typeof data.name === 'string' && resource != null) {
-      if (resource instanceof User) {
-        resource._data = resource._data || {};
-        resource._data.name = data.name;
-      } else { // Context and Group
-        resource._name = data.name;
+    if (resObj != null) {
+      if (resource && typeof resource.name === 'string') {
+        if (resObj instanceof User) {
+          resObj._data = resObj._data || {};
+          resObj._data.name = resource.name;
+        } else { // Context and Group
+          resObj._name = resource.name;
+        }
+      }
+      if (resObj instanceof User) {
+        resObj._data = resObj._data || {};
+        if (resource && typeof resource.disabled === 'boolean') {
+          resObj._data.disabled = resource.disabled;
+        }
       }
     }
   };
@@ -127,12 +136,12 @@ define([
         default:
       }
       entry._resource = resource;
-      fixName(resource, _data);
+      fixNameAndDisabled(resource, _data);
       return;
     }
 
     if (resource == null || _data.resource == null) {
-      fixName(resource, _data);
+      fixNameAndDisabled(resource, _data);
       return;
     }
 
@@ -152,6 +161,7 @@ define([
   const _updateEntry = (entry, data) => {
     entry._metadata = data.metadata ? new Graph(data.metadata) : null;
     entry._cachedExternalMetadata = data['cached-external-metadata'] ? new Graph(data['cached-external-metadata']) : null;
+    entry._inferredMetadata = data.inferred ? new Graph(data.inferred) : null;
     entry._extractedMetadata = data['extracted-metadata'] ? new Graph(data['extracted-metadata']) : null;
     entry._relation = data.relations ? new Graph(data.relations) : new Graph();
     entry._rights = transformRights(data.rights);
@@ -161,6 +171,12 @@ define([
       const ei = entry.getEntryInfo();
       // ei._alias = data.alias;
       ei._name = data.name || data.resource.name;
+    }
+    // Sometimes we get the disabled state that is really part of the resource
+    // without getting the full resource, in this case we store this in the entryinfo.
+    if (data.disabled || (data.resource && data.resource.disabled)) {
+      const ei = entry.getEntryInfo();
+      ei._disabled = data.disabled || data.resource.disabled;
     }
     return entry;
   };
@@ -235,8 +251,6 @@ define([
     return entries;
   };
 
-  factory.getMetadataURI = entryURI => entryURI.replace('/entry/', '/metadata/');
-
   factory.getCachedExternalMetadataURI = entryURI => entryURI.replace('/entry/',
     '/cached-external-metadata/');
 
@@ -279,9 +293,14 @@ define([
     const base = entryStore.getBaseURI();
     return `${base + factory.getContextId(uri, base)}/entry/${factory.getEntryId(uri, base)}`;
   };
-
   factory.getEntryURI = (entryStore, contextId, entryId) =>
-    `${entryStore.getBaseURI() + contextId}/entry/${entryId}`;
+    `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
+  factory.getMetadataURIFromURI = (entryStore, uri) => {
+    const base = entryStore.getBaseURI();
+    return `${base + factory.getContextId(uri, base)}/metadata/${factory.getEntryId(uri, base)}`;
+  };
+  factory.getMetadataURI = (entryStore, contextId, entryId) =>
+    `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
 
   factory.getResourceBase = (entryStore, contextId) =>
     `${entryStore.getBaseURI() + contextId}/resource/`;

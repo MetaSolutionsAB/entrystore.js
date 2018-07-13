@@ -2,7 +2,7 @@ define([
   'rdfjson/Graph',
   'store/types',
   'dojo/json',
-], (Graph, types, json) =>
+], (Graph, types, json) => {
   /**
    * Entrys are at the center of this API. Entrys holds together metadata, external metadata,
    * resources, access control, and provenance. Hence, entrys appear in the majority of methods,
@@ -17,12 +17,12 @@ define([
    * only those that have corresponding set methods are really unique for this class.
    *
    * @exports store/Entry
-   * @param {store/Context} context container for this entry
-   * @param {store/EntryInfo} entryInfo defines the basics of this entry
-   * @param {store/EntryStore} entryStore the repository for this entry
-   * @class
    */
-  class {
+  const Entry = class {
+    /**
+     * @param {store/Context} context container for this entry
+     * @param {store/EntryInfo} entryInfo defines the basics of this entry
+     */
     constructor(context, entryInfo) {
       this._context = context;
       this._entryInfo = entryInfo;
@@ -111,10 +111,11 @@ define([
      * Will push the metadata for this entry to the repository.
      * If metadata has been set for an entry with EntryType 'reference'
      * the entrytype will change to 'linkreference' upon a successful commit.
-     *
+     * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+     * if information is stale, also it will not automatically refresh with the latest date
      * @return {entryPromise} a promise that on success will contain the current updated entry.
      */
-    commitMetadata() {
+    commitMetadata(ignoreIfUnmodifiedSinceCheck) {
       let p;
       const es = this.getEntryStore();
       if (this.isReference()) {
@@ -127,6 +128,10 @@ define([
       } else if (this._metadata == null) {
         p = Promise.reject(`The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`);
       } else {
+        if (ignoreIfUnmodifiedSinceCheck) {
+          p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
+            json.stringify(this._metadata.exportRDFJSON())).then(() => this);
+        }
         const mod = this.getEntryInfo().getModificationDate();
         p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
           json.stringify(this._metadata.exportRDFJSON()), mod)
@@ -201,6 +206,10 @@ define([
       }
 
       return this._cachedExternalMetadata;
+    }
+
+    getInferredMetadata() {
+      return this._inferredMetadata;
     }
 
     /**
@@ -561,7 +570,7 @@ define([
       let acl = this.getEntryInfo().getACL();
       if (acl.contextOverride) {
         return ['rwrite', 'rread', 'mwrite', 'mread'].some(key =>
-        acl[key].indexOf(guestprincipal) !== -1);
+          acl[key].indexOf(guestprincipal) !== -1);
       }
       const ce = this.getContext().getEntry(true);
       if (ce == null) {
@@ -668,7 +677,9 @@ define([
       }
       return es.handleAsync(p, 'refresh');
     }
-  });
+  };
+  return Entry;
+});
 
 /**
  * Promise that provides an {@link store/Entry} on success.
