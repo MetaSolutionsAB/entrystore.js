@@ -6,7 +6,7 @@ const config = {
   entry: './src/index.js',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: "all.js",
+    filename: "EntryStore.js",
     library: 'EntryStore',
     libraryTarget: "umd"
   },
