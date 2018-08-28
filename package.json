@@ -32,8 +32,8 @@
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "dojoBuild": "package.js",
   "scripts": {
+    "build": "webpack --config webpack.prod.js",
     "dev": "webpack --config webpack.dev.js",
-    "webpack": "webpack",
     "test": "webpack --config webpack.config.test.js",
     "testNode": "webpack --config webpack.config.test.node.js"
   }
