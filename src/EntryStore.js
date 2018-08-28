@@ -679,7 +679,7 @@ import { isBrowser } from './utils';
      * @returns {dojo/promise/Promise}
      */
     info() {
-      const packageJSON = require('./package.json');
+      const packageJSON = require('../package.json');
       return { version: packageJSON.version };
     }
 
