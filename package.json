@@ -1,7 +1,8 @@
 {
   "name": "store",
   "version": "4.6.0-SNAPSHOT",
-  "main": "main",
+  "main": "dist/all.js",
+  "module": "index.js",
   "dependencies": {
     "blueimp-md5": "^2.10.0",
     "lodash": "^4.17.10",
