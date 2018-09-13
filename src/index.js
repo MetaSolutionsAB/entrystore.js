@@ -28,9 +28,3 @@ export { default as String } from './String';
 export { default as User } from './User';
 export { default as terms } from './terms';
 
-EntryStore.util = EntryStoreUtil;
-EntryStore.terms = terms;
-EntryStore.types = types;
-EntryStore.Cache = Cache;
-
-export default EntryStore;
