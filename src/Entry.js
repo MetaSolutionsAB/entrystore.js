@@ -16,7 +16,7 @@
    *
    * @exports store/Entry
    */
-  const Entry = class {
+  class Entry {
     /**
      * @param {store/Context} context container for this entry
      * @param {store/EntryInfo} entryInfo defines the basics of this entry
@@ -677,7 +677,7 @@
     }
   };
 
-  export { Entry };
+  export default Entry;
 
 /**
  * Promise that provides an {@link store/Entry} on success.
