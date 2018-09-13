@@ -1,6 +1,6 @@
-import { Entry } from './Entry';
-import { EntryInfo } from './EntryInfo';
-import { terms } from './terms';
+import Entry from './Entry';
+import EntryInfo from './EntryInfo';
+import terms from './terms';
 
   /**
    * A PrototypeEntry is used to create new entries by collecting information about the initial
@@ -211,4 +211,4 @@ import { terms } from './terms';
       return this._context.getEntryStore().createEntry(this);
     }
   };
-  export { PrototypeEntry };
+  export default PrototypeEntry;

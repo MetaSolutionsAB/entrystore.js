@@ -1,5 +1,5 @@
   const Graph = require('rdfjson/Graph');
-  import { types } from './types';
+  import types from './types';
 
   /**
    * Entrys are at the center of this API. Entrys holds together metadata, external metadata,

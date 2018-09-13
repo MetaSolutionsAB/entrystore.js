@@ -194,7 +194,7 @@
     }
   };
 
-  export { EntryStoreUtil };
+  export default EntryStoreUtil;
 
 /**
  * @name successOrFailPromise

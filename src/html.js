@@ -101,4 +101,4 @@ const print = require('rdfjson/print');
     return strs.join('');
   };
 
-  export { html };
+  export default html;
