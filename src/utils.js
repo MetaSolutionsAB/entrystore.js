@@ -72,3 +72,4 @@ const isNode = () => typeof module !== 'undefined' && typeof module.exports !== 
 const isIE = () => window && window.navigator.userAgent.match(/MSIE/) !== null;
 
 export { utils, isBrowser, isNode, isIE };
+export default utils;
