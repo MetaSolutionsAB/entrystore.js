@@ -1,4 +1,4 @@
-  /**
+/**
    * Types is a module containing the three different types: GraphType, EntryType and
    * ResourceType shortened GT, ET and RT.
    *

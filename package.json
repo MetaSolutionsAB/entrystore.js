@@ -15,6 +15,9 @@
     "babel-loader": "^7.1.4",
     "bower": "^1.8.4",
     "clean-webpack-plugin": "^0.1.19",
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
     "jaguarjs-jsdoc": "0.0.1",
     "nodeunit": "^0.11.2",
     "webpack": "^4.6.0",
@@ -35,6 +38,7 @@
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack --config webpack.dev.js",
     "test": "webpack --config webpack.config.test.js",
-    "testNode": "webpack --config webpack.config.test.node.js"
+    "testNode": "webpack --config webpack.config.test.node.js",
+    "eslint": "eslint 'src/**/*.js'"
   }
 }

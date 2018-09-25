@@ -143,6 +143,6 @@ class User extends Resource {
   getSource() {
     return this._data;
   }
-};
+}
 
 export default User;

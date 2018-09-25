@@ -16,9 +16,9 @@ require.config({
 
   map: { // Can we map using webpack? Why are we mapping I wonder. Perhaps it could be explicit.
     'store/Rest': {
-            // Force using xhr since we know we are in the browser
+      // Force using xhr since we know we are in the browser
       'dojo/request': 'dojo/request/xhr',
-            // Override above line for paths to iframe and script.
+      // Override above line for paths to iframe and script.
       'dojo/request/iframe': 'dojo/request/iframe',
       'dojo/request/script': 'dojo/request/script',
     },
