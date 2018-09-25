@@ -1,7 +1,6 @@
 import { EntryStore } from './EntryStore';
 import { Entry } from './Entry';
-import { Resource } from './Resource';
-const rdfprint = require('rdfjson/print');
+import rdfprint from 'rdfjson';
 
 /* global define*/
     // The following code only works in node.js as it depends on repl and vm being available as global variables.
