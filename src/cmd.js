@@ -1,6 +1,6 @@
 import { EntryStore } from './EntryStore';
 import { Entry } from './Entry';
-import rdfprint from 'rdfjson';
+import { print } from 'rdfjson';
 
 /* global define*/
     // The following code only works in node.js as it depends on repl and vm being available as global variables.
@@ -159,7 +159,7 @@ import rdfprint from 'rdfjson';
 
   const mprint = function (graph, entry, term) {
     if (graph) {
-      const pretty = rdfprint.pretty(graph, entry.getResourceURI());
+      const pretty = print.pretty(graph, entry.getResourceURI());
       l(`Pretty printing of ${term} metadata for entry ${entry.getId()} in context ${entry.getContext().getId()}`);
       l('---------------------------------------------------------------------------------------');
       for (const key in pretty) {
@@ -196,7 +196,7 @@ import rdfprint from 'rdfjson';
 
   context.namespaces = function () {
     own_cmd = true;
-    const nss = rdfprint.getNamespaces();
+    const nss = print.getNamespaces();
     l('The following namespaces are registered in this session right now:');
     l('---------------------------------------------------------------------------------------');
     for (const ns in nss) {
