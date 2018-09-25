@@ -28,8 +28,8 @@
   "description": "Store is a JS-library for working EntryStore.",
   "licenses": [
     {
-      "type": "BSD",
-      "url": "Some URL here."
+      "type": "LGPL-3.0-or-later",
+      "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
     }
   ],
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
