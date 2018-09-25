@@ -1,5 +1,4 @@
-const Graph = require('rdfjson/Graph');
-
+import { Graph } from 'rdfjson';
 import Resource from './Resource';
 
 /**

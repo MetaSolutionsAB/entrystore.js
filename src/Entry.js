@@ -1,4 +1,4 @@
-  const Graph = require('rdfjson/Graph');
+  import { Graph } from 'rdfjson';
   import types from './types';
 
   /**

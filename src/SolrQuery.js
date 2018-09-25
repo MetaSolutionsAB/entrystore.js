@@ -1,4 +1,4 @@
-const namespaces = require('rdfjson/namespaces');
+import { namespaces } from 'rdfjson';
 import SearchList from './SearchList';
 import Context from './Context';
 import EntryStore from './EntryStore';

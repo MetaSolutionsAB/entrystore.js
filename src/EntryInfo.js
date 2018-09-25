@@ -1,6 +1,6 @@
 /* global define*/
 import terms from './terms';
-const Graph = require('rdfjson/Graph');
+import { Graph } from 'rdfjson';
 import moment from 'moment';
 
 /**

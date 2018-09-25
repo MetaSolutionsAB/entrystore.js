@@ -9,7 +9,7 @@ import SearchList from './SearchList';
 import GraphResource from './Graph';
 import FileResource from './File';
 import Pipeline from './Pipeline';
-const Graph = require('rdfjson/Graph');
+import { Graph } from 'rdfjson';
 import User from './User';
 
 /**

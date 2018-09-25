@@ -1,4 +1,4 @@
-const print = require('rdfjson/print');
+import { print } from 'rdfjson';
 
 /**
  * A module that contain utility methods for generating html for entries.

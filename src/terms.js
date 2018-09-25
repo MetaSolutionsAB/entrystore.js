@@ -1,5 +1,5 @@
 import types from './types';
-const namespaces = require('rdfjson/namespaces');
+import { namespaces } from 'rdfjson';
 
 const inv = (obj) => {
   const iobj = {};
