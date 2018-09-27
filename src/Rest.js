@@ -1,5 +1,6 @@
-import { isBrowser, isIE } from './utils';
 import superagent from 'superagent';
+import { isBrowser, isIE } from './utils';
+
 const jsonp = require('superagent-jsonp');
 
 /**
@@ -15,10 +16,10 @@ const sameOrigin = (url) => {
   a1.href = url;
   a2.href = window.location.href;
 
-  return a1.hostname === a2.hostname &&
-    a1.port === a2.port &&
-    a1.protocol === a2.protocol &&
-    a2.protocol !== 'file:';
+  return a1.hostname === a2.hostname
+    && a1.port === a2.port
+    && a1.protocol === a2.protocol
+    && a2.protocol !== 'file:';
 };
 
 /**
@@ -45,7 +46,7 @@ const Rest = class {
           return undefined;
         }
         let _newForm;
-        if ( isIE() ) {
+        if (isIE()) {
           // just to reiterate, IE is a steaming pile of shit.
           _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
           _newForm.encoding = 'multipart/form-data';
@@ -58,7 +59,7 @@ const Rest = class {
         }
 
         const oldParent = data.parentElement;
-        const nextSibling = data.nextSibling;
+        const { nextSibling } = data;
         _newForm.appendChild(data);
         document.body.appendChild(_newForm);
         const cleanUp = () => {
@@ -71,9 +72,9 @@ const Rest = class {
         };
 
         const stubForm = new FormData();
-        const files = data.files;
+        const { files } = data;
 
-        Object.entries(files).map( keyVal => {
+        Object.entries(files).map((keyVal) => {
           // is the item a File?
           if (keyVal[1] instanceof File) {
             stubForm.append(keyVal[0], keyVal[1]);
@@ -81,15 +82,15 @@ const Rest = class {
         });
 
         const res = superagent.put(uri)
-          .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+          .query({ preventCache: parseInt(Math.random() * 10000, 10) })
           .accept(format || 'application/json')
           .withCredentials()
-          .send( stubForm )
-          .then( () => {
+          .send(stubForm)
+          .then(() => {
             cleanUp();
             return res;
           })
-          .catch( (e) => {
+          .catch((e) => {
             cleanUp();
             throw e;
           });
@@ -99,6 +100,7 @@ const Rest = class {
       };
     }
   }
+
   /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
@@ -113,7 +115,7 @@ const Rest = class {
         // in seconds, 86400 is default and corresponds to a day.
         auth_maxage: credentials.maxAge != null ? credentials.maxAge : 604800,
       };
-      if ( isBrowser() ) {
+      if (isBrowser()) {
         return this.post(`${credentials.base}auth/cookie`, data);
       }
       const p = this.post(`${credentials.base}auth/cookie`, data);
@@ -130,12 +132,12 @@ const Rest = class {
     }
 
     const logoutRequestResult = superagent.get(`${credentials.base}auth/logout`)
-      .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
       .accept('application/json')
       .withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(this.headers).map( keyVal => logoutRequestResult.set(keyVal[0], keyVal[1]) );
+    Object.entries(this.headers).map(keyVal => logoutRequestResult.set(keyVal[0], keyVal[1]));
 
     return logoutRequestResult;
   }
@@ -170,7 +172,7 @@ const Rest = class {
     }
 
     // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-    if ( isBrowser() && !sameOrigin(_uri) && !nonJSONP) {
+    if (isBrowser() && !sameOrigin(_uri) && !nonJSONP) {
       return new Promise((resolve, reject) => {
         const queryParameter = new RegExp('[?&]format=');
         if (!queryParameter.test(_uri)) {
@@ -178,38 +180,38 @@ const Rest = class {
         }
 
         superagent.get(_uri)
-          .use(jsonp({
-            timeout: 500,
-          })
-          ) // Need this timeout to prevent an issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
-          .then( data => {
+          .use(
+            jsonp({
+              timeout: 500,
+            }),
+          ) // Need this timeout to prevent a superagentCallback*** not defined issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
+          .then((data) => {
             resolve(data.body);
           }, (err) => {
             reject(err);
           });
-
       });
     }
     const getRequest = superagent.get(_uri)
       .accept(handleAs)
       .timeout({ response: this.timeout })
-      .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
       .withCredentials();
 
-    if(handleAs === 'xml') {
-      getRequest.parse(async (res, fn) => {
+    if (handleAs === 'xml') {
+      getRequest.parse(async (res) => {
         const parser = new DOMParser();
         const parsedDocument = parser.parseFromString(res.text, 'application/xml');
         return parsedDocument;
       });
     }
 
-    Object.entries(locHeaders).map( keyVal => getRequest.set(keyVal[0], keyVal[1]) );
+    Object.entries(locHeaders).map(keyVal => getRequest.set(keyVal[0], keyVal[1]));
 
     return getRequest
       .then((response) => {
         if (response.statusCode === 200) {
-          if(handleAs === 'text') {
+          if (handleAs === 'text') {
             return response.text;
           }
           return response.body;
@@ -239,20 +241,16 @@ const Rest = class {
     }
 
     const postRequest = superagent.post(uri)
-      .query( {'request.preventCache': parseInt(Math.random() * 10000, 10)} )
-      .send( data )
+      .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) })
+      .send(data)
     // serialize the object into a format that the backend is used to (no JSON strings)
-      .serialize(obj =>
-        Object.entries(obj)
-        .map( keyVal =>
-          keyVal[0] + "=" + keyVal[1] + "&"
-        )
-        .join("")
-      )
+      .serialize(obj => Object.entries(obj)
+        .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
+        .join(''))
       .withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map( keyVal => postRequest.set(keyVal[0], keyVal[1]) );
+    Object.entries(locHeaders).map(keyVal => postRequest.set(keyVal[0], keyVal[1]));
 
     return postRequest;
   }
@@ -269,8 +267,8 @@ const Rest = class {
    */
   create(uri, data) {
     return this.post(uri, data).then((response) => {
-      //let location = response.getHeader('Location');
-      let location = response.headers['location'];
+      // let location = response.getHeader('Location');
+      let { location } = response.headers;
       // In some weird cases, like when making requests from file:///
       // we do not have access to headers.
       if (!location && response.body) {
@@ -309,12 +307,12 @@ const Rest = class {
     }
 
     const putRequest = superagent.put(uri)
-      .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
-      .send( data )
+      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
+      .send(data)
       .withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map( keyVal => putRequest.set(keyVal[0], keyVal[1]) );
+    Object.entries(locHeaders).map(keyVal => putRequest.set(keyVal[0], keyVal[1]));
 
     return putRequest;
   }
@@ -334,11 +332,11 @@ const Rest = class {
     }
 
     const deleteRequest = superagent.del(uri)
-      .query( {preventCache: parseInt(Math.random() * 10000, 10)} )
+      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
       .withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map( keyVal => deleteRequest.set(keyVal[0], keyVal[1]) );
+    Object.entries(locHeaders).map(keyVal => deleteRequest.set(keyVal[0], keyVal[1]));
 
     return deleteRequest;
   }
