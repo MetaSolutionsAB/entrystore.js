@@ -179,7 +179,7 @@ const Rest = class {
 
         superagent.get(_uri)
           .use(jsonp({
-            timeout: 160,
+            timeout: 500,
           })
           ) // Need this timeout to prevent an issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
           .then( data => {
