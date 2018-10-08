@@ -182,7 +182,7 @@ const Rest = class {
         superagent.get(_uri)
           .use(
             jsonp({
-              timeout: 500,
+              timeout: 1000000,
             }),
           ) // Need this timeout to prevent a superagentCallback*** not defined issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
           .then((data) => {
