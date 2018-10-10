@@ -1,4 +1,4 @@
-import { namespaces } from 'rdfjson';
+import {namespaces} from 'rdfjson';
 import SearchList from './SearchList';
 import Context from './Context';
 import EntryStore from './EntryStore';
@@ -25,8 +25,10 @@ const solrFriendly = (key, term) => {
   if (isNgram(key)) {
     and = and.map(t => (t.length < ngramLimit ? encodeStr(t) :
       encodeStr(t.substr(0, ngramLimit))));
+  } else {
+    and = and.map(t => encodeStr(t));
   }
-  return and.length === 1 ? encodeStr(and[0]) : `(${and.join('+AND+')})`;
+  return and.length === 1 ? and[0] : `(${and.join('+AND+')})`;
 };
 const buildQuery = (struct, isAnd) => {
   const terms = [];
@@ -138,6 +140,7 @@ const SolrQuery = class {
   title(val, modifier) {
     return this._q('title', val, modifier);
   }
+
   /**
    * Matches all descriptions in all languages, multivalued, cannot be sorted on.
    * Includes dc:description, dcterms:description, rdfs:comment
@@ -148,6 +151,7 @@ const SolrQuery = class {
   description(val, modifier) {
     return this._q('description', val, modifier);
   }
+
   /**
    * Matches all tags literals in all languages, multivalued, cannot be sorted on.
    * Includes dc:subject, dcterms:subject, dcat:keyword and lom:keyword
@@ -159,6 +163,7 @@ const SolrQuery = class {
   tagLiteral(val, modifier) {
     return this._q('tag.literal', val, modifier);
   }
+
   /**
    * Matches all tag URIs, multivalued, cannot be sorted on.
    * Includes dc:subject, dcterms:subject
@@ -170,6 +175,7 @@ const SolrQuery = class {
   tagURI(val, modifier) {
     return this._q('tag.uri', val, modifier);
   }
+
   /**
    * Matches the language (as a literal) of the resource, single value, can be used for sorting?
    * Includes dc:language, dcterms:language
@@ -181,6 +187,7 @@ const SolrQuery = class {
   lang(val, modifier) {
     return this._q('lang', val, modifier);
   }
+
   /**
    * Matches title, description and tags, multivalue, cannot be sorted on.
    *
@@ -191,6 +198,7 @@ const SolrQuery = class {
   all(val, modifier) {
     return this._q('all', val, modifier);
   }
+
   /**
    * Matches all URIs in subject position in the metadata, except the resourceURI.
    *
@@ -201,6 +209,7 @@ const SolrQuery = class {
   subject(val, modifier) {
     return this._q('metadata.subject', val, modifier);
   }
+
   /**
    * Matches all URIs in predicate position in the metadata.
    *
@@ -211,6 +220,7 @@ const SolrQuery = class {
   predicate(val, modifier) {
     return this._q('metadata.predicate', val, modifier);
   }
+
   /**
    * Matches all literals in object position in the metadata.
    *
@@ -221,6 +231,7 @@ const SolrQuery = class {
   objectLiteral(val, modifier) {
     return this._q('metadata.object.literal', val, modifier);
   }
+
   /**
    * Matches all URIs in object position in the metadata.
    *
@@ -231,6 +242,7 @@ const SolrQuery = class {
   objectUri(val, modifier) {
     return this._q('metadata.object.uri', val, modifier);
   }
+
   /**
    * Matches the resourceURI of the entry.
    *
@@ -241,6 +253,7 @@ const SolrQuery = class {
   resource(val, modifier) {
     return this._q('resource', val, modifier);
   }
+
   /**
    * Matches the entryURI of the entry.
    *
@@ -250,20 +263,23 @@ const SolrQuery = class {
    */
   uri(val, modifier) {
     return this._q('uri', val, modifier);
-  }    /**
-        * Matches all types of the resourceURI, i.e.
-        * all URIs pointed to via rdf:type from the resourceURI.
-        *
-        * @param {string|array} val
-        * @param {true|false|string} modifier
-        * @return {store/SolrQuery}
-        */
+  }
+
+  /**
+   * Matches all types of the resourceURI, i.e.
+   * all URIs pointed to via rdf:type from the resourceURI.
+   *
+   * @param {string|array} val
+   * @param {true|false|string} modifier
+   * @return {store/SolrQuery}
+   */
   rdfType(rdfType, modifier) {
     if (Array.isArray(rdfType)) {
       return this._q('rdfType', array.map(rdfType, t => namespaces.expand(t)), modifier);
     }
     return this._q('rdfType', namespaces.expand(rdfType), modifier);
   }
+
   /**
    * Matches all creators (in the entry information graph) expressed via their resourceURIs.
    *
@@ -274,6 +290,7 @@ const SolrQuery = class {
   creator(val, modifier) {
     return this._q('creator', val, modifier);
   }
+
   /**
    * Matches all contributors (in the entry information graph) expressed via their resourceURIs.
    *
@@ -284,6 +301,7 @@ const SolrQuery = class {
   contributors(val, modifier) {
     return this._q('contributors', val, modifier);
   }
+
   /**
    * Matches only entries that are part of the given lists, identified via their resourceURIs.
    *
@@ -294,6 +312,7 @@ const SolrQuery = class {
   lists(val, modifier) {
     return this._q('lists', val, modifier);
   }
+
   /**
    * Matches entries that are created at the specific date, most useful for sorting.
    *
@@ -304,6 +323,7 @@ const SolrQuery = class {
   created(val, modifier) {
     return this._q('created', val, modifier);
   }
+
   /**
    * Matches entries that are modified at the specific date, most useful for sorting.
    *
@@ -314,6 +334,7 @@ const SolrQuery = class {
   modified(val, modifier) {
     return this._q('modified', val, modifier);
   }
+
   /**
    * Matches entries with the given entry type, use the values in {@link store/types}, e.g.
    * sq.entryType(types.ET_LINK).
@@ -325,6 +346,7 @@ const SolrQuery = class {
   entryType(val, modifier) {
     return this._q('entryType', val, modifier);
   }
+
   /**
    * Matches entries with the given graph type, use the values in {@link store/types}, e.g.
    * sq.entryType(types.GT_USER).
@@ -336,6 +358,7 @@ const SolrQuery = class {
   graphType(val, modifier) {
     return this._q('graphType', val, modifier);
   }
+
   /**
    * Matches entries with the given resource type, use the values in {@link store/types}, e.g.
    * sq.entryType(types.RT_INFORMATIONRESOURCE).
@@ -347,6 +370,7 @@ const SolrQuery = class {
   resourceType(val, modifier) {
     return this._q('resourceType', val, modifier);
   }
+
   /**
    * Matches only public entries. Warning, individual entrys public flag is inherited from
    * surrounding context and if the context ACL is updated the entrys are not reindexed
@@ -358,6 +382,7 @@ const SolrQuery = class {
   publicRead(isPublic = true) {
     return this._q('public', isPublic === true ? 'true' : 'false', modifier);
   }
+
   /**
    * Matches only entries with explicitly ACL stating user(s) has admin rights
    *
@@ -368,6 +393,7 @@ const SolrQuery = class {
   admin(val, modifier) {
     return this._q('acl.admin', val, modifier);
   }
+
   /**
    * Matches only entries with explicitly ACL stating user(s) has metadata read rights
    *
@@ -378,6 +404,7 @@ const SolrQuery = class {
   metadataRead(val, modifier) {
     return this._q('acl.metadata.r', val, modifier);
   }
+
   /**
    * Matches only entries with explicitly ACL stating user(s) has metadata write (and read) rights
    *
@@ -388,6 +415,7 @@ const SolrQuery = class {
   metadataWrite(val, modifier) {
     return this._q('acl.metadata.rw', val, modifier);
   }
+
   /**
    * Matches only entries with explicitly ACL stating user(s) has resource read rights
    *
@@ -398,6 +426,7 @@ const SolrQuery = class {
   resourceRead(val, modifier) {
     return this._q('acl.resource.r', val, modifier);
   }
+
   /**
    * Matches only entries with explicitly ACL stating user(s) has resource write (and read) rights
    *
@@ -408,6 +437,7 @@ const SolrQuery = class {
   resourceWrite(val, modifier) {
     return this._q('acl.resource.rw', val, modifier);
   }
+
   /**
    * Matches entries with with specific status (expressed in entry information graph)
    *
@@ -418,6 +448,7 @@ const SolrQuery = class {
   status(val, modifier) {
     return this._q('status', val, modifier);
   }
+
   /**
    * Matches only entries within specified context(s)
    *
@@ -491,6 +522,7 @@ const SolrQuery = class {
   //eslint-disable-next-line
   title_lang(title, language) {
   }
+
   /**
    * If a title has a language set, a dynamic field is created with the pattern "title.en",
    * without multi value support. This is used in the context of sorting.
@@ -499,9 +531,10 @@ const SolrQuery = class {
    * @return {store/SolrQuery}
    */
   titleWithLanguage(title, language) {
-    this._title_lang = { value: title, language };
+    this._title_lang = {value: title, language};
     return this;
   }
+
   /**
    * Matches specific property value combinations.
    *
@@ -534,6 +567,7 @@ const SolrQuery = class {
     });
     return this;
   }
+
   /**
    * Matches specific property value combinations when the value is an integer.
    * Note that the integer values are single value per property and can be used for sorting.
@@ -553,6 +587,7 @@ const SolrQuery = class {
     });
     return this;
   }
+
   /**
    * Matches specific property value combinations when the value is an integer.
    * Note that the integer values are single value per property and can be used for sorting.
@@ -568,12 +603,13 @@ const SolrQuery = class {
     this.properties.push({
       md5: key,
       object: Array.isArray(object) ? object.map(o => namespaces.expand(o)) :
-      namespaces.expand(object),
+        namespaces.expand(object),
       modifier,
       nodetype: 'uri',
     });
     return this;
   }
+
   /**
    * Sets the pagination limit.
    *
@@ -584,6 +620,7 @@ const SolrQuery = class {
     this._limit = limit;
     return this;
   }
+
   /**
    * Gets the pagination limit if it set.
    *
@@ -593,6 +630,7 @@ const SolrQuery = class {
   getLimit() {
     return this._limit;
   }
+
   /**
    * The parameter "sort" can be used for Solr-style sorting, e.g. "sort=title+asc,modified+desc".
    * The default sorting value is to sort after the score (relevancy) and the modification date.
@@ -608,6 +646,7 @@ const SolrQuery = class {
     this._sort = sort;
     return this;
   }
+
   /**
    * Set an explicit offset.
    *
@@ -634,6 +673,7 @@ const SolrQuery = class {
     this.facets.push(facet);
     return this;
   }
+
   /**
    * Request to include literal facets for the given predicate
    * @param {string} predicate
@@ -643,6 +683,7 @@ const SolrQuery = class {
     this.facet(`metadata.predicate.literal_s.${shorten(predicate)}`, predicate);
     return this;
   }
+
   /**
    * Request to include URI facets for the given predicate
    * @param {string} predicate
@@ -652,6 +693,7 @@ const SolrQuery = class {
     this.facet(`metadata.predicate.uri.${shorten(predicate)}`, predicate);
     return this;
   }
+
   /**
    * Request to include integer facets for the given predicate
    * @param {string} predicate
@@ -661,6 +703,7 @@ const SolrQuery = class {
     this.facet(`metadata.predicate.integer.${shorten(predicate)}`, predicate);
     return this;
   }
+
   /**
    * Tell the query construction to make the fields added via the property methods
    * (uriProperty, literalProperty and integerProperty) to be disjunctive rather than
@@ -679,6 +722,7 @@ const SolrQuery = class {
     this.disjunctiveProperties = true;
     return this;
   }
+
   /**
    * Tell the query construction to make top level fields disjunctive rather than
    * conjunctive. For example
@@ -694,6 +738,7 @@ const SolrQuery = class {
     this.disjunctive = true;
     return this;
   }
+
   /**
    * Construct a SearchList fro this SolrQuery.
    *
@@ -727,7 +772,7 @@ const SolrQuery = class {
       } else if (Array.isArray(v) && v.length > 0) {
         const or = [];
         v.forEach((ov) => {
-          if ((typeof ov === 'string') ) {
+          if ((typeof ov === 'string')) {
             or.push(`${key}:${solrFriendly(key, ov)}`);
           }
         });
@@ -804,6 +849,7 @@ const SolrQuery = class {
     }
     return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(this.disjunctive ? '+OR' : '+AND+')}${trail}`;
   }
+
   /**
    * @param page
    * @returns {entryArrayPromise} the promise will return an entry-array.
@@ -812,6 +858,7 @@ const SolrQuery = class {
   getEntries(page) {
     return this.list().getEntries(page);
   }
+
   /**
    * @param func
    * @return {promise}
