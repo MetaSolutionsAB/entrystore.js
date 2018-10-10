@@ -453,22 +453,38 @@ const SolrQuery = class {
   /**
    * Matches only entries within specified context(s)
    *
-   * @param {string|store/Context} context either a store/Context instance or a string. If it
-   * is a string and it starts with 'http' it is assumed it is the resourceURI of the context,
-   * otherwise the context is assumed to be a contextId.
+   * @param {string|store/Context} context either a contextId, the resourceURI for a
+   +     * context, a store/Context instance or an array containing any of those. In case of a
+   +     * string, either directly or within the array and it starts with 'http' it is assumed it is
+   +     * the resourceURI of the context, otherwise the context is assumed to be a contextId.
    * @param {true|false|string} modifier
    * @return {store/SolrQuery}
    */
   context(context, modifier = false) {
-    if (context && context.getResourceURI) {
-      return this._q('context', context.getResourceURI(), modifier);
-    } else if (((typeof context) === 'string') && context !== '') {
-      if (context.indexOf('http') === 0) {
-        return this._q('context', context, modifier);
+    const f = (c) => {
+      if (c && c.getResourceURI) {
+        return c.getResourceURI();
+      } else if (lang.isString(c) && c !== '') {
+        if (c.indexOf('http') === 0) {
+          return c;
+        }
+        return this._entrystore.getContextById(c).getResourceURI();
       }
-      return this._q('context', this._entrystore.getContextById(context)
-        .getResourceURI(), modifier);
+      return null;
+    };
+
+    if (Array.isArray(context)) {
+      const resourceURIArr = context.map(f).filter(v => v !== null);
+      if (resourceURIArr.length > 0) {
+        this._q('context', resourceURIArr, modifier);
+      }
+    } else {
+      const resourceURI = f(context);
+      if (resourceURI !== null) {
+        return this._q('context', resourceURI, modifier);
+      }
     }
+
     return this;
   }
 
