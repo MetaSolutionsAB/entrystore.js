@@ -68,8 +68,10 @@ const fixNameAndDisabled = (resObj, data) => {
       }
     }
     if (resObj instanceof User) {
-      resObj._data = resource._data || {};
-      resObj._data.disabled = data.disabled;
+      resObj._data = resObj._data || {};
+      if (resource && typeof resource.disabled === 'boolean') {
+        resObj._data.disabled = resource.disabled;
+      }
     }
   }
 };
