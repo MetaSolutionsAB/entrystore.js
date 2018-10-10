@@ -9,7 +9,7 @@ import SearchList from './SearchList';
 import GraphResource from './Graph';
 import FileResource from './File';
 import Pipeline from './Pipeline';
-import { Graph } from 'rdfjson';
+import {Graph} from 'rdfjson';
 import User from './User';
 
 /**
@@ -29,7 +29,7 @@ import User from './User';
  */
 const factory = {};
 
-let sortObj = { sortBy: 'title', prio: 'List' };
+let sortObj = {sortBy: 'title', prio: 'List'};
 let defaultLimit = 50;
 
 const getContextForEntry = (entryURI, entryStore) => {
@@ -55,14 +55,20 @@ const transformRights = (rights) => {
   return o;
 };
 
-const fixName = (resource, data) => {
+const fixNameAndDisabled = (resource, data) => {
   // Special case of searches and similar when name is provided but not full resource.
-  if (typeof data.name === 'string' && resource != null) {
+  if (resource != null) {
+    if (typeof data.name === 'string') {
+      if (resource instanceof User) {
+        resource._data = resource._data || {};
+        resource._data.name = data.name;
+      } else { // Context and Group
+        resource._name = data.name;
+      }
+    }
     if (resource instanceof User) {
       resource._data = resource._data || {};
-      resource._data.name = data.name;
-    } else { // Context and Group
-      resource._name = data.name;
+      resource._data.disabled = data.disabled;
     }
   }
 };
@@ -123,12 +129,12 @@ const _updateOrCreateResource = (entry, data, force) => {
       default:
     }
     entry._resource = resource;
-    fixName(resource, _data);
+    fixNameAndDisabled(resource, _data);
     return;
   }
 
   if (resource == null || _data.resource == null) {
-    fixName(resource, _data);
+    fixNameAndDisabled(resource, _data);
     return;
   }
 
@@ -158,6 +164,12 @@ const _updateEntry = (entry, data) => {
     const ei = entry.getEntryInfo();
     // ei._alias = data.alias;
     ei._name = data.name || data.resource.name;
+  }
+  // Sometimes we get the disabled state that is really part of the resource
+  // without getting the full resource, in this case we store this in the entryinfo.
+  if (data.disabled || (data.resource && data.resource.disabled)) {
+    const ei = entry.getEntryInfo();
+    ei._disabled = data.disabled || data.resource.disabled;
   }
   return entry;
 };

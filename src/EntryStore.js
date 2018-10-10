@@ -8,7 +8,7 @@ import PrototypeEntry from './PrototypeEntry';
 import Resource from './Resource';
 import User from './User';
 import Auth from './Auth';
-import { isBrowser } from './utils';
+import {isBrowser} from './utils';
 
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
@@ -72,6 +72,7 @@ const EntryStore = class {
    * - commitString    - a string resource is pushed (String.commit)
    * - setGroupName    - a new name of a group is pushed (Group.setName)
    * - setUserName     - a new name of a user is pushed (User.setName)
+   * - setUserDisabled - a new disabled state of a user is pushed (User.setDisabled)
    * - setUserLanguage - a new preferred language of the user is pushed (User.setLanguage)
    * - setUserPassword - a new password for the user is pushed (User.setPassword)
    * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)
@@ -419,7 +420,7 @@ const EntryStore = class {
     if (contextname != null) {
       const ei = pe.getEntryInfo();
       const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({ name: contextname });
+      resource._update({name: contextname});
       pe._resource = resource;
     }
     return pe;
@@ -473,7 +474,7 @@ const EntryStore = class {
     if (groupname != null) {
       const ei = pe.getEntryInfo();
       const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({ name: groupname });
+      resource._update({name: groupname});
       pe._resource = resource;
     }
     return pe;
@@ -680,7 +681,7 @@ const EntryStore = class {
    */
   info() {
     const packageJSON = require('../package.json');
-    return { version: packageJSON.version };
+    return {version: packageJSON.version};
   }
 
   getFactory() {

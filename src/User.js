@@ -37,7 +37,7 @@ class User extends Resource {
     const oldname = this._data.name;
     this._data.name = name;
     const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ name }))
+    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({name}))
       .then((data) => {
         const e = this.getEntry(true);
         if (e) {
@@ -67,7 +67,7 @@ class User extends Resource {
     const oldlanguage = this._data.language;
     this._data.language = language;
     const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ language }))
+    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({language}))
       .then(data => data, (e) => {
         this._data.language = oldlanguage;
         throw e;
@@ -83,7 +83,41 @@ class User extends Resource {
   setPassword(password) {
     const es = this._entryStore;
     return es.handleAsync(es.getREST().put(this._resourceURI,
-      JSON.stringify({ password })), 'setUserPassword');
+      JSON.stringify({password})), 'setUserPassword');
+  }
+
+  /**
+   * Check if the user is disabled. Disabled users cannot sign in, although they still exist
+   * for lookup, e.g. when presenting creators and contributors.
+   * @returns {boolean}
+   */
+  isDisabled() {
+    return this._data.disabled === true;
+  }
+
+  /**
+   * Set the user to be disabled or not.
+   * @param {boolean} disabled
+   * @returns {xhrPromise}
+   */
+  setDisabled(disabled) {
+    if (disabled === this.isDisabled()) {
+      return Promise.resolve(true);
+    }
+    const olddisabled = this._data.disabled === true;
+    this._data.disabled = disabled;
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
+      json.stringify({disabled}))
+      .then((data) => {
+        const e = this.getEntry(true);
+        if (e) {
+          e.getEntryInfo()._disabled = disabled;
+        }
+        return data;
+      }, (e) => {
+        this._data.disabled = olddisabled;
+        throw e;
+      }), 'setUserDisabled');
   }
 
   /**
@@ -106,7 +140,7 @@ class User extends Resource {
     this._data.homecontext = contextId;
     const es = this._entryStore;
     return es.handleAsync(es.getREST().put(this._resourceURI,
-      JSON.stringify({ homecontext: contextId }))
+      JSON.stringify({homecontext: contextId}))
       .then(data => data, (e) => {
         this._data.homecontext = oldhc;
         throw e;
@@ -133,7 +167,7 @@ class User extends Resource {
     this._data.customProperties = customProperties;
     const es = this._entryStore;
     return es.handleAsync(es.getREST().put(this._resourceURI,
-      JSON.stringify({ customProperties }))
+      JSON.stringify({customProperties}))
       .then(data => data, (e) => {
         this._data.customProperties = oldcp;
         throw e;

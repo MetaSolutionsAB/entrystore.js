@@ -1,6 +1,6 @@
 /* global define*/
 import terms from './terms';
-import { Graph } from 'rdfjson';
+import {Graph} from 'rdfjson';
 import moment from 'moment';
 
 /**
@@ -97,6 +97,19 @@ const EntryInfo = class {
   }
 
   /**
+   * If the entry is a user there can be a disabled state.
+   * In general the disabled state is accessed on the resource, but in certain
+   * situations we do not have the resource yet(not loaded) but we still
+   * have the disabled state (from a search where the disabled state is provided
+   * but not the resource), in this case we can access the disabled state here.
+   *
+   * @returns {boolean} a disabled state of a user
+   */
+  isDisabled() {
+    return this._disabled;
+  }
+
+  /**
    * @returns {String}
    */
   getMetadataURI() {
@@ -116,7 +129,7 @@ const EntryInfo = class {
    */
   setExternalMetadataURI(uri) {
     this._graph.findAndRemove(this._entryURI, terms.externalMetadata);
-    this._graph.create(this._entryURI, terms.externalMetadata, { type: 'uri', value: uri });
+    this._graph.create(this._entryURI, terms.externalMetadata, {type: 'uri', value: uri});
   }
 
   /**
@@ -139,7 +152,7 @@ const EntryInfo = class {
   setResourceURI(uri) {
     const oldResourceURI = this.getResourceURI();
     this._graph.findAndRemove(this._entryURI, terms.resource);
-    this._graph.create(this._entryURI, terms.resource, { type: 'uri', value: uri });
+    this._graph.create(this._entryURI, terms.resource, {type: 'uri', value: uri});
     if (oldResourceURI) {
       const stmts = this._graph.find(oldResourceURI);
       for (let i = 0; i < stmts.length; i++) {
@@ -259,10 +272,10 @@ const EntryInfo = class {
       (principals || []).forEach((principal) => {
         if (principal.length < base.length || principal.indexOf(base) !== 0) {
           // principal is entry id.
-          g.add(subj, pred, { type: 'uri', value: base + principal });
+          g.add(subj, pred, {type: 'uri', value: base + principal});
         } else {
           // principal is a full entry resource uri.
-          g.add(subj, pred, { type: 'uri', value: principal });
+          g.add(subj, pred, {type: 'uri', value: principal});
         }
       });
     };
