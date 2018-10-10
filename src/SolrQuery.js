@@ -380,7 +380,7 @@ const SolrQuery = class {
    * @return {store/SolrQuery}
    */
   publicRead(isPublic = true) {
-    return this._q('public', isPublic === true ? 'true' : 'false', modifier);
+    return this._q('public', isPublic === true ? 'true' : 'false');
   }
 
   /**
