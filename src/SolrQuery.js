@@ -116,6 +116,8 @@ const SolrQuery = class {
     this.modifiers = {};
     this._and = [];
     this._or = [];
+    this.facetpredicates = {};
+
   }
 
   /**
@@ -686,7 +688,6 @@ const SolrQuery = class {
    */
   facet(facet, predicate) {
     this.facets = this.facets || [];
-    this.facetpredicates = this.facetpredicates || {};
     if (predicate) {
       this.facet2predicate = this.facet2predicate || {};
       this.facet2predicate[facet] = namespaces.expand(predicate);
