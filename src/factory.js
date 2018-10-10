@@ -247,8 +247,6 @@ factory.extractSearchResults = (data, list, entryStore) => {
   return entries;
 };
 
-factory.getMetadataURI = entryURI => entryURI.replace('/entry/', '/metadata/');
-
 factory.getCachedExternalMetadataURI = entryURI => entryURI.replace('/entry/',
   '/cached-external-metadata/');
 
@@ -293,7 +291,13 @@ factory.getEntryURIFromURI = (entryStore, uri) => {
 };
 
 factory.getEntryURI = (entryStore, contextId, entryId) =>
-  `${entryStore.getBaseURI() + contextId}/entry/${entryId}`;
+  `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
+factory.getMetadataURIFromURI = (entryStore, uri) => {
+  const base = entryStore.getBaseURI();
+  return `${base + factory.getContextId(uri, base)}/metadata/${factory.getEntryId(uri, base)}`;
+};
+factory.getMetadataURI = (entryStore, contextId, entryId) =>
+  `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
 
 factory.getResourceBase = (entryStore, contextId) =>
   `${entryStore.getBaseURI() + contextId}/resource/`;
