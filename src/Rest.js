@@ -241,13 +241,17 @@ const Rest = class {
     }
 
     const postRequest = superagent.post(uri)
-      .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) })
-      .send(data)
-    // serialize the object into a format that the backend is used to (no JSON strings)
-      .serialize(obj => Object.entries(obj)
-        .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
-        .join(''))
-      .withCredentials()
+      .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
+
+    if (data) {
+      postRequest.send(data)
+      // serialize the object into a format that the backend is used to (no JSON strings)
+        .serialize(obj => Object.entries(obj)
+          .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
+          .join(''));
+    }
+
+    postRequest.withCredentials()
       .timeout({ response: this.timeout });
 
     Object.entries(locHeaders).map(keyVal => postRequest.set(keyVal[0], keyVal[1]));
