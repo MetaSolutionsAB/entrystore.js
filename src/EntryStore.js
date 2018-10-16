@@ -431,7 +431,7 @@ const EntryStore = class {
     if (name != null) {
       uri += `?name=${encodeURIComponent(name)}`;
     }
-    return this.handleAsync(this._rest.create(uri).then(lang.hitch(this, location => this.getEntry(location))), 'createGroupAndContext');
+    return this.handleAsync(this._rest.create(uri).then(location => this.getEntry(location)), 'createGroupAndContext');
   }
 
   /**
