@@ -466,7 +466,7 @@ const SolrQuery = class {
     const f = (c) => {
       if (c && c.getResourceURI) {
         return c.getResourceURI();
-      } else if (lang.isString(c) && c !== '') {
+      } else if (typeof c === 'string' && c !== '') {
         if (c.indexOf('http') === 0) {
           return c;
         }
