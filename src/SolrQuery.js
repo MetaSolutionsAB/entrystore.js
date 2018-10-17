@@ -278,7 +278,7 @@ const SolrQuery = class {
    */
   rdfType(rdfType, modifier) {
     if (Array.isArray(rdfType)) {
-      return this._q('rdfType', array.map(rdfType, t => namespaces.expand(t)), modifier);
+      return this._q('rdfType', rdfType.map(t => namespaces.expand(t)), modifier);
     }
     return this._q('rdfType', namespaces.expand(rdfType), modifier);
   }
@@ -811,13 +811,13 @@ const SolrQuery = class {
 
     if (this.disjunctiveProperties || this.disjunctive) {
       const or = [];
-      array.forEach(this.properties, (prop) => {
+      this.properties.forEach((prop) => {
         const obj = prop.object;
         const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
         if (typeof obj === 'string') {
           or.push(`${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])}`);
         } else if (Array.isArray(obj) && obj.length > 0) {
-          array.forEach(obj, (o) => {
+          obj.forEach((o) => {
             or.push(`${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`);
           });
         }
@@ -837,7 +837,7 @@ const SolrQuery = class {
           }
         } else if (Array.isArray(obj) && obj.length > 0) {
           const or = [];
-          array.forEach(obj, (o) => {
+          obj.forEach((o) => {
             or.push(`${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`);
           }, this);
           if (prop.modifier === true || prop.modifier === 'not') {
