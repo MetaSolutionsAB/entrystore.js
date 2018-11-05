@@ -1,6 +1,6 @@
 import config from './config';
-import {EntryStore} from '../';
-import { isBrowser } from '../utils';
+import { EntryStore } from '../src/';
+import { isBrowser } from '../src/utils';
 const nodeunit = require('nodeunit');
 
   var es = new EntryStore(config.repository);

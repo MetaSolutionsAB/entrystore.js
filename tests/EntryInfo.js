@@ -1,6 +1,6 @@
-import { EntryStore } from '../';
+import { EntryStore } from '../src';
 import config from './config';
-const Graph = require('rdfjson/Graph');
+import { Graph } from 'rdfjson';
 const nodeunit = require('nodeunit');
 
     var es = new EntryStore(config.repository);

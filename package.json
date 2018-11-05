@@ -38,7 +38,8 @@
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack --config webpack.dev.js",
     "test": "webpack --config webpack.config.test.js",
-    "testNode": "webpack --config webpack.config.test.node.js",
+    "build:testNode": "webpack --config webpack.config.test.node.js",
+    "testNode": "nodeunit",
     "eslint": "eslint 'src/**/*.js'"
   }
 }

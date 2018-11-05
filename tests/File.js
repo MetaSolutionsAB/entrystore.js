@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const nodeunit = require('nodeunit');
 
-import {isBrowser} from '../utils';
+import {isBrowser} from '../src/utils';
 import config from './config';
-import {EntryStore} from '../';
+import {EntryStore} from '../src';
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");

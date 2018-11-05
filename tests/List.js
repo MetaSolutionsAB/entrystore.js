@@ -1,7 +1,7 @@
-import { EntryStore } from '../';
+import { EntryStore } from '../src';
 import config from './config';
 const nodeunit = require('nodeunit');
-const Graph = require('rdfjson/Graph');
+import { Graph } from 'rdfjson';
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");

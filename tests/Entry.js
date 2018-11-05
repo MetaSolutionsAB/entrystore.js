@@ -1,7 +1,7 @@
-import { EntryStore } from '../';
+import { EntryStore } from '../src';
 import config from './config';
 import moment from 'moment';
-const Graph = require('rdfjson/Graph');
+import { Graph } from 'rdfjson';
 const nodeunit = require('nodeunit');
 
 

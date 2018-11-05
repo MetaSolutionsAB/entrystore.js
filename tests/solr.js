@@ -1,10 +1,7 @@
 const nodeunit = require('nodeunit');
-import { EntryStore } from '../';
+import { EntryStore, EntryStoreUtil, types } from '../src';
 import config from './config';
-const Graph = require('rdfjson/Graph');
-
-const EntryStoreUtil = EntryStore.util;
-const types = EntryStore.types;
+import { Graph } from 'rdfjson';
 
     var es = new EntryStore(config.repository);
     var esu = new EntryStoreUtil(es);
