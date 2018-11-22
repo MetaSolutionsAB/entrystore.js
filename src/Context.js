@@ -213,7 +213,7 @@ const Context = class extends Resource {
   setName(name) {
     const oldname = this._name;
     this._name = name;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(`${this.getEntryURI()}/name`, json.stringify({ name })).then((data) => {
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(`${this.getEntryURI()}/name`, JSON.stringify({ name })).then((data) => {
       const e = this.getEntry(true);
       if (e) {
         e.getEntryInfo()._name = data;

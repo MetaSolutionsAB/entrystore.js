@@ -27,7 +27,7 @@ const Group = class extends List {
     const oldname = this._name;
     this._name = name;
     return this._entryStore.handleAsync(this._entryStore.getREST().put(
-      `${this.getEntryURI()}/name`, json.stringify({ name }))
+      `${this.getEntryURI()}/name`, JSON.stringify({ name }))
       .then((data) => {
         const e = this.getEntry(true);
         if (e) {

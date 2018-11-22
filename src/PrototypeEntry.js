@@ -176,7 +176,7 @@ import terms from './terms';
       const es = this.getEntryStore();
 
       return es.handleAsync(es.getREST().put(this.getEntryInfo().getMetadataURI(),
-        json.stringify(this.getMetadata().exportRDFJSON())), 'commitMetadata');
+        JSON.stringify(this.getMetadata().exportRDFJSON())), 'commitMetadata');
     }
 
     /**
@@ -190,7 +190,7 @@ import terms from './terms';
       }
       const es = this.getEntryStore();
       return es.handleAsync(es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
-        json.stringify(this._cachedExternalMetadata.exportRDFJSON())), 'commitCachedExternalMetadata');
+        JSON.stringify(this._cachedExternalMetadata.exportRDFJSON())), 'commitCachedExternalMetadata');
     }
 
     /**

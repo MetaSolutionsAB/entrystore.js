@@ -107,7 +107,7 @@ class User extends Resource {
     const olddisabled = this._data.disabled === true;
     this._data.disabled = disabled;
     return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      json.stringify({disabled}))
+      JSON.stringify({disabled}))
       .then((data) => {
         const e = this.getEntry(true);
         if (e) {
