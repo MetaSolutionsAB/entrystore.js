@@ -15,7 +15,7 @@ import {isBrowser} from './utils';
  * repository.
  * @exports store/EntryStore
  */
-const EntryStore = class {
+class EntryStore {
   /**
    * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
    * may be left out and

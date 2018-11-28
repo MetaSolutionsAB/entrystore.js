@@ -45,58 +45,22 @@ const Rest = class {
         if (!data.value) {
           return undefined;
         }
-        let _newForm;
-        if (isIE()) {
-          // just to reiterate, IE is a steaming pile of shit.
-          _newForm = document.createElement('<form enctype="multipart/form-data" method="post">');
-          _newForm.encoding = 'multipart/form-data';
-        } else {
-          // this is how all other sane browsers do it
-          _newForm = document.createElement('form');
-          _newForm.setAttribute('enctype', 'multipart/form-data');
-          _newForm.setAttribute('method', 'post');
-          _newForm.style.display = 'none';
-        }
-
-        const oldParent = data.parentElement;
-        const { nextSibling } = data;
-        _newForm.appendChild(data);
-        document.body.appendChild(_newForm);
-        const cleanUp = () => {
-          if (nextSibling) {
-            oldParent.insertBefore(data, nextSibling);
-          } else {
-            oldParent.appendChild(data);
-          }
-          document.body.removeChild(_newForm);
-        };
 
         const stubForm = new FormData();
         const { files } = data;
 
-        Object.entries(files).map((keyVal) => {
+        Object.entries(files).forEach((keyVal) => {
           // is the item a File?
           if (keyVal[1] instanceof File) {
             stubForm.append(keyVal[0], keyVal[1]);
           }
         });
 
-        const res = superagent.put(uri)
+        return superagent.put(uri)
           .query({ preventCache: parseInt(Math.random() * 10000, 10) })
           .accept(format || 'application/json')
           .withCredentials()
-          .send(stubForm)
-          .then(() => {
-            cleanUp();
-            return res;
-          })
-          .catch((e) => {
-            cleanUp();
-            throw e;
-          });
-
-        // TODO @scazan should this be the return value?
-        return res;
+          .send(stubForm);
       };
     }
   }
