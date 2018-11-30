@@ -56,7 +56,7 @@ const Rest = class {
           }
         });
 
-        return superagent.put(uri)
+        return superagent.post(uri)
           .query({ preventCache: parseInt(Math.random() * 10000, 10) })
           .accept(format || 'application/json')
           .withCredentials()

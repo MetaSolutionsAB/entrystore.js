@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import {unescape} from 'lodash-es';
 import SolrQuery from './SolrQuery';
 import Cache from './Cache';
 import Rest from './Rest';
@@ -9,6 +10,7 @@ import Resource from './Resource';
 import User from './User';
 import Auth from './Auth';
 import {isBrowser} from './utils';
+
 
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
@@ -533,16 +535,20 @@ class EntryStore {
         ' attribute is provided.');
     }
 
+    // TODO EntryStore should return the actual response without HTML wrapping
     return this.handleAsync(this.getREST().putFile(`${this.getBaseURI()}echo`, data, 'text')
       .then((rawData) => {
-        const idx = rawData.indexOf('\n');
-        const status = parseInt(rawData.substr(0, idx).split(':')[1], 10);
+        const response = rawData.text;
+        const idx = response.indexOf('\n');
+        const status = parseInt(response.substr(0, idx).split(':')[1], 10);
         if (status !== 200) {
           const err = new Error(`HTTP status code: ${status}`);
           err.status = status;
           throw err;
         }
-        return rawData.substr(idx + 1);
+
+        const textAreaValue = response.substr(idx + 1).replace('</textarea>', ''); // TODO remove when EntryStore is fixed
+        return unescape(textAreaValue);
       }), 'echoFile');
   }
 
