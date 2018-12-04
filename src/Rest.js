@@ -310,7 +310,7 @@ const Rest = class {
   }
 
   /**
-   * Put a file to a URI.
+   * Post a file to a URI.
    * In a browser environment a file is represented via an input tag which references
    * the file to be uploaded via its value attribute.
    * In node environments the file is represented as a stream constructed via
@@ -327,7 +327,7 @@ const Rest = class {
    * (json is default).
    */
   putFile(uri, data, format) {
-    return this.put(uri, data, null, format);
+    return this.post(uri, data, null, format);
   }
 };
 
