@@ -539,16 +539,20 @@ class EntryStore {
     return this.handleAsync(this.getREST().putFile(`${this.getBaseURI()}echo`, data, 'text')
       .then((rawData) => {
         const response = rawData.text;
-        const idx = response.indexOf('\n');
-        const status = parseInt(response.substr(0, idx).split(':')[1], 10);
-        if (status !== 200) {
-          const err = new Error(`HTTP status code: ${status}`);
-          err.status = status;
-          throw err;
+        if (reponse){
+          const idx = response.indexOf('\n'); // this checks if
+          const status = parseInt(response.substr(0, idx).split(':')[1], 10);
+          if (status !== 200) {
+            const err = new Error(`HTTP status code: ${status}`);
+            err.status = status;
+            throw err;
+          }
+
+          const textAreaValue = response.substr(idx + 1).replace('</textarea>', ''); // TODO remove when EntryStore is fixed
+          return unescape(textAreaValue);
         }
 
-        const textAreaValue = response.substr(idx + 1).replace('</textarea>', ''); // TODO remove when EntryStore is fixed
-        return unescape(textAreaValue);
+        return reponse; // empty
       }), 'echoFile');
   }
 
