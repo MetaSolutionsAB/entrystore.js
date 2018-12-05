@@ -49,10 +49,10 @@ const Rest = class {
         const stubForm = new FormData();
         const { files } = data;
 
-        Object.entries(files).forEach((keyVal) => {
+        Array.from(files).forEach((file, idx) => {
           // is the item a File?
-          if (keyVal[1] instanceof File) {
-            stubForm.append(keyVal[0], keyVal[1]);
+          if (file instanceof File) {
+            stubForm.append(idx, file);
           }
         });
 
