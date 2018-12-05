@@ -552,7 +552,7 @@ class EntryStore {
           return unescape(textAreaValue);
         }
 
-        return reponse; // empty
+        return response; // empty
       }), 'echoFile');
   }
 
