@@ -539,7 +539,7 @@ class EntryStore {
     return this.handleAsync(this.getREST().putFile(`${this.getBaseURI()}echo`, data, 'text')
       .then((rawData) => {
         const response = rawData.text;
-        if (reponse){
+        if (response){
           const idx = response.indexOf('\n'); // this checks if
           const status = parseInt(response.substr(0, idx).split(':')[1], 10);
           if (status !== 200) {
