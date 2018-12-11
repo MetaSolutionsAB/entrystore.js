@@ -37,11 +37,11 @@ class User extends Resource {
     const oldname = this._data.name;
     this._data.name = name;
     const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({name}))
+    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ name }))
       .then((data) => {
         const e = this.getEntry(true);
         if (e) {
-          e.getEntryInfo()._name = data;
+          e.getEntryInfo()._name = name;
         }
         return data;
       }, (e) => {
