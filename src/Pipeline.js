@@ -331,12 +331,7 @@ const Pipeline = class extends GraphResource {
       executeURI = `${sourceEntry.getContext().getResourceURI()}/execute`;
     }
     return es.handleAsync(es.getREST().post(executeURI, JSON.stringify(_params)), 'execute')
-      .then((resultStr) => {
-        const obj = JSON.parse(resultStr);
-        return obj.result;
-      }, (err) => {
-        throw err;
-      });
+      .then(response => response.body.result, err => {throw err});
   }
 };
 /**
