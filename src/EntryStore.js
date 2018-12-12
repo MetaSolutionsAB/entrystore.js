@@ -11,6 +11,7 @@ import User from './User';
 import Auth from './Auth';
 import {isBrowser} from './utils';
 
+const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @Hannes
 
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
@@ -549,7 +550,8 @@ class EntryStore {
           }
 
           const textAreaValue = response.substr(idx + 1).replace('</textarea>', ''); // TODO remove when EntryStore is fixed
-          return unescape(textAreaValue);
+
+          return he.decode(textAreaValue);
         }
 
         return response; // empty

@@ -5,6 +5,7 @@
   "module": "src/index.js",
   "dependencies": {
     "blueimp-md5": "^2.10.0",
+    "he": "^1.2.0",
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#webpack",

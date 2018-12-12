@@ -2748,6 +2748,11 @@ hawk@~3.1.3:
     hoek "2.x.x"
     sntp "1.x.x"
 
+he@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
+  integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
+
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -4664,9 +4669,9 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-"rdfjson@git+https://bitbucket.org/metasolutions/rdfjson.git#webpack":
+"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#webpack":
   version "2.0.0"
-  resolved "git+https://bitbucket.org/metasolutions/rdfjson.git#8eed451d4b3a16ddf1c92a5b998dd30b72c84d1c"
+  resolved "https://bitbucket.org/metasolutions/rdfjson.git#416fa694a4aa24ba891d60728d633a98f7435efb"
   dependencies:
     md5 "^2.2.1"
     xmldom "~0.1.19"
