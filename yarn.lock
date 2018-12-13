@@ -4672,7 +4672,7 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#master":
+"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#develop":
   version "2.0.0"
   resolved "https://bitbucket.org/metasolutions/rdfjson.git#f821a12ad87b6957a286949c3aa0611bd4ab1a04"
   dependencies:
