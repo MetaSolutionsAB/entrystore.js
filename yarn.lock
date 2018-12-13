@@ -2751,7 +2751,6 @@ hawk@~3.1.3:
 he@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
-  integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
@@ -3603,6 +3602,10 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
+
+lodash-es@^4.17.11:
+  version "4.17.11"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.11.tgz#145ab4a7ac5c5e52a3531fb4f310255a152b4be0"
 
 lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.10, lodash@^4.17.2, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
   version "4.17.10"
@@ -4669,9 +4672,9 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#webpack":
+"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#develop":
   version "2.0.0"
-  resolved "https://bitbucket.org/metasolutions/rdfjson.git#416fa694a4aa24ba891d60728d633a98f7435efb"
+  resolved "https://bitbucket.org/metasolutions/rdfjson.git#f821a12ad87b6957a286949c3aa0611bd4ab1a04"
   dependencies:
     md5 "^2.2.1"
     xmldom "~0.1.19"
