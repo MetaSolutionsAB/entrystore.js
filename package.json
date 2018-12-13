@@ -9,7 +9,7 @@
     "lodash": "^4.17.10",
     "lodash-es": "^4.17.11",
     "moment": "^2.22.1",
-    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
+    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#master",
     "superagent": "^3.8.3",
     "superagent-jsonp": "^0.2.1"
   },
