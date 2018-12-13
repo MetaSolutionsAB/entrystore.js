@@ -1,11 +1,7 @@
-define([
-    'store/EntryStore',
-    'store/EntryStoreUtil',
-    'rdfjson/Graph',
-    'store/types',
-    'tests/config'
-], function(EntryStore, EntryStoreUtil, Graph, types, config) {
-	//browsers have the global nodeunit already available
+const nodeunit = require('nodeunit');
+import { EntryStore, EntryStoreUtil, types } from '../src';
+import config from './config';
+import { Graph } from 'rdfjson';
 
     var es = new EntryStore(config.repository);
     var esu = new EntryStoreUtil(es);
@@ -13,7 +9,7 @@ define([
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.getAuth().login("admin", "adminadmin").then(function() {
@@ -128,4 +124,3 @@ define([
             });
         }
     });
-});

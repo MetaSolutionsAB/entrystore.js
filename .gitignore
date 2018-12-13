@@ -4,4 +4,8 @@ node_modules
 /jsdoc
 .idea
 release/
+dist/
 *~
+*.vim
+.ackrc
+.vscode

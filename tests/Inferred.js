@@ -1,10 +1,9 @@
 define([
-    'store/EntryStore',
     'store/terms',
     'rdfjson/Graph',
     'tests/config',
     "dojo/date/stamp"
-], function(EntryStore, terms, Graph, config, stamp) {
+], function(terms, Graph, config, stamp) {
 	//browsers have the global nodeunit already available
 
     var es = new EntryStore(config.repository);

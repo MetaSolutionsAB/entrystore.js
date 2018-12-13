@@ -1,9 +1,7 @@
-define([
-    'store/EntryStore',
-    'rdfjson/Graph',
-    'tests/config'
-], function(EntryStore, Graph, config) {
-	//browsers have the global nodeunit already available
+import { EntryStore } from '../src';
+import config from './config';
+import { Graph } from 'rdfjson';
+const nodeunit = require('nodeunit');
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
@@ -13,7 +11,7 @@ define([
     var yesterday = (new Date()).setDate(now.getDate() - 1);
     var tomorrow = (new Date()).setDate(now.getDate() + 1);
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.auth({user: "Donald", password: "donalddonald"}).then(function() {
@@ -114,7 +112,8 @@ define([
             });
         },
         metadataRevisions: function(test) {
-            var pe = c.newEntry().addL("dcterms:title", "First").commit().then(function(entry) {
+            var pe = c.newEntry().addL("dcterms:title", "First").commit()
+              .then(function(entry) {
                 test.ok(entry.getEntryInfo().getMetadataRevisions().length === 1);
                 entry.addL("dcterms:description", "Second");
                 return entry.commitMetadata().then(function(entry) {
@@ -133,10 +132,9 @@ define([
                             });
                     });
                 });
-            }).then(null, function(err) {
+              }).then(null, function(err) {
                 test.ok(false, "Problem creating entry or updating metadata in context 1");
                 test.done();
             });
         }
     });
-});

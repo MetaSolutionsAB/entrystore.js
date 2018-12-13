@@ -21,7 +21,7 @@ Except that at this time we do not rely on es5 or a shim, hence we use dojos lan
 
 # Build
 
-Run `cd build && ./build.sh`.
+Run `npm run build`.
 
 The resulting build is located in `release` and is called `all.js`.
 

@@ -1,17 +1,17 @@
-define([
-    'store/EntryStore',
-    'rdfjson/Graph',
-    'tests/config',
-    "dojo/date/stamp"
-], function(EntryStore, Graph, config, stamp) {
-	//browsers have the global nodeunit already available
+import { EntryStore } from '../src';
+import config from './config';
+import moment from 'moment';
+import { Graph } from 'rdfjson';
+const nodeunit = require('nodeunit');
+
+
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.auth({user: "Donald", password: "donalddonald"}).then(function() {
@@ -111,7 +111,9 @@ define([
           test.done();
         }, () => {
           test.ok(false, "Failed to update metadata via prototypeentry and a given entryid");
+          test.done();
         });
+
       },
       linkEntry: function(test) {
             var uri = "http://example.com/";
@@ -161,7 +163,8 @@ define([
         graphEntry: function(test) {
             var g = new Graph();
             g.add("http://example.com/", dct+"title", {type: "literal", value:"Some title1"});
-            c.newGraph(g).commit().then(function(entry) {
+
+           c.newGraph(g).commit().then(function(entry) {
                 test.ok(entry.isGraph(), "Entry created, but it is not a graph as expected.");
                 entry.getResource().then(function(res) {
                     test.ok(res.getGraph().find().length === 1, "The created graph Entry does save the provided graph upon creation");
@@ -291,7 +294,7 @@ define([
                 //Manually set back the date of modification to force 412 status code.
                 var eig = entry.getEntryInfo().getGraph();
                 var stmt = eig.find(entry.getURI(), "http://purl.org/dc/terms/modified")[0];
-                stmt.setValue(stamp.toISOString(new Date("2000")));
+                stmt.setValue(moment(new Date("2000")).toISOString());
 
                 entry.getMetadata().addL(uri, "dcterms:title", "title2");
                 entry.commitMetadata().then(function() {
@@ -305,4 +308,3 @@ define([
             });
         }
     });
-});

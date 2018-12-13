@@ -1,17 +1,13 @@
-define([
-    'dojo/_base/lang',
-    'dojo/has',
-    'store/EntryStore',
-    'tests/config'
-], function(lang, has, EntryStore, config) {
-	//browsers have the global nodeunit already available
+const nodeunit = require('nodeunit');
+import config from './config';
+import { EntryStore } from '../';
 
     var es = new EntryStore(config.repository);
     var c = es.getContextById("1");
     var ready;
     var dct = "http://purl.org/dc/terms/";
 
-    return nodeunit.testCase({
+    export default nodeunit.testCase({
         setUp: function(callback) {
             if (!ready) {
                 es.getAuth().login("Donald", "donalddonald").then(function() {
@@ -47,4 +43,3 @@ define([
             });
         }
     });
-});
