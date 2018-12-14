@@ -7,9 +7,7 @@ pipelines:
           - if [ $BITBUCKET_BRANCH != "master" ] && [ $BITBUCKET_BRANCH != "develop" ]; then exit 0 ; fi
           - node --version
           - npm --version
-          - mkdir -p ~/.ssh
-          - echo $SSH_KNOWN_HOSTS >> ~/.ssh/known_hosts
-          - ( umask 077 ; echo $SSH_KEY | base64 --decode --ignore-garbage > ~/.ssh/id_rsa )
+          - java -version
           - export ESJS_VERSION=`jq -r .version package.json`
           # We allow anything between x.y and x.y.z-SNAPSHOT
           - if [ ${#ESJS_VERSION} -lt 3 ] || [ ${#ESJS_VERSION} -gt 14 ]; then exit 1 ; fi
