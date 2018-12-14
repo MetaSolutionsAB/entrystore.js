@@ -1,6 +1,6 @@
 {
   "name": "store",
-  "version": "4.6.0-webpack",
+  "version": "4.7.0-SNAPSHOT",
   "main": "dist/all.js",
   "module": "src/index.js",
   "dependencies": {
