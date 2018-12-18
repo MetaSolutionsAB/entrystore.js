@@ -1,6 +1,6 @@
 {
   "name": "store",
-  "version": "4.6.0-webpack",
+  "version": "4.6.1-webpack",
   "main": "dist/all.js",
   "module": "src/index.js",
   "dependencies": {
@@ -9,7 +9,7 @@
     "lodash": "^4.17.10",
     "lodash-es": "^4.17.11",
     "moment": "^2.22.1",
-    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#master",
+    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#2.0",
     "superagent": "^3.8.3",
     "superagent-jsonp": "^0.2.1"
   },
