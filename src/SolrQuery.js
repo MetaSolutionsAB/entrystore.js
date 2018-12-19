@@ -11,7 +11,9 @@ const ngramLimit = 15;
 const isNgram = key => key.indexOf('title') === 0
   || key.indexOf('tag.literal') === 0
   || (key.indexOf('metadata.predicate.literal') === 0 &&
-    key.indexOf('metadata.predicate.literal_s') !== 0);
+    key.indexOf('metadata.predicate.literal_') !== 0)
+  || (key.indexOf('related.metadata.predicate.literal') === 0 &&
+    key.indexOf('related.metadata.predicate.literal_') !== 0);
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
  * In addition, fields indexed as text_ngram will have to be shortened to the ngram max limit
@@ -112,12 +114,13 @@ const SolrQuery = class {
   constructor(entrystore) {
     this._entrystore = entrystore;
     this.properties = [];
+    this.relatedProperties = [];
     this.params = {};
     this.modifiers = {};
     this._and = [];
     this._or = [];
     this.facetpredicates = {};
-
+    this.relatedFacetpredicates = {};
   }
 
   /**
@@ -560,25 +563,26 @@ const SolrQuery = class {
    * @param {string} predicate
    * @param {string|array} object
    * @param {true|false|string} modifier
-   * @param {text|string|ngram} indexType text is default and corresponds to matching words,
-   * string corresponds to exact string matching and ngram corresponds to partial string matching
+   * @param {text|string|ngram} indexType ngram is default and corresponds to partial string
+   * matching, string corresponds to exact string matching and text corresponds to word matching.
+   * @param {boolean} related - will search in related properties if true, default is false
    * @return {store/SolrQuery}
    */
-  literalProperty(predicate, object, modifier, indexType = 'text') {
+  literalProperty(predicate, object, modifier, indexType = 'ngram', related = false) {
     const key = shorten(predicate);
     let it;
     switch (indexType) {
-      case 'ngram':
-        it = 'litera_ng';
+      case 'text':
+        it = 'literal_t';
         break;
       case 'string':
         it = 'literal_s';
         break;
-      case 'text':
+      case 'ngram':
       default:
         it = 'literal';
     }
-    this.properties.push({
+    (related ? this.relatedProperties : this.properties).push({
       md5: key,
       pred: predicate,
       object,
@@ -595,11 +599,12 @@ const SolrQuery = class {
    * @param {string} predicate
    * @param {string|array} object
    * @param {true|false|string} modifier
+   * @param {boolean} related - will search in related properties if true, default is false
    * @return {store/SolrQuery}
    */
-  integerProperty(predicate, object, modifier) {
+  integerProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
-    this.properties.push({
+    (related ? this.relatedProperties : this.properties).push({
       md5: key,
       pred: predicate,
       object,
@@ -616,12 +621,13 @@ const SolrQuery = class {
    * @param {string} predicate
    * @param {string|array} object
    * @param {true|false|string} modifier
+   * @param {boolean} related - will search in related properties if true, default is false
    * @return {store/SolrQuery}
    */
-  uriProperty(predicate, object, modifier) {
+  uriProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
 
-    this.properties.push({
+    (related ? this.relatedProperties : this.properties).push({
       md5: key,
       pred: predicate,
       object: Array.isArray(object) ? object.map(o => namespaces.expand(o)) :
@@ -686,12 +692,16 @@ const SolrQuery = class {
    * @param {string} predicate
    * @return {store/SolrQuery}
    */
-  facet(facet, predicate) {
+  facet(facet, predicate, related = false) {
     this.facets = this.facets || [];
     if (predicate) {
       this.facet2predicate = this.facet2predicate || {};
       this.facet2predicate[facet] = namespaces.expand(predicate);
-      this.facetpredicates[predicate] = true;
+      if (related) {
+        this.relatedFacetpredicates[predicate] = true;
+      } else {
+        this.facetpredicates[predicate] = true;
+      }
     }
     this.facets.push(facet);
     return this;
@@ -700,30 +710,33 @@ const SolrQuery = class {
   /**
    * Request to include literal facets for the given predicate
    * @param {string} predicate
+   * @param {boolean} related wether the facet is on the related predicates, default is false
    * @return {store/SolrQuery}
    */
-  literalFacet(predicate) {
-    this.facet(`metadata.predicate.literal_s.${shorten(predicate)}`, predicate);
+  literalFacet(predicate, related = false) {
+    this.facet(`${related ? 'related.' : ''}metadata.predicate.literal_s.${shorten(predicate)}`, predicate, related);
     return this;
   }
 
   /**
    * Request to include URI facets for the given predicate
    * @param {string} predicate
+   * @param {boolean} related wether the facet is on the related predicates, default is false
    * @return {store/SolrQuery}
    */
-  uriFacet(predicate) {
-    this.facet(`metadata.predicate.uri.${shorten(predicate)}`, predicate);
+  uriFacet(predicate, related = false) {
+    this.facet(`${related ? 'related.' : ''}metadata.predicate.uri.${shorten(predicate)}`, predicate, related);
     return this;
   }
 
   /**
    * Request to include integer facets for the given predicate
    * @param {string} predicate
+   * @param {boolean} related wether the facet is on the related predicates, default is false
    * @return {store/SolrQuery}
    */
-  integerFacet(predicate) {
-    this.facet(`metadata.predicate.integer.${shorten(predicate)}`, predicate);
+  integerFacet(predicate, related = false) {
+    this.facet(`${related ? 'related.' : ''}metadata.predicate.integer.${shorten(predicate)}`, predicate, related);
     return this;
   }
 
@@ -809,6 +822,21 @@ const SolrQuery = class {
       }
     });
 
+    if (this.relatedProperties.length > 0) {
+      const or = [];
+      this.relatedProperties.forEach((prop) => {
+        const obj = prop.object;
+        const key = `related.metadata.predicate.${prop.nodetype}.${prop.md5}`;
+        if (typeof obj === 'string') {
+          or.push(`${key}:${solrFriendly(key, obj, this.relatedFacetpredicates[prop.pred])}`);
+        } else if (Array.isArray(obj) && obj.length > 0) {
+          obj.forEach((o) => {
+            or.push(`${key}:${solrFriendly(key, o, this.relatedFacetpredicates[prop.pred])}`);
+          });
+        }
+      });
+      and.push(`(${or.join('+OR+')})`);
+    }
     if (this.disjunctiveProperties || this.disjunctive) {
       const or = [];
       this.properties.forEach((prop) => {
