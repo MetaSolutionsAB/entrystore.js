@@ -1,7 +1,7 @@
-define([], {
+export default {
   repository: "http://localhost:8080/store/",
   username: "donald",
   password: "donalddonald",
   contextId: "1",
   entryId: "5"
-});
+};

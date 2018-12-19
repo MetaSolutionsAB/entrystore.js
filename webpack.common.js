@@ -3,7 +3,7 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const config = {
-  entry: './src/indexUMD.js',
+  entry: './src/index.js',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: "EntryStore.js",

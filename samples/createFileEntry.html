@@ -2,33 +2,31 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link href="style.css" rel="stylesheet"/>
-    <script src="../libs/requirejs/require.js" type="text/javascript"></script>
-    <script src="../config/deps.js"></script>
-    <script type="text/javascript">
-      require(['store/samples/config', 'store/EntryStore'], function(config, EntryStore) {
-        var es = new EntryStore(config.repository);
-        es.getAuth().login(config.username, config.password).then(function() {
-          document.getElementById("upload").onclick = function() {
-            es.getContextById(config.contextId).newEntry().commit().then(function(entry) {
-              var inp = document.getElementById("input");
-              entry.getResource(true).putFile(inp).then(function() {
-                entry.refresh().then(function() {
-                  var ei = entry.getEntryInfo();
-                  document.getElementById("message").innerHTML = "File with mimetype " +
-                    ei.getFormat() + " and label " + ei.getLabel() + " succesfully uploaded: ";
-                  var res = document.getElementById("link");
-                  res.href = entry.getResourceURI();
-                  res.innerHTML = "open in separate window/tab";
-                  var res = document.getElementById("download");
-                  res.href = entry.getResourceURI() + "?download";
-                  res.innerHTML = "or download";
-                });
+    <script src="../dist/EntryStore.js"></script>
+    <script type="module">
+      import config from './config.js';
+      const es = new EntryStore.EntryStore(config.repository);
+      es.getAuth().login(config.username, config.password).then(() => {
+        document.getElementById("upload").onclick = () => {
+          es.getContextById(config.contextId).newEntry().commit().then((entry) => {
+            const inp = document.getElementById("input");
+            entry.getResource(true).putFile(inp).then(() => {
+              entry.refresh().then(function() {
+                var ei = entry.getEntryInfo();
+                document.getElementById("message").innerHTML = "File with mimetype " +
+                  ei.getFormat() + " and label " + ei.getLabel() + " succesfully uploaded: ";
+                const openLink = document.getElementById("link");
+                openLink.href = entry.getResourceURI();
+                openLink.innerHTML = "open in separate window/tab";
+                const downloadLink = document.getElementById("download");
+                downloadLink.href = entry.getResourceURI() + "?download";
+                downloadLink.innerHTML = "or download";
               });
-            }, function(err) {
-              alert("Failed to create an entry! + err");
             });
-          }
-        });
+          }, (err) => {
+            alert("Failed to create an entry! + err");
+          });
+        }
       });
     </script>
 </head>

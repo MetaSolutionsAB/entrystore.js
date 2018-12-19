@@ -1,25 +1,23 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <link href="style.css" rel="stylesheet"/>
-    <script src="../release/all.js"></script>
-    <script>
-      require(['store/samples/config', 'store/EntryStore'], function(config, EntryStore) {
-        var es = new EntryStore(config.repository);
-        es.getAuth().login(config.username, config.password).then(function() {
-          var entryURI = es.getEntryURI(config.contextId, config.entryId);
-          es.getEntry(entryURI).then(function(entry) {
-            var md = entry.getMetadata();
-            var stmts = md.findAndRemove(null, "dcterms:title");
-            md.addL(entry.getResourceURI(), "dcterms:title", "New title at " + new Date(), "en");
-            entry.commitMetadata().then(function() {
-              alert("Success: changed metadata");
-            }, function(err) {
-              alert("Failure saving metadata: " + err);
-            });
-          }, function(err) {
-            alert("Failed loading entry: " + err);
+    <script src="../dist/EntryStore.js"></script>
+    <script type="module">
+      import config from './config.js';
+      const es = new EntryStore.EntryStore(config.repository);
+      es.getAuth().login(config.username, config.password).then(() => {
+        const entryURI = es.getEntryURI(config.contextId, config.entryId);
+        es.getEntry(entryURI).then((entry) => {
+          var md = entry.getMetadata();
+          var stmts = md.findAndRemove(null, "dcterms:title");
+          md.addL(entry.getResourceURI(), "dcterms:title", "New title at " + new Date(), "en");
+          entry.commitMetadata().then(() => {
+            alert("Success: changed metadata");
+          }, (err) => {
+            alert("Failure saving metadata: " + err);
           });
+        }, (err) => {
+          alert("Failed loading entry: " + err);
         });
       });
     </script>
