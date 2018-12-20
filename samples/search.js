@@ -1,5 +1,3 @@
-import config from './config.js';
-
 const es = new EntryStore.EntryStore(config.repository);
 document.getElementById('search').onclick = () => {
   const searchTerm = document.getElementById('input').value;

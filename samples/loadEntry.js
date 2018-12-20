@@ -1,5 +1,3 @@
-import config from './config.js';
-
 const es = new EntryStore.EntryStore(config.repository);
 const entryURI = es.getEntryURI(config.contextId, config.entryId);
 es.getEntry(entryURI).then((entry) => {

@@ -1,5 +1,3 @@
-import config from './config.js';
-
 const es = new EntryStore.EntryStore(config.repository);
 const search = () => {
   const property = document.getElementById('property').value;

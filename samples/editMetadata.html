@@ -2,8 +2,8 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <script src="../dist/EntryStore.js"></script>
-    <script type="module">
-      import config from './config.js';
+    <script src="./config.js"></script>
+    <script>
       const es = new EntryStore.EntryStore(config.repository);
       es.getAuth().login(config.username, config.password).then(() => {
         const entryURI = es.getEntryURI(config.contextId, config.entryId);
