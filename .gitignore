@@ -9,3 +9,4 @@ dist/
 *.vim
 .ackrc
 .vscode
+*.temp
