@@ -14,6 +14,7 @@ const isNgram = key => key.indexOf('title') === 0
     key.indexOf('metadata.predicate.literal_') !== 0)
   || (key.indexOf('related.metadata.predicate.literal') === 0 &&
     key.indexOf('related.metadata.predicate.literal_') !== 0);
+const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexOf('predicate.literal') === -1;
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
  * In addition, fields indexed as text_ngram will have to be shortened to the ngram max limit
@@ -23,11 +24,18 @@ const isNgram = key => key.indexOf('title') === 0
  * @param term
  * @return {*}
  */
+
 const solrFriendly = (key, term, isFacet) => {
-  let and = term.trim().replace(/\s\s+/g, ' ').split(' ');
+  let and = term.trim().replace(/\s\s+/g, ' ');
   if (isNgram(key) && isFacet !== true) {
-    and = and.map(t => (t.length < ngramLimit ? encodeStr(t) :
+    and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t) :
       encodeStr(t.substr(0, ngramLimit))));
+  } else if (isExactMatch(key)) {
+    if (and.indexOf(' ') === -1) {
+      and = [encodeStr(and)];
+    } else {
+      and = ['"'+encodeStr(and)+'"'];
+    }
   } else {
     and = and.map(t => encodeStr(t));
   }
