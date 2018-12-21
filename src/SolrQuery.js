@@ -34,10 +34,10 @@ const solrFriendly = (key, term, isFacet) => {
     if (and.indexOf(' ') === -1) {
       and = [encodeStr(and)];
     } else {
-      and = ['"'+encodeStr(and)+'"'];
+      and = [`"${encodeStr(and)}"`];
     }
   } else {
-    and = and.map(t => encodeStr(t));
+    and = and.split(' ').map(t => encodeStr(t));
   }
   return and.length === 1 ? and[0] : `(${and.join('+AND+')})`;
 };
