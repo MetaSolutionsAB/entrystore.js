@@ -11,6 +11,7 @@
     "moment": "^2.22.1",
     "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
     "superagent": "^3.8.3",
+    "superagent-debugger": "^1.2.9",
     "superagent-jsonp": "^0.2.1"
   },
   "devDependencies": {
