@@ -1,5 +1,4 @@
 import superagent from 'superagent';
-import superdebug from 'superagent-debugger';
 import { isBrowser } from './utils';
 
 const jsonp = require('superagent-jsonp');
@@ -207,7 +206,6 @@ const Rest = class {
     }
 
     const postRequest = superagent.post(uri)
-          .use(superdebug(console.log))
       .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
 
     if (data) {
