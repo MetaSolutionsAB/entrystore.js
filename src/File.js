@@ -125,7 +125,7 @@ const FileResource = class extends Resource {
   getText() {
     const es = this.getEntryStore();
 
-    return es.handleAsync(this.getEntryStore().getREST().get(this.getResourceURI(), 'text/plain'), 'getFile');
+    return es.handleAsync(this.getEntryStore().getREST().get(this.getResourceURI(), 'text/plain', true), 'getFile');
   }
 
   /**

@@ -22,6 +22,7 @@
     "eslint-plugin-import": "^2.14.0",
     "jaguarjs-jsdoc": "0.0.1",
     "nodeunit": "^0.11.2",
+    "print-licenses": "https://bitbucket.org/metasolutions/print-licenses#master",
     "webpack": "^4.6.0",
     "webpack-bundle-analyzer": "^2.13.0",
     "webpack-cli": "^2.1.3",
@@ -30,10 +31,11 @@
   "description": "Store is a JS-library for working EntryStore.",
   "licenses": [
     {
-      "type": "LGPL-3.0-or-later",
+      "type": "LGPL-3.0-only",
       "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
     }
   ],
+  "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "dojoBuild": "package.js",
   "scripts": {
@@ -42,6 +44,7 @@
     "test": "webpack --config webpack.config.test.js",
     "build:testNode": "webpack --config webpack.config.test.node.js",
     "testNode": "nodeunit",
-    "eslint": "eslint 'src/**/*.js'"
+    "eslint": "eslint 'src/**/*.js'",
+    "print-licenses": "print-licenses"
   }
 }
