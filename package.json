@@ -2,7 +2,7 @@
   "name": "store",
   "version": "4.7.0-SNAPSHOT",
   "main": "dist/EntryStore.node.js",
-  "browser": "dist/EntryStore.node.js",
+  "browser": "dist/EntryStore.js",
   "module": "src/index.js",
   "dependencies": {
     "blueimp-md5": "^2.10.0",
