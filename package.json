@@ -1,7 +1,8 @@
 {
   "name": "store",
   "version": "4.7.0-SNAPSHOT",
-  "main": "dist/all.js",
+  "main": "dist/EntryStore.node.js",
+  "browser": "dist/EntryStore.node.js",
   "module": "src/index.js",
   "dependencies": {
     "blueimp-md5": "^2.10.0",
@@ -40,7 +41,7 @@
   "dojoBuild": "package.js",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
-    "dev": "webpack --config webpack.dev.js",
+    "build:dev": "webpack --config webpack.dev.js",
     "test": "webpack --config webpack.config.test.js",
     "build:testNode": "webpack --config webpack.config.test.node.js",
     "testNode": "nodeunit",
