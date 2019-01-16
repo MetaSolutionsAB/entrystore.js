@@ -3,11 +3,10 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const config = {
-  target: 'node',
   entry: './src/index.js',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'EntryStore.node.js',
+    filename: 'EntryStore.js',
     library: 'EntryStore',
     libraryTarget: 'commonjs2',
   },

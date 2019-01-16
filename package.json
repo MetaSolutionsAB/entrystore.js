@@ -40,11 +40,9 @@
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "dojoBuild": "package.js",
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
-    "build:dev": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.all.js --mode production",
+    "dev": "webpack --config webpack.all.js --mode development",
     "test": "webpack --config webpack.config.test.js",
-    "build:testNode": "webpack --config webpack.config.test.node.js",
-    "testNode": "nodeunit",
     "eslint": "eslint 'src/**/*.js'",
     "print-licenses": "print-licenses"
   }
