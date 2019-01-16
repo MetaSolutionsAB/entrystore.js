@@ -14,6 +14,8 @@ const ns = 'http://entrystore.org/terms/';
 const rdfns = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const xsdns = 'http://www.w3.org/2001/XMLSchema#';
 namespaces.add('prov', 'http://www.w3.org/ns/prov#');
+namespaces.add('store', ns);
+namespaces.add('storepr', 'http://entrystore.org/terms/pipelineresult#');
 
 const terms = {
   homeContext: `${ns}homeContext`,
