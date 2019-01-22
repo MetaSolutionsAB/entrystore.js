@@ -1,5 +1,5 @@
 import superagent from 'superagent';
-import { isBrowser, isIE } from './utils';
+import { isBrowser } from './utils';
 
 const jsonp = require('superagent-jsonp');
 
@@ -82,7 +82,8 @@ const Rest = class {
       if (isBrowser()) {
         return this.post(`${credentials.base}auth/cookie`, data);
       }
-      const p = this.post(`${credentials.base}auth/cookie`, data);
+      const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
+      const p = this.post(`${credentials.base}auth/cookie`, queryStringData);
       return p.then((response) => {
         const cookies = response.headers['set-cookie'];
         cookies.some((c) => {

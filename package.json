@@ -41,7 +41,7 @@
   "dojoBuild": "package.js",
   "scripts": {
     "build": "webpack --config webpack.all.js --mode production",
-    "dev": "webpack --config webpack.all.js --mode development",
+    "build:dev": "webpack --config webpack.all.js --mode development",
     "test": "webpack --config webpack.config.test.js",
     "eslint": "eslint 'src/**/*.js'",
     "print-licenses": "print-licenses"
