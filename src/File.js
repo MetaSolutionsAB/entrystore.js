@@ -1,4 +1,5 @@
 import { isBrowser } from './utils';
+import xmldom from 'xmldom';
 
 import Resource from './Resource';
 import factory from './factory';
@@ -89,7 +90,9 @@ const FileResource = class extends Resource {
    */
   putXML(xml) {
     let _xml = xml;
-    if (isBrowser() && _xml instanceof Document) {
+    const XMLSerializer = isBrowser() ? window.XMLSerializer : xmldom.XMLSerializer;
+
+    if (!isBrowser() || _xml instanceof Document) {
       try {
         // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
         _xml = (new XMLSerializer()).serializeToString(_xml);

@@ -1,4 +1,5 @@
 import superagent from 'superagent';
+import xmldom from 'xmldom';
 import { isBrowser } from './utils';
 
 const jsonp = require('superagent-jsonp');
@@ -165,6 +166,7 @@ const Rest = class {
 
     if (handleAs === 'xml') {
       getRequest.parse(async (res) => {
+        const DOMParser = isBrowser() ? window.DOMParser : xmldom.DOMParser;
         const parser = new DOMParser();
         const parsedDocument = parser.parseFromString(res.text, 'application/xml');
         return parsedDocument;

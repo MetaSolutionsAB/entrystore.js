@@ -1,42 +1,39 @@
-const fs = require( '../libs/dojo/node!fs');
-const nodeunit = require('nodeunit');
-import { EntryStore } from '../';
-import config from './config';
-const Graph = require('rdfjson/Graph');
+const fs = require('fs');
+const { EntryStore } = require('../dist/EntryStore.node');
+const config = require('./config');
 
-    var es = new EntryStore(config.repository);
-    var c = es.getContextById("1");
-    var ready;
-    var dct = "http://purl.org/dc/terms/";
+const es = new EntryStore(config.repository);
+const c = es.getContextById('1');
+let ready;
 
-    export default nodeunit.testCase({
-        setUp: function(callback) {
-            if (!ready) {
-                es.auth({user: "Donald", password: "donalddonald"}).then(function() {
-                    ready = true;
-                    callback();
-                });
-            } else {
-                callback();
-            }
-        },
-        uploadFile: function(test) {
-          c.newEntry().commit().then(function (entry) {
-            var r = entry.getResource(true);
-            return r.putFile(fs.createReadStream('./test.jpg'), 'image/jpg').then(function () {
-                entry.setRefreshNeeded(true);
-                return entry.refresh().then(function () {
-                  test.ok(entry.getEntryInfo().getFormat() === "image/jpg",
-                    "Mimetype is not image/jpg it should.");
-                  test.ok(entry.getEntryInfo().getSize() > 0, "Binary size is 0.");
-                  return r.get().then(function (data) {
-                    test.ok(data.length > 0, "Test image is empty.");
-                    test.done();
-                  });
-                });
-              });
-          }, function () {
-            test.ok(false, "Something went wrong when uploading a jpg-file.");
+exports.Node = {
+  setUp(callback) {
+    if (!ready) {
+      es.auth({ user: 'Donald', password: 'donalddonald' }).then(() => {
+        ready = true;
+        callback();
+      });
+    } else {
+      callback();
+    }
+  },
+  uploadFile(test) {
+    c.newEntry().commit().then((entry) => {
+      const r = entry.getResource(true);
+      return r.putFile(fs.createReadStream('./test.jpg'), 'image/jpg').then(() => {
+        entry.setRefreshNeeded(true);
+        return entry.refresh().then(() => {
+          test.ok(entry.getEntryInfo().getFormat() === 'image/jpg',
+            'Mimetype is not image/jpg it should.');
+          test.ok(entry.getEntryInfo().getSize() > 0, 'Binary size is 0.');
+          return r.get().then((data) => {
+            test.ok(data.length > 0, 'Test image is empty.');
+            test.done();
           });
-        },
+        });
+      });
+    }, () => {
+      test.ok(false, 'Something went wrong when uploading a jpg-file.');
     });
+  },
+};
