@@ -1,5 +1,5 @@
 {
-  "name": "store",
+  "name": "entrystore-js",
   "version": "4.7.0-SNAPSHOT",
   "main": "dist/EntryStore.node.js",
   "browser": "dist/EntryStore.js",
