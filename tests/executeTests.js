@@ -8,6 +8,7 @@ const File = require('./File');
 const List = require('./List');
 const Pipeline = require('./Pipeline');
 const solr = require('./solr');
+const Inferred = require('./Inferred');
 
 const allTests = {
   Auth,
@@ -19,6 +20,7 @@ const allTests = {
   List,
   Pipeline,
   solr,
+  Inferred,
 };
 
 module.exports = config.tests.reduce((accum, property) => {
