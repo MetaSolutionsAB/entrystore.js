@@ -1,87 +1,87 @@
-import config from './config';
-import { EntryStore } from '../src/';
-import { isBrowser } from '../src/utils';
 const nodeunit = require('nodeunit');
+const config = require('./config');
+const store = require('../dist/EntryStore.node');
 
-  var es = new EntryStore(config.repository);
-  var auth = es.getAuth();
+const es = new store.EntryStore(config.repository);
+const auth = es.getAuth();
 
-  export default nodeunit.testCase({ inGroups: true,
-    authorize: {
-      cookieSignIn: function(test) {
-        test.expect(1);
-        auth.login("Donald", "donalddonald").then(function(data) {
-          test.ok(data.user === "donald");
-          test.done();
-        }, function() {
-          test.ok(false, "Could not authenticate user Donald with password donalddonald");
-          test.done();
-        });
-      },
-      cookieSignOut: function(test) {
-        test.expect(1);
-        auth.login("Donald", "donalddonald").then(function() {
-          return auth.logout().then(function(data) {
-            test.ok(data.user === "guest", "Failed sign out from account Donald.");
-            test.done();
-          });
-        }, function() {
-          test.ok(false, "Could not de-authenticate user Donald.");
-          test.done();
-        });
-      }
+exports.Auth = {
+  authorize: {
+    cookieSignIn(test) {
+      test.expect(1);
+      auth.login('Donald', 'donalddonald').then((data) => {
+        test.ok(data.user === 'donald');
+        test.done();
+      }, () => {
+        test.ok(false, 'Could not authenticate user Donald with password donalddonald');
+        test.done();
+      });
     },
-    fromGuestListeners: {
-      setUp: function (callback) {
-        auth.logout().then(function() {
-          callback();
-        });
-      },
-      login: function (test) {
-        test.expect(1);
-        var f = function (topic, data) {
-          if (topic === "login") {
-            test.ok(data.user === "donald");
-            test.done();
-            auth.removeAuthListener(f);
-          }
-        };
-        auth.addAuthListener(f);
-        auth.login("Donald", "donalddonald");
-      },
-      guestUserEntry: function(test) {
-        test.expect(1);
-        auth.getUserEntry().then(function(entry) {
-          var name = entry.getResource(true).getName();
-          test.ok(name === "guest");
-          test.done();
-        });
-      }
+    cookieSignOut(test) {
+      test.expect(1);
+      auth.login('Donald', 'donalddonald').then(() => auth.logout().then((data) => {
+        test.ok(data.user === 'guest', 'Failed sign out from account Donald.');
+        test.done();
+      }), () => {
+        test.ok(false, 'Could not de-authenticate user Donald.');
+        test.done();
+      });
     },
-    fromUserListeners: {
-      setUp: function (callback) {
-        auth.login("Donald", "donalddonald").then(function() {
-          callback();
-        });
-      },
-      logout: function(test) {
-        test.expect(1);
-        var f = function(topic, data) {
-          if (topic === "logout") {
-            test.ok(data.user === "guest");
-            test.done();
-            auth.removeAuthListener(f);
-          }
-        };
-        auth.addAuthListener(f);
-        auth.logout();
-      },
-      signedInUserEntry: function(test) {
-        test.expect(1);
-        auth.getUserEntry().then(function(entry) {
-          test.ok(entry.getResource(true).getName() === "donald");
+  },
+  fromGuestListeners: {
+    setUp(callback) {
+      auth.logout().then(() => {
+        callback();
+      });
+    },
+    login(test) {
+      test.expect(1);
+      var authCallback = function (topic, data) {
+        if (topic === 'login') {
+          test.ok(data.user === 'donald');
           test.done();
-        });
-      }
-    }
-  });
+          auth.removeAuthListener(authCallback);
+        } else {
+          test.ok(false, 'Could not login');
+          test.done();
+        }
+      };
+      auth.addAuthListener(authCallback);
+      auth.login('Donald', 'donalddonald');
+    },
+    guestUserEntry(test) {
+      test.expect(1);
+      auth.getUserEntry().then((entry) => {
+        const name = entry.getResource(true).getName();
+        test.ok(name === 'guest');
+        test.done();
+      });
+    },
+  },
+  fromUserListeners: {
+    setUp(callback) {
+      auth.login('Donald', 'donalddonald').then(() => {
+        callback();
+      });
+    },
+    logout(test) {
+      test.expect(1);
+      const f = function (topic, data) {
+        if (topic === 'logout') {
+          test.ok(data.user === 'guest');
+          test.done();
+          auth.removeAuthListener(f);
+        }
+      };
+      auth.addAuthListener(f);
+      auth.logout();
+    },
+    signedInUserEntry(test) {
+      test.expect(1);
+      auth.getUserEntry().then((entry) => {
+        test.ok(entry.getResource(true).getName() === 'donald');
+        test.done();
+      });
+    },
+  },
+};

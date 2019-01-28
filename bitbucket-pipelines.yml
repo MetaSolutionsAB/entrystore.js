@@ -29,9 +29,8 @@ pipelines:
           - sed 's/:8080\/store/:8181/g' tests/config.js_example > tests/config.js
           - yarn
           - yarn build
-            #          - ( cd tests/node && npm install nodeunit && node init.js )
-            #          - ( cd build && ./build.sh )
-            #          - ( cd jsdoc && ./buildDocs.sh )
+          - yarn test
+          # - ( cd jsdoc && ./buildDocs.sh )
           - ( cd dist && rsync -arz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/" )
             #          - ( cd jsdoc && rsync -arz * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/doc/" )
           - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.org/js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.org/js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
