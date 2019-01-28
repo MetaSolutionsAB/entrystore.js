@@ -54,7 +54,7 @@ exports.File = {
   createXMLFile(test) {
     context.newEntry().commit().then((entry) => {
       const r = entry.getResource(true);
-      const DOMParser = utils.isBrowser() ? DOMParser : new require('xmldom').DOMParser;
+      const DOMParser = utils.isBrowser() ? DOMParser : require('xmldom').DOMParser;
       const parser = new DOMParser();
 
       let xml = '<book></book>';
@@ -65,12 +65,12 @@ exports.File = {
         return entry.refresh().then(() => {
           test.ok(entry.getEntryInfo().getFormat() === 'text/xml', 'Mimetype is not text/plain as it should.');
           return r.getXML().then((data) => {
-            if (isBrowser()) {
+            if (utils.isBrowser()) {
               test.ok(data instanceof Document && data.firstChild.nodeName === 'book',
                 'XML not stored correctly, document contains other xml than sent.');
               test.done();
             } else {
-              test.ok(_.isString(data) && data === '<book></book>', 'XMl not set correctly as a resource.');
+              test.ok(_.isString(data) && data === '<book/>', 'XMl not set correctly as a resource.');
               test.done();
             }
           });

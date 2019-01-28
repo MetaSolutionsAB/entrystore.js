@@ -277,7 +277,8 @@
       if (this._resource) {
         p = Promise.resolve(this._resource);
       } else {
-        p = es.getREST().get(this.getResourceURI()).then((data) => {
+        const format = this.isString() ? 'text' : undefined;
+        p = es.getREST().get(this.getResourceURI(), format).then((data) => {
           es.getFactory().updateOrCreateResource(this, { resource: data }, true);
           return this._resource;
         });
