@@ -2,7 +2,6 @@
   "name": "entrystore-js",
   "version": "4.7.0-SNAPSHOT",
   "main": "dist/EntryStore.node.js",
-  "browser": "dist/EntryStore.js",
   "module": "src/index.js",
   "dependencies": {
     "@babel/core": "^7.2.2",
