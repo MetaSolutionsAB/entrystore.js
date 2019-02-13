@@ -1,17 +1,22 @@
 {
-  "name": "store",
-  "version": "4.6.1-webpack",
-  "main": "dist/all.js",
+  "name": "entrystore-js",
+  "version": "4.7.0",
+  "main": "dist/EntryStore.node.js",
   "module": "src/index.js",
   "dependencies": {
+    "@babel/core": "^7.2.2",
+    "babel-core": "^6.26.3",
     "blueimp-md5": "^2.10.0",
     "he": "^1.2.0",
     "lodash": "^4.17.10",
     "lodash-es": "^4.17.11",
-    "moment": "^2.22.1",
-    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#2.0",
+    "moment": "^2.22.2",
+    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#2.1",
     "superagent": "^3.8.3",
-    "superagent-jsonp": "^0.2.1"
+    "superagent-jsonp": "^0.2.1",
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1",
+    "xmldom": "^0.1.27"
   },
   "devDependencies": {
     "babel-loader": "^7.1.4",
@@ -22,26 +27,25 @@
     "eslint-plugin-import": "^2.14.0",
     "jaguarjs-jsdoc": "0.0.1",
     "nodeunit": "^0.11.2",
-    "webpack": "^4.6.0",
+    "print-licenses": "https://bitbucket.org/metasolutions/print-licenses#master",
     "webpack-bundle-analyzer": "^2.13.0",
-    "webpack-cli": "^2.1.3",
     "webpack-merge": "^4.1.4"
   },
   "description": "Store is a JS-library for working EntryStore.",
   "licenses": [
     {
-      "type": "LGPL-3.0-or-later",
+      "type": "LGPL-3.0-only",
       "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
     }
   ],
+  "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "dojoBuild": "package.js",
   "scripts": {
-    "build": "webpack --config webpack.prod.js",
-    "dev": "webpack --config webpack.dev.js",
-    "test": "webpack --config webpack.config.test.js",
-    "build:testNode": "webpack --config webpack.config.test.node.js",
-    "testNode": "nodeunit",
-    "eslint": "eslint 'src/**/*.js'"
+    "build": "webpack --config webpack.all.js --mode production",
+    "build:dev": "webpack --config webpack.all.js --mode development",
+    "test": "nodeunit ./tests/executeTests.js",
+    "eslint": "eslint 'src/**/*.js'",
+    "print-licenses": "print-licenses"
   }
 }

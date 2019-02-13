@@ -1,5 +1,6 @@
 import superagent from 'superagent';
-import { isBrowser, isIE } from './utils';
+import xmldom from 'xmldom';
+import { isBrowser } from './utils';
 
 const jsonp = require('superagent-jsonp');
 
@@ -82,7 +83,8 @@ const Rest = class {
       if (isBrowser()) {
         return this.post(`${credentials.base}auth/cookie`, data);
       }
-      const p = this.post(`${credentials.base}auth/cookie`, data);
+      const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
+      const p = this.post(`${credentials.base}auth/cookie`, queryStringData);
       return p.then((response) => {
         const cookies = response.headers['set-cookie'];
         cookies.some((c) => {
@@ -163,11 +165,21 @@ const Rest = class {
       .withCredentials();
 
     if (handleAs === 'xml') {
-      getRequest.parse(async (res) => {
+      getRequest.parse['application/xml'] = (res, cb) => {
+        const DOMParser = isBrowser() ? window.DOMParser : xmldom.DOMParser;
         const parser = new DOMParser();
+
+        if (isBrowser()) {
+          const parsedDocument = parser.parseFromString(res, 'application/xml');
+          return parsedDocument;
+        }
+
+        // Node handles the return as a callback
         const parsedDocument = parser.parseFromString(res.text, 'application/xml');
-        return parsedDocument;
-      });
+        res.text = parsedDocument;
+
+        cb(null, res);
+      };
     }
 
     Object.entries(locHeaders).map(keyVal => getRequest.set(keyVal[0], keyVal[1]));
@@ -175,7 +187,7 @@ const Rest = class {
     return getRequest
       .then((response) => {
         if (response.statusCode === 200) {
-          if (handleAs === 'text') {
+          if (handleAs === 'text' || format === 'text/xml') {
             return response.text;
           }
           return response.body;

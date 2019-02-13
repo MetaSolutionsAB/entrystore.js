@@ -1,4 +1,4 @@
-define({
+module.exports = {
     tests: [
         "EntryStore",
         "Auth",
@@ -8,12 +8,11 @@ define({
         "List",
         "solr",
         "File",
-        "Pipeline"
-//        "Inferred",
+        "Pipeline",
+        // "Inferred",
     ],
     nodeTests: [
       "Node"
     ],
-    repository: "http://localhost:8080/store/",
-    reporter: "default"
-});
+    repository: "http://localhost:8080/store/"
+};
