@@ -1,6 +1,7 @@
 import superagent from 'superagent';
 import xmldom from 'xmldom';
 import { isBrowser } from './utils';
+import md5 from 'blueimp-md5';
 
 const jsonp = require('superagent-jsonp');
 
@@ -149,6 +150,8 @@ const Rest = class {
           .use(
             jsonp({
               timeout: 1000000,
+              // @scazan: superagent-jsonp's random number generator is weak, so we create our own
+              callbackName: `cb${md5(_uri).slice(0, 7)}${parseInt(Math.random() * 1000, 10)}`,
             }),
           ) // Need this timeout to prevent a superagentCallback*** not defined issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
           .then((data) => {
@@ -160,7 +163,9 @@ const Rest = class {
     }
     const getRequest = superagent.get(_uri)
       .accept(handleAs)
-      .timeout({ response: this.timeout })
+      .timeout({ 
+        response: this.timeout,
+      })
       .query({ preventCache: parseInt(Math.random() * 10000, 10) })
       .withCredentials();
 
