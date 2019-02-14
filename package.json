@@ -1,6 +1,6 @@
 {
   "name": "entrystore-js",
-  "version": "4.7.0",
+  "version": "4.8.0-SNAPSHOT",
   "main": "dist/EntryStore.node.js",
   "module": "src/index.js",
   "dependencies": {
@@ -11,7 +11,7 @@
     "lodash": "^4.17.10",
     "lodash-es": "^4.17.11",
     "moment": "^2.22.2",
-    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#2.1",
+    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
     "superagent": "^3.8.3",
     "superagent-jsonp": "^0.2.1",
     "webpack": "^4.29.0",
