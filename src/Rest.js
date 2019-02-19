@@ -76,16 +76,16 @@ const Rest = class {
     delete this.headers.cookie;
     if (credentials.logout !== true) {
       const data = {
-        auth_username: credentials.user,
-        auth_password: credentials.password,
+        auth_username: encodeURIComponent(credentials.user),
+        auth_password: encodeURIComponent(credentials.password),
         // in seconds, 86400 is default and corresponds to a day.
         auth_maxage: credentials.maxAge != null ? credentials.maxAge : 604800,
       };
       if (isBrowser()) {
-        return this.post(`${credentials.base}auth/cookie`, data);
+        return this.post(`${credentials.base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
       }
       const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
-      const p = this.post(`${credentials.base}auth/cookie`, queryStringData);
+      const p = this.post(`${credentials.base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
       return p.then((response) => {
         const cookies = response.headers['set-cookie'];
         cookies.some((c) => {
