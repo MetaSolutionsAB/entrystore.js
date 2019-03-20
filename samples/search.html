@@ -2,31 +2,13 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <link href="style.css" rel="stylesheet"/>
-    <script src="../release/all.js"></script>
-    <script type="text/javascript">
-      require(['store/samples/config',
-        'store/EntryStore',
-        'dojo/dom-construct',
-        'dojo/_base/array',
-        'store/html',
-        'dojo/domReady!'             //Wait until the dom is ready.
-      ], function(config, EntryStore, construct, array, html) {
-        var es = new EntryStore(config.repository);
-        document.getElementById("search").onclick = function() {
-          var searchTerm = document.getElementById("input").value;
-          es.newSolrQuery()
-            .title(searchTerm).list().getEntries(0).then(function(children) {
-            document.getElementById("_resultsNode").innerHTML = "";
-            children.forEach(function(child) {
-              construct.place(html.print(child), "_resultsNode");
-            });
-          });
-        };
-    });
-  </script>
-    <input id="input" type="text" name="search"/>
-    <button id="search">Search</button>
-    <hr>
-    <div id="_resultsNode"></div>
-  </body>
+    <script src="../dist/EntryStore.js"></script>
+<body>
+<input id="input" type="text" name="search"/>
+<button id="search">Search</button>
+<hr>
+<div id="_resultsNode"></div>
+<script src="./config.js"></script>
+<script src="./search.js"></script>
+</body>
 </html>
