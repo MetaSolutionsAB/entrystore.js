@@ -17,7 +17,7 @@
         es.getContextById(config.contextId).newEntry().commit().then((entry) => {
           const inp = document.getElementById("input");
           entry.getResource(true).putFile(inp).then(() => {
-            entry.refresh().then(function() {
+            entry.refresh().then(() => {
               var ei = entry.getEntryInfo();
               document.getElementById("message").innerHTML = "File with mimetype " +
                 ei.getFormat() + " and label " + ei.getLabel() + " succesfully uploaded: ";
