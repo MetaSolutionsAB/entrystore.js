@@ -11,3 +11,4 @@ samples/config.js
 *.ackrc
 *.vscode
 *.iml
+*.temp

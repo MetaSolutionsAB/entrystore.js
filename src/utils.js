@@ -68,8 +68,16 @@ utils.removeRelation = (fromEntry, property, toEntry) => {
 // Relies on there not being a window.document in Node
 // Based off of: https://github.com/flexdinesh/browser-or-node/blob/master/src/index.js
 const isBrowser = () => typeof window !== 'undefined' && typeof window.document !== 'undefined';
+utils.isBrowser = isBrowser;
 const isNode = () => typeof module !== 'undefined' && typeof module.exports !== 'undefined';
+utils.isNode = isNode;
 const isIE = () => window && window.navigator.userAgent.match(/MSIE/) !== null;
+utils.isIE = isIE;
 
-export { utils, isBrowser, isNode, isIE };
+export {
+  utils,
+  isBrowser,
+  isNode,
+  isIE,
+};
 export default utils;

@@ -1,5 +1,7 @@
 import superagent from 'superagent';
-import { isBrowser, isIE } from './utils';
+import xmldom from 'xmldom';
+import { isBrowser } from './utils';
+import md5 from 'blueimp-md5';
 
 const jsonp = require('superagent-jsonp');
 
@@ -74,15 +76,16 @@ const Rest = class {
     delete this.headers.cookie;
     if (credentials.logout !== true) {
       const data = {
-        auth_username: credentials.user,
-        auth_password: credentials.password,
+        auth_username: encodeURIComponent(credentials.user),
+        auth_password: encodeURIComponent(credentials.password),
         // in seconds, 86400 is default and corresponds to a day.
         auth_maxage: credentials.maxAge != null ? credentials.maxAge : 604800,
       };
       if (isBrowser()) {
-        return this.post(`${credentials.base}auth/cookie`, data);
+        return this.post(`${credentials.base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
       }
-      const p = this.post(`${credentials.base}auth/cookie`, data);
+      const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
+      const p = this.post(`${credentials.base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
       return p.then((response) => {
         const cookies = response.headers['set-cookie'];
         cookies.some((c) => {
@@ -147,6 +150,8 @@ const Rest = class {
           .use(
             jsonp({
               timeout: 1000000,
+              // @scazan: superagent-jsonp's random number generator is weak, so we create our own
+              callbackName: `cb${md5(_uri).slice(0, 7)}${parseInt(Math.random() * 1000, 10)}`,
             }),
           ) // Need this timeout to prevent a superagentCallback*** not defined issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
           .then((data) => {
@@ -158,16 +163,28 @@ const Rest = class {
     }
     const getRequest = superagent.get(_uri)
       .accept(handleAs)
-      .timeout({ response: this.timeout })
+      .timeout({ 
+        response: this.timeout,
+      })
       .query({ preventCache: parseInt(Math.random() * 10000, 10) })
       .withCredentials();
 
     if (handleAs === 'xml') {
-      getRequest.parse(async (res) => {
+      getRequest.parse['application/xml'] = (res, cb) => {
+        const DOMParser = isBrowser() ? window.DOMParser : xmldom.DOMParser;
         const parser = new DOMParser();
+
+        if (isBrowser()) {
+          const parsedDocument = parser.parseFromString(res, 'application/xml');
+          return parsedDocument;
+        }
+
+        // Node handles the return as a callback
         const parsedDocument = parser.parseFromString(res.text, 'application/xml');
-        return parsedDocument;
-      });
+        res.text = parsedDocument;
+
+        cb(null, res);
+      };
     }
 
     Object.entries(locHeaders).map(keyVal => getRequest.set(keyVal[0], keyVal[1]));
@@ -175,7 +192,7 @@ const Rest = class {
     return getRequest
       .then((response) => {
         if (response.statusCode === 200) {
-          if (handleAs === 'text') {
+          if (handleAs === 'text' || format === 'text/xml') {
             return response.text;
           }
           return response.body;

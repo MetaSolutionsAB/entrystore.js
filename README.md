@@ -173,3 +173,8 @@ The first thing you need to do is to connect to a repository, and then to select
     ==>   Variable 'e' contains the current entry, that is: "http://localhost:8080/store/1/entry/1"
 
 Check the help() command to get an idea of what you can do more.
+
+### Generating Licenses
+If you would like to create a file listing all the licenses of dependencies run:
+```
+yarn print-licenses

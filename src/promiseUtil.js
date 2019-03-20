@@ -78,6 +78,17 @@ promiseUtil.toPromise = (value) => {
   return Promise.resolve(value);
 };
 
+/**
+ * Use setTimeout with promise. This is useful when you want to do things like
+ * Promise.all(
+ *  promise1,
+ *  promiseUtil.delay(1000),
+ * ]);
+ * @param millisecs
+ * @returns {Promise<any>}
+ */
+promiseUtil.delay = millisecs => new Promise(resolve => setTimeout(resolve, millisecs));
+
 export default promiseUtil;
 
 /**
@@ -94,3 +105,4 @@ export default promiseUtil;
  * @callback forEachCallback
  * @param {array|object} result
  */
+

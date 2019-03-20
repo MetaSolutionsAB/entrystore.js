@@ -15,7 +15,7 @@ const GraphResource = class extends Resource {
    */
   constructor(entryURI, resourceURI, entryStore, data) {
     super(entryURI, resourceURI, entryStore); // Call the super constructor.
-    this._graph = data instanceof Graph ? data : new Graph(data);
+    this._graph = data && data._graph ? data : new Graph(data);
   }
 
   /**
