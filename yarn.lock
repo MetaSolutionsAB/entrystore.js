@@ -3566,9 +3566,9 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#develop":
-  version "2.2.0-SNAPSHOT"
-  resolved "https://bitbucket.org/metasolutions/rdfjson.git#98441d6f2ecea5ded832a43872d7f2a57cd25ed6"
+"rdfjson@https://bitbucket.org/metasolutions/rdfjson.git#2.2":
+  version "2.2.0"
+  resolved "https://bitbucket.org/metasolutions/rdfjson.git#e67cdca52d900ac978ad3e1180dd51f87b2c40ea"
   dependencies:
     md5 "^2.2.1"
     xmldom "~0.1.19"
