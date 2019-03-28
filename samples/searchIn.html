@@ -1,0 +1,23 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link href="style.css" rel="stylesheet"/>
+    <script src="../dist/EntryStore.js"></script>
+    <style>
+        label {
+            width: 200px;
+            height: 30px;
+            display: inline-block;
+        }
+    </style>
+<body>
+<label>Search in property:</label><input id="property" type="text" name="search"/><br>
+<label>with value:</label><input id="value" type="text" name="search"/><br>
+<label>In related properties:</label><input id="related" type="checkbox" name="search"/><br>
+<button id="search">Search now</button>
+<hr>
+<div id="_resultsNode"></div>
+<script src="./config.js"></script>
+<script src="./searchIn.js"></script>
+</body>
+</html>

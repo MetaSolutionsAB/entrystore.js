@@ -4,8 +4,11 @@ node_modules
 /jsdoc
 .idea
 release/
+dist/
+samples/config.js
 *~
 *.vim
-.ackrc
-.vscode
+*.ackrc
+*.vscode
+*.iml
 *.temp

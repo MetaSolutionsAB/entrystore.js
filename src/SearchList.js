@@ -78,8 +78,10 @@ const SearchList = class {
         if (f2p && f2p[ff.name]) {
           ff.predicate = f2p[ff.name];
         }
-        if (ff.name.indexOf('metadata.predicate') === 0) {
+        if (ff.name.startsWith('metadata.predicate')) {
           ff.type = ff.name.split('.')[2];
+        } else if (ff.name.startsWith('related.metadata.predicate')) {
+          ff.type = ff.name.split('.')[3];
         }
       });
     }
