@@ -212,7 +212,7 @@ const Rest = class {
    * multipart/form-data.
    * @return {xhrPromise}
    */
-  post(uri, data, modDate, format) {
+  post(uri, data, modDate, format, isFile) {
     const locHeaders = Object.assign({}, this.headers);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
@@ -220,16 +220,24 @@ const Rest = class {
     if (format) {
       locHeaders['Content-Type'] = format;
     }
-
-    const postRequest = superagent.post(uri)
-      .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
+    let postRequest;
 
     if (data) {
-      postRequest.send(data)
-      // serialize the object into a format that the backend is used to (no JSON strings)
-        .serialize(obj => Object.entries(obj)
-          .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
-          .join(''));
+      if (isFile && !isBrowser) {
+        postRequest = superagent.put(uri)
+          .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
+
+        postRequest.attach('files', data);
+      } else {
+        postRequest = superagent.post(uri)
+          .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
+
+        postRequest.send(data)
+        // serialize the object into a format that the backend is used to (no JSON strings)
+          .serialize(obj => Object.entries(obj)
+            .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
+            .join(''));
+      }
     }
 
     postRequest.withCredentials()
@@ -344,7 +352,11 @@ const Rest = class {
    * (json is default).
    */
   putFile(uri, data, format) {
-    return this.post(uri, data, null, format);
+    if (!isBrowser && (typeof data !== 'string')) {
+      throw new Error('When using putFile, you must provide a string path to the file (as opposed to a ReadStream)');
+    }
+
+    return this.post(uri, data, null, format, true);
   }
 };
 
