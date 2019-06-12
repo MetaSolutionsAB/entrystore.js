@@ -223,7 +223,7 @@ const Rest = class {
     let postRequest;
 
     if (data) {
-      if (isFile && !isBrowser) {
+      if (isFile && !isBrowser()) {
         postRequest = superagent.put(uri)
           .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
 
@@ -352,7 +352,7 @@ const Rest = class {
    * (json is default).
    */
   putFile(uri, data, format) {
-    if (!isBrowser && (typeof data !== 'string')) {
+    if (!isBrowser() && (typeof data !== 'string')) {
       throw new Error('When using putFile, you must provide a string path to the file (as opposed to a ReadStream)');
     }
 
