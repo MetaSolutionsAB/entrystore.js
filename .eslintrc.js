@@ -13,5 +13,6 @@ module.exports = {
     "no-console": "off",
     "no-prototype-builtins": "off",
     "no-param-reassign": ["error", { "props": false }],
+    'max-len': ['error', { 'code': 120, "ignoreTrailingComments": true, "ignoreTemplateLiterals": true }]
   }
 };

@@ -8,7 +8,7 @@
 export default class {
   constructor() {
     /**
-     * @type {Map<string, function>}
+     * @type {Map<string, Function>}
      * @private
      */
     this._listenersIdx = new Map();
@@ -42,19 +42,24 @@ export default class {
    * @param {Boolean=} silently - listeners will be notified unless true is specified.
    */
   cache(entry, silently) {
-    const previouslyCached = this._cacheIdx.has(entry.getURI());
-    this._cacheIdx.set(entry.getURI(), entry);
-    let resArr = this._cacheIdxResource.get(entry.getResourceURI());
-    if (typeof resArr === 'undefined') {
-      resArr = [];
-      this._cacheIdxResource[entry.getResourceURI()] = resArr;
+    const entryURI = entry.getURI();
+    const previouslyCached = this._cacheIdx.has(entryURI);
+
+    this._cacheIdx.set(entryURI, entry);
+
+    const entryRURI = entry.getResourceURI();
+    const entriesSet = this._cacheIdxResource.has(entryRURI) ? this._cacheIdxResource.get(entryRURI) : new Set();
+
+    if (!entriesSet.has(entry)) {
+      entriesSet.add(entry);
     }
-    if (resArr.indexOf(entry) === -1) {
-      resArr.push(entry);
-    }
-    this._cacheCtrl.set(entry.getURI(), {
+
+    this._cacheIdxResource.set(entryRURI, entriesSet);
+
+    this._cacheCtrl.set(entryURI, {
       date: new Date().getTime(),
     });
+
     if (previouslyCached && silently !== true) {
       this.messageListeners('refreshed', entry);
     }
@@ -65,16 +70,16 @@ export default class {
    * @param {store/Entry} entry the entry to remove.
    */
   unCache(entry) {
-    this._cacheIdx.delete(entry.getURI());
-    const resArr = this._cacheIdxResource.get(entry.getResourceURI());
-    if (typeof resArr !== 'undefined') {
-      for (let i = 0; i < resArr.length; i++) {
-        if (resArr[i].getURI() === entry.getURI()) {
-          resArr.splice(i, 1);
-        }
-        if (resArr.length === 0) {
-          delete this._cacheIdxResource[entry.getResourceURI()];
-        }
+    const entryURI = entry.getURI();
+    const entryRURI = entry.getResourceURI();
+
+    this._cacheIdx.delete(entryURI);
+    const entriesSet = this._cacheIdxResource.get(entryRURI);
+
+    if (entriesSet.size > 0) {
+      entriesSet.delete(entry);
+      if (entriesSet.size === 0) {
+        this._cacheIdxResource.delete(entryRURI);
       }
     }
   }
@@ -88,9 +93,10 @@ export default class {
    * @param {Boolean=} silently
    */
   setRefreshNeeded(entry, silently) {
-    const ctrl = this._cacheCtrl.get(entry.getURI());
+    const entryURI = entry.getURI();
+    const ctrl = this._cacheCtrl.get(entryURI);
     if (ctrl == null) {
-      throw new Error(`No cache control of existing entry: ${entry.getURI()}`);
+      throw new Error(`No cache control of existing entry: ${entryURI}`);
     }
     ctrl.stale = true;
     if (silently !== true) {
@@ -106,9 +112,9 @@ export default class {
    * @see store/Cache#cache
    */
   cacheAll(entryArr, silently) {
-    for (let i = 0; i < entryArr.length; i++) {
-      this.cache(entryArr[i], silently);
-    }
+    entryArr.forEach((entry) => {
+      this.cache(entry, silently);
+    });
   }
 
   /**
@@ -128,26 +134,23 @@ export default class {
    * there will be zero or one entry per uri.
    *
    * @param {String} uri
-   * @returns {store/Entry[]} always returns an array, may be empty though.
+   * @returns {Set<store/Entry>} always returns a set, may be empty though.
    */
   getByResourceURI(uri) {
-    const arr = this._cacheIdxResource.get(uri);
-    if (typeof arr !== 'undefined' && typeof arr.slice === 'function') {
-      return arr.slice(0);
-    }
-    return [];
+    return new Set(this._cacheIdxResource.get(uri));
   }
 
   /**
-   * Tells wheter the entry is in need of a refresh from the repository.
+   * Tells whether the entry is in need of a refresh from the repository.
    *
    * @param {store/Entry} entry
    * @returns {boolean}
    */
   needRefresh(entry) {
-    const ctrl = this._cacheCtrl.get(entry.getURI());
+    const entryURI = entry.getURI();
+    const ctrl = this._cacheCtrl.get(entryURI);
     if (ctrl == null) {
-      throw new Error(`No cache control of existing entry: ${entry.getURI()}`);
+      throw Error(`No cache control of existing entry: ${entryURI}`);
     }
     return ctrl.stale === true;
   }
@@ -160,7 +163,7 @@ export default class {
       listener.__clid = `idx_${this._listenerCounter}`;
       this._listenerCounter += 1;
     }
-    this._listenersIdx[listener.__clid] = listener;
+    this._listenersIdx.set(listener.__clid, listener);
   }
 
   /**
@@ -168,7 +171,7 @@ export default class {
    */
   removeCacheUpdateListener(listener) {
     if (listener.__clid != null) {
-      delete this._listenersIdx[listener.__clid];
+      this._listenersIdx.delete(listener.__clid);
     }
   }
 
@@ -183,8 +186,8 @@ export default class {
    * @param {store/Entry=} affectedEntry
    */
   messageListeners(topic, affectedEntry) {
-    Object.keys(this._listenersIdx).forEach((clid) => {
-      this._listenersIdx[clid](topic, affectedEntry);
+    this._listenersIdx.forEach((func) => {
+      func(topic, affectedEntry);
     });
   }
 

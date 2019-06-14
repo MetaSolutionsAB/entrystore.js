@@ -83,12 +83,13 @@
      */
     getEntryByResourceURI(resourceURI, context, asyncCallType) {
       const cache = this._entrystore.getCache();
-      let entryArr = cache.getByResourceURI(resourceURI);
+      const entriesSet = cache.getByResourceURI(resourceURI);
       if (context) {
-        entryArr = entryArr.filter(e => e.getContext().getId() === context.getId());
-      }
-      if (entryArr.length > 0) {
-        return Promise.resolve(entryArr[0]);
+        for (const entry of entriesSet) {
+          if (entry.getContext().getId() === context.getId()) {
+            return Promise.resolve(entry);
+          }
+        }
       }
       const query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
       if (context) {
