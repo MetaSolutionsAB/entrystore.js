@@ -5,13 +5,33 @@
  *
  * @exports store/Cache
  */
-const Cache = class {
+export default class {
   constructor() {
+    /**
+     * @type {Map<string, function>}
+     * @private
+     */
+    this._listenersIdx = new Map();
+
+    /**
+     * @type {Map<string, store/Entry>}
+     * @private
+     */
+    this._cacheIdx = new Map();
+
+    /**
+     * @type {Map<string, Set<store/Entry>>}
+     * @private
+     */
+    this._cacheIdxResource = new Map();
+
+    /**
+     * @type {Map<string, object>}
+     * @private
+     */
+    this._cacheCtrl = new Map();
+
     this._listenerCounter = 0;
-    this._listenersIdx = {};
-    this._cacheIdx = {};
-    this._cacheIdxResource = {};
-    this._cacheCtrl = {};
   }
 
   /**
@@ -22,9 +42,9 @@ const Cache = class {
    * @param {Boolean=} silently - listeners will be notified unless true is specified.
    */
   cache(entry, silently) {
-    const previouslyCached = this._cacheIdx[entry.getURI()] != null;
-    this._cacheIdx[entry.getURI()] = entry;
-    let resArr = this._cacheIdxResource[entry.getResourceURI()];
+    const previouslyCached = this._cacheIdx.has(entry.getURI());
+    this._cacheIdx.set(entry.getURI(), entry);
+    let resArr = this._cacheIdxResource.get(entry.getResourceURI());
     if (typeof resArr === 'undefined') {
       resArr = [];
       this._cacheIdxResource[entry.getResourceURI()] = resArr;
@@ -32,7 +52,9 @@ const Cache = class {
     if (resArr.indexOf(entry) === -1) {
       resArr.push(entry);
     }
-    this._cacheCtrl[entry.getURI()] = { date: new Date().getTime() };
+    this._cacheCtrl.set(entry.getURI(), {
+      date: new Date().getTime(),
+    });
     if (previouslyCached && silently !== true) {
       this.messageListeners('refreshed', entry);
     }
@@ -43,8 +65,8 @@ const Cache = class {
    * @param {store/Entry} entry the entry to remove.
    */
   unCache(entry) {
-    delete this._cacheIdx[entry.getURI()];
-    const resArr = this._cacheIdxResource[entry.getResourceURI()];
+    this._cacheIdx.delete(entry.getURI());
+    const resArr = this._cacheIdxResource.get(entry.getResourceURI());
     if (typeof resArr !== 'undefined') {
       for (let i = 0; i < resArr.length; i++) {
         if (resArr[i].getURI() === entry.getURI()) {
@@ -66,7 +88,7 @@ const Cache = class {
    * @param {Boolean=} silently
    */
   setRefreshNeeded(entry, silently) {
-    const ctrl = this._cacheCtrl[entry.getURI()];
+    const ctrl = this._cacheCtrl.get(entry.getURI());
     if (ctrl == null) {
       throw new Error(`No cache control of existing entry: ${entry.getURI()}`);
     }
@@ -96,7 +118,7 @@ const Cache = class {
    * @returns {store/Entry|undefined}
    */
   get(entryURI) {
-    return this._cacheIdx[entryURI];
+    return this._cacheIdx.get(entryURI);
   }
 
   /**
@@ -105,11 +127,11 @@ const Cache = class {
    * as resource this method returns an array. However, in many situations
    * there will be zero or one entry per uri.
    *
-   * @param {String} resourceURI
+   * @param {String} uri
    * @returns {store/Entry[]} always returns an array, may be empty though.
    */
   getByResourceURI(uri) {
-    const arr = this._cacheIdxResource[uri];
+    const arr = this._cacheIdxResource.get(uri);
     if (typeof arr !== 'undefined' && typeof arr.slice === 'function') {
       return arr.slice(0);
     }
@@ -123,7 +145,7 @@ const Cache = class {
    * @returns {boolean}
    */
   needRefresh(entry) {
-    const ctrl = this._cacheCtrl[entry.getURI()];
+    const ctrl = this._cacheCtrl.get(entry.getURI());
     if (ctrl == null) {
       throw new Error(`No cache control of existing entry: ${entry.getURI()}`);
     }
@@ -171,7 +193,7 @@ const Cache = class {
    * with the allEntriesNeedRefresh topic.
    */
   allNeedRefresh() {
-    Object.keys(this._cacheIdx).forEach((uri) => {
+    this._cacheIdx.forEach((entry, uri) => {
       // Do not messageListeners for every entry.
       this.setRefreshNeeded(this._cacheIdx[uri], true);
     });
@@ -184,10 +206,8 @@ const Cache = class {
    * kept in sync with changes.
    */
   clear() {
-    this._cacheIdx = {};
-    this._cacheIdxResource = {};
-    this._cacheCtrl = {};
+    this._cacheIdx = new Map();
+    this._cacheIdxResource = new Map();
+    this._cacheCtrl = new Map();
   }
-};
-
-export default Cache;
+}
