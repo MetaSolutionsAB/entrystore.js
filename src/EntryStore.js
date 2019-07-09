@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-import {unescape} from 'lodash-es';
 import SolrQuery from './SolrQuery';
 import Cache from './Cache';
 import Rest from './Rest';
@@ -18,7 +17,7 @@ const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @H
  * repository.
  * @exports store/EntryStore
  */
-class EntryStore {
+export default class EntryStore {
   /**
    * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
    * may be left out and
@@ -710,7 +709,6 @@ class EntryStore {
     return factory;
   }
 };
-export default EntryStore;
 
 /**
  * @callback asyncListener

@@ -1,23 +1,26 @@
-let _listenerCounter = 0;
-
 /**
  * EntryStore is the main class that is used to connect to a running server-side
  * EntryStore repository.
  * @exports store/Auth
  */
-const Auth = class {
+export default class {
   /**
    * @param {store/EntryStore} entrystore - a repository instance.
    */
   constructor(entrystore) {
     this.entrystore = entrystore;
     this._listenerCounter = 0;
-    this._listenersIdx = {};
+
+    /**
+     * @type {Map<string, Function>}
+     * @private
+     */
+    this._listenersIdx = new Map();
   }
 
   messageListeners(topic, obj) {
-    Object.keys(this._listenersIdx).forEach((alid) => {
-      this._listenersIdx[alid](topic, obj);
+    this._listenersIdx.forEach((func) => {
+      func(topic, obj);
     });
   }
 
@@ -27,10 +30,10 @@ const Auth = class {
    */
   addAuthListener(listener) {
     if (listener.__alid == null) {
-      listener.__alid = `idx_${_listenerCounter}`;
-      _listenerCounter += 1;
+      listener.__alid = `idx_${this._listenerCounter}`;
+      this._listenerCounter += 1;
     }
-    this._listenersIdx[listener.__alid] = listener;
+    this._listenersIdx.set(listener.__alid, listener);
   }
 
   /**
@@ -39,7 +42,7 @@ const Auth = class {
    */
   removeAuthListener(listener) {
     if (listener.__alid != null) {
-      delete this._listenersIdx[listener.__alid];
+      this._listenersIdx.delete(listener.__alid);
     }
   }
 
@@ -51,42 +54,36 @@ const Auth = class {
    * @see {@link store/EntryStore#auth auth}
    * @see {@link store/EntryStore#logout logout}
    */
-  getUserInfo(forceLookup) {
-    if (this.userInfo && forceLookup !== true) {
-      return new Promise(resolve => resolve(this.userInfo));
+  async getUserInfo(forceLookup = false) {
+    if (this.userInfo && !forceLookup) {
+      return Promise.resolve(this.userInfo);
     }
     if (!this._uiDef) {
-      const self = this;
-      delete this.userInfo;
-      this._uiDef = this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`, null, true).then((userinfo) => {
-        self.userInfo = userinfo;
-        delete self._uiDef;
-        return userinfo;
-      });
+      this._uiDef = this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`, null, true);
       this.entrystore.handleAsync(this._uiDef, 'getUserInfo');
+      this.userInfo = await this._uiDef;
+      delete this._uiDef;
     }
+
     return this._uiDef;
   }
 
   /**
    * @returns {entryPromise} on success the entry for the currently signed in user is provided.
    */
-  getUserEntry(forceLookup) {
-    if (this.userEntry && forceLookup !== true) {
-      return new Promise(resolve => resolve(this.userEntry));
+  async getUserEntry(forceLookup = false) {
+    if (this.userEntry && !forceLookup) {
+      return Promise.resolve(this.userEntry);
     }
+
     if (!this._ueDef) {
-      const self = this;
-      delete this.userEntry;
-      this._ueDef = this.getUserInfo(forceLookup)
-        .then(data => self.entrystore.getEntry(self.entrystore.getEntryURI('_principals', data.id), { asyncContext: 'getUserEntry' }))
-        .then((userEntry) => {
-          self.userEntry = userEntry;
-          delete self._ueDef;
-          return userEntry;
-        });
+      this._ueDef = this.getUserInfo(forceLookup);
+      const userInfo = await this._ueDef;
+      this.userEntry = await this.entrystore.getEntry(this.entrystore.getEntryURI('_principals', userInfo.id), {
+        asyncContext: 'getUserEntry',
+      });
     }
-    return this._ueDef;
+    return this.userEntry;
   }
 
   /**
@@ -98,37 +95,39 @@ const Auth = class {
    * @param maxAge
    * @returns {xhrPromise}
    */
-  login(user, password, maxAge) {
+  async login(user, password, maxAge) {
     if (this.userInfo && this.userInfo.user === user) {
       return this.getUserInfo();
     }
-    const self = this;
+
     const credentials = {
       base: this.entrystore.getBaseURI(),
       user,
       password,
       maxAge,
     };
-    return this.entrystore.handleAsync(this.entrystore.getREST().auth(credentials)
-      .then((data) => {
-        if (typeof data === 'object' && data.user) {
-          return data;
-        }
-        return self.entrystore._rest.get(`${self.entrystore._baseURI}auth/user`, null, true);
-      })
-      .then((data) => {
-        if (self._uiDef) {
-          self._uiDef.cancel();
-        }
-        if (self._ueDef) {
-          self._ueDef.cancel();
-        }
-        self.userInfo = data;
-        delete self.userEntry;
-        self.entrystore.getCache().allNeedRefresh();
-        self.messageListeners('login', data);
-        return data;
-      }), 'login');
+
+    const authPromise = this.entrystore.getREST().auth(credentials);
+    this.entrystore.handleAsync(authPromise, 'login');
+    const auth = await authPromise;
+    if (typeof auth === 'object' && auth.user) {
+      return auth;
+    }
+    const userInfo = await this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`, null, true);
+
+    if (this._uiDef) {
+      this._uiDef.cancel();
+    }
+    if (this._ueDef) {
+      this._ueDef.cancel();
+    }
+
+    this.userInfo = userInfo;
+    delete this.userEntry;
+    this.entrystore.getCache().allNeedRefresh();
+    this.messageListeners('login', userInfo);
+
+    return userInfo;
   }
 
   /**
@@ -139,18 +138,23 @@ const Auth = class {
     if (this.userInfo && this.userInfo.user === 'guest') {
       return this.getUserInfo();
     }
-    const credentials = { base: this.entrystore.getBaseURI(), logout: true };
-    const self = this;
-    return this.entrystore.handleAsync(this.entrystore.getREST().auth(credentials).then(() => {
-      self.userInfo = { user: 'guest', id: '_guest' };
-      delete self.userEntry;
-      self.entrystore.getCache().allNeedRefresh();
-      self.messageListeners('logout', self.userInfo);
-      return self.userInfo;
-    }), 'logout');
+
+    const credentials = {
+      base: this.entrystore.getBaseURI(),
+      logout: true,
+    };
+
+    const logoutPromise = this.entrystore.getREST().auth(credentials);
+    this.entrystore.handleAsync(logoutPromise, 'logout');
+
+    this.userInfo = { user: 'guest', id: '_guest' };
+    delete this.userEntry;
+    this.entrystore.getCache().allNeedRefresh();
+    this.messageListeners('logout', this.userInfo);
+
+    return this.userInfo;
   }
-};
-export default Auth;
+}
 
 /**
  * @name userInfoPromise
