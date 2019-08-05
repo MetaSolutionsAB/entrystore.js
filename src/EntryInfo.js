@@ -1,13 +1,12 @@
-/* global define*/
-import terms from './terms';
-import {Graph} from 'rdfjson';
 import moment from 'moment';
+import { Graph } from 'rdfjson';
+import terms from './terms';
 
 /**
  * EntryInfo is a class that contains all the administrative information of an entry.
  * @exports store/EntryInfo
  */
-const EntryInfo = class {
+export default class EntryInfo {
   /**
    * @param {String} entryURI must be provided unless the graph contains a statement with
    * the store:resource property which allows us to infer the entryURI.
@@ -47,18 +46,21 @@ const EntryInfo = class {
    * basepath/store/{contextId}/entry/{entryId}
    * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
-   * @returns {entryInfoPromise}
+   * @returns {Promise.<store/EntryInfo>}
    */
-  commit(ignoreIfUnmodifiedSinceCheck) {
+  commit(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this._entry.getEntryStore();
-    const mod = ignoreIfUnmodifiedSinceCheck === true ? undefined : this.getModificationDate();
+    let mod;
+    if (ignoreIfUnmodifiedSinceCheck === true) {
+      mod = this.getModificationDate();
+    }
     const p = es.getREST().put(this.getEntryURI(),
       JSON.stringify(this._graph.exportRDFJSON()), mod)
       .then(() => {
         if (ignoreIfUnmodifiedSinceCheck !== true) {
           this._entry.setRefreshNeeded(true);
           return this._entry.refresh().then(() => this, () => {
-            // Failed refreshing, but succeded at saving metadata,
+            // Failed refreshing, but succeeded at saving metadata,
             // at least send out message that it needs to be refreshed.
             es.getCache().message('refreshed', this);
             return this;
@@ -66,6 +68,7 @@ const EntryInfo = class {
         }
         return this;
       });
+
     return es.handleAsync(p, 'commitEntryInfo');
   }
 
@@ -129,7 +132,7 @@ const EntryInfo = class {
    */
   setExternalMetadataURI(uri) {
     this._graph.findAndRemove(this._entryURI, terms.externalMetadata);
-    this._graph.create(this._entryURI, terms.externalMetadata, {type: 'uri', value: uri});
+    this._graph.create(this._entryURI, terms.externalMetadata, { type: 'uri', value: uri });
   }
 
   /**
@@ -152,7 +155,7 @@ const EntryInfo = class {
   setResourceURI(uri) {
     const oldResourceURI = this.getResourceURI();
     this._graph.findAndRemove(this._entryURI, terms.resource);
-    this._graph.create(this._entryURI, terms.resource, {type: 'uri', value: uri});
+    this._graph.create(this._entryURI, terms.resource, { type: 'uri', value: uri });
     if (oldResourceURI) {
       const stmts = this._graph.find(oldResourceURI);
       for (let i = 0; i < stmts.length; i++) {
@@ -178,6 +181,7 @@ const EntryInfo = class {
         return t;
       }
     }
+
     return vocab.default;
   }
 
@@ -226,7 +230,7 @@ const EntryInfo = class {
    */
   getACL(asIds = false) {
     const factory = this._entryStore.getFactory();
-    const f = function (stmt) {
+    const f = (stmt) => {
       if (asIds) {
         return factory.getEntryId(stmt.getValue());
       }
@@ -267,15 +271,15 @@ const EntryInfo = class {
    */
   setACL(acl) {
     const g = this._graph;
-    const f = function (subj, pred, principals, base) {
+    const f = (subj, pred, principals, base) => {
       g.findAndRemove(subj, pred);
       (principals || []).forEach((principal) => {
         if (principal.length < base.length || principal.indexOf(base) !== 0) {
           // principal is entry id.
-          g.add(subj, pred, {type: 'uri', value: base + principal});
+          g.add(subj, pred, { type: 'uri', value: base + principal });
         } else {
           // principal is a full entry resource uri.
-          g.add(subj, pred, {type: 'uri', value: principal});
+          g.add(subj, pred, { type: 'uri', value: principal });
         }
       });
     };
@@ -297,8 +301,8 @@ const EntryInfo = class {
    * @return {boolean} true if there is at least one metadata revision.
    */
   hasMetadataRevisions() {
-    const mdURI = this.getMetadataURI();
-    return this._graph.findFirstValue(null, 'owl:sameAs', mdURI) != null;
+    // const mdURI = this.getMetadataURI();
+    return this._graph.findFirstValue(null, 'owl:sameAs') != null;
   }
 
   /**
@@ -312,7 +316,7 @@ const EntryInfo = class {
    * The uri of the revision can be used by the method getMetadataRevisionGraph
    * to get a hold of the actual new graph that caused the revision.
    *
-   * @return {object[]} a sorted array of revisions, latest revision first.
+   * @return {{time: Date, by: string, rev: string, uri: string}[]} a sorted array of revisions, latest revision first.
    */
   getMetadataRevisions() {
     const revs = [];
@@ -347,7 +351,7 @@ const EntryInfo = class {
   /**
    * Retrieves the metadata graph of a certain revision from its graph.
    * @param revisionURI
-   * @return {graphPromise}
+   * @return {Promise.<rdfjson/Graph>}
    */
   getMetadataRevisionGraph(revisionURI) {
     return this._entryStore.getREST().get(revisionURI).then(data => new Graph(data));
@@ -406,10 +410,9 @@ const EntryInfo = class {
   }
 
   /**
-   * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit}
-   * to push the updated graph to the repository.
+   * Sets a new status for this entry
    *
-   * @param {string} format - a format in the form application/json or text/plain.
+   * @param {string} status
    */
   setStatus(status) {
     this._graph.findAndRemove(this.getEntryURI(), terms.status.property);
@@ -439,71 +442,28 @@ const EntryInfo = class {
   }
 
   /**
-   * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
+   * @returns {String} a URI to creator, the user Entry resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
    */
   getCreator() {
     return this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/creator');
   }
 
   /**
-   * @returns {String} a URI to creator, the user Entrys resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
+   * @returns {number|undefined}
    */
   getSize() {
     const extent = this._graph.findFirstValue(this.getResourceURI(), 'http://purl.org/dc/terms/extent');
-    // eslint-disable-next-line eqeqeq
-    if (parseInt(extent, 10) == extent) {
+    if (parseInt(extent, 10) === parseInt(extent, 10)) {
       return parseInt(extent, 10);
     }
     return undefined;
   }
 
   /**
-   * @returns {Array} an array of URIs to the contributors using their Entrys resource URIs,
+   * @returns {Array} an array of URIs to the contributors using their Entry resource URIs,
    * e.g. ["http://somerepo/store/_principals/resource/4"], never null although the array might be empty.
    */
   getContributors() {
-    return this._graph.find(this.getEntryURI(),
-      'http://purl.org/dc/terms/contributor').map(statement => statement.getValue());
+    return this._graph.find(this.getEntryURI(), 'http://purl.org/dc/terms/contributor').map(stmt => stmt.getValue());
   }
 };
-
-export default EntryInfo;
-
-/**
- * Promise that provides an {@link store/Entry} on success.
- *
- * @name entryInfoPromise
- * @extends dojo/promise/Promise
- * @class
- */
-/**
- * @name entryInfoPromise#then
- * @param {entryInfoCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * This is a successful callback method to be provided as first argument in a
- * {@link entryInfoPromise}
- *
- * @callback entryInfoCallback
- * @param {store/EntryInfo} entry
- */
-
-/**
- * Promise that provides an {@link rdfjson/Graph} on success.
- *
- * @name graphPromise
- * @extends dojo/promise/Promise
- * @class
- */
-/**
- * @name graphPromise#then
- * @param {graphCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * This is a successful callback method to be provided as first argument in a {@link graphPromise}
- *
- * @callback graphCallback
- * @param {rdfjson/Graph} graph
- */

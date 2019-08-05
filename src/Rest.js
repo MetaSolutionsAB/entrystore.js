@@ -114,11 +114,11 @@ const Rest = class {
    * If a cross-domain call is made and we are in a browser environment a jsonp call is made.
    *
    * @param {string} uri - URI to a resource to fetch.
-   * @param {string} format - the format to request as a mimetype.
+   * @param {string|null} format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
    * @returns {xhrPromise}
    */
-  get(uri, format, nonJSONP = false) {
+  get(uri, format = null, nonJSONP = false) {
     const locHeaders = Object.assign({}, this.headers);
     delete locHeaders['Content-Type'];
 
@@ -163,7 +163,7 @@ const Rest = class {
     }
     const getRequest = superagent.get(_uri)
       .accept(handleAs)
-      .timeout({ 
+      .timeout({
         response: this.timeout,
       })
       .query({ preventCache: parseInt(Math.random() * 10000, 10) })
