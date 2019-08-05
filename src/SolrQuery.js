@@ -134,9 +134,9 @@ const SolrQuery = class {
   /**
    * @private
    */
-  _q(key, val, modifier) {
+  _q(key, val, modifier = null) {
     this.params[key] = val;
-    if (typeof modifier !== 'undefined') {
+    if (modifier === null) {
       this.modifiers[key] = modifier;
     }
     return this;
@@ -264,7 +264,7 @@ const SolrQuery = class {
    * @param {true|false|string} modifier
    * @return {store/SolrQuery}
    */
-  resource(val, modifier) {
+  resource(val, modifier = null) {
     return this._q('resource', val, modifier);
   }
 
@@ -369,7 +369,7 @@ const SolrQuery = class {
    * @param {true|false|string} modifier
    * @return {store/SolrQuery}
    */
-  graphType(val, modifier) {
+  graphType(val, modifier = null) {
     return this._q('graphType', val, modifier);
   }
 

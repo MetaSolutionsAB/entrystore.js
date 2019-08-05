@@ -45,7 +45,7 @@ export default class EntryStore {
 
   /**
    * Provides a listener that will be called for every asynchronous call being made.
-   * The handler is invoked with the promise from the asynchrounous call
+   * The handler is invoked with the promise from the asynchronous call
    * and a callType parameter indicating which asynchronous call that has been made.
    *
    * The callType parameter can take the following values:
@@ -57,7 +57,7 @@ export default class EntryStore {
    * - commitMetadata  - changes to metadata is pushed (Entry.commitMetadata)
    * - commitCachedExternalMetadata - changes to cached external metadata is pushed
    * (Entry.commitCachedExternalMetadata)
-   * - getResource     - the entrys resource has been requested (Entry.getResource)
+   * - getResource     - the entry's resource has been requested (Entry.getResource)
    * - getLinkedEntry  - a linked entry is requested (Entry.getLinkedEntry)
    * - delEntry        - an entry is deleted (Entry.del)
    * - refresh         - an entry is refreshed (Entry.refresh)
@@ -76,7 +76,7 @@ export default class EntryStore {
    * - setUserDisabled - a new disabled state of a user is pushed (User.setDisabled)
    * - setUserLanguage - a new preferred language of the user is pushed (User.setLanguage)
    * - setUserPassword - a new password for the user is pushed (User.setPassword)
-   * - setUserHomeContext - a new homecontext for the user is pushed (User.setHomeContext)
+   * - setUserHomeContext - a new home context for the user is pushed (User.setHomeContext)
    * - setUserCustomProperties - new custom properties for the user (User.setCustomProperties)
    * - loadListEntries - members of a list are requested (List.getEntries)
    * - setList         - the list members are changed via a list
@@ -86,7 +86,7 @@ export default class EntryStore {
    * - search          - a search is being performed (SearchList.getEntries)
    * - execute         - a pipeline is executed (Pipeline.execute)
    *
-   * @param {asyncListener} listener
+   * @param {Promise.<string>} listener
    */
   addAsyncListener(listener) {
     if (this.asyncListeners) {
@@ -98,7 +98,7 @@ export default class EntryStore {
 
   /**
    * Removes a previously added listener for asynchronous calls.
-   * @param listener
+   * @param {string} listener
    */
   removeAsyncListener(listener) {
     if (this.asyncListeners) {
@@ -106,12 +106,19 @@ export default class EntryStore {
     }
   }
 
+  /**
+   *
+   * @param {Promise} promise
+   * @param {string} context
+   * @return {Promise}
+   */
   handleAsync(promise, context) {
     if (this.asyncListeners) {
       for (let i = 0; i < this.asyncListeners.length; i++) {
         this.asyncListeners[i](promise, context);
       }
     }
+
     return promise;
   }
 
@@ -125,7 +132,7 @@ export default class EntryStore {
 
   /**
    * Yields information about who currently is authenticated against the EntryStore repository.
-   * @returns {userInfoPromise} - upon success an object containing attributes "user" being
+   * @returns {Promise.<store/EntryInfo>} - upon success an object containing attributes "user" being
    * the username, "id" of the user entry, and "homecontext" being the entry-id of the
    * home context is provided.
    * @see {@link store/EntryStore#auth auth}
@@ -137,7 +144,7 @@ export default class EntryStore {
   }
 
   /**
-   * @returns {entryPromise} on success the entry for the currently signed in user is provided.
+   * @returns {Promise.<store/Entry>} on success the entry for the currently signed in user is provided.
    * @deprecated use corresponding method on auth object instead.
    */
   getUserEntry() {
@@ -148,7 +155,7 @@ export default class EntryStore {
    * Authenticate using credentials containing a user, a password and an optional maxAge given
    * in seconds.
    *
-   * @param {object} credentials as a parameter object
+   * @param {{user, password, maxAge}} credentials as a parameter object
    * @deprecated use corresponding method on auth object instead.
    */
   auth(credentials) {
@@ -160,7 +167,7 @@ export default class EntryStore {
 
   /**
    * Logout the currently authorized user.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    * @deprecated use corresponding method on auth object instead.
    */
   logout() {
@@ -226,14 +233,14 @@ export default class EntryStore {
    * if there are member entries that are lists they should be sorted to the top.
    *
    * @param {string} entryURI - the entryURI for the entry to retrieve.
-   * @param {Object=} optionalLoadParams - parameters for how to load an entry.
+   * @param {{forceLoad, direct, loadResource, limit, offset, sort, asyncContext}} optionalLoadParams - parameters for how to load an entry.
    * @return {Promise.<store/Entry> | store/Entry | undefined} - by default a promise is returned,
    * if the direct parameter is specified the entry is returned directly or undefined if the
    * entry is not in cache.
    * @see {@link store/EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
-   * @see {@link store/Context#getEntryById} for loading entrys relative to a context.
+   * @see {@link store/Context#getEntryById} for loading entries relative to a context.
    */
-  getEntry(entryURI, optionalLoadParams) {
+  getEntry(entryURI, optionalLoadParams = {}) {
     const forceLoad = optionalLoadParams ? optionalLoadParams.forceLoad === true : false;
     const e = this._cache.get(entryURI);
     let asyncContext = 'getEntry';
@@ -373,7 +380,7 @@ export default class EntryStore {
    *     context.newEntry().commit().then(function(newlyCreatedEntry) {...}
    *
    * @param {store/PrototypeEntry} prototypeEntry - information about the entry to create.
-   * @return {dojo/promise/Promise}
+   * @return {Promise}
    * @see store/PrototypeEntry#commit
    * @see store/EntryStore#newContext
    * @see store/EntryStore#newUser
@@ -404,24 +411,29 @@ export default class EntryStore {
 
   /**
    * Provides a PrototypeEntry for creating a new context.
-   * @param {string=} contextname - optional name for the context, can be changed later,
+   * @param {string=} contextName - optional name for the context, can be changed later,
    * must be unique in the _principals context
    * @param {string=} id - optional requested identifier (entryId) for the context,
    * cannot be changed later, must be unique in the _principals context
    * @returns {store/PrototypeEntry}
    */
-  newContext(contextname, id) {
+  newContext(contextName, id) {
     const _contexts = factory.getContext(this, `${this._baseURI}_contexts/entry/_contexts`);
-    const pe = new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
-    if (contextname != null) {
-      const ei = pe.getEntryInfo();
+    const prototypeEntry = new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
+    if (contextName != null) {
+      const ei = prototypeEntry.getEntryInfo();
       const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({ name: contextname });
-      pe._resource = resource;
+      resource._update({ name: contextName });
+      prototypeEntry._resource = resource;
     }
-    return pe;
+    return prototypeEntry;
   }
 
+  /**
+   *
+   * @param name
+   * @return {Promise}
+   */
   createGroupAndContext(name) {
     let uri = `${this._baseURI}_principals/groups`;
     if (name != null) {
@@ -440,8 +452,8 @@ export default class EntryStore {
    */
   newUser(username, password, homeContext, id) {
     const _principals = factory.getContext(this, `${this._baseURI}_contexts/entry/_principals`);
-    const pe = new PrototypeEntry(_principals, id).setGraphType(types.GT_USER);
-    const ei = pe.getEntryInfo();
+    const prototypeEntry = new PrototypeEntry(_principals, id).setGraphType(types.GT_USER);
+    const entryInfo = prototypeEntry.getEntryInfo();
     const data = {};
     if (username != null) {
       data.name = username;
@@ -452,28 +464,27 @@ export default class EntryStore {
     if (homeContext != null) {
       data.homecontext = homeContext;
     }
-    const user = new User(ei.getEntryURI(), ei.getResourceURI(), this, data);
-    pe._resource = user;
-    return pe;
+    prototypeEntry._resource = new User(entryInfo.getEntryURI(), entryInfo.getResourceURI(), this, data);
+    return prototypeEntry;
   }
 
   /**
-   * @param {string=} groupname - optional name for the group, can be changed later,
+   * @param {string=} groupName - optional name for the group, can be changed later,
    * must be unique in the _principals context
    * @param {string=} id - optional requested identifier (entryId) for the group,
    * cannot be changed later, must be unique in the _principals context
    * @returns {store/PrototypeEntry}
    */
-  newGroup(groupname, id) {
+  newGroup(groupName, id) {
     const _principals = factory.getContext(this, `${this._baseURI}_contexts/entry/_principals`);
-    const pe = new PrototypeEntry(_principals, id).setGraphType(types.GT_GROUP);
-    if (groupname != null) {
-      const ei = pe.getEntryInfo();
+    const prototypeEntry = new PrototypeEntry(_principals, id).setGraphType(types.GT_GROUP);
+    if (groupName != null) {
+      const ei = prototypeEntry.getEntryInfo();
       const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({ name: groupname });
-      pe._resource = resource;
+      resource._update({ name: groupName });
+      prototypeEntry._resource = resource;
     }
-    return pe;
+    return prototypeEntry;
   }
 
   /**
@@ -482,11 +493,11 @@ export default class EntryStore {
    * @param {store/Entry} entry - entry to move
    * @param {store/Entry} fromList - source list where the entry is currently residing.
    * @param {store/Entry} toList - destination list where the entry is supposed to end up.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   moveEntry(entry, fromList, toList) {
     const uri = factory.getMoveURI(entry, fromList, toList, this._baseURI);
-    return this.handleAsync(this._rest.post(uri, ''), 'moveEntry');
+    return this.handleAsync(this.getREST().post(uri, ''), 'moveEntry');
   }
 
   /**
@@ -495,11 +506,11 @@ export default class EntryStore {
    * @param {string} uri indicates the resource to load.
    * @param {string} formatHint indicates that you want data back in the format specified
    * (e.g. by specifiying a suitable accept header).
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   loadViaProxy(uri, formatHint) {
     const url = factory.getProxyURI(this._baseURI, uri);
-    return this.handleAsync(this._rest.get(url, formatHint, true), 'loadViaProxy');
+    return this.handleAsync(this.getREST().get(url, formatHint, true), 'loadViaProxy');
   }
 
   /**
@@ -651,12 +662,11 @@ export default class EntryStore {
   /**
    *  To get status resource
    *
-   * @param {string} uri
-   * @returns {Object}
+   * @returns {Promise}
    */
   getStatus() {
     const uri = `${this._baseURI}management/status?extended`;
-    return this.handleAsync(this._rest.get(uri));
+    return this.handleAsync(this.getREST().get(uri));
   }
 
   /**
@@ -692,30 +702,13 @@ export default class EntryStore {
    * status of services etc.
    * @todo Needs support from EntryStore REST API
    * @todo Document promise
-   * @returns {dojo/promise/Promise}
    */
-  info() {
+  static info() {
     const packageJSON = require('../package.json');
     return { version: packageJSON.version };
   }
 
-  getFactory() {
+  static getFactory() {
     return factory;
   }
 };
-
-/**
- * @callback asyncListener
- * @param {dojo/promise/Promise} promise
- * @param {string} callType
- */
-
-/**
- * @name entryArrayPromise#then
- * @param {entryArrayCallback} onSuccess provides an array of Entries
- * @param {xhrFailureCallback} onError
- */
-/**
- * @callback entryArrayCallback
- * @param {store/Entry[]} arr
- */

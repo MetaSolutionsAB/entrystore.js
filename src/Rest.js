@@ -70,7 +70,7 @@ const Rest = class {
   /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   auth(credentials) {
     delete this.headers.cookie;
@@ -116,7 +116,7 @@ const Rest = class {
    * @param {string} uri - URI to a resource to fetch.
    * @param {string|null} format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   get(uri, format = null, nonJSONP = false) {
     const locHeaders = Object.assign({}, this.headers);
@@ -210,7 +210,7 @@ const Rest = class {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {xhrPromise}
+   * @return {Promise}
    */
   post(uri, data, modDate, format) {
     const locHeaders = Object.assign({}, this.headers);

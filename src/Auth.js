@@ -48,7 +48,7 @@ export default class {
 
   /**
    * Yields information about who currently is authenticated against the EntryStore repository.
-   * @returns {userInfoPromise} - upon success an object containing attributes "user" being
+   * @returns {Promise.<store/EntryInfo>} - upon success an object containing attributes "user" being
    * the username, "id" of the user entry,
    * and "homecontext" being the entry-id of the home context is provided.
    * @see {@link store/EntryStore#auth auth}
@@ -69,7 +69,7 @@ export default class {
   }
 
   /**
-   * @returns {entryPromise} on success the entry for the currently signed in user is provided.
+   * @returns {Promise.<store/Entry>} on success the entry for the currently signed in user is provided.
    */
   async getUserEntry(forceLookup = false) {
     if (this.userEntry && !forceLookup) {
@@ -132,7 +132,7 @@ export default class {
 
   /**
    * Logout the currently authorized user.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   logout() {
     if (this.userInfo && this.userInfo.user === 'guest') {
