@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 import Auth from './Auth';
 import Cache from './Cache';
 import factory from './factory';

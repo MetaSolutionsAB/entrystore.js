@@ -2,8 +2,8 @@ import { Graph } from 'rdfjson';
 import types from './types';
 
 /**
- * Entrys are at the center of this API. Entrys holds together metadata, external metadata,
- * resources, access control, and provenance. Hence, entrys appear in the majority of methods,
+ * Entries are at the center of this API. Entries holds together metadata, external metadata,
+ * resources, access control, and provenance. Hence, entries appear in the majority of methods,
  * either directly or in callbacks via promises. Each entry has a simple identifier within a
  * context and a globally unique URI that can be used to load, store and index the entry.
  *
@@ -11,12 +11,13 @@ import types from './types';
  * with the information retrieved from the repository without digging through the RDF graphs.
  * For instance, all methods starting with _can_ or _is_ are convenience methods for working
  * with access control or the type information available in the associated
- * {@link store/EntryInformation} class. The same is true for the majority of the get methods,
+ * The same is true for the majority of the get methods,
  * only those that have corresponding set methods are really unique for this class.
  *
+ * @link store/EntryInfo
  * @exports store/Entry
  */
-class Entry {
+export default class Entry {
   /**
    * @param {store/Context} context container for this entry
    * @param {store/EntryInfo} entryInfo defines the basics of this entry
@@ -108,12 +109,12 @@ class Entry {
   /**
    * Will push the metadata for this entry to the repository.
    * If metadata has been set for an entry with EntryType 'reference'
-   * the entrytype will change to 'linkreference' upon a successful commit.
-   * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+   * the entry type will change to 'linkreference' upon a successful commit.
+   * @params {boolean} [ignoreIfUnmodifiedSinceCheck=false] if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
-   * @return {entryPromise} a promise that on success will contain the current updated entry.
+   * @return {Promise.<store/Entry>} a promise that on success will contain the current updated entry.
    */
-  commitMetadata(ignoreIfUnmodifiedSinceCheck) {
+  commitMetadata(ignoreIfUnmodifiedSinceCheck = false) {
     let p;
     const es = this.getEntryStore();
     if (this.isReference()) {
@@ -129,70 +130,71 @@ class Entry {
       if (ignoreIfUnmodifiedSinceCheck) {
         p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
           JSON.stringify(this._metadata.exportRDFJSON())).then(() => this);
-      }
-      const mod = this.getEntryInfo().getModificationDate();
-      p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
-        JSON.stringify(this._metadata.exportRDFJSON()), mod)
-        .then(() => {
-          this.setRefreshNeeded(true);
-          return this.refresh().then(() => this, () => {
-            // Failed refreshing, but succeded at saving metadata,
-            // at least send out message that it needs to be refreshed.
-            this.getEntryStore().getCache().message('refreshed', this);
-            return this;
+      } else {
+        const mod = this.getEntryInfo().getModificationDate();
+        p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
+          JSON.stringify(this._metadata.exportRDFJSON()), mod)
+          .then(() => {
+            this.setRefreshNeeded(true);
+            return this.refresh().then(() => this, () => {
+              // Failed refreshing, but succeeded at saving metadata,
+              // at least send out message that it needs to be refreshed.
+              this.getEntryStore().getCache().message('refreshed', this);
+              return this;
+            });
           });
-        });
+      }
     }
     return es.handleAsync(p, 'commitMetadata');
   }
 
   /**
-   * Same as entry.getMetadata().add(entry.getResourceURI(), pred, o)
+   * Same as entry.getMetadata().add(entry.getResourceURI(), predicate, o)
    * but instead of returning the created statement it returns the entry itself,
    * allowing chained method calls.
    *
-   * @param {string} pred the predicate
-   * @param {object} o the object
-   * @returns {module:store/Entry}
+   * @param {string} predicate the predicate
+   * @param {object} object the object
+   * @returns {store/Entry}
    */
-  add(pred, o) {
-    this.getMetadata().add(this.getResourceURI(), pred, o);
+  add(predicate, object) {
+    this.getMetadata().add(this.getResourceURI(), predicate, object);
     return this;
   }
 
   /**
-   * Same as entry.getMetadata().addL(entry.getResourceURI(), pred, lit, lang)
+   * Same as entry.getMetadata().addL(entry.getResourceURI(), predicate, literal, lang)
    * but instead of returning the created statement it returns the entry itself,
    * allowing chained method calls.
    *
-   * @param {string} pred the predicate
-   * @param {string} lit the literal value
+   * @param {string} predicate the predicate
+   * @param {string} literal the literal value
    * @param {string} language an optional language
-   * @returns {module:store/Entry}
+   * @returns {store/Entry}
    */
-  addL(pred, lit, langugage) {
-    this.getMetadata().addL(this.getResourceURI(), pred, lit, langugage);
+  addL(predicate, literal, language) {
+    this.getMetadata().addL(this.getResourceURI(), predicate, literal, language);
     return this;
   }
 
   /**
-   * Same as entry.getMetadata().addD(entry.getResourceURI(), pred, lit, lang)
+   * Same as entry.getMetadata().addD(entry.getResourceURI(), predicate, literal, lang)
    * but instead of returning the created statement it returns the entry itself,
    * allowing chained method calls.
    *
-   * @param {string} pred the predicate
-   * @param {string} lit the literal value
-   * @param {string} dt the datatype (should be a string)
-   * @returns {module:store/Entry}
+   * @param {string} predicate the predicate
+   * @param {string} literal the literal value
+   * @param {string} datatype the datatype (should be a string)
+   * @returns {store/Entry}
    */
-  addD(pred, lit, dt) {
-    this.getMetadata().addD(this.getResourceURI(), pred, lit, dt);
+  addD(predicate, literal, datatype) {
+    this.getMetadata().addD(this.getResourceURI(), predicate, literal, datatype);
     return this;
   }
 
   /**
-   * Cached external metadata can only be provided for entries with entrytype
-   * reference or linkreference.
+   * Cached external metadata can only be provided for entries with entry type
+   * reference or link reference.
    *
    * @return {rdfjson/Graph} - a RDF graph with cached external metadata, typically containing
    * statements about the resourceURI. The returned graph may be empty but never null
@@ -219,31 +221,34 @@ class Entry {
    * e.g. with commitCachedExternalMetadata.
    */
   setCachedExternalMetadata(graph) {
-    this._cachedExternalMetadata = graph || this._cachedExternalMetadata;
+    if (graph) {
+      this._cachedExternalMetadata = graph;
+    }
+
     return this;
   }
 
   /**
    * Pushes the current cached external metadata graph for this entry to the repository.
    *
-   * @return {entryPromise} a promise that on success will contain the current updated entry.
+   * @return {Promise.<store/Entry>} a promise that on success will contain the current updated entry.
    */
   commitCachedExternalMetadata() {
-    const self = this;
     const es = this.getEntryStore();
     const mod = this.getEntryInfo().getModificationDate();
-    const d = es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
+    const promise = es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
       JSON.stringify(this._cachedExternalMetadata.exportRDFJSON()), mod)
       .then(() => {
-        self.setRefreshNeeded(true);
-        return self.refresh().then(() => self, () => {
-          // Failed refreshing, but succeded at saving metadata,
+        this.setRefreshNeeded(true);
+        return this.refresh().then(() => this, () => {
+          // Failed refreshing, but succeeded at saving metadata,
           // at least send out message that it needs to be refreshed.
-          self.getEntryStore().getCache().message('refreshed', self);
-          return self;
+          this.getEntryStore().getCache().message('refreshed', this);
+          return this;
         });
       });
-    return es.handleAsync(d, 'commitCachedExternalMetadata');
+
+    return es.handleAsync(promise, 'commitCachedExternalMetadata');
   }
 
   /**
@@ -266,24 +271,24 @@ class Entry {
    * For all other resources it will work if the resource, e.g. a Graph,
    * a String etc. is already loaded. If it is not loaded null will be returned.
    *
-   * @returns {store/Resource|resourcePromise}
+   * @returns {store/Resource | Promise.<store/Resource>}
    */
-  getResource(direct) {
+  getResource(direct = false) {
     if (direct) {
       return this._resource;
     }
     const es = this.getEntryStore();
-    let p;
+    let promise;
     if (this._resource) {
-      p = Promise.resolve(this._resource);
+      promise = Promise.resolve(this._resource);
     } else {
       const format = this.isString() ? 'text' : null;
-      p = es.getREST().get(this.getResourceURI(), format).then((data) => {
+      promise = es.getREST().get(this.getResourceURI(), format).then((data) => {
         es.getFactory().updateOrCreateResource(this, { resource: data }, true);
         return this._resource;
       });
     }
-    return es.handleAsync(p, 'getResource');
+    return es.handleAsync(promise, 'getResource');
   }
 
   /**
@@ -480,19 +485,20 @@ class Entry {
    * Is the entry is a link to another entry (as either a link, linkreference or reference) the
    * linked to entry is returned in a promise.
    *
-   * @returns {entryPromise|undefined} undefined only if the entry does not link to another entry.
+   * @returns {Promise.<store/Entry>|undefined} undefined only if the entry does not link to another entry.
    */
   getLinkedEntry() {
     if (this.isLinkToEntry()) {
-      // In case the link is to the resoure URI rather than the entry URI, we extract
+      // In case the link is to the resource URI rather than the entry URI, we extract
       // the entry id and context id and rebuild the entry URI.
       const es = this.getEntryStore();
-      let uri = this.getResourceURI();
-      const eid = es.getEntryId(uri);
-      const cid = es.getContextId(uri);
-      uri = es.getEntryURI(cid, eid);
-      return es.handleAsync(this.getEntryStore().getEntry(uri), 'getLinkedEntry');
+      const resourceURI = this.getResourceURI();
+      const entryId = es.getEntryId(resourceURI);
+      const contextId = es.getContextId(resourceURI);
+      const entryURI = es.getEntryURI(contextId, entryId);
+      return es.handleAsync(this.getEntryStore().getEntry(entryURI), 'getLinkedEntry');
     }
+
     return undefined;
   }
 
@@ -565,18 +571,17 @@ class Entry {
    * which specifies the default access is not cached, otherwise a boolean is returned.
    */
   isPublic() {
-    const guestprincipal = this.getEntryStore().getResourceURI('_principals', '_guest');
+    const guestPrincipal = this.getEntryStore().getResourceURI('_principals', '_guest');
     let acl = this.getEntryInfo().getACL();
     if (acl.contextOverride) {
-      return ['rwrite', 'rread', 'mwrite', 'mread'].some(key =>
-        acl[key].indexOf(guestprincipal) !== -1);
+      return ['rwrite', 'rread', 'mwrite', 'mread'].some(key => acl[key].indexOf(guestPrincipal) !== -1);
     }
     const ce = this.getContext().getEntry(true);
     if (ce == null) {
       return undefined;
     }
     acl = ce.getEntryInfo().getACL();
-    return ['rwrite', 'rread'].some(key => acl[key].indexOf(guestprincipal) !== -1);
+    return ['rwrite', 'rread'].some(key => acl[key].indexOf(guestPrincipal) !== -1);
   }
 
   /**
@@ -615,17 +620,17 @@ class Entry {
    * Deletes this entry without any option to recover it.
    * @param {boolean} recursive if true and the entry is a list it will delete the entire tree of
    * lists and all entries that is only contained in the current list or any of its child lists.
-   * @return {dojo/promise/Promise} which on success indicates that the deletion has succeded.
+   * @return {Promise} which on success indicates that the deletion has succeeded.
    */
-  del(recursive) {
+  del(recursive = false) {
     const es = this.getEntryStore();
-    const unCache = () => {
-      es.getCache().unCache(this);
-    };
+    const unCache = () => es.getCache().unCache(this);
+
     if (recursive === true) {
       return es.handleAsync(es.getREST().del(`${this.getURI()}?recursive=true`)
         .then(unCache), 'delEntry');
     }
+
     return es.handleAsync(es.getREST().del(this.getURI()).then(unCache), 'delEntry');
   }
 
@@ -638,7 +643,7 @@ class Entry {
    * listeners of the cache) for this entry if the value is false or undefined.
    * @see store.Entry#refresh.
    */
-  setRefreshNeeded(silently) {
+  setRefreshNeeded(silently = true) {
     this.getEntryStore().getCache().setRefreshNeeded(this, silently);
   }
 
@@ -657,10 +662,10 @@ class Entry {
    * @param {boolean=} silently the cache will send out a refresh message for this entry
    * if a refresh was needed AND if the value of silently is false or undefined. If force is true
    * it will send out a refresh message anyhow.
-   * @param {force=} if true the entry will be refreshed independent if it was marked in need
+   * @param {boolean=} [force=false] If true the entry will be refreshed independent if it was marked in need
    * of a refresh or not.
    */
-  refresh(silently, force) {
+  refresh(silently = true, force = false) {
     const es = this.getEntryStore();
     let p;
     if (force === true || es.getCache().needRefresh(this)) {
@@ -677,24 +682,3 @@ class Entry {
     return es.handleAsync(p, 'refresh');
   }
 };
-
-export default Entry;
-
-/**
- * Promise that provides an {@link store/Entry} on success.
- *
- * @name entryPromise
- * @extends dojo/promise/Promise
- * @class
- */
-/**
- * @name entryPromise#then
- * @param {entryCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * This is a successful callback method to be provided as first argument in a {@link entryPromise}
- *
- * @callback entryCallback
- * @param {store/Entry} entry
- */

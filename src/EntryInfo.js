@@ -224,7 +224,7 @@ const EntryInfo = class {
    * @param {boolean} asIds - if true the principalURIs are shortened to entry identifiers.
    * @return {Object} an acl object.
    */
-  getACL(asIds) {
+  getACL(asIds = false) {
     const factory = this._entryStore.getFactory();
     const f = function (stmt) {
       if (asIds) {
