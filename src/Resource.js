@@ -48,7 +48,7 @@ class Resource {
    * in cache, only happens sometimes for Contexts) otherwise a promise is returned that on
    * success provides the entry for this resource.
    */
-  getEntry(direct) {
+  getEntry(direct = false) {
     return this._entryStore.getEntry(this._entryURI, { direct });
   }
 

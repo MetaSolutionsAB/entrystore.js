@@ -59,7 +59,7 @@ export default class {
       return Promise.resolve(this.userInfo);
     }
     if (!this._uiDef) {
-      this._uiDef = this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`, null, true);
+      this._uiDef = this.entrystore.getREST().get(`${this.entrystore._baseURI}auth/user`, null, true);
       this.entrystore.handleAsync(this._uiDef, 'getUserInfo');
       this.userInfo = await this._uiDef;
       delete this._uiDef;
@@ -113,7 +113,7 @@ export default class {
     if (typeof auth === 'object' && auth.user) {
       return auth;
     }
-    const userInfo = await this.entrystore._rest.get(`${this.entrystore._baseURI}auth/user`, null, true);
+    const userInfo = await this.entrystore.getREST().get(`${this.entrystore._baseURI}auth/user`, null, true);
 
     if (this._uiDef) {
       this._uiDef.cancel();

@@ -1,17 +1,16 @@
-/* global define*/
-import StringResource from './String';
-import types from './types';
-import PrototypeEntry from './PrototypeEntry';
-import Resource from './Resource';
 import GraphResource from './Graph';
 import Pipeline from './Pipeline';
+import PrototypeEntry from './PrototypeEntry';
+import Resource from './Resource';
+import StringResource from './String';
+import types from './types';
 
 /**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
  *
  * @exports store/Context
  */
-const Context = class extends Resource {
+export default class Context extends Resource {
   /**
    * Retrieves a list of entries in the context.
    *
@@ -21,12 +20,11 @@ const Context = class extends Resource {
    * {@see store/EntryStore#getEntry getEntry} method.
    * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify
    * which page to load, first page is 0.
-   * @returns {entryArrayPromise} upon success the promise returns an array of entries.
+   * @returns {Promise.<store/Entry[]>} upon success the promise returns an array of entries.
    * @see store/EntryStore#getListEntries
    */
   listEntries(sort, limit, page) {
-    return this.getEntryStore().getListEntries(`${this._resourceURI}/entry/_all`,
-      sort, limit, page);
+    return this.getEntryStore().getListEntries(`${this._resourceURI}/entry/_all`, sort, limit, page);
   }
 
   /**
@@ -34,10 +32,10 @@ const Context = class extends Resource {
    *
    * @param {string} entryId
    * @param {object} optionalLoadParams same parameter as in {@see store/EntryStore#getEntry}
-   * @returns {entryPromise}
+   * @returns {Promise.<store/Entry>}
    * @see store/EntryStore#getEntry
    */
-  getEntryById(entryId, optionalLoadParams) {
+  getEntryById(entryId, optionalLoadParams = {}) {
     return this.getEntryStore().getEntry(this.getEntryURIbyId(entryId), optionalLoadParams);
   }
 
@@ -75,7 +73,7 @@ const Context = class extends Resource {
    * @returns {store/PrototypeEntry}
    */
   newNamedEntry(id) {
-    return (new PrototypeEntry(this, id)).setResourceType(types.RT_NAMEDRESOURCE);
+    return new PrototypeEntry(this, id).setResourceType(types.RT_NAMEDRESOURCE);
   }
 
   /**
@@ -99,14 +97,16 @@ const Context = class extends Resource {
    * actually create it (returns a promise).
    *
    * @param {string} link - is the URI for the resource we are making a link to, mandatory.
-   * @param {string} metadatalink - is the URI for the metadata are referring to, mandatory.
+   * @param {string} metadataLink - is the URI for the metadata are referring to, mandatory.
    * @param {string=} id - id for the entry, fails after commit if an entry exists already
    * with this id.
    * @returns {store/PrototypeEntry}
    */
-  newLinkRef(link, metadatalink, id) {
-    return new PrototypeEntry(this, id).setResourceURI(link)
-      .setExternalMetadataURI(metadatalink).setEntryType(types.ET_LINKREF);
+  newLinkRef(link, metadataLink, id) {
+    return new PrototypeEntry(this, id)
+      .setResourceURI(link)
+      .setExternalMetadataURI(metadataLink)
+      .setEntryType(types.ET_LINKREF);
   }
 
   /**
@@ -117,14 +117,16 @@ const Context = class extends Resource {
    * of LinkReference which implies that there is no local metadata.
    *
    * @param {string} link - the URI for the resource we are making a link to, mandatory.
-   * @param {string} metadatalink - the URI for the metadata are referring to, mandatory.
+   * @param {string} metadataLink - the URI for the metadata are referring to, mandatory.
    * @param {string=} id for the entry, fails after commit if an entry exists already with
    * this id.
    * @returns {store/PrototypeEntry}
    */
-  newRef(link, metadatalink, id) {
-    return new PrototypeEntry(this, id).setResourceURI(link)
-      .setExternalMetadataURI(metadatalink).setEntryType(types.ET_REF);
+  newRef(link, metadataLink, id) {
+    return new PrototypeEntry(this, id)
+      .setResourceURI(link)
+      .setExternalMetadataURI(metadataLink)
+      .setEntryType(types.ET_REF);
   }
 
   /**
@@ -147,17 +149,18 @@ const Context = class extends Resource {
    * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
-   * @param {rdfjson.Graph} graph - graph to store as a resource.
+   * @param {rdfjson/Graph} graph - graph to store as a resource.
    * @param {string=} id - id for the entry, fails upon commit if an entry exists already
    * with this id.
    * @returns {store/PrototypeEntry}
    */
   newGraph(graph, id) {
-    const pe = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
-    const ei = pe.getEntryInfo();
-    pe._resource = new GraphResource(ei.getEntryURI(), ei.getResourceURI(),
+    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
+    const entryInfo = prototypeEntry.getEntryInfo();
+    prototypeEntry._resource = new GraphResource(entryInfo.getEntryURI(), entryInfo.getResourceURI(),
       this.getEntryStore(), graph || {});
-    return pe;
+
+    return prototypeEntry;
   }
 
   /**
@@ -172,11 +175,12 @@ const Context = class extends Resource {
    * @returns {store/PrototypeEntry}
    */
   newString(str, id) {
-    const pe = new PrototypeEntry(this, id).setGraphType(types.GT_STRING);
-    const ei = pe.getEntryInfo();
-    pe._resource = new StringResource(ei.getEntryURI(),
-      ei.getResourceURI(), this.getEntryStore(), str);
-    return pe;
+    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_STRING);
+    const entryInfo = prototypeEntry.getEntryInfo();
+    prototypeEntry._resource = new StringResource(entryInfo.getEntryURI(),
+      entryInfo.getResourceURI(), this.getEntryStore(), str);
+
+    return prototypeEntry;
   }
 
   /**
@@ -190,10 +194,11 @@ const Context = class extends Resource {
    * @returns {store/PrototypeEntry}
    */
   newPipeline(id) {
-    const pe = new PrototypeEntry(this, id).setGraphType(types.GT_PIPELINE);
-    const ei = pe.getEntryInfo();
-    pe._resource = new Pipeline(ei.getEntryURI(), ei.getResourceURI(), this.getEntryStore(), {});
-    return pe;
+    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_PIPELINE);
+    const entryInfo = prototypeEntry.getEntryInfo();
+    prototypeEntry._resource = new Pipeline(entryInfo.getEntryURI(), entryInfo.getResourceURI(), this.getEntryStore(), {});
+
+    return prototypeEntry;
   }
 
   /**
@@ -206,34 +211,35 @@ const Context = class extends Resource {
   }
 
   /**
-   * Change of context name, succeds if name is not in use already by another context.
+   * Change of context name, succeeds if name is not in use already by another context.
    * @param {string} name
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setName(name) {
-    const oldname = this._name;
+    const oldName = this._name;
     this._name = name;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(`${this.getEntryURI()}/name`, JSON.stringify({ name })).then((data) => {
-      const e = this.getEntry(true);
-      if (e) {
-        e.getEntryInfo()._name = data;
-      }
-      return data;
-    }, (e) => {
-      this._name = oldname;
-      throw e;
-    }), 'setContextName');
+    return this.getEntryStore().handleAsync(this.getEntryStore().getREST()
+      .put(`${this.getEntryURI()}/name`, JSON.stringify({ name })).then((data) => {
+        const entry = this.getEntry(true);
+        if (entry) {
+          entry.getEntryInfo()._name = data;
+        }
+        return data;
+      }, (e) => {
+        this._name = oldName;
+        throw e;
+      }), 'setContextName');
   }
 
   /**
    * Finds the user or group that has this context as homecontext if any.
    *
-   * @returns {entryPromise} if succeeds if context a homecontext of some user or group.
+   * @returns {Promise.<store/Entry>} if succeeds if context a homecontext of some user or group.
    */
   getHomeContextOf() {
-    return this.getEntry().then((ctxtEntry) => {
-      const es = ctxtEntry.getEntryStore();
-      const groupResourceArr = ctxtEntry.getReferrers('store:homeContext');
+    return this.getEntry().then((contextEntry) => {
+      const es = contextEntry.getEntryStore();
+      const groupResourceArr = contextEntry.getReferrers('store:homeContext');
       if (groupResourceArr.length > 0) {
         return es.getEntry(es.getEntryURIFromURI(groupResourceArr[0]));
       }
@@ -245,5 +251,3 @@ const Context = class extends Resource {
     this._name = data.alias || data.name; // TODO, change to only name after clean-up
   }
 };
-
-export default Context;

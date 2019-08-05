@@ -1,14 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import SolrQuery from './SolrQuery';
+import Auth from './Auth';
 import Cache from './Cache';
-import Rest from './Rest';
 import factory from './factory';
-import types from './types';
 import PrototypeEntry from './PrototypeEntry';
 import Resource from './Resource';
+import Rest from './Rest';
+import SolrQuery from './SolrQuery';
+import types from './types';
 import User from './User';
-import Auth from './Auth';
-import {isBrowser} from './utils';
+import { isBrowser } from './utils';
 
 const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @Hannes
 
@@ -228,7 +228,7 @@ export default class EntryStore {
    *
    * @param {string} entryURI - the entryURI for the entry to retrieve.
    * @param {Object=} optionalLoadParams - parameters for how to load an entry.
-   * @return {entryPromise | store/Entry | undefined} - by default a promise is returned,
+   * @return {Promise.<store/Entry> | store/Entry | undefined} - by default a promise is returned,
    * if the direct parameter is specified the entry is returned directly or undefined if the
    * entry is not in cache.
    * @see {@link store/EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
@@ -285,35 +285,30 @@ export default class EntryStore {
    * {@see store/EntryStore#getEntry getEntry} method.
    * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify which
    * page to load, first page is 0.
-   * @returns {entryArrayPromise} upon success the promise returns an array of entries.
+   * @returns {Promise.<store/Entry[]>} upon success the promise returns an array of entries.
    */
   getListEntries(entryURI, sort, limit, page) {
-    const d = new Promise();
-    const op = {};
-    if (sort != null) {
-      op.sort = sort;
-    }
-    if (limit % 1 === 0) {
-      op.limit = limit;
-    }
-    if (page % 1 === 0) {
-      if (limit % 1 === 0) {
-        op.offset = limit * page;
-      } else {
-        op.offset = factory.getDefaultLimit() * page;
+    return new Promise((resolve, reject) => {
+      const op = {};
+      if (sort != null) {
+        op.sort = sort;
       }
-    }
-    this.getEntryStore().getEntry(entryURI, op).then((entry) => {
-      const list = entry.getResource(true);
-      list.getEntries(page).then((entries) => {
-        d.resolve(entries, list);
-      }, (err) => {
-        d.reject(err);
-      });
-    }, (err) => {
-      d.reject(err);
+      if (limit % 1 === 0) {
+        op.limit = limit;
+      }
+      if (page % 1 === 0) {
+        if (limit % 1 === 0) {
+          op.offset = limit * page;
+        } else {
+          op.offset = factory.getDefaultLimit() * page;
+        }
+      }
+      this.getEntryStore().getEntry(entryURI, op)
+        .then((entry) => {
+          const list = entry.getResource(true);
+          list.getEntries(page).then(resolve, reject);
+        }, reject);
     });
-    return d.promise;
   }
 
   /**
@@ -422,7 +417,7 @@ export default class EntryStore {
     if (contextname != null) {
       const ei = pe.getEntryInfo();
       const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({name: contextname});
+      resource._update({ name: contextname });
       pe._resource = resource;
     }
     return pe;
@@ -476,7 +471,7 @@ export default class EntryStore {
     if (groupname != null) {
       const ei = pe.getEntryInfo();
       const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({name: groupname});
+      resource._update({ name: groupname });
       pe._resource = resource;
     }
     return pe;
@@ -539,7 +534,7 @@ export default class EntryStore {
     return this.handleAsync(this.getREST().putFile(`${this.getBaseURI()}echo`, data, 'text')
       .then((rawData) => {
         const response = rawData.text;
-        if (response){
+        if (response) {
           const idx = response.indexOf('\n'); // this checks if
           const status = parseInt(response.substr(0, idx).split(':')[1], 10);
           if (status !== 200) {
@@ -702,7 +697,7 @@ export default class EntryStore {
    */
   info() {
     const packageJSON = require('../package.json');
-    return {version: packageJSON.version};
+    return { version: packageJSON.version };
   }
 
   getFactory() {
@@ -716,11 +711,6 @@ export default class EntryStore {
  * @param {string} callType
  */
 
-/**
- * @name entryArrayPromise
- * @extends xhrPromise
- * @class
- */
 /**
  * @name entryArrayPromise#then
  * @param {entryArrayCallback} onSuccess provides an array of Entries
