@@ -6,7 +6,7 @@ import Resource from './Resource';
  *
  * @exports store/User
  */
-class User extends Resource {
+export default class User extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
@@ -67,7 +67,7 @@ class User extends Resource {
     const oldlanguage = this._data.language;
     this._data.language = language;
     const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({language}))
+    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ language }))
       .then(data => data, (e) => {
         this._data.language = oldlanguage;
         throw e;
@@ -83,7 +83,7 @@ class User extends Resource {
   setPassword(password) {
     const es = this._entryStore;
     return es.handleAsync(es.getREST().put(this._resourceURI,
-      JSON.stringify({password})), 'setUserPassword');
+      JSON.stringify({ password })), 'setUserPassword');
   }
 
   /**
@@ -107,7 +107,7 @@ class User extends Resource {
     const olddisabled = this._data.disabled === true;
     this._data.disabled = disabled;
     return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      JSON.stringify({disabled}))
+      JSON.stringify({ disabled }))
       .then((data) => {
         const e = this.getEntry(true);
         if (e) {
@@ -140,7 +140,7 @@ class User extends Resource {
     this._data.homecontext = contextId;
     const es = this._entryStore;
     return es.handleAsync(es.getREST().put(this._resourceURI,
-      JSON.stringify({homecontext: contextId}))
+      JSON.stringify({ homecontext: contextId }))
       .then(data => data, (e) => {
         this._data.homecontext = oldhc;
         throw e;
@@ -167,7 +167,7 @@ class User extends Resource {
     this._data.customProperties = customProperties;
     const es = this._entryStore;
     return es.handleAsync(es.getREST().put(this._resourceURI,
-      JSON.stringify({customProperties}))
+      JSON.stringify({ customProperties }))
       .then(data => data, (e) => {
         this._data.customProperties = oldcp;
         throw e;
@@ -178,5 +178,3 @@ class User extends Resource {
     return this._data;
   }
 }
-
-export default User;
