@@ -195,7 +195,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * @deprecated use {@link store/PrototypeEntry#commit commit} instead.
-   * @returns {entryPromise}
+   * @returns {Promise.<store/Entry>}
    */
   create() {
     return this._context.getEntryStore().createEntry(this);
@@ -204,7 +204,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Create a new entry according to the information specified in the prototype entry.
    *
-   * @returns {entryPromise}
+   * @returns {Promise.<store/Entry>}
    * @see store/EntryStore#createEntry
    */
   commit() {

@@ -1,7 +1,7 @@
+import md5 from 'blueimp-md5';
 import superagent from 'superagent';
 import xmldom from 'xmldom';
 import { isBrowser } from './utils';
-import md5 from 'blueimp-md5';
 
 const jsonp = require('superagent-jsonp');
 

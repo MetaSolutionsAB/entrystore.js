@@ -46,7 +46,7 @@ export default class Resource {
    * > resource is that such an approach, depending on the use-case, may lead to dramatic
    * > increases in the amount of requests to the repository._
    *
-   * @return {entryPromise|store/Entry} if direct=true an Entry is returned (or undefined if not
+   * @return {Promise.<store/Entry>|store/Entry} if direct=true an Entry is returned (or undefined if not
    * in cache, only happens sometimes for Contexts) otherwise a promise is returned that on
    * success provides the entry for this resource.
    */
@@ -89,23 +89,3 @@ export default class Resource {
     return this._data;
   }
 }
-
-/**
- * @name resourcePromise
- * @extends dojo/promise/Promise
- * @class
- */
-
-/**
- * @name resourcePromise#then
- * @param {entryCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-
-/**
- * This is a successful callback method to be provided as first argument in a
- * {@link resourcePromise}
- *
- * @callback resourceCallback
- * @param {store/Resource} resource
- */

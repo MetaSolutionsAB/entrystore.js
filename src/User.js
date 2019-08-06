@@ -31,21 +31,20 @@ export default class User extends Resource {
    * Set a new name (username), it will not succeed if it is already in use, for instance by
    * another user or group.
    * @param {string} name
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setName(name) {
-    const oldname = this._data.name;
+    const oldName = this._data.name;
     this._data.name = name;
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ name }))
+    return this._entryStore.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ name }))
       .then((data) => {
-        const e = this.getEntry(true);
-        if (e) {
-          e.getEntryInfo()._name = name;
+        const entry = this.getEntry(true);
+        if (entry) {
+          entry.getEntryInfo()._name = name;
         }
         return data;
       }, (e) => {
-        this._data.name = oldname;
+        this._data.name = oldName;
         throw e;
       }), 'setUserName');
   }
@@ -61,15 +60,14 @@ export default class User extends Resource {
   /**
    * Sets the preferred language of a user.
    * @param {string} language
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setLanguage(language) {
-    const oldlanguage = this._data.language;
+    const oldLang = this._data.language;
     this._data.language = language;
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ language }))
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ language }))
       .then(data => data, (e) => {
-        this._data.language = oldlanguage;
+        this._data.language = oldLang;
         throw e;
       }), 'setUserLanguage');
   }
@@ -78,11 +76,10 @@ export default class User extends Resource {
    * Set a new password for the user.
    *
    * @param {string} password - a new password, should be at least 8 characters long.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setPassword(password) {
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI,
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
       JSON.stringify({ password })), 'setUserPassword');
   }
 
@@ -98,24 +95,24 @@ export default class User extends Resource {
   /**
    * Set the user to be disabled or not.
    * @param {boolean} disabled
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setDisabled(disabled) {
     if (disabled === this.isDisabled()) {
       return Promise.resolve(true);
     }
-    const olddisabled = this._data.disabled === true;
+    const oldDisabled = this._data.disabled === true;
     this._data.disabled = disabled;
     return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
       JSON.stringify({ disabled }))
       .then((data) => {
-        const e = this.getEntry(true);
-        if (e) {
-          e.getEntryInfo()._disabled = disabled;
+        const entry = this.getEntry(true);
+        if (entry) {
+          entry.getEntryInfo()._disabled = disabled;
         }
         return data;
       }, (e) => {
-        this._data.disabled = olddisabled;
+        this._data.disabled = oldDisabled;
         throw e;
       }), 'setUserDisabled');
   }
@@ -133,16 +130,15 @@ export default class User extends Resource {
    * Set a new home context for this user.
    *
    * @param {string} contextId - a context id (not the full resource URI).
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setHomeContext(contextId) {
-    const oldhc = this._data.homecontext;
+    const oldHomeContext = this._data.homecontext;
     this._data.homecontext = contextId;
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI,
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
       JSON.stringify({ homecontext: contextId }))
       .then(data => data, (e) => {
-        this._data.homecontext = oldhc;
+        this._data.homecontext = oldHomeContext;
         throw e;
       }), 'setUserHomeContext');
   }
@@ -159,21 +155,24 @@ export default class User extends Resource {
   /**
    * Set a new home context for this user.
    *
-   * @param {string} contextId - a context id (not the full resource URI).
-   * @returns {xhrPromise}
+   * @param {object} customProperties
+   * @returns {Promise}
    */
   setCustomProperties(customProperties) {
-    const oldcp = this._data.customProperties;
+    const oldCustomProperties = this._data.customProperties;
     this._data.customProperties = customProperties;
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI,
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
       JSON.stringify({ customProperties }))
       .then(data => data, (e) => {
-        this._data.customProperties = oldcp;
+        this._data.customProperties = oldCustomProperties;
         throw e;
       }), 'setUserCustomProperties');
   }
 
+  /**
+   *
+   * @return {Object}
+   */
   getSource() {
     return this._data;
   }

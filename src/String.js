@@ -1,10 +1,11 @@
 import Resource from './Resource';
+
 /**
  * String is a resource for handling simple strings of data.
  *
  * @exports store/String
  */
-const StringResource = class extends Resource {
+export default class StringResource extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
@@ -29,7 +30,7 @@ const StringResource = class extends Resource {
    *     stringresource.setString("New value").commit().then(function() {...});
    *
    * @param {string} string - the new string
-   * @returns {store/String} allows chaining with commit.
+   * @returns {store/StringResource} allows chaining with commit.
    * @see store/String#commit
    */
   setString(string) {
@@ -40,17 +41,14 @@ const StringResource = class extends Resource {
   /**
    * Pushes the string back to the repository.
    *
-   * @returns {xhrPromise}
+   * @returns {Promise}
    * @see store/String#setString
    */
   commit() {
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, this._data), 'commitString');
+    return this._entryStore.handleAsync(es.getREST().put(this._resourceURI, this._data), 'commitString');
   }
 
   getSource() {
     return this._data;
   }
-};
-
-export default StringResource;
+}
