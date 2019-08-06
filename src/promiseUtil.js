@@ -18,7 +18,7 @@ const promiseUtil = {};
  *
  * @param {array|object} items
  * @param {function} func a function that is applied to each item and must return a promise
- * @returns {forEachPromise}
+ * @returns {Promise}
  */
 promiseUtil.forEach = (items, func) => new Promise((resolve, reject) => {
   let arr;
@@ -65,7 +65,7 @@ promiseUtil.forEach = (items, func) => new Promise((resolve, reject) => {
  * Makes sure a value is a promise, if needed wraps it as a promise.
  * If the value the false boolean it is interpreted as a reject.
  *
- * @param value the value to wrap in a promise, if it already is a promise it is returned.
+ * @param {any|Promise} value the value to wrap in a promise, if it already is a promise it is returned.
  * @return {Promise}
  */
 promiseUtil.toPromise = (value) => {
@@ -90,19 +90,4 @@ promiseUtil.toPromise = (value) => {
 promiseUtil.delay = millisecs => new Promise(resolve => setTimeout(resolve, millisecs));
 
 export default promiseUtil;
-
-/**
- * @name forEachPromise
- * @extends dojo/promise/Promise
- * @class
- */
-/**
- * @name forEachPromise#then
- * @param {forEachCallback} onSuccess
- * @param {function} onError
- */
-/**
- * @callback forEachCallback
- * @param {array|object} result
- */
 

@@ -7,7 +7,7 @@ import terms from './terms';
  *
  * @exports store/Group
  */
-const Group = class extends List {
+export default class Group extends List {
   /**
    * Get the name of the group, this is a a unique name (username) in the current
    * repository's _principals context.
@@ -21,21 +21,21 @@ const Group = class extends List {
    * Set a new name of the group, it will not succeed if it is already in use, for instance by
    * another user or group.
    * @param {string} name
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   setName(name) {
-    const oldname = this._name;
+    const oldName = this._name;
     this._name = name;
     return this._entryStore.handleAsync(this._entryStore.getREST().put(
       `${this.getEntryURI()}/name`, JSON.stringify({ name }))
       .then((data) => {
-        const e = this.getEntry(true);
-        if (e) {
-          e.getEntryInfo()._name = data;
+        const entry = this.getEntry(true);
+        if (entry) {
+          entry.getEntryInfo()._name = data;
         }
         return data;
       }, (e) => {
-        this._name = oldname;
+        this._name = oldName;
         throw e;
       }), 'setGroupName');
   }
@@ -65,7 +65,7 @@ const Group = class extends List {
    * @param {boolean} doNotPushToRepository if true the changes will be made in the
    * entryinformation but it will not be pushed to the respository. To do this you need to get
    * a hold of the entryinformation and call commit.
-   * @returns {entryInfoPromise|undefined}
+   * @returns {Promise.<store/EntryInfo>|undefined}
    */
   setHomeContext(contextId, doNotPushToRepository) {
     const es = this.getEntryStore();
@@ -80,11 +80,15 @@ const Group = class extends List {
     return undefined;
   }
 
-  // Data contains allUnsorted array, size, and children.
+  /**
+   *
+   * Data contains allUnsorted array, size, and children.
+   * @param data
+   * @param children
+   * @private
+   */
   _update(data, children) {
     super._update(data, children);
     this._name = data.name;
   }
-};
-
-export default Group;
+}

@@ -1,5 +1,5 @@
-import terms from './terms';
 import GraphResource from './Graph';
+import terms from './terms';
 
 /**
  * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
@@ -7,7 +7,7 @@ import GraphResource from './Graph';
  *
  * @exports store/Pipeline
  */
-const Pipeline = class extends GraphResource {
+export default class Pipeline extends GraphResource {
   /**
    * The destination where the result (in the form of a single RDF graph) should
    * end up (within the specified entry's graph resource).
@@ -96,7 +96,7 @@ const Pipeline = class extends GraphResource {
    * Finds a transform with the given type and returns its id.
    *
    * @param transformType the transform type to look for
-   * @returns {string} transform id, undefined if no transform was found for the given type
+   * @returns {string|undefined} transform id, undefined if no transform was found for the given type
    */
   getTransformForType(transformType) {
     let transformId;
@@ -107,6 +107,7 @@ const Pipeline = class extends GraphResource {
         transformId = trId;
       }
     }, this);
+
     return transformId;
   }
 
@@ -127,6 +128,7 @@ const Pipeline = class extends GraphResource {
     this.setTransformType(id, type);
     this.setPriority(id, priority + 1);
     this.setTransformArguments(id, args);
+
     return id;
   }
 
@@ -146,7 +148,7 @@ const Pipeline = class extends GraphResource {
   /**
    * Changes the order of the transforms by changing their priority properties.
    *
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   * @param {Array} transforms
    * [getTransforms]{@link store/Pipeline#getTransforms}.
    * @see store/Pipeline#getTransforms
    */
@@ -162,7 +164,7 @@ const Pipeline = class extends GraphResource {
   /**
    * @param {String} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @returns {float} the priority as a float.
+   * @returns {number} the priority as a float.
    */
   getPriority(transformId) {
     let prio = this._graph.findFirstValue(transformId, terms.pipeline.transformPriority);
@@ -179,7 +181,7 @@ const Pipeline = class extends GraphResource {
    * It is recommended to use setOrderOfTransforms instead.
    * @param {String} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @returns {float} the priority as a float.
+   * @param {number} prio the priority as a float.
    * @see store/Pipeline#setOrderOfTransforms
    */
   setPriority(transformId, prio) {
@@ -213,7 +215,7 @@ const Pipeline = class extends GraphResource {
    * @param {String} transformId the blank node of a specific transform as retrieved
    * by [getTransforms]{@link store/Pipeline#getTransforms}.  If no id is provided
    * arguments from all transforms will be returned in a single merged object.
-   * @returns {Object} the arguments for a transform (or all transforms) as an object
+   * @returns {Object|undefined} the arguments for a transform (or all transforms) as an object
    * hash with property value pairs.
    */
   getTransformArguments(transformId) {
@@ -227,6 +229,7 @@ const Pipeline = class extends GraphResource {
       args = args || {};
       args[key] = value;
     }, this);
+
     return args;
   }
 
@@ -251,7 +254,7 @@ const Pipeline = class extends GraphResource {
    * Replaces the current arguments with those provided.
    * @param {String} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @param {Object} the arguments for the transform as an object hash with property value pairs.
+   * @param {Object} args the arguments for the transform as an object hash with property value pairs.
    */
   setTransformArguments(transformId, args) {
     const stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
@@ -261,9 +264,9 @@ const Pipeline = class extends GraphResource {
       this._graph.remove(stmt);
     }, this);
     Object.keys(args).forEach((key) => {
-      const newarg = this._graph.add(transformId, terms.pipeline.transformArgument);
-      this._graph.addL(newarg.getValue(), terms.pipeline.transformArgumentKey, key);
-      this._graph.addL(newarg.getValue(), terms.pipeline.transformArgumentValue, args[key]);
+      const newArg = this._graph.add(transformId, terms.pipeline.transformArgument);
+      this._graph.addL(newArg.getValue(), terms.pipeline.transformArgumentKey, key);
+      this._graph.addL(newArg.getValue(), terms.pipeline.transformArgumentValue, args[key]);
     });
   }
 
@@ -271,13 +274,13 @@ const Pipeline = class extends GraphResource {
    * Retrieves a transform argument value for a specific transform type and property (key).
    * @param {string} transformType
    * @param {string} property
-   * @returns {string}
+   * @returns {*|undefined}
    */
   getTransformProperty(transformType, property) {
     const tid = this.getTransformForType(transformType);
     if (tid) {
       const obj = this.getTransformArguments(tid);
-      if (obj && obj[property]) {
+      if (obj && property in obj) {
         return obj[property];
       }
     }
@@ -331,9 +334,11 @@ const Pipeline = class extends GraphResource {
       executeURI = `${sourceEntry.getContext().getResourceURI()}/execute`;
     }
     return es.handleAsync(es.getREST().post(executeURI, JSON.stringify(_params)), 'execute')
-      .then(response => response.body.result, err => {throw err});
+      .then(response => response.body.result, err => {
+        throw err
+      });
   }
-};
+}
 /**
  * Available transforms (types).
  *
@@ -348,21 +353,3 @@ Pipeline.prototype.transformTypes = {
   MERGE: 'merge',
 };
 
-export default Pipeline;
-
-/**
- * Promise that provides an array of entry URIs on success.
- *
- * @name entryURIArrayPromise
- * @extends dojo/promise/Promise
- * @class
- */
-/**
- * @name entryURIArrayPromise#then
- * @param {entryURIArrayCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * @callback entryURIArrayCallback
- * @param {string[]} entryURIArray
- */

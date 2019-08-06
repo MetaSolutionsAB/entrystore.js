@@ -1,5 +1,6 @@
 import { Graph } from 'rdfjson';
 import types from './types';
+import EntryStore from './EntryStore';
 
 /**
  * Entries are at the center of this API. Entries holds together metadata, external metadata,
@@ -284,7 +285,7 @@ export default class Entry {
     } else {
       const format = this.isString() ? 'text' : null;
       promise = es.getREST().get(this.getResourceURI(), format).then((data) => {
-        es.getFactory().updateOrCreateResource(this, { resource: data }, true);
+        EntryStore.getFactory().updateOrCreateResource(this, { resource: data }, true);
         return this._resource;
       });
     }
@@ -315,7 +316,7 @@ export default class Entry {
   getParentLists() {
     const listResourceURIArr = this.getReferrers('http://entrystore.org/terms/hasListMember');
     return listResourceURIArr.map(resURI =>
-      this.getEntryStore().getFactory().getEntryURIFromURI(this.getEntryStore(), resURI), this);
+      EntryStore.getFactory().getEntryURIFromURI(this.getEntryStore(), resURI), this);
   }
 
   /**
@@ -325,7 +326,7 @@ export default class Entry {
   getParentGroups() {
     const groupResourceURIArr = this.getReferrers('http://entrystore.org/terms/hasGroupMember');
     return groupResourceURIArr.map(resURI =>
-      this.getEntryStore().getFactory().getEntryURIFromURI(this.getEntryStore(), resURI), this);
+      EntryStore.getFactory().getEntryURIFromURI(this.getEntryStore(), resURI), this);
   }
 
   /**
@@ -670,7 +671,7 @@ export default class Entry {
     let p;
     if (force === true || es.getCache().needRefresh(this)) {
       const entryURI = this.getURI();
-      const factory = this.getEntryStore().getFactory();
+      const factory = EntryStore.getFactory();
       p = es.getREST().get(factory.getEntryLoadURI(entryURI)).then((data) => {
         factory.update(this, data);
         es.getCache().cache(this, silently);

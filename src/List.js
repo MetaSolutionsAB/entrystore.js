@@ -1,3 +1,4 @@
+import EntryStore from './EntryStore';
 import Resource from './Resource';
 
 /**
@@ -8,7 +9,7 @@ import Resource from './Resource';
  *
  * @exports store/List
  */
-const List = class extends Resource {
+export default class List extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
@@ -17,6 +18,11 @@ const List = class extends Resource {
   constructor(entryURI, resourceURI, entryStore) {
     super(entryURI, resourceURI, entryStore);
     this._cache = entryStore.getCache();
+    /**
+     * Array of entry URIs
+     * @type {Array.<string>}
+     * @private
+     */
     this._sortedChildren = [];
   }
 
@@ -37,7 +43,7 @@ const List = class extends Resource {
    * @returns {integer}
    */
   getLimit() {
-    return this._limit || this.getEntryStore().getFactory().getDefaultLimit();
+    return this._limit || EntryStore.getFactory().getDefaultLimit();
   }
 
   /**
@@ -56,11 +62,11 @@ const List = class extends Resource {
   /**
    * Retrieves an array of entries contained in this list according to the current page and
    * pagination settings.
-   * @param {integer} page - the page to request an array of entries for,
+   * @param {number} page - the page to request an array of entries for,
    * first page is numbered 0.
-   * @returns {entryArrayPromise} the promise will return an entry-array.
+   * @returns {Promise.<store/Entry[]>} the promise will return an entry-array.
    */
-  getEntries(page) {
+  getEntries(page = 0) {
     const results = this._getEntries(page);
     if (results != null) {
       return Promise.resolve(results);
@@ -73,9 +79,9 @@ const List = class extends Resource {
    * If the provided function return false for one entry the iteration is stopped and
    * the function is not called for consecutive entries.
    *
-   * @param {listEntryCallback} func
-   * @return {promise} called with two parameters, the first a boolean saying if all entries
-   * where passed, the second an index telling how many entrys iterated over.
+   * @param {Function} func
+   * @return {Promise} called with two parameters, the first a boolean saying if all entries
+   * where passed, the second an index telling how many entries iterated over.
    */
   forEach(func) {
     let page = 0;
@@ -123,17 +129,14 @@ const List = class extends Resource {
    * already when method is resolved, it depends if it is in the first page of the list.
    *
    * @param {store/Entry} entry - entry to add to the list.
-   * @returns {xhrPromise}
+   * @returns {Promise.<store/Entry>}
    */
-  addEntry(entry) {
-    const self = this;
-    return this.getAllEntryIds().then((entries) => {
-      entries.push(entry.getId());
-      return this.setAllEntryIds(entries, 'addToList').then(() => {
-        entry.setRefreshNeeded();
-        return self.getEntry();
-      });
-    });
+  async addEntry(entry) {
+    const entries = await this.getAllEntryIds();
+    entries.push(entry.getId());
+    await this.setAllEntryIds(entries, 'addToList');
+    entry.setRefreshNeeded();
+    return this.getEntry();
   }
 
   /**
@@ -143,15 +146,13 @@ const List = class extends Resource {
    * refreshed already when method is resolved, it depends if it is in the first page of the list.
    *
    * @param {store/Entry} entry - entry to be removed from the list.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
-  removeEntry(entry) {
-    return this.getAllEntryIds().then((entries) => {
-      entries.splice(entries.indexOf(entry.getId()), 1);
-      return this.setAllEntryIds(entries, 'removeFromList').then(() => {
-        entry.setRefreshNeeded();
-      });
-    });
+  async removeEntry(entry) {
+    const entries = await this.getAllEntryIds();
+    entries.splice(entries.indexOf(entry.getId()), 1);
+    await this.setAllEntryIds(entries, 'removeFromList');
+    entry.setRefreshNeeded();
   }
 
   /**
@@ -166,7 +167,7 @@ const List = class extends Resource {
   /**
    * Get a list of entry ids contained in this list.
    *
-   * @returns {stringArrayPromise} the promise will deliver an array of children entries in this
+   * @returns {Promise.<Array.<string>>} the promise will deliver an array of children entries in this
    * list as ids
    * (strings, not full URIs).
    */
@@ -181,24 +182,25 @@ const List = class extends Resource {
    * Set a list of entry ids to be contained in this list.
    *
    * @param {string[]} entries - array of entry ids (as strings, not full URIs).
-   * @returns {entryPromise}
+   * @param {string} callType
+   * @returns {Promise.<store/Entry>}
    */
   setAllEntryIds(entries, callType) {
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify(entries))
-      .then(() => {
-        this.needRefresh();
-        return es.getEntry(this.getEntryURI()).then((oentry) => {
-          oentry.setRefreshNeeded();
-          return oentry;
-        });
-      }), callType || 'setList');
+    return this._entryStore.handleAsync(
+      this._entryStore.getREST().put(this._resourceURI, JSON.stringify(entries))
+        .then(() => {
+          this.needRefresh();
+          return this._entryStore.getEntry(this.getEntryURI()).then((oentry) => {
+            oentry.setRefreshNeeded();
+            return oentry;
+          });
+        }), callType || 'setList');
   }
 
   /**
    * Get size of list.
    *
-   * @returns {integer} the amount of entries in the list, -1 if unknown.
+   * @returns {number} the amount of entries in the list, -1 if unknown.
    */
   getSize() {
     return typeof this._size === 'number' ? this._size : -1;
@@ -210,12 +212,19 @@ const List = class extends Resource {
     this._sortedChildren = [];
   }
 
-  _getEntries(page, careAboutFresh) {
+  /**
+   *
+   * @param page
+   * @param careAboutFresh
+   * @return {null|Array}
+   * @private
+   */
+  _getEntries(page = 0, careAboutFresh = false) {
     if (this._size == null) {
       return null;
     }
     const limit = this.getLimit();
-    const offset = (page || 0) * limit;
+    const offset = page * limit;
 
     let needRefresh = false;
     const results = [];
@@ -241,9 +250,15 @@ const List = class extends Resource {
     return results;
   }
 
-  _forceLoadEntries(page) {
+  /**
+   *
+   * @param page
+   * @return {*|Promise<Array | never>}
+   * @private
+   */
+  _forceLoadEntries(page = 0) {
     const limit = this.getLimit();
-    const offset = (page || 0) * limit;
+    const offset = page * limit;
     return this._entryStore.getEntry(this._entryURI, {
       forceLoad: true,
       offset,
@@ -253,7 +268,14 @@ const List = class extends Resource {
     }).then(() => this._getEntries(page, false));
   }
 
-  // Data contains allUnsorted array, size, and children.
+
+  /**
+   * Data contains allUnsorted array, size, and children.
+   *
+   * @param data
+   * @param children
+   * @private
+   */
   _update(data, children) {
     const offset = data.offset || 0;
     for (let i = 0; i < children.length; i++) {
@@ -263,30 +285,3 @@ const List = class extends Resource {
     this._unsortedChildren = data.allUnsorted || children.map(entry => entry.getId());
   }
 };
-
-export default List;
-
-/**
- * Promise that provides an array of entry ids (not full URIs) on success.
- *
- * @name stringArrayPromise
- * @extends dojo/promise/Promise
- * @class
- */
-/**
- * @name stringArrayPromise#then
- * @param {stringArrayCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * @callback stringArrayCallback
- * @param {string[]} idArray
- */
-
-/**
- * Callback in list forEach method.
- *
- * @callback listEntryCallback
- * @param {store/Entry} entry
- * @param {number} index
- */

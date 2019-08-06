@@ -6,7 +6,7 @@ import Resource from './Resource';
  *
  * @exports store/Graph
  */
-const GraphResource = class extends Resource {
+export default class GraphResource extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
@@ -35,7 +35,7 @@ const GraphResource = class extends Resource {
    *
    * @param {rdfjson/Graph} graph - the new graph, if null or undefined a new empty graph will
    * be set.
-   * @returns store/Graph - to allow chaining with commit.
+   * @returns {store/Graph} - to allow chaining with commit.
    */
   setGraph(graph) {
     this._graph = graph || new Graph();
@@ -47,7 +47,7 @@ const GraphResource = class extends Resource {
    *
    * @todo fix ifModifiedSince.
    * @param {rdfjson/Graph} graph
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   commit() {
     return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
@@ -63,9 +63,12 @@ const GraphResource = class extends Resource {
     return this._graph.exportRDFJSON();
   }
 
+  /**
+   *
+   * @param data
+   * @private
+   */
   _update(data) {
     this._graph = new Graph(data);
   }
-};
-
-export default GraphResource;
+}

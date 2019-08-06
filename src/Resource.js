@@ -1,3 +1,5 @@
+import EntryStore from './EntryStore';
+
 /**
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.
@@ -11,7 +13,7 @@
  * @see subclass {@link store/User}
  * @see subclass {@link store/Group}
  */
-class Resource {
+export default class Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
@@ -76,7 +78,7 @@ class Resource {
    * @returns {string}
    */
   getId() {
-    return this._entryStore.getFactory().getEntryId(this._entryURI);
+    return EntryStore.getFactory().getEntryId(this._entryURI);
   }
 
   _update(data) {
@@ -86,9 +88,7 @@ class Resource {
   getSource() {
     return this._data;
   }
-};
-
-export default Resource;
+}
 
 /**
  * @name resourcePromise

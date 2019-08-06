@@ -31,7 +31,7 @@ const sameOrigin = (url) => {
  *
  * @exports store/Rest
  */
-const Rest = class {
+export default class Rest {
   constructor() {
     this.timeout = 30000; // 30 seconds
     this.headers = {
@@ -129,7 +129,7 @@ const Rest = class {
       switch (format) {
         case 'application/json': // This is the default in the headers.
           break;
-        case 'appplication/xml':
+        case 'application/xml':
         case 'text/xml':
           handleAs = 'xml';
           break;
@@ -278,7 +278,7 @@ const Rest = class {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {xhrPromise}
+   * @return {*}
    */
   put(uri, data, modDate, format) {
     const locHeaders = Object.assign({}, this.headers);
@@ -307,7 +307,7 @@ const Rest = class {
    *
    * @param {String} uri of the resource that is to be deleted.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
-   * @return {xhrPromise}
+   * @return {*}
    */
   del(uri, modDate) {
     const locHeaders = Object.assign({}, this.headers);
@@ -346,22 +346,7 @@ const Rest = class {
   putFile(uri, data, format) {
     return this.post(uri, data, null, format);
   }
-};
-
-export default Rest;
-
-/**
- * @name xhrPromise
- * @extends dojo/promise/Promise
- * @class
- */
-
-/**
- * @name xhrPromise#then
- * @param {xhrSuccessCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-
+}
 /**
  * This is a succesfull callback method to be provided as first argument in a {@link entrypromise}
  *

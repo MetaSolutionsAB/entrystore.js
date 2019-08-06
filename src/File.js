@@ -1,8 +1,7 @@
-import { isBrowser } from './utils';
 import xmldom from 'xmldom';
-
-import Resource from './Resource';
 import factory from './factory';
+import Resource from './Resource';
+import { isBrowser } from './utils';
 
 /**
  * File resources are resources located in the Entrystore repository that have a graph type of
@@ -10,7 +9,7 @@ import factory from './factory';
  *
  * @exports store/File
  */
-const FileResource = class extends Resource {
+export default class FileResource extends Resource {
   /**
    * Pushes a file to the server for this resource.
    * In a browser environment a file is represented via an input tag which references
@@ -25,9 +24,9 @@ const FileResource = class extends Resource {
    * res.putFile(fs.createReadStream('file.txt'));
    *
    * @param {node|fileHandle} data - input tag or file handle that corresponds to a file.
-   * @param {text} format - indicates the mimetype of the data
+   * @param {string} format - indicates the mimetype of the data
    * @todo fix-if-modified-since
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   putFile(data, format) {
     let url;
@@ -53,9 +52,9 @@ const FileResource = class extends Resource {
    *
    * @param {string} data - to be stored as a file.
    * @param {string} format - the format of the data as a mimetype.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
-  put(data, format) {
+  put(data, format = 'application/json') {
     const es = this.getEntryStore();
     return es.handleAsync(es.getREST().put(this.getResourceURI(), data, null, format), 'putFile');
   }
@@ -64,7 +63,7 @@ const FileResource = class extends Resource {
    * Pushes text content to the server for this resource.
    *
    * @param {string} text - to be stored as a file, format will be set to text/plain.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   putText(text) {
     return this.put(text, 'text/plain');
@@ -74,7 +73,7 @@ const FileResource = class extends Resource {
    * Pushes JSON content to the server for this resource.
    *
    * @param {Object} obj - to be stored as a json object, format will be set to application/json.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   putJSON(obj) {
     return this.put(JSON.stringify(obj));
@@ -85,7 +84,7 @@ const FileResource = class extends Resource {
    *
    * @param {string|Document} xml - to be stored as a xml object, format will be set to
    * application/json.
-   * @returns {xhrPromise}
+   * @returns {Promise}
    * @todo not finished or tested
    */
   putXML(xml) {
@@ -122,17 +121,16 @@ const FileResource = class extends Resource {
   }
 
   /**
-   * @returns {xhrPromise} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise} ignores what is specified in the mimetype and returns the resource
    * as a string in the promise.
    */
   getText() {
     const es = this.getEntryStore();
-
     return es.handleAsync(this.getEntryStore().getREST().get(this.getResourceURI(), 'text/plain', true), 'getFile');
   }
 
   /**
-   * @returns {xhrPromise} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise} ignores what is specified in the mimetype and returns the resource
    * as a javascript object in the promise.
    */
   getJSON() {
@@ -141,13 +139,11 @@ const FileResource = class extends Resource {
   }
 
   /**
-   * @returns {xhrPromise} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise} ignores what is specified in the mimetype and returns the resource
    * in the promise as a XML Document or a string (depending on if you are in browser or not).
    */
   getXML() {
     const es = this.getEntryStore();
     return es.handleAsync(es.getREST().get(this.getResourceURI(), 'text/xml'), 'getFile');
   }
-};
-
-export default FileResource;
+}

@@ -30,7 +30,7 @@ const SearchList = class {
   }
 
   getLimit() {
-    return this._query.getLimit() || this._entryStore.getFactory().getDefaultLimit();
+    return this._query.getLimit() || EntryStore.getFactory().getDefaultLimit();
   }
 
   /**
