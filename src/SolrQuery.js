@@ -1,8 +1,8 @@
-import {namespaces} from 'rdfjson';
-import SearchList from './SearchList';
+import md5 from 'blueimp-md5';
+import { namespaces } from 'rdfjson';
 import Context from './Context';
 import EntryStore from './EntryStore';
-import md5 from 'blueimp-md5';
+import SearchList from './SearchList';
 
 const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:')
   .replace(/\(/g, '\\(').replace(/\)/g, '\\)'));
@@ -22,9 +22,9 @@ const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexO
  *
  * @param key
  * @param term
+ * @param isFacet
  * @return {*}
  */
-
 const solrFriendly = (key, term, isFacet) => {
   let and = term.trim().replace(/\s\s+/g, ' ');
   if (isNgram(key) && isFacet !== true) {
@@ -41,6 +41,13 @@ const solrFriendly = (key, term, isFacet) => {
   }
   return and.length === 1 ? and[0] : `(${and.join('+AND+')})`;
 };
+
+/**
+ *
+ * @param struct
+ * @param isAnd
+ * @return {string}
+ */
 const buildQuery = (struct, isAnd) => {
   const terms = [];
   Object.keys(struct).forEach((key) => {
@@ -98,7 +105,7 @@ const buildQuery = (struct, isAnd) => {
  *
  * The majority of the methods work the same way, that is they take two values, a value and a
  * possible negation flag. The value can be an array corresponding to a disjunction and if the
- * flag is set true the search string will be constructed to search for the negatation of the
+ * flag is set true the search string will be constructed to search for the negation of the
  * provided value. For example, if a graph type in the form of an array containing List and User
  * is provided together with a negation boolean set to true, the query will search for anything
  * but lists and users:
@@ -106,7 +113,7 @@ const buildQuery = (struct, isAnd) => {
  *     sq.graphType([types.GT_LIST, types.GT_USER], true)
  *
  * Supported methods on the solr object correspond in large to the available solr fields
- * documentet at, some method names are different to avoid dots:
+ * documented at, some method names are different to avoid dots:
  * {@link https://code.google.com/p/entrystore/wiki/KnowledgeBaseSearch}
  *
  * There is also a special method ({@link store/SolrQuery#getQuery getQuery}) for getting the
@@ -115,7 +122,8 @@ const buildQuery = (struct, isAnd) => {
  *
  * @exports store/SolrQuery
  */
-const SolrQuery = class {
+export default class SolrQuery {
+
   /**
    * @param {store/EntryStore} entrystore
    */
@@ -123,10 +131,28 @@ const SolrQuery = class {
     this._entrystore = entrystore;
     this.properties = [];
     this.relatedProperties = [];
-    this.params = {};
-    this.modifiers = {};
-    this._and = [];
-    this._or = [];
+    /**
+     *
+     * @type {Map<string, *>}
+     */
+    this.params = new Map();
+    /**
+     *
+     * @type {Map<string, any>}
+     */
+    this.modifiers = new Map();
+    /**
+     *
+     * @type {Set<Object>}
+     * @private
+     */
+    this._and = new Set();
+    /**
+     *
+     * @type {Set<Object>}
+     * @private
+     */
+    this._or = new Set();
     this.facetpredicates = {};
     this.relatedFacetpredicates = {};
   }
@@ -135,9 +161,9 @@ const SolrQuery = class {
    * @private
    */
   _q(key, val, modifier = null) {
-    this.params[key] = val;
+    this.params.set(key, val);
     if (modifier === null) {
-      this.modifiers[key] = modifier;
+      this.modifiers.set(key, modifier);
     }
     return this;
   }
@@ -283,11 +309,11 @@ const SolrQuery = class {
    * Matches all types of the resourceURI, i.e.
    * all URIs pointed to via rdf:type from the resourceURI.
    *
-   * @param {string|array} val
+   * @param {string|array} rdfType
    * @param {true|false|string} modifier
    * @return {store/SolrQuery}
    */
-  rdfType(rdfType, modifier) {
+  rdfType(rdfType, modifier = null) {
     if (Array.isArray(rdfType)) {
       return this._q('rdfType', rdfType.map(t => namespaces.expand(t)), modifier);
     }
@@ -473,7 +499,7 @@ const SolrQuery = class {
    * @param {true|false|string} modifier
    * @return {store/SolrQuery}
    */
-  context(context, modifier = false) {
+  context(context, modifier = null) {
     const f = (c) => {
       if (c && c.getResourceURI) {
         return c.getResourceURI();
@@ -515,11 +541,11 @@ const SolrQuery = class {
    * is combined. To change the toplevel behaviour of the query from an and to an or,
    * use the disjunctive method.
    *
-   * @param {object} struct
+   * @param {Object} structure
    * @return {store/SolrQuery}
    */
-  or(struct) {
-    this._or.push(struct);
+  or(structure) {
+    this._or.add(structure);
     return this;
   }
 
@@ -538,11 +564,11 @@ const SolrQuery = class {
    * become disjunctive (being OR:ed together), this is to make the query more representative
    * since there is no need for the grouping of the object structure otherwise.
    *
-   * @param {object} struct
+   * @param {Object} structure
    * @return {store/SolrQuery}
    */
-  and(struct) {
-    this._and.push(struct);
+  and(structure) {
+    this._and.add(structure);
     return this;
   }
 
@@ -561,7 +587,7 @@ const SolrQuery = class {
    * @return {store/SolrQuery}
    */
   titleWithLanguage(title, language) {
-    this._title_lang = {value: title, language};
+    this._title_lang = { value: title, language };
     return this;
   }
 
@@ -571,31 +597,31 @@ const SolrQuery = class {
    * @param {string} predicate
    * @param {string|array} object
    * @param {true|false|string} modifier
-   * @param {text|string|ngram} indexType ngram is default and corresponds to partial string
+   * @param {text|string} [indexType=ngram] 'ngram' corresponds to partial string
    * matching, string corresponds to exact string matching and text corresponds to word matching.
-   * @param {boolean} related - will search in related properties if true, default is false
+   * @param {boolean} [related=false] will search in related properties if true, default is false
    * @return {store/SolrQuery}
    */
   literalProperty(predicate, object, modifier, indexType = 'ngram', related = false) {
     const key = shorten(predicate);
-    let it;
+    let nodetype;
     switch (indexType) {
       case 'text':
-        it = 'literal_t';
+        nodetype = 'literal_t';
         break;
       case 'string':
-        it = 'literal_s';
+        nodetype = 'literal_s';
         break;
       case 'ngram':
       default:
-        it = 'literal';
+        nodetype = 'literal';
     }
     (related ? this.relatedProperties : this.properties).push({
       md5: key,
       pred: predicate,
       object,
       modifier,
-      nodetype: it,
+      nodetype,
     });
     return this;
   }
@@ -649,7 +675,7 @@ const SolrQuery = class {
   /**
    * Sets the pagination limit.
    *
-   * @param {string|integer} limit
+   * @param {string|number} limit
    * @return {store/SolrQuery}
    */
   limit(limit) {
@@ -660,8 +686,7 @@ const SolrQuery = class {
   /**
    * Gets the pagination limit if it set.
    *
-   * @param {string|integer} limit
-   * @return {store/SolrQuery}
+   * @return {string|number}
    */
   getLimit() {
     return this._limit;
@@ -686,7 +711,7 @@ const SolrQuery = class {
   /**
    * Set an explicit offset.
    *
-   * @param {string|integer} offset
+   * @param {string|number} offset
    * @return {store/SolrQuery}
    */
   offset(offset) {
@@ -698,6 +723,7 @@ const SolrQuery = class {
    * @private
    * @param {string} facet
    * @param {string} predicate
+   * @param {boolean} [related=false]
    * @return {store/SolrQuery}
    */
   facet(facet, predicate, related = false) {
@@ -718,7 +744,7 @@ const SolrQuery = class {
   /**
    * Request to include literal facets for the given predicate
    * @param {string} predicate
-   * @param {boolean} related wether the facet is on the related predicates, default is false
+   * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
    * @return {store/SolrQuery}
    */
   literalFacet(predicate, related = false) {
@@ -729,7 +755,7 @@ const SolrQuery = class {
   /**
    * Request to include URI facets for the given predicate
    * @param {string} predicate
-   * @param {boolean} related wether the facet is on the related predicates, default is false
+   * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
    * @return {store/SolrQuery}
    */
   uriFacet(predicate, related = false) {
@@ -740,7 +766,7 @@ const SolrQuery = class {
   /**
    * Request to include integer facets for the given predicate
    * @param {string} predicate
-   * @param {boolean} related wether the facet is on the related predicates, default is false
+   * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
    * @return {store/SolrQuery}
    */
   integerFacet(predicate, related = false) {
@@ -753,7 +779,7 @@ const SolrQuery = class {
    * (uriProperty, literalProperty and integerProperty) to be disjunctive rather than
    * conjunctive. For example:
    *
-   *     es.newSolrQuery().disjuntiveProperties().literalProperty("dcterms:title", "banana")
+   *     es.newSolrQuery().disjunctiveProperties().literalProperty("dcterms:title", "banana")
    *          .uriProperty("dcterms:subject", "ex:Banana");
    *
    * Will search for entries that have either a "banana" in the title or a relation to
@@ -762,7 +788,7 @@ const SolrQuery = class {
    *
    * @return {store/SolrQuery}
    */
-  disjuntiveProperties() {
+  disjunctiveProperties() {
     this.disjunctiveProperties = true;
     return this;
   }
@@ -771,14 +797,14 @@ const SolrQuery = class {
    * Tell the query construction to make top level fields disjunctive rather than
    * conjunctive. For example
    *
-   *     es.newSolrQuery().disjuntive().title("banana").description("tomato")
+   *     es.newSolrQuery().disjunctive().title("banana").description("tomato")
    *
    * Will search for entries that have either a "banana" in the title or "tomato" in the
    * description rather than entries that have both which is the default.
    *
    * @return {store/SolrQuery}
    */
-  disjuntive() {
+  disjunctive() {
     this.disjunctive = true;
     return this;
   }
@@ -804,9 +830,9 @@ const SolrQuery = class {
       and.push(`title.${this._title_lang.lang}:${solrFriendly(this._title_lang.lang,
         this._title_lang.value)}`);
     }
-    Object.keys(this.params).forEach((key) => {
-      const v = this.params[key];
-      const modifier = this.modifiers[key];
+
+    this.params.forEach((v, key) => {
+      const modifier = this.modifiers.get(key);
       if ((typeof v === 'string') && v !== '') {
         if (modifier === true || modifier === 'not') {
           and.push(`NOT(${key}:${solrFriendly(key, v)})`);
@@ -911,7 +937,7 @@ const SolrQuery = class {
 
   /**
    * @param page
-   * @returns {entryArrayPromise} the promise will return an entry-array.
+   * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
    * @see {store/List.getEntries}
    */
   getEntries(page) {
@@ -926,6 +952,4 @@ const SolrQuery = class {
   forEach(func) {
     return this.list().forEach(func);
   }
-};
-
-export default SolrQuery;
+}
