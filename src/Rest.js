@@ -25,6 +25,11 @@ const sameOrigin = (url) => {
 };
 
 /**
+ * @return {number}
+ */
+const getPreventCacheNumber = () => parseInt((Math.random() * 10000).toString(), 10);
+
+/**
  * This class encapsulates functionality for communicating with the repository via Ajax calls.
  * Authentication is done via cookies and accept headers are in general set to
  * application/json behind the scenes.
@@ -43,7 +48,14 @@ export default class Rest {
     const rest = this;
 
     if (isBrowser()) {
-      rest.putFile = (uri, data, format) => {
+      /**
+       *
+       * @param uri
+       * @param {Object} data
+       * @param format
+       * @return {undefined|*}
+       */
+      rest.putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
           return undefined;
         }
@@ -54,13 +66,13 @@ export default class Rest {
         Array.from(files).forEach((file, idx) => {
           // is the item a File?
           if (file instanceof File) {
-            stubForm.append(idx, file);
+            stubForm.append(idx.toString(), file);
           }
         });
 
         return superagent.post(uri)
-          .query({ preventCache: parseInt(Math.random() * 10000, 10) })
-          .accept(format || 'application/json')
+          .query({ preventCache: getPreventCacheNumber() })
+          .accept(format)
           .withCredentials()
           .send(stubForm);
       };
@@ -70,36 +82,37 @@ export default class Rest {
   /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
-   * @returns {Promise}
+   * @return {Promise} A thenable object
+   * @async
    */
-  auth(credentials) {
+  async auth(credentials) {
+    const { user, password, maxAge, logout, base } = credentials;
     delete this.headers.cookie;
-    if (credentials.logout !== true) {
+
+    if (logout !== true) {
       const data = {
-        auth_username: encodeURIComponent(credentials.user),
-        auth_password: encodeURIComponent(credentials.password),
+        auth_username: encodeURIComponent(user),
+        auth_password: encodeURIComponent(password),
         // in seconds, 86400 is default and corresponds to a day.
-        auth_maxage: credentials.maxAge != null ? credentials.maxAge : 604800,
+        auth_maxage: maxAge != null ? maxAge : 604800,
       };
       if (isBrowser()) {
-        return this.post(`${credentials.base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
+        return this.post(`${base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
       }
       const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
-      const p = this.post(`${credentials.base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
-      return p.then((response) => {
-        const cookies = response.headers['set-cookie'];
-        cookies.some((c) => {
-          if (c.substring(0, 11) === 'auth_token=') {
-            this.headers.cookie = [c];
-            return true;
-          }
-          return false;
-        });
+      const response = await this.post(`${base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
+      const cookies = response.headers['set-cookie'];
+      cookies.some((c) => {
+        if (c.substring(0, 11) === 'auth_token=') {
+          this.headers.cookie = [c];
+          return true;
+        }
+        return false;
       });
     }
 
-    const logoutRequestResult = superagent.get(`${credentials.base}auth/logout`)
-      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
+    const logoutRequestResult = superagent.get(`${base}auth/logout`)
+      .query({ preventCache: getPreventCacheNumber() })
       .accept('application/json')
       .withCredentials()
       .timeout({ response: this.timeout });
@@ -116,9 +129,11 @@ export default class Rest {
    * @param {string} uri - URI to a resource to fetch.
    * @param {string|null} format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
-   * @returns {Promise}
+   * @return {Promise} A thenable object
+   * @async
+   * @throws
    */
-  get(uri, format = null, nonJSONP = false) {
+  async get(uri, format = null, nonJSONP = false) {
     const locHeaders = Object.assign({}, this.headers);
     delete locHeaders['Content-Type'];
 
@@ -151,54 +166,50 @@ export default class Rest {
             jsonp({
               timeout: 1000000,
               // @scazan: superagent-jsonp's random number generator is weak, so we create our own
-              callbackName: `cb${md5(_uri).slice(0, 7)}${parseInt(Math.random() * 1000, 10)}`,
+              callbackName: `cb${md5(_uri).slice(0, 7)}${getPreventCacheNumber()}`,
             }),
           ) // Need this timeout to prevent a superagentCallback*** not defined issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
           .then((data) => {
             resolve(data.body);
-          }, (err) => {
-            reject(err);
-          });
+          }, reject);
       });
     }
-    const getRequest = superagent.get(_uri)
+    const GETRequest = superagent.get(_uri)
       .accept(handleAs)
       .timeout({
         response: this.timeout,
       })
-      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
+      .query({ preventCache: getPreventCacheNumber() })
       .withCredentials();
 
     if (handleAs === 'xml') {
-      getRequest.parse['application/xml'] = (res, cb) => {
+      GETRequest.parse['application/xml'] = (res, callback) => {
         const DOMParser = isBrowser() ? window.DOMParser : xmldom.DOMParser;
         const parser = new DOMParser();
 
         if (isBrowser()) {
-          const parsedDocument = parser.parseFromString(res, 'application/xml');
-          return parsedDocument;
+          return parser.parseFromString(res, 'application/xml');
         }
+        // @todo @valentino check if here it should be an else and callback outside that
 
         // Node handles the return as a callback
-        const parsedDocument = parser.parseFromString(res.text, 'application/xml');
-        res.text = parsedDocument;
+        res.text = parser.parseFromString(res.text, 'application/xml');
+        callback(null, res);
 
-        cb(null, res);
+        return res.text;
       };
     }
 
-    Object.entries(locHeaders).map(keyVal => getRequest.set(keyVal[0], keyVal[1]));
+    Object.entries(locHeaders).map(keyVal => GETRequest.set(keyVal[0], keyVal[1]));
 
-    return getRequest
-      .then((response) => {
-        if (response.statusCode === 200) {
-          if (handleAs === 'text' || format === 'text/xml') {
-            return response.text;
-          }
-          return response.body;
-        }
-        throw new Error(`Resource could not be loaded: ${response.text}`);
-      });
+    const response = await GETRequest;
+    if (response.statusCode === 200) {
+      if (handleAs === 'text' || format === 'text/xml') {
+        return response.text;
+      }
+      return response.body;
+    }
+    throw new Error(`Resource could not be loaded: ${response.text}`);
   }
 
   /**
@@ -210,7 +221,7 @@ export default class Rest {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {Promise}
+   * @return {Promise} A thenable object
    */
   post(uri, data, modDate, format) {
     const locHeaders = Object.assign({}, this.headers);
@@ -221,23 +232,23 @@ export default class Rest {
       locHeaders['Content-Type'] = format;
     }
 
-    const postRequest = superagent.post(uri)
-      .query({ 'request.preventCache': parseInt(Math.random() * 10000, 10) });
+    const POSTRequest = superagent.post(uri)
+      .query({ 'request.preventCache': getPreventCacheNumber() });
 
     if (data) {
-      postRequest.send(data)
+      POSTRequest.send(data)
       // serialize the object into a format that the backend is used to (no JSON strings)
         .serialize(obj => Object.entries(obj)
           .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
           .join(''));
     }
 
-    postRequest.withCredentials()
+    POSTRequest.withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map(keyVal => postRequest.set(keyVal[0], keyVal[1]));
+    Object.entries(locHeaders).map(keyVal => POSTRequest.set(keyVal[0], keyVal[1]));
 
-    return postRequest;
+    return POSTRequest;
   }
 
   /**
@@ -248,25 +259,25 @@ export default class Rest {
    * @param {string} uri - factory resource, may include parameters.
    * @param {string|Object} data - the data that is to be posted as a string,
    * if an object is provided it will be serialized as json.
-   * @returns {createPromise}
+   * @returns {Promise.<String>}
    */
-  create(uri, data) {
-    return this.post(uri, data).then((response) => {
-      // let location = response.getHeader('Location');
-      let { location } = response.headers;
-      // In some weird cases, like when making requests from file:///
-      // we do not have access to headers.
-      if (!location && response.body) {
-        const idx = uri.indexOf('?');
-        if (idx !== -1) {
-          location = uri.substr(0, uri.indexOf('?'));
-        } else {
-          location = uri;
-        }
-        location += `/entry/${JSON.parse(response.body).entryId}`;
+  async create(uri, data) {
+    const response = await this.post(uri, data);
+    // let location = response.getHeader('Location');
+    let { location } = response.headers;
+    // In some weird cases, like when making requests from file:///
+    // we do not have access to headers.
+    if (!location && response.body) {
+      const idx = uri.indexOf('?');
+      if (idx !== -1) {
+        location = uri.substr(0, uri.indexOf('?'));
+      } else {
+        location = uri;
       }
-      return location;
-    });
+      location += `/entry/${JSON.parse(response.body).entryId}`;
+    }
+
+    return location;
   }
 
   /**
@@ -278,7 +289,7 @@ export default class Rest {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {*}
+   * @return {Promise} A thenable object
    */
   put(uri, data, modDate, format) {
     const locHeaders = Object.assign({}, this.headers);
@@ -288,11 +299,11 @@ export default class Rest {
     if (format) {
       locHeaders['Content-Type'] = format;
     } else if (typeof data === 'object') {
-      locHeaders['Content-Type'] = 'application/json';
+      locHeaders['Content-Type'] = 'application/json'; // @todo perhaps not needed, this is default
     }
 
     const putRequest = superagent.put(uri)
-      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
+      .query({ preventCache: getPreventCacheNumber() })
       .send(data)
       .withCredentials()
       .timeout({ response: this.timeout });
@@ -307,7 +318,7 @@ export default class Rest {
    *
    * @param {String} uri of the resource that is to be deleted.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
-   * @return {*}
+   * @return {Promise} A thenable object
    */
   del(uri, modDate) {
     const locHeaders = Object.assign({}, this.headers);
@@ -317,7 +328,7 @@ export default class Rest {
     }
 
     const deleteRequest = superagent.del(uri)
-      .query({ preventCache: parseInt(Math.random() * 10000, 10) })
+      .query({ preventCache: getPreventCacheNumber() })
       .withCredentials()
       .timeout({ response: this.timeout });
 
@@ -342,42 +353,10 @@ export default class Rest {
    * in a nodejs setting.
    * @param {string} format the format to handle the response as, either text, xml, html or json
    * (json is default).
+   * @return {Promise} A thenable object
    */
   putFile(uri, data, format) {
     return this.post(uri, data, null, format);
   }
 }
-/**
- * This is a succesfull callback method to be provided as first argument in a {@link entrypromise}
- *
- * @callback xhrSuccessCallback
- * @param {string|object|node}
- */
 
-/**
- * This is a callback that will be called upon failure, it is supposed to be provided as second
- * argument in a {@link entrypromise}
- *
- * @callback xhrFailureCallback
- * @param {string} error
- * @param {object} ioArgs
- */
-
-/**
- * @name createPromise
- * @extends xhrPromise
- * @class
- */
-
-/**
- * @name xhrPromise#then
- * @param {createSuccessCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-
-/**
- * This is a succesfull callback method that provides a reference to the newly created object.
- *
- * @callback createSuccessCallback
- * @param {string} uri the URI of the newly created resource.
- */
