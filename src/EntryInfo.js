@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Graph } from 'rdfjson';
-import EntryStore from './EntryStore';
+import factory from './factory';
 import terms from './terms';
 
 /**
@@ -84,7 +84,7 @@ export default class EntryInfo {
    * @returns {String} the id of the entry
    */
   getId() {
-    return EntryStore.getFactory().getEntryId(this._entryURI);
+    return factory.getEntryId(this._entryURI);
   }
 
   /**
@@ -117,7 +117,7 @@ export default class EntryInfo {
    * @returns {String}
    */
   getMetadataURI() {
-    return this._entryStore.getFactory().getMetadataURIFromURI(this._entryStore, this._entryURI);
+    return factory.getMetadataURIFromURI(this._entryStore, this._entryURI);
   }
 
   /**
@@ -140,7 +140,7 @@ export default class EntryInfo {
    * @returns {String}
    */
   getCachedExternalMetadataURI() {
-    return this._entryStore.getFactory().getCachedExternalMetadataURI(this._entryURI);
+    return factory.getCachedExternalMetadataURI(this._entryURI);
   }
 
   /**
@@ -230,7 +230,6 @@ export default class EntryInfo {
    * @return {Object} an acl object.
    */
   getACL(asIds = false) {
-    const factory = this._entryStore.getFactory();
     const f = (stmt) => {
       if (asIds) {
         return factory.getEntryId(stmt.getValue());
@@ -287,7 +286,7 @@ export default class EntryInfo {
     const _acl = acl || {};
     const ru = this.getResourceURI();
     const mu = this.getMetadataURI();
-    const base = this._entryStore.getFactory().getResourceBase(this._entry.getEntryStore(), '_principals');
+    const base = factory.getResourceBase(this._entry.getEntryStore(), '_principals');
     f(this._entryURI, terms.acl.write, _acl.admin, base);
     f(ru, terms.acl.read, _acl.rread, base);
     f(ru, terms.acl.write, _acl.rwrite, base);

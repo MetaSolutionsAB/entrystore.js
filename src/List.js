@@ -1,5 +1,5 @@
-import EntryStore from './EntryStore';
 import Resource from './Resource';
+import factory from './factory';
 
 /**
  * List is a container for other entries in the same context.
@@ -43,7 +43,7 @@ export default class List extends Resource {
    * @returns {integer}
    */
   getLimit() {
-    return this._limit || EntryStore.getFactory().getDefaultLimit();
+    return this._limit || factory.getDefaultLimit();
   }
 
   /**

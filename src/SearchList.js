@@ -1,5 +1,5 @@
 import EntryStore from './EntryStore';
-import List from './List';
+// import List from './List';
 
 /**
  * @exports store/SearchList
@@ -32,7 +32,7 @@ export default class SearchList {
   }
 
   getLimit() {
-    return this._query.getLimit() || EntryStore.getFactory().getDefaultLimit();
+    return this._query.getLimit() || factory.getDefaultLimit();
   }
 
   /**
@@ -104,14 +104,14 @@ export default class SearchList {
         return es.getFactory().extractSearchResults(data, this, this._entryStore);
       }), this._callType);
   }
-};
+}
 
 /**
  * Get size of list.
  *
  * @returns {number} the amount of entries in the list, -1 if unknown.
  */
-SearchList.prototype.getSize = List.prototype.getSize;
+// SearchList.prototype.getSize = List.prototype.getSize;
 
 /**
  * Retrieves an array of entries contained in this list according to the current page and
@@ -121,7 +121,7 @@ SearchList.prototype.getSize = List.prototype.getSize;
  * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
  * @method
  */
-SearchList.prototype.getEntries = List.prototype.getEntries;
+// SearchList.prototype.getEntries = List.prototype.getEntries;
 
 /**
  * Executes a callback on each list members in the order provided by the solr-search.
@@ -130,6 +130,8 @@ SearchList.prototype.getEntries = List.prototype.getEntries;
  *
  * @param {Function} func
  */
-SearchList.prototype.forEach = List.prototype.forEach;
-SearchList.prototype._getEntries = List.prototype._getEntries;
-SearchList.prototype._update = List.prototype._update;
+// SearchList.prototype.forEach = List.prototype.forEach;
+// SearchList.prototype._getEntries = List.prototype._getEntries;
+// SearchList.prototype._update = List.prototype._update;
+
+// export default SearchList;

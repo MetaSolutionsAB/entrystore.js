@@ -3,6 +3,7 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const config = {
+  devtool: 'inline-source-map',
   entry: './src/index.js',
   output: {
     path: path.join(__dirname, 'dist'),
@@ -20,9 +21,24 @@ const config = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
+        use: [{
           loader: 'babel-loader',
-        },
+          options: {
+            presets: [[
+              '@babel/preset-env', {
+                targets: {
+                  ie: 11,
+                },
+              },
+            ]],
+            plugins: [
+              '@babel/plugin-proposal-object-rest-spread',
+              '@babel/plugin-proposal-class-properties',
+              '@babel/plugin-syntax-dynamic-import',
+              ['@babel/plugin-transform-modules-commonjs', { strictMode: false }],
+            ],
+          },
+        }],
       },
     ],
   },

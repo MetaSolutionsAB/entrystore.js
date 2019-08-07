@@ -707,8 +707,4 @@ export default class EntryStore {
     const packageJSON = require('../package.json');
     return { version: packageJSON.version };
   }
-
-  static getFactory() {
-    return factory;
-  }
 };

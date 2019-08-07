@@ -9,7 +9,7 @@ exports.Auth = {
   authorize: {
     cookieSignIn(test) {
       test.expect(1);
-      auth.login('Donald', 'donalddonald').then((data) => {
+      auth.login('admin', 'adminadmin').then((data) => {
         test.ok(data.user === 'donald');
         test.done();
       }, () => {
@@ -19,7 +19,7 @@ exports.Auth = {
     },
     cookieSignOut(test) {
       test.expect(1);
-      auth.login('Donald', 'donalddonald').then(() => auth.logout().then((data) => {
+      auth.login('admin', 'adminadmin').then(() => auth.logout().then((data) => {
         test.ok(data.user === 'guest', 'Failed sign out from account Donald.');
         test.done();
       }), () => {
@@ -47,7 +47,7 @@ exports.Auth = {
         }
       };
       auth.addAuthListener(authCallback);
-      auth.login('Donald', 'donalddonald');
+      auth.login('admin', 'adminadmin');
     },
     guestUserEntry(test) {
       test.expect(1);
@@ -60,7 +60,7 @@ exports.Auth = {
   },
   fromUserListeners: {
     setUp(callback) {
-      auth.login('Donald', 'donalddonald').then(() => {
+      auth.login('admin', 'adminadmin').then(() => {
         callback();
       });
     },

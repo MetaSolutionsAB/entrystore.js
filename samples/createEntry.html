@@ -1,17 +1,18 @@
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <script src="../dist/EntryStore.js"></script>
-  <script src="./config.js"></script>
-  <script>
-    const es = new EntryStore.EntryStore(config.repository);
-    es.getAuth().login(config.username, config.password).then(() => {
-      es.getContextById(config.contextId).newEntry().commit().then(function(entry) {
-        alert("Created an entry!");
-      }, function(err) {
-        alert("Failed to create an entry! + err");
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script src="../dist/EntryStore.js"></script>
+    <script src="./config.js"></script>
+    <script>
+      const es = new EntryStore.EntryStore(config.repository);
+      es.getAuth().login(config.username, config.password).then(() => {
+        es.getContextById(config.contextId).newEntry().commit()
+          .then(() => {
+            alert("Created an entry!");
+          }, (err) => {
+            alert(`Failed to create an entry!  ${err}`);
+          });
       });
-    });
-  </script>
+    </script>
 </head>
 </html>

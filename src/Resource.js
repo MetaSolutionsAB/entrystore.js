@@ -1,5 +1,4 @@
-import EntryStore from './EntryStore';
-
+import factory from './factory';
 /**
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.
@@ -78,7 +77,7 @@ export default class Resource {
    * @returns {string}
    */
   getId() {
-    return EntryStore.getFactory().getEntryId(this._entryURI);
+    return factory.getEntryId(this._entryURI);
   }
 
   _update(data) {

@@ -1,14 +1,15 @@
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
 /*
  * The exposed EntryStore API
  */
-
 export { default as factory } from './factory';
 export { default as html } from './html';
 export { default as promiseUtil } from './promiseUtil';
 export { default as rest } from './Rest';
 export { default as solr } from './SolrQuery';
 export { default as types } from './types';
-
 export { default as Auth } from './Auth';
 export { default as Cache } from './Cache';
 export { default as Context } from './Context';
@@ -28,4 +29,4 @@ export { default as String } from './String';
 export { default as User } from './User';
 export { default as terms } from './terms';
 export { default as utils } from './utils';
-export { namespaces } from 'rdfjson';
+export { namespaces } from 'rdfjson'; // @todo @valentino not ideal
