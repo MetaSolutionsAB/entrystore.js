@@ -80,8 +80,10 @@ export default class EntryStoreUtil {
    * @param {store/Context=} context only look for entries in this context, may be left out.
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<store/Entry>}
+   * @async
+   * @throws
    */
-  getEntryByResourceURI(resourceURI, context, asyncCallType) {
+  async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     const cache = this._entrystore.getCache();
     const entriesSet = cache.getByResourceURI(resourceURI);
     if (context) {
@@ -95,12 +97,11 @@ export default class EntryStoreUtil {
     if (context) {
       query.context(context);
     }
-    return query.list(asyncCallType).getEntries(0).then((arr) => {
-      if (arr.length > 0) {
-        return arr[0];
-      }
-      throw new Error(`No entries for resource with URI: ${resourceURI}`);
-    });
+    const entryArr = await query.list(asyncCallType).getEntries(0);
+    if (entryArr.length > 0) {
+      return entryArr[0];
+    }
+    throw new Error(`No entries for resource with URI: ${resourceURI}`);
   }
 
   /**
@@ -120,18 +121,19 @@ export default class EntryStoreUtil {
    * @param {store/Context} context restrict to finding the entry in this context
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<store/Entry>}
+   * @async
+   * @throws
    */
-  getEntryByType(typeURI, context, asyncCallType) {
+  async getEntryByType(typeURI, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
     if (context) {
       query.context(context);
     }
-    return query.list(asyncCallType).getEntries(0).then((entryArr) => {
-      if (entryArr.length === 1) {
-        return entryArr[0];
-      }
-      throw new Error('Wrong number of entrys in context / repository');
-    });
+    const entryArr = await query.list(asyncCallType).getEntries(0);
+    if (entryArr.length === 1) {
+      return entryArr[0];
+    }
+    throw new Error('Wrong number of entries in context / repository');
   }
 
   /**
@@ -144,22 +146,19 @@ export default class EntryStoreUtil {
    * @param {store/Context} context restrict to finding the entry in this context
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<store/Entry>}
+   * @async
+   * @throws
    */
-  getEntryByGraphType(graphType, context, asyncCallType) {
+  async getEntryByGraphType(graphType, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
     if (context) {
       query.context(context);
     }
-    return query.list(asyncCallType).getEntries(0).then((entryArr) => {
-      if (entryArr.length > 0) {
-        return entryArr[0];
-      }
-      if (context) {
-        throw new Error(`No entrys in context with graphType ${graphType}`);
-      } else {
-        throw new Error(`No entrys in repository with graphType ${graphType}`);
-      }
-    });
+    const entryArr = await query.list(asyncCallType).getEntries(0);
+    if (entryArr.length > 0) {
+      return entryArr[0];
+    }
+    throw new Error(`No entries in ${context ? 'context' : 'repository'} context with graphType ${graphType}`);
   }
 
   /**
@@ -173,25 +172,31 @@ export default class EntryStoreUtil {
    * @param {store/SearchList} list
    * @returns {Promise}
    */
-  removeAll(list) {
+  async removeAll(list) {
     const uris = [];
     const es = this._entrystore;
     const cache = es.getCache();
     const rest = es.getREST();
-    const f = () => {
+
+    const deleteNext = async () => {
       if (uris.length > 0) {
         const uri = uris.pop();
-        return rest.del(uri).then(f, () => {
+        try {
+          await rest.del(uri);
+        } catch (err) {
           console.log(`Could not remove entry with uri: ${uri} continuing anyway.`);
-          return f();
-        });
+        }
+        deleteNext();
       }
       return undefined;
     };
-    return list.forEach((entry) => {
+
+    const result = await list.forEach((entry) => {
       uris.push(entry.getURI());
-      cache.unCache(entry);
-    }).then(f);
+      cache.unCache(entry); // @todo @valentino perhaps they are removed from cache too early. Move to deleteNext?
+    });
+
+    deleteNext(result);
   }
 }
 

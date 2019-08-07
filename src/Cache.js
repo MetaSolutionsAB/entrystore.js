@@ -5,7 +5,7 @@
  *
  * @exports store/Cache
  */
-export default class {
+export default class Cache {
   constructor() {
     /**
      * @type {Map<string, Function>}

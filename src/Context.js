@@ -235,18 +235,23 @@ export default class Context extends Resource {
    * Finds the user or group that has this context as homecontext if any.
    *
    * @returns {Promise.<store/Entry>} if succeeds if context a homecontext of some user or group.
+   * @async
    */
-  getHomeContextOf() {
-    return this.getEntry().then((contextEntry) => {
-      const es = contextEntry.getEntryStore();
-      const groupResourceArr = contextEntry.getReferrers('store:homeContext');
-      if (groupResourceArr.length > 0) {
-        return es.getEntry(es.getEntryURIFromURI(groupResourceArr[0]));
-      }
-      throw new Error('No user or group that has this context as home context');
-    });
+  async getHomeContextOf() {
+    const contextEntry = await this.getEntry();
+    const es = contextEntry.getEntryStore();
+    const groupResourceArr = contextEntry.getReferrers('store:homeContext');
+    if (groupResourceArr.length > 0) {
+      return es.getEntry(es.getEntryURIFromURI(groupResourceArr[0]));
+    }
+    throw new Error('No user or group that has this context as home context');
   }
 
+  /**
+   *
+   * @param data
+   * @private
+   */
   _update(data) {
     this._name = data.alias || data.name; // TODO, change to only name after clean-up
   }

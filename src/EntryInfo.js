@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { Graph } from 'rdfjson';
+import EntryStore from './EntryStore';
 import terms from './terms';
 
 /**
@@ -83,7 +84,7 @@ export default class EntryInfo {
    * @returns {String} the id of the entry
    */
   getId() {
-    return this._entryStore.getFactory().getEntryId(this._entryURI);
+    return EntryStore.getFactory().getEntryId(this._entryURI);
   }
 
   /**
@@ -353,8 +354,9 @@ export default class EntryInfo {
    * @param revisionURI
    * @return {Promise.<rdfjson/Graph>}
    */
-  getMetadataRevisionGraph(revisionURI) {
-    return this._entryStore.getREST().get(revisionURI).then(data => new Graph(data));
+  async getMetadataRevisionGraph(revisionURI) {
+    const data = this._entryStore.getREST().get(revisionURI);
+    return new Graph(data);
   }
 
   /**
