@@ -1,9 +1,11 @@
+import EntryStore from './EntryStore';
 import List from './List';
 
 /**
  * @exports store/SearchList
  */
-const SearchList = class {
+export default class SearchList {
+
   /**
    * @param {store/EntryStore} entryStore
    * @param {Object} query
@@ -87,21 +89,27 @@ const SearchList = class {
     }
   }
 
-  _forceLoadEntries(page) {
-    const offset = (page || 0) * this.getLimit();
+  /**
+   *
+   * @param {number} [page=0]
+   * @return {Promise}
+   * @private
+   */
+  _forceLoadEntries(page = 0) {
+    const offset = page * this.getLimit();
     this._query.offset(offset);
-    const es = this._entryStore;
-    return es.handleAsync(es.getREST().get(this._query.getQuery(es)).then((data) => {
-      this.setFacets(data.facetFields);
-      return es.getFactory().extractSearchResults(data, this, es);
-    }), this._callType);
+    return this._entryStore.handleAsync(this._entryStore.getREST().get(this._query.getQuery(this._entryStore))
+      .then((data) => {
+        this.setFacets(data.facetFields);
+        return es.getFactory().extractSearchResults(data, this, this._entryStore);
+      }), this._callType);
   }
 };
 
 /**
  * Get size of list.
  *
- * @returns {integer} the amount of entries in the list, -1 if unknown.
+ * @returns {number} the amount of entries in the list, -1 if unknown.
  */
 SearchList.prototype.getSize = List.prototype.getSize;
 
@@ -110,7 +118,7 @@ SearchList.prototype.getSize = List.prototype.getSize;
  * pagination settings.
  *
  * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
- * @returns {entryArrayPromise} the promise will return an entry-array.
+ * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
  * @method
  */
 SearchList.prototype.getEntries = List.prototype.getEntries;
@@ -120,10 +128,8 @@ SearchList.prototype.getEntries = List.prototype.getEntries;
  * If the provided function return false for one entry the iteration is stopped and
  * the function is not called for consecutive matched entries.
  *
- * @param {listEntryCallback} func
+ * @param {Function} func
  */
 SearchList.prototype.forEach = List.prototype.forEach;
 SearchList.prototype._getEntries = List.prototype._getEntries;
 SearchList.prototype._update = List.prototype._update;
-
-export default SearchList;
