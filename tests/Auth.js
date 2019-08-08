@@ -1,31 +1,34 @@
-const nodeunit = require('nodeunit');
 const config = require('./config');
 const store = require('../dist/EntryStore.node');
 
-const es = new store.EntryStore(config.repository);
+const { repository, nonAdminUser, nonAdminPassword } = config;
+const es = new store.EntryStore(repository);
 const auth = es.getAuth();
+const MAX_AGE = 86400;
 
 exports.Auth = {
   authorize: {
     cookieSignIn(test) {
       test.expect(1);
-      auth.login('admin', 'adminadmin').then((data) => {
-        test.ok(data.user === 'donald');
+      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE).then((data) => {
+        test.ok(data.user === nonAdminUser);
         test.done();
       }, () => {
-        test.ok(false, 'Could not authenticate user Donald with password donalddonald');
+        test.ok(false, `Could not authenticate user ${nonAdminUser} with password ${nonAdminPassword}`);
         test.done();
       });
     },
     cookieSignOut(test) {
       test.expect(1);
-      auth.login('admin', 'adminadmin').then(() => auth.logout().then((data) => {
-        test.ok(data.user === 'guest', 'Failed sign out from account Donald.');
-        test.done();
-      }), () => {
-        test.ok(false, 'Could not de-authenticate user Donald.');
-        test.done();
-      });
+      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE)
+        .then(() => auth.logout()
+          .then((data) => {
+            test.ok(data.user === 'guest', `Failed sign out from account ${nonAdminUser}.`);
+            test.done();
+          }), () => {
+          test.ok(false, 'Could not de-authenticate user ');
+          test.done();
+        });
     },
   },
   fromGuestListeners: {
@@ -36,9 +39,9 @@ exports.Auth = {
     },
     login(test) {
       test.expect(1);
-      var authCallback = function (topic, data) {
+      const authCallback = (topic, data) => {
         if (topic === 'login') {
-          test.ok(data.user === 'donald');
+          test.ok(data.user === nonAdminUser);
           test.done();
           auth.removeAuthListener(authCallback);
         } else {
@@ -47,7 +50,7 @@ exports.Auth = {
         }
       };
       auth.addAuthListener(authCallback);
-      auth.login('admin', 'adminadmin');
+      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
     },
     guestUserEntry(test) {
       test.expect(1);
@@ -60,26 +63,26 @@ exports.Auth = {
   },
   fromUserListeners: {
     setUp(callback) {
-      auth.login('admin', 'adminadmin').then(() => {
+      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE).then(() => {
         callback();
       });
     },
     logout(test) {
       test.expect(1);
-      const f = function (topic, data) {
+      const authCallback = (topic, data) => {
         if (topic === 'logout') {
           test.ok(data.user === 'guest');
           test.done();
-          auth.removeAuthListener(f);
+          auth.removeAuthListener(authCallback);
         }
       };
-      auth.addAuthListener(f);
+      auth.addAuthListener(authCallback);
       auth.logout();
     },
     signedInUserEntry(test) {
       test.expect(1);
       auth.getUserEntry().then((entry) => {
-        test.ok(entry.getResource(true).getName() === 'donald');
+        test.ok(entry.getResource(true).getName() === nonAdminUser);
         test.done();
       });
     },

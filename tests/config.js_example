@@ -14,5 +14,9 @@ module.exports = {
     nodeTests: [
       "Node"
     ],
-    repository: "http://localhost:8080/store/"
+    repository: "http://localhost:8080/store/",
+    nonAdminUser: 'donald',
+    nonAdminPassword: 'donalddonald',
+    adminUser: 'admin',
+    adminPassword: 'adminadmin',
 };
