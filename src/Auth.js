@@ -3,12 +3,12 @@
  * EntryStore repository.
  * @exports store/Auth
  */
-export default class {
+export default class Auth {
   /**
    * @param {store/EntryStore} entrystore - a repository instance.
    */
   constructor(entrystore) {
-    this.entrystore = entrystore;
+    this._entryStore = entrystore;
     this._listenerCounter = 0;
 
     /**
@@ -59,8 +59,8 @@ export default class {
       return Promise.resolve(this.userInfo);
     }
     if (!this._uiDef) {
-      this._uiDef = this.entrystore.getREST().get(`${this.entrystore._baseURI}auth/user`, null, true);
-      this.entrystore.handleAsync(this._uiDef, 'getUserInfo');
+      this._uiDef = this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true);
+      this._entryStore.handleAsync(this._uiDef, 'getUserInfo');
       this.userInfo = await this._uiDef;
       delete this._uiDef;
     }
@@ -79,7 +79,7 @@ export default class {
     if (!this._ueDef) {
       this._ueDef = this.getUserInfo(forceLookup);
       const userInfo = await this._ueDef;
-      this.userEntry = await this.entrystore.getEntry(this.entrystore.getEntryURI('_principals', userInfo.id), {
+      this.userEntry = await this._entryStore.getEntry(this._entryStore.getEntryURI('_principals', userInfo.id), {
         asyncContext: 'getUserEntry',
       });
     }
@@ -93,27 +93,30 @@ export default class {
    * @param user
    * @param password
    * @param maxAge
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   async login(user, password, maxAge) {
     if (this.userInfo && this.userInfo.user === user) {
+      console.log('yeeessss!');
       return this.getUserInfo();
     }
-
+    console.log(user, password);
     const credentials = {
-      base: this.entrystore.getBaseURI(),
+      base: this._entryStore.getBaseURI(),
       user,
       password,
       maxAge,
     };
 
-    const authPromise = this.entrystore.getREST().auth(credentials);
-    this.entrystore.handleAsync(authPromise, 'login');
+    const authPromise = this._entryStore.getREST().auth(credentials);
+    console.log(authPromise);
+    this._entryStore.handleAsync(authPromise, 'login');
     const auth = await authPromise;
     if (typeof auth === 'object' && auth.user) {
       return auth;
     }
-    const userInfo = await this.entrystore.getREST().get(`${this.entrystore._baseURI}auth/user`, null, true);
+    const userInfo = await this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true);
+    console.log(userInfo);
 
     if (this._uiDef) {
       this._uiDef.cancel();
@@ -124,7 +127,7 @@ export default class {
 
     this.userInfo = userInfo;
     delete this.userEntry;
-    this.entrystore.getCache().allNeedRefresh();
+    this._entryStore.getCache().allNeedRefresh();
     this.messageListeners('login', userInfo);
 
     return userInfo;
@@ -136,50 +139,25 @@ export default class {
    */
   logout() {
     if (this.userInfo && this.userInfo.user === 'guest') {
+      console.log('test');
+      const test = this.getUserInfo();
+      console.log(test);
       return this.getUserInfo();
     }
 
     const credentials = {
-      base: this.entrystore.getBaseURI(),
+      base: this._entryStore.getBaseURI(),
       logout: true,
     };
 
-    const logoutPromise = this.entrystore.getREST().auth(credentials);
-    this.entrystore.handleAsync(logoutPromise, 'logout');
+    const logoutPromise = this._entryStore.getREST().auth(credentials);
+    this._entryStore.handleAsync(logoutPromise, 'logout');
 
     this.userInfo = { user: 'guest', id: '_guest' };
     delete this.userEntry;
-    this.entrystore.getCache().allNeedRefresh();
+    this._entryStore.getCache().allNeedRefresh();
     this.messageListeners('logout', this.userInfo);
 
     return this.userInfo;
   }
 }
-
-/**
- * @name userInfoPromise
- * @extends xhrPromise
- * @class
- */
-/**
- * @name userInfoPromise#then
- * @param {userInfoCallback} onSuccess
- * @param {xhrFailureCallback} onError
- */
-/**
- * @callback userInfoCallback
- * @param {userInfo} resource
- */
-/**
- * @name userInfo
- * @namespace
- * @property {string}  user                   - the username
- * @property {string}  id                     - the entry id of the users entry
- * @property {string}  homecontext            - the entry id of the users home context.
- */
-
-/**
- * @callback authListener
- * @param {string} topic - either login or logout.
- * @param {userInfo} userInfo - an object with the current user information
- */

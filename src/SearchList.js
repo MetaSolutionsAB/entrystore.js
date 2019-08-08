@@ -1,5 +1,5 @@
 import EntryStore from './EntryStore';
-// import List from './List';
+import List from './List';
 
 /**
  * @exports store/SearchList
@@ -121,7 +121,7 @@ export default class SearchList {
  * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
  * @method
  */
-// SearchList.prototype.getEntries = List.prototype.getEntries;
+SearchList.prototype.getEntries = List.prototype.getEntries;
 
 /**
  * Executes a callback on each list members in the order provided by the solr-search.
@@ -130,8 +130,7 @@ export default class SearchList {
  *
  * @param {Function} func
  */
-// SearchList.prototype.forEach = List.prototype.forEach;
-// SearchList.prototype._getEntries = List.prototype._getEntries;
-// SearchList.prototype._update = List.prototype._update;
+SearchList.prototype.forEach = List.prototype.forEach;
+SearchList.prototype._getEntries = List.prototype._getEntries;
+SearchList.prototype._update = List.prototype._update;
 
-// export default SearchList;

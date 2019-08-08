@@ -86,40 +86,42 @@ export default class Rest {
    * @async
    */
   async auth(credentials) {
-    const { user, password, maxAge, logout, base } = credentials;
+    const { user, password, base, maxAge = 604800, logout = false } = credentials;
     delete this.headers.cookie;
 
-    if (logout !== true) {
-      const data = {
-        auth_username: encodeURIComponent(user),
-        auth_password: encodeURIComponent(password),
-        // in seconds, 86400 is default and corresponds to a day.
-        auth_maxage: maxAge != null ? maxAge : 604800,
-      };
-      if (isBrowser()) {
-        return this.post(`${base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
-      }
-      const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
-      const response = await this.post(`${base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
-      const cookies = response.headers['set-cookie'];
-      cookies.some((c) => {
-        if (c.substring(0, 11) === 'auth_token=') {
-          this.headers.cookie = [c];
-          return true;
-        }
-        return false;
-      });
+    if (logout) {
+      const logoutRequestResult = superagent.get(`${base}auth/logout`)
+        .query({ preventCache: getPreventCacheNumber() })
+        .accept('application/json')
+        .withCredentials()
+        .timeout({ response: this.timeout });
+
+      Object.entries(this.headers).map(keyVal => logoutRequestResult.set(keyVal[0], keyVal[1]));
+
+      return logoutRequestResult;
     }
 
-    const logoutRequestResult = superagent.get(`${base}auth/logout`)
-      .query({ preventCache: getPreventCacheNumber() })
-      .accept('application/json')
-      .withCredentials()
-      .timeout({ response: this.timeout });
+    const data = {
+      auth_username: encodeURIComponent(user),
+      auth_password: encodeURIComponent(password),
+      auth_maxage: maxAge,
+    };
 
-    Object.entries(this.headers).map(keyVal => logoutRequestResult.set(keyVal[0], keyVal[1]));
+    if (isBrowser()) {
+      return this.post(`${base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
+    }
+    const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
+    const authCookieResponse = await this.post(`${base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
+    const cookies = authCookieResponse.headers['set-cookie'];
 
-    return logoutRequestResult;
+    for (const cookie of cookies) {
+      if (cookie.startsWith('auth_token=')) {
+        this.headers.cookie = [cookie];
+        break;
+      }
+    }
+
+    return authCookieResponse;
   }
 
   /**
