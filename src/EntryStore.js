@@ -37,7 +37,7 @@ export default class EntryStore {
     this._cache = new Cache();
     this._auth = new Auth(this);
     if (credentials) {
-      this.auth(credentials);
+      this._auth.login(...credentials);
     }
     this._contexts = {};
     this._rest = new Rest();

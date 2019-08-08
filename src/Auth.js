@@ -15,34 +15,37 @@ export default class Auth {
      * @type {Map<string, Function>}
      * @private
      */
-    this._listenersIdx = new Map();
-  }
-
-  messageListeners(topic, obj) {
-    this._listenersIdx.forEach((func) => {
-      func(topic, obj);
-    });
+    this._listeners = new Map();
   }
 
   /**
-   * Adds an authentification listener, it will be notified of login and logout events.
-   * @param {authListener} listener
+   *
+   * @param {String} topic
+   * @param obj
+   */
+  messageListeners(topic, obj) {
+    this._listeners.forEach(func => func(topic, obj));
+  }
+
+  /**
+   * Adds an authentication listener, it will be notified of login and logout events.
+   * @param {Function} listener
    */
   addAuthListener(listener) {
     if (listener.__alid == null) {
       listener.__alid = `idx_${this._listenerCounter}`;
       this._listenerCounter += 1;
     }
-    this._listenersIdx.set(listener.__alid, listener);
+    this._listeners.set(listener.__alid, listener);
   }
 
   /**
-   * Removes an authentification listener.
-   * @param {authListener} listener
+   * Removes an authentication listener
+   * @param {Function} listener
    */
   removeAuthListener(listener) {
     if (listener.__alid != null) {
-      this._listenersIdx.delete(listener.__alid);
+      this._listeners.delete(listener.__alid);
     }
   }
 
@@ -58,14 +61,11 @@ export default class Auth {
     if (this.userInfo && !forceLookup) {
       return Promise.resolve(this.userInfo);
     }
-    if (!this._uiDef) {
-      this._uiDef = this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true);
-      this._entryStore.handleAsync(this._uiDef, 'getUserInfo');
-      this.userInfo = await this._uiDef;
-      delete this._uiDef;
-    }
 
-    return this._uiDef;
+    this.userInfo = await this._entryStore.handleAsync(
+      this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true), 'getUserInfo');
+
+    return this.userInfo;
   }
 
   /**
@@ -76,13 +76,11 @@ export default class Auth {
       return Promise.resolve(this.userEntry);
     }
 
-    if (!this._ueDef) {
-      this._ueDef = this.getUserInfo(forceLookup);
-      const userInfo = await this._ueDef;
-      this.userEntry = await this._entryStore.getEntry(this._entryStore.getEntryURI('_principals', userInfo.id), {
-        asyncContext: 'getUserEntry',
-      });
-    }
+    const userInfo = await this.getUserInfo(forceLookup);
+    this.userEntry = await this._entryStore.getEntry(this._entryStore.getEntryURI('_principals', userInfo.id), {
+      asyncContext: 'getUserEntry',
+    });
+
     return this.userEntry;
   }
 
@@ -106,49 +104,39 @@ export default class Auth {
       maxAge,
     };
 
-    const authPromise = this._entryStore.getREST().auth(credentials);
-    this._entryStore.handleAsync(authPromise, 'login');
-    const auth = await authPromise;
+    const auth = await this._entryStore.handleAsync(this._entryStore.getREST().auth(credentials), 'login');
     if (typeof auth === 'object' && auth.user) {
       return auth;
     }
-    const userInfo = await this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true);
+    this.userInfo = await this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true);
 
-    if (this._uiDef) {
-      this._uiDef.cancel();
-    }
-    if (this._ueDef) {
-      this._ueDef.cancel();
-    }
-
-    this.userInfo = userInfo;
     delete this.userEntry;
     this._entryStore.getCache().allNeedRefresh();
-    this.messageListeners('login', userInfo);
 
-    return userInfo;
+    this.messageListeners('login', this.userInfo);
+
+    return this.userInfo;
   }
 
   /**
    * Logout the currently authorized user.
-   * @returns {Promise}
+   * @returns {Promise.<{user, id}>} The guest user info
    */
-  logout() {
+  async logout() {
     if (this.userInfo && this.userInfo.user === 'guest') {
       return this.getUserInfo();
     }
 
-    const credentials = {
+    // handleAsync returns the original promise passed
+    await this._entryStore.handleAsync(this._entryStore.getREST().auth({
       base: this._entryStore.getBaseURI(),
       logout: true,
-    };
+    }), 'logout');
 
-    const logoutPromise = this._entryStore.getREST().auth(credentials);
-    this._entryStore.handleAsync(logoutPromise, 'logout');
-
-    this.userInfo = { user: 'guest', id: '_guest' };
     delete this.userEntry;
     this._entryStore.getCache().allNeedRefresh();
+
+    this.userInfo = { user: 'guest', id: '_guest' };
     this.messageListeners('logout', this.userInfo);
 
     return this.userInfo;

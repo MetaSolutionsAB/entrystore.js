@@ -198,8 +198,8 @@ export default class Cache {
   allNeedRefresh() {
     this._cacheIdx.forEach((entry, uri) => {
       // Do not messageListeners for every entry.
-      this.setRefreshNeeded(this._cacheIdx[uri], true);
-    });
+      this.setRefreshNeeded(this._cacheIdx.get(uri), true);
+    }, this);
     this.messageListeners('allEntriesNeedRefresh');
   }
 
