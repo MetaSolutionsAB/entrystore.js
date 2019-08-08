@@ -8,34 +8,34 @@ const MAX_AGE = 86400;
 
 exports.Auth = {
   authorize: {
-    cookieSignIn(test) {
+    async cookieSignIn(test) {
       test.expect(1);
-      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE).then((data) => {
+      try {
+        const data = await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
         test.ok(data.user === nonAdminUser);
         test.done();
-      }, () => {
+      } catch (err) {
         test.ok(false, `Could not authenticate user ${nonAdminUser} with password ${nonAdminPassword}`);
         test.done();
-      });
+      }
     },
-    cookieSignOut(test) {
+    async cookieSignOut(test) {
       test.expect(1);
-      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE)
-        .then(() => auth.logout()
-          .then((data) => {
-            test.ok(data.user === 'guest', `Failed sign out from account ${nonAdminUser}.`);
-            test.done();
-          }), () => {
-          test.ok(false, 'Could not de-authenticate user ');
-          test.done();
-        });
+      await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+      try {
+        const data = await auth.logout();
+        test.ok(data.user === 'guest', `Failed sign out from account ${nonAdminUser}.`);
+        test.done();
+      } catch (err) {
+        test.ok(false, 'Could not de-authenticate user ');
+        test.done();
+      }
     },
   },
   fromGuestListeners: {
-    setUp(callback) {
-      auth.logout().then(() => {
-        callback();
-      });
+    async setUp(callback) {
+      await auth.logout();
+      callback();
     },
     login(test) {
       test.expect(1);
@@ -59,13 +59,13 @@ exports.Auth = {
         test.ok(name === 'guest');
         test.done();
       });
-    },
+    }
+    ,
   },
   fromUserListeners: {
-    setUp(callback) {
-      auth.login(nonAdminUser, nonAdminPassword, MAX_AGE).then(() => {
-        callback();
-      });
+    async setUp(callback) {
+      await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+      callback();
     },
     logout(test) {
       test.expect(1);
@@ -79,12 +79,16 @@ exports.Auth = {
       auth.addAuthListener(authCallback);
       auth.logout();
     },
-    signedInUserEntry(test) {
+    async signedInUserEntry(test) {
       test.expect(1);
-      auth.getUserEntry().then((entry) => {
+      try {
+        const entry = await auth.getUserEntry();
         test.ok(entry.getResource(true).getName() === nonAdminUser);
         test.done();
-      });
+      } catch (err) {
+        test.ok(false, 'Could not login');
+        test.done();
+      }
     },
   },
 };

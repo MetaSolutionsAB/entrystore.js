@@ -1,5 +1,6 @@
 import EntryStore from './EntryStore';
 import List from './List';
+import factory from './factory';
 
 /**
  * @exports store/SearchList
@@ -101,7 +102,7 @@ export default class SearchList {
     return this._entryStore.handleAsync(this._entryStore.getREST().get(this._query.getQuery(this._entryStore))
       .then((data) => {
         this.setFacets(data.facetFields);
-        return es.getFactory().extractSearchResults(data, this, this._entryStore);
+        return factory.extractSearchResults(data, this, this._entryStore);
       }), this._callType);
   }
 }

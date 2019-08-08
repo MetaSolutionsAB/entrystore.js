@@ -1,29 +1,31 @@
 const { EntryStore } = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const es = new EntryStore(config.repository);
+const { repository, contextId, entryId, adminUser, adminPassword } = config;
+const es = new EntryStore(repository);
+const MAX_AGE = 86400;
 let authAdminReady;
 
 exports.EntryStore = {
   inGroups: true,
   withoutLogin: {
-    setUp(callback) {
-      es.getAuth().logout().then(() => {
-        callback();
-      });
+    async setUp(callback) {
+      await es.getAuth().logout();
+      callback();
     },
     initStore(test) {
-      test.ok(es.getBaseURI() === config.repository);
+      test.ok(es.getBaseURI() === repository);
       test.done();
     },
-    getEntry(test) {
-      es.getEntry(`${config.repository}1/entry/1`).then((entry) => {
+    async getEntry(test) {
+      try {
+        const entry = await es.getEntry(`${repository}${contextId}/entry/${entryId}`);
         test.ok(entry != null);
         test.done();
-      }, (err) => {
+      } catch (err) {
         test.ok(false, err);
         test.done();
-      });
+      }
     },
     getContext(test) {
       const c = es.getContextById('1');
@@ -32,78 +34,81 @@ exports.EntryStore = {
     },
   },
   withAdminLogin: {
-    setUp(callback) {
+    async setUp(callback) {
       if (!authAdminReady) {
-        es.getAuth().login('admin', 'adminadmin').then(() => {
-          authAdminReady = true;
-          callback();
-        });
-      } else {
-        callback();
+        // await es.getAuth().logout();
+        await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
+        authAdminReady = true;
       }
+      callback();
     },
     asyncListenerLogout(test) {
-      const al = function (promise, callType) {
+      const asyncListener = async (promise, callType) => {
         test.ok(callType === 'logout', "Wrong calltype, should be 'logout'");
-        promise.then(() => {
+        try {
+          await promise;
           authAdminReady = false;
           test.done();
-        }, () => {
+        } catch (err) {
           test.done();
-        });
+        }
       };
-      es.addAsyncListener(al);
+      es.addAsyncListener(asyncListener);
       es.getAuth().logout();
-      es.removeAsyncListener(al);
+      es.removeAsyncListener(asyncListener);
     },
-    getContextList(test) {
-      const clist = es.getContextList();
-      clist.getEntries().then((entries) => {
+    async getContextList(test) {
+      try {
+        const entries = await es.getContextList().getEntries();
         test.ok(entries.length > 0, 'No contexts found.');
         test.done();
-      }, () => {
+      } catch (err) {
         test.ok(false, 'Failed loading of contexts.');
         test.done();
-      });
+      }
     },
-    getPrincipalList(test) {
+    async getPrincipalList(test) {
       const plist = es.getPrincipalList();
-      plist.getEntries().then((entries) => {
+      try {
+        const entries = await plist.getEntries();
         test.ok(entries.length > 0, 'No principals found');
         test.done();
-      }, () => {
+      } catch (err) {
         test.ok(false, 'Failed loading principalList.');
         test.done();
-      });
+      }
     },
-    createContext(test) {
-      es.newContext().commit().then((entry) => {
+    async createContext(test) {
+      try {
+        const entry = await es.newContext().commit();
         test.ok(entry.isContext(), 'Entry created, but it is not a context');
         test.done();
-      }, () => {
+      } catch (err) {
         test.ok(false, 'Failed creating context.');
         test.done();
-      });
+      }
     },
-    createUser(test) {
+    async createUser(test) {
       const username = `${new Date().getTime()}`;
-      es.newUser(username).commit().then((entry) => {
+      try {
+        const entry = await es.newUser(username).commit();
         test.ok(entry.isUser(), 'Entry created, but it is not a user!');
         test.ok(entry.getResource(true).getName() === username, 'User created, but username provided in creation step is missing.');
         test.done();
-      }, () => {
+      } catch (err) {
         test.ok(false, 'Failed creating user.');
         test.done();
-      });
+      }
     },
-    createGroup(test) {
-      es.newGroup().commit().then((entry) => {
+    async createGroup(test) {
+      try {
+        const entry = await es.newGroup().commit();
         test.ok(entry.isGroup(), 'Entry created, but it is not a group!');
         test.done();
-      }, () => {
+      } catch (err) {
         test.ok(false, 'Failed creating group.');
         test.done();
-      });
+      }
     },
   },
 };
