@@ -97,10 +97,8 @@ export default class Auth {
    */
   async login(user, password, maxAge) {
     if (this.userInfo && this.userInfo.user === user) {
-      console.log('yeeessss!');
       return this.getUserInfo();
     }
-    console.log(user, password);
     const credentials = {
       base: this._entryStore.getBaseURI(),
       user,
@@ -109,14 +107,12 @@ export default class Auth {
     };
 
     const authPromise = this._entryStore.getREST().auth(credentials);
-    console.log(authPromise);
     this._entryStore.handleAsync(authPromise, 'login');
     const auth = await authPromise;
     if (typeof auth === 'object' && auth.user) {
       return auth;
     }
     const userInfo = await this._entryStore.getREST().get(`${this._entryStore._baseURI}auth/user`, null, true);
-    console.log(userInfo);
 
     if (this._uiDef) {
       this._uiDef.cancel();
@@ -139,9 +135,6 @@ export default class Auth {
    */
   logout() {
     if (this.userInfo && this.userInfo.user === 'guest') {
-      console.log('test');
-      const test = this.getUserInfo();
-      console.log(test);
       return this.getUserInfo();
     }
 
