@@ -4,7 +4,6 @@ const config = require('./config');
 const { repository, contextId, entryId, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 const MAX_AGE = 86400;
-let authAdminReady;
 
 exports.EntryStore = {
   inGroups: true,
@@ -35,11 +34,8 @@ exports.EntryStore = {
   },
   withAdminLogin: {
     async setUp(callback) {
-      if (!authAdminReady) {
-        // await es.getAuth().logout();
-        await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
-        authAdminReady = true;
-      }
+      await es.getAuth().logout();
+      await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
       callback();
     },
     asyncListenerLogout(test) {
@@ -47,7 +43,6 @@ exports.EntryStore = {
         test.ok(callType === 'logout', "Wrong calltype, should be 'logout'");
         try {
           await promise;
-          authAdminReady = false;
           test.done();
         } catch (err) {
           test.done();
@@ -93,7 +88,8 @@ exports.EntryStore = {
       try {
         const entry = await es.newUser(username).commit();
         test.ok(entry.isUser(), 'Entry created, but it is not a user!');
-        test.ok(entry.getResource(true).getName() === username, 'User created, but username provided in creation step is missing.');
+        test.ok(entry.getResource(true).getName() === username,
+          'User created, but username provided in creation step is missing.');
         test.done();
       } catch (err) {
         test.ok(false, 'Failed creating user.');

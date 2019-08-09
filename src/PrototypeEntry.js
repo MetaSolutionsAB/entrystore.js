@@ -19,8 +19,8 @@ export default class PrototypeEntry extends Entry {
    * @param {string} id - entry identifier, if not unique in the context the subsequent commit
    * will fail.
    */
-  constructor(context, id) {
-    const _id = id || '_newId';
+  constructor(context, id = '_newId') {
+    const _id = id;
     const cru = context.getResourceURI();
     const entryInfo = new EntryInfo(`${cru}/entry/${_id}`, null, context.getEntryStore());
     if (context.getId() === '_contexts') {

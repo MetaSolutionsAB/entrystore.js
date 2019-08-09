@@ -393,20 +393,26 @@ export default class EntryStore {
    * @see store/Context#newGraph
    * @see store/Context#newString
    */
-  createEntry(prototypeEntry) {
+  async createEntry(prototypeEntry) {
     const postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
     const postParams = factory.getEntryCreatePostData(prototypeEntry);
-    return this.handleAsync(this._rest.create(postURI, postParams).then((euri) => {
-      // var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
-      const plist = prototypeEntry.getParentList();
-      if (plist != null) {
-        const res = plist.getResource(true);
-        if (res != null && res.needRefresh) {
-          plist.getResource(true).needRefresh();
-        }
+    let entryURI;
+    try {
+      entryURI = await this.handleAsync(this._rest.create(postURI, postParams), 'createEntry');
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    // var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
+    const parentList = prototypeEntry.getParentList();
+    if (parentList != null) {
+      const res = parentList.getResource(true);
+      if (res != null && res.needRefresh) {
+        parentList.getResource(true).needRefresh();
       }
-      return this.getEntry(euri);
-    }), 'createEntry');
+    }
+    return this.getEntry(entryURI);
   }
 
   /**
@@ -432,14 +438,16 @@ export default class EntryStore {
   /**
    *
    * @param name
-   * @return {Promise}
+   * @return {Promise.<store/Entry>}
+   * @async
    */
-  createGroupAndContext(name) {
+  async createGroupAndContext(name) {
     let uri = `${this._baseURI}_principals/groups`;
     if (name != null) {
       uri += `?name=${encodeURIComponent(name)}`;
     }
-    return this.handleAsync(this._rest.create(uri).then(location => this.getEntry(location)), 'createGroupAndContext');
+    const location = await this.handleAsync(this._rest.create(uri), 'createGroupAndContext');
+    return this.getEntry(location);
   }
 
   /**

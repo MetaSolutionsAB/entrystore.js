@@ -89,7 +89,6 @@ export default class List extends Resource {
     let g;
     let h;
     const limit = this.getLimit();
-    const self = this;
 
     const f = (entries) => {
       const entriesLength = entries.length;
@@ -113,7 +112,7 @@ export default class List extends Resource {
       return h().then((cont) => {
         if (cont !== false && entriesLength === limit) {
           page += 1;
-          return self.getEntries(page).then(f);
+          return this.getEntries(page).then(f);
         }
         return Promise.resolve(idx);
       });

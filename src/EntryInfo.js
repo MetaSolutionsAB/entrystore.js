@@ -3,6 +3,18 @@ import { Graph } from 'rdfjson';
 import factory from './factory';
 import terms from './terms';
 
+const getResourceTypeHelper = (entry, vocab) => {
+  const stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
+  for (let i = 0; i < stmts.length; i++) {
+    const t = vocab[stmts[i].getValue()];
+    if (t != null) {
+      return t;
+    }
+  }
+
+  return vocab.default;
+}
+
 /**
  * EntryInfo is a class that contains all the administrative information of an entry.
  * @exports store/EntryInfo
@@ -174,17 +186,6 @@ export default class EntryInfo {
     return terms.entryType[et || 'default'];
   }
 
-  static getResourceTypeHelper(entry, vocab) {
-    const stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
-    for (let i = 0; i < stmts.length; i++) {
-      const t = vocab[stmts[i].getValue()];
-      if (t != null) {
-        return t;
-      }
-    }
-
-    return vocab.default;
-  }
 
   /**
    * the resource type of the entry, e.g. "Information", "Resolvable" etc.
@@ -195,7 +196,7 @@ export default class EntryInfo {
    * @returns {String}
    */
   getResourceType() {
-    return this.constructor.getResourceTypeHelper(this, terms.resourceType);
+    return getResourceTypeHelper(this, terms.resourceType);
   }
 
   /**
@@ -207,7 +208,7 @@ export default class EntryInfo {
    * @returns {String}
    */
   getGraphType() {
-    return this.constructor.getResourceTypeHelper(this, terms.graphType);
+    return getResourceTypeHelper(this, terms.graphType);
   }
 
   // TODO: change to entryURI instead of resourceURI for principalURIs.

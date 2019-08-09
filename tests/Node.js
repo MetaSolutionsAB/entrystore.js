@@ -2,7 +2,8 @@ const fs = require('fs');
 const { EntryStore } = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const es = new EntryStore(config.repository);
+const { repository, nonAdminUser, nonAdminPassword } = config;
+const es = new EntryStore(repository);
 const c = es.getContextById('1');
 let ready;
 

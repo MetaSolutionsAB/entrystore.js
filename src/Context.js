@@ -149,16 +149,16 @@ export default class Context extends Resource {
    * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
-   * @param {rdfjson/Graph} graph - graph to store as a resource.
+   * @param {rdfjson/Graph|{}} graph - graph to store as a resource.
    * @param {string=} id - id for the entry, fails upon commit if an entry exists already
    * with this id.
    * @returns {store/PrototypeEntry}
    */
-  newGraph(graph, id) {
+  newGraph(graph = {}, id) {
     const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
     const entryInfo = prototypeEntry.getEntryInfo();
     prototypeEntry._resource = new GraphResource(entryInfo.getEntryURI(), entryInfo.getResourceURI(),
-      this.getEntryStore(), graph || {});
+      this.getEntryStore(), graph);
 
     return prototypeEntry;
   }

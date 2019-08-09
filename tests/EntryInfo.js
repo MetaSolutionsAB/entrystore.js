@@ -28,11 +28,18 @@ exports.EntryInfo = {
       const mo = ei.getModificationDate();
       test.ok(mo > yesterday && mo < tomorrow, 'Modification date seems to be incorrect');
       test.ok(mo >= cr, 'Modification date should be same as creation date after first creation.');
-      entry.setMetadata(new Graph({ 'http://example.com': { 'http://purl.org/dc/terms/title': [{ value: 'A title', type: 'literal' }] } }))
+      entry.setMetadata(new Graph({
+        'http://example.com': {
+          'http://purl.org/dc/terms/title': [{
+            value: 'A title',
+            type: 'literal'
+          }]
+        }
+      }))
         .commitMetadata().then(() => {
-          test.ok(ei.getModificationDate() > mo, 'Modification date not changed after metadata was updated.');
-          test.done();
-        });
+        test.ok(ei.getModificationDate() > mo, 'Modification date not changed after metadata was updated.');
+        test.done();
+      });
     });
   },
   creator(test) {
@@ -53,25 +60,25 @@ exports.EntryInfo = {
       });
     });
   },
-  acl(test) {
-    context.newEntry().commit().then((entry) => {
-      const ei = entry.getEntryInfo();
-      test.ok(!ei.hasACL(), 'ACL present on created entry when no ACL was provided.');
-      const acl = { admin: [es.getEntryURI('_principals', 'admin')] };
-      ei.setACL(acl);
-      test.ok(ei.hasACL(), 'No ACL present although it was just set.');
-      ei.commit().then(() => {
-        const acl = ei.getACL();
-        test.ok(acl.admin.length === 1, 'ACL failed to save.');
-        test.ok(acl.rread.length === 0, 'Local modifications of ACL after save operation remains.');
-        test.done();
-      }, (err) => {
-        test.ok(false, `Failed updating ACL. ${err}`);
-        test.done();
-      });
-      acl.rread = [es.getEntryURI('_principals', 'admin')];
-      ei.setACL(acl); // Make a local modification.
-    });
+  async acl(test) {
+    const entry = await context.newEntry().commit();
+    const ei = entry.getEntryInfo();
+    test.ok(!ei.hasACL(), 'ACL present on created entry when no ACL was provided.');
+    const aclInfo = { admin: [es.getEntryURI('_principals', 'admin')] };
+    ei.setACL(aclInfo);
+    test.ok(ei.hasACL(), 'No ACL present although it was just set.');
+    try {
+      await ei.commit();
+      const acl = ei.getACL();
+      test.ok(acl.admin.length === 1, 'ACL failed to save.');
+      test.ok(acl.rread.length === 0, 'Local modifications of ACL after save operation remains.');
+      test.done();
+    } catch (err) {
+      test.ok(false, `Failed updating ACL. ${err}`);
+      test.done();
+    }
+    aclInfo.rread = [es.getEntryURI('_principals', 'admin')];
+    ei.setACL(aclInfo); // Make a local modification.
   },
   createWithACL(test) {
     const acl = { admin: [es.getEntryURI('_principals', 'admin')] };

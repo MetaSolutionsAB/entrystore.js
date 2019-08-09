@@ -1,14 +1,15 @@
 const { EntryStore } = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const es = new EntryStore(config.repository);
+const { repository, nonAdminUser, nonAdminPassword } = config;
+const es = new EntryStore(repository);
 const context = es.getContextById('1');
 let ready;
 
 exports.Pipeline = {
   setUp(callback) {
     if (!ready) {
-      es.getAuth().login('Donald', 'donalddonald').then(() => {
+      es.getAuth().login(nonAdminUser, nonAdminPassword, MAX_AGE).then(() => {
         ready = true;
         callback();
       });
