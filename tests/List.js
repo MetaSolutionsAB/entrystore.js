@@ -1,78 +1,88 @@
 const { EntryStore } = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const es = new EntryStore(config.repository);
-const c = es.getContextById('1');
-let ready;
+const { repository, adminUser, adminPassword } = config;
+const es = new EntryStore(repository);
 let lst;
+let context;
+let finished = false;
 
-exports.List = {
-  setUp(callback) {
-    if (!ready) {
-      es.auth({ user: 'Donald', password: 'donalddonald' }).then(() => {
-        c.newList().create().then((listentry) => {
-          lst = listentry;
-          c.newEntry().setParentList(lst).create().then((entry1) => {
-            e1 = entry1;
-            c.newEntry().setParentList(lst).create().then((entry2) => {
-              e2 = entry2;
-              ready = true;
-              callback();
-            });
-          });
-        });
-      });
-    } else {
-      callback();
+const setUp = async (callback) => {
+  if (!context) {
+    const auth = es.getAuth();
+    await auth.logout();
+    await auth.login(adminUser, adminPassword, 698700);
+    const contextEntry = await es.newContext().commit();
+    context = contextEntry.getResource(true);
+
+    lst = await context.newList().create();
+    await context.newEntry().setParentList(lst).create();
+    await context.newEntry().setParentList(lst).create();
+  }
+  callback();
+};
+
+const tearDown = async (callback) => {
+  if (finished) {
+    try {
+      const contextEntry = await context.getEntry();
+      await contextEntry.del(true);
+
+      const listEntry = await lst.getEntry();
+      await listEntry.del(true);
+
+      const auth = es.getAuth();
+      await auth.logout();
+    } catch (err) {
+      // console.error(err);
     }
+  }
+  callback();
+};
+exports.List = {
+  setUp,
+  tearDown,
+  async members(test) {
+    const resource = lst.getResource(true);
+    const entries = await resource.getEntries();
+    test.ok(entries.length >= 2, 'List have to few children');
+    test.done();
   },
 
-  members(test) {
-    const resource = lst.getResource(true);
-    resource.getEntries().then((entries) => {
-      test.ok(entries.length >= 2, 'List have to few children');
+  async addMember(test) {
+    const entry = await context.newEntry().create();
+    const lres = lst.getResource(true);
+    test.ok(entry.getParentLists().length === 0, 'New entry should not belong to a parentList unless explicitly specified.');
+    test.ok(!entry.needRefresh(), 'New entry should not be in need of a refresh.');
+    await lres.addEntry(entry);
+    lres.getEntries().then((entries) => {
+      test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed.');
       test.done();
     });
   },
 
-  addMember(test) {
-    c.newEntry().create().then((entry) => {
-      const lres = lst.getResource(true);
-      test.ok(entry.getParentLists().length === 0, 'New entry should not belong to a parentList unless explicitly specified.');
-      test.ok(!entry.needRefresh(), 'New entry should not be in need of a refresh.');
-      lres.addEntry(entry).then(() => {
-        lres.getEntries().then((entries) => {
-          test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed.');
-          test.done();
-        });
-      });
-    });
+  async addMemberOnCreate(test) {
+    const entry = await context.newEntry().setParentList(lst).create();
+    const entries = await lst.getResource(true).getEntries();
+    test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed or entry not added to list.');
+    test.done();
   },
 
-  addMemberOnCreate(test) {
-    c.newEntry().setParentList(lst).create().then((entry) => {
-      lst.getResource(true).getEntries().then((entries) => {
-        test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed or entry not added to list.');
-        test.done();
-      });
-    });
-  },
+  async removeMember(test) {
+    const entry = await context.newEntry().setParentList(lst).create();
+    const listResource = lst.getResource(true);
+    test.ok(entry.getParentLists().length === 1, 'New entry should belong to the specified parentList provided upon creation.');
+    test.ok(!entry.needRefresh(), 'New entry should not be in need of a refresh.');
 
-  removeMember(test) {
-    c.newEntry().setParentList(lst).create().then((entry) => {
-      const lres = lst.getResource(true);
-      test.ok(entry.getParentLists().length === 1, 'New entry should belong to the specified parentList provided upon creation.');
-      test.ok(!entry.needRefresh(), 'New entry should not be in need of a refresh.');
-      lres.getEntries().then((entries) => {
-        test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed.');
-        lres.removeEntry(entry).then(() => {
-          test.ok(entry.needRefresh(), 'Entry is removed from a list and should be in need of a refresh!');
-          lres.getEntries().then((entries2) => {
-            test.ok(entries2.indexOf(entry) == -1, 'Entry not removed from list, either list not refreshed or entry not removed from list.');
-            test.done();
-          });
-        });
-      });
-    });
+    const entries = await listResource.getEntries();
+    test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed.');
+    await listResource.removeEntry(entry);
+
+    test.ok(entry.needRefresh(), 'Entry is removed from a list and should be in need of a refresh!');
+    const entries2 = await listResource.getEntries();
+    test.ok(entries2.indexOf(entry) === -1, 'Entry not removed from list, either list not refreshed or entry not removed from list.');
+    test.done();
+
+    finished = true;
   },
 };
