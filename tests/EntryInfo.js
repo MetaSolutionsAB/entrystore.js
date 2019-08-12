@@ -2,19 +2,20 @@ const { Graph } = require('rdfjson');
 const store = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const { repository, nonAdminUser, nonAdminPassword, adminUser, adminPassword} = config;
+const { repository, adminUser, adminPassword} = config;
 const es = new store.EntryStore(repository);
 const now = new Date();
 const yesterday = (new Date()).setDate(now.getDate() - 1);
 const tomorrow = (new Date()).setDate(now.getDate() + 1);
 let context;
 let finished = false;
+const MAX_AGE = 86400;
 
 const setUp = async (callback) => {
   if (!context) {
     const auth = es.getAuth();
     await auth.logout();
-    await auth.login(adminUser, adminPassword, 698700);
+    await auth.login(adminUser, adminPassword, MAX_AGE);
     const contextEntry = await es.newContext().commit();
     context = contextEntry.getResource(true);
   }

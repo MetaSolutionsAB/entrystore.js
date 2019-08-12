@@ -6,12 +6,13 @@ const es = new EntryStore(repository);
 let lst;
 let context;
 let finished = false;
+const MAX_AGE = 86400;
 
 const setUp = async (callback) => {
   if (!context) {
     const auth = es.getAuth();
     await auth.logout();
-    await auth.login(adminUser, adminPassword, 698700);
+    await auth.login(adminUser, adminPassword, MAX_AGE);
     const contextEntry = await es.newContext().commit();
     context = contextEntry.getResource(true);
 
