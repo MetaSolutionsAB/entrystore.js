@@ -2,63 +2,75 @@ const { Graph } = require('rdfjson');
 const store = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const es = new store.EntryStore(config.repository);
-const context = es.getContextById('1');
-let ready;
+const { repository, nonAdminUser, nonAdminPassword, adminUser, adminPassword} = config;
+const es = new store.EntryStore(repository);
 const now = new Date();
 const yesterday = (new Date()).setDate(now.getDate() - 1);
 const tomorrow = (new Date()).setDate(now.getDate() + 1);
+let context;
+let finished = false;
 
-exports.EntryInfo = {
-  setUp(callback) {
-    if (!ready) {
-      es.auth({ user: 'Donald', password: 'donalddonald' }).then(() => {
-        ready = true;
-        callback();
-      });
-    } else {
-      callback();
+const setUp = async (callback) => {
+  if (!context) {
+    const auth = es.getAuth();
+    await auth.logout();
+    await auth.login(adminUser, adminPassword, 698700);
+    const contextEntry = await es.newContext().commit();
+    context = contextEntry.getResource(true);
+  }
+  callback();
+};
+
+const tearDown = async (callback) => {
+  if (finished) {
+    try {
+      const contextEntry = await context.getEntry();
+      await contextEntry.del(true);
+
+      const auth = es.getAuth();
+      await auth.logout();
+    } catch (err) {
+      // console.error(err);
     }
+  }
+  callback();
+};
+exports.EntryInfo = {
+  setUp,
+  tearDown,
+  async dates(test) {
+    const entry = await context.newEntry().create();
+    const ei = entry.getEntryInfo();
+    const cr = ei.getCreationDate();
+    test.ok(cr > yesterday && cr < tomorrow, 'Creation date seems to be incorrect.');
+    const mo = ei.getModificationDate();
+    test.ok(mo > yesterday && mo < tomorrow, 'Modification date seems to be incorrect');
+    test.ok(mo >= cr, 'Modification date should be same as creation date after first creation.');
+    entry.setMetadata(new Graph({
+      'http://example.com': {
+        'http://purl.org/dc/terms/title': [{
+          value: 'A title',
+          type: 'literal',
+        }],
+      },
+    }));
+    await entry.commitMetadata();
+    test.ok(ei.getModificationDate() > mo, 'Modification date not changed after metadata was updated.');
+    test.done();
   },
-  dates(test) {
-    context.newEntry().create().then((entry) => {
-      const ei = entry.getEntryInfo();
-      const cr = ei.getCreationDate();
-      test.ok(cr > yesterday && cr < tomorrow, 'Creation date seems to be incorrect.');
-      const mo = ei.getModificationDate();
-      test.ok(mo > yesterday && mo < tomorrow, 'Modification date seems to be incorrect');
-      test.ok(mo >= cr, 'Modification date should be same as creation date after first creation.');
-      entry.setMetadata(new Graph({
-        'http://example.com': {
-          'http://purl.org/dc/terms/title': [{
-            value: 'A title',
-            type: 'literal'
-          }]
-        }
-      }))
-        .commitMetadata().then(() => {
-        test.ok(ei.getModificationDate() > mo, 'Modification date not changed after metadata was updated.');
-        test.done();
-      });
-    });
+  async creator(test) {
+    const user = await es.getUserEntry();
+    const entry = await context.newEntry().create();
+    const ei = entry.getEntryInfo();
+    test.ok(ei.getCreator() === user.getResourceURI(), 'Creator does not match current user.');
+    test.done();
   },
-  creator(test) {
-    es.getUserEntry().then((user) => {
-      context.newEntry().create().then((entry) => {
-        const ei = entry.getEntryInfo();
-        test.ok(ei.getCreator() === user.getResourceURI(), 'Creator does not match current user.');
-        test.done();
-      });
-    });
-  },
-  contributors(test) {
-    es.getUserEntry().then((user) => {
-      context.newEntry().create().then((entry) => {
-        const contr = entry.getEntryInfo().getContributors();
-        test.ok(contr.length === 1 && contr[0] === user.getResourceURI(), 'No contributors.');
-        test.done();
-      });
-    });
+  async contributors(test) {
+    const user = await es.getUserEntry();
+    const entry = await context.newEntry().create();
+    const contr = entry.getEntryInfo().getContributors();
+    test.ok(contr.length === 1 && contr[0] === user.getResourceURI(), 'No contributors.');
+    test.done();
   },
   async acl(test) {
     const entry = await context.newEntry().commit();
@@ -80,67 +92,60 @@ exports.EntryInfo = {
     aclInfo.rread = [es.getEntryURI('_principals', 'admin')];
     ei.setACL(aclInfo); // Make a local modification.
   },
-  createWithACL(test) {
+  async createWithACL(test) {
     const acl = { admin: [es.getEntryURI('_principals', 'admin')] };
-    context.newEntry().setACL(acl).create().then((entry) => {
-      test.ok(entry.getEntryInfo().hasACL(), 'No ACL present although it was provided on create.');
-      test.done();
-    });
+    const entry = await context.newEntry().setACL(acl).create();
+    test.ok(entry.getEntryInfo().hasACL(), 'No ACL present although it was provided on create.');
+    test.done();
   },
-  changeResourceURI(test) {
+  async changeResourceURI(test) {
     const uri = 'http://example.com';
     const uri2 = `${uri}/about`;
-    context.newLink(uri).create().then((entry) => {
-      const ei = entry.getEntryInfo();
-      ei.setResourceURI(uri2);
-      test.ok(uri2 === ei.getResourceURI(), 'Failed to set new URI');
-      ei.commit().then(() => {
-        test.ok(ei.getResourceURI() === uri2, 'Failed to save new URI, local change remains.');
-        test.done();
-      });
-      ei.setResourceURI(uri); // Resetting old uri, local change that should be reset after save.
-    });
+    const entry = await context.newLink(uri).create();
+    const ei = entry.getEntryInfo();
+    ei.setResourceURI(uri2);
+    test.ok(uri2 === ei.getResourceURI(), 'Failed to set new URI');
+    await ei.commit();
+    test.ok(ei.getResourceURI() === uri2, 'Failed to save new URI, local change remains.');
+    test.done();
+    ei.setResourceURI(uri); // Resetting old uri, local change that should be reset after save.
   },
-  changeExternalMetadataURI(test) {
+  async changeExternalMetadataURI(test) {
     const res = 'http://slashdot.org';
     const mduri = 'http://example.com';
     const mduri2 = `${mduri}/about`;
-    context.newRef(res, mduri).create().then((entry) => {
-      const ei = entry.getEntryInfo();
-      ei.setExternalMetadataURI(mduri2);
-      test.ok(ei.getExternalMetadataURI() === mduri2, 'Failed to set new external metadata URI');
-      ei.commit().then(() => {
-        test.ok(ei.getExternalMetadataURI() === mduri2, 'Failed to save new URI, local change remains.');
-        test.done();
-      });
-      ei.setExternalMetadataURI(mduri); // Resetting old uri, local change that should be reset after save.
-    });
+    const entry = await context.newRef(res, mduri).create();
+    const ei = entry.getEntryInfo();
+    ei.setExternalMetadataURI(mduri2);
+    test.ok(ei.getExternalMetadataURI() === mduri2, 'Failed to set new external metadata URI');
+    await ei.commit();
+    test.ok(ei.getExternalMetadataURI() === mduri2, 'Failed to save new URI, local change remains.');
+    test.done();
+    ei.setExternalMetadataURI(mduri); // Resetting old uri, local change that should be reset after save.
   },
-  metadataRevisions(test) {
-    const pe = context.newEntry().addL('dcterms:title', 'First').commit()
-      .then((entry) => {
-        test.ok(entry.getEntryInfo().getMetadataRevisions().length === 1);
-        entry.addL('dcterms:description', 'Second');
-        return entry.commitMetadata().then((entry) => {
-          const ei = entry.getEntryInfo();
-          const revs = ei.getMetadataRevisions();
-          test.ok(revs.length === 2);
-          return ei.getMetadataRevisionGraph(revs[1].uri).then((graph) => {
-            test.ok(graph.findFirstValue(null, 'dcterms:description') == null);
-            test.ok(entry.getMetadata().findFirstValue(null, 'dcterms:description') != null);
-            return ei.getMetadataRevisionGraph(`${ei.getMetadataURI()}?rev=3`)
-              .then(() => {
-                test.ok(false, 'Should not be able to load non-existing versions');
-                test.done();
-              }, (err) => {
-                test.done();
-              });
-          });
-        });
-      })
-      .then(null, (err) => {
-        test.ok(false, 'Problem creating entry or updating metadata in context 1');
-        test.done();
-      });
+  async metadataRevisions(test) {
+    let entry;
+    try {
+      entry = await context.newEntry().addL('dcterms:title', 'First').commit();
+      test.ok(entry.getEntryInfo().getMetadataRevisions().length === 1);
+      entry.addL('dcterms:description', 'Second');
+    } catch (err) {
+      test.ok(false, 'Problem creating entry or updating metadata in context 1');
+      test.done();
+    }
+
+    const newEntry = await entry.commitMetadata();
+    const ei = newEntry.getEntryInfo();
+    const revs = ei.getMetadataRevisions();
+    test.ok(revs.length === 2);
+    const graph = await ei.getMetadataRevisionGraph(revs[1].uri);
+    test.ok(graph.findFirstValue(null, 'dcterms:description') == null);
+    test.ok(newEntry.getMetadata().findFirstValue(null, 'dcterms:description') != null);
+    try {
+      const a = await ei.getMetadataRevisionGraph(`${ei.getMetadataURI()}?rev=3`);
+      test.ok(false, 'Should not be able to load non-existing versions');
+    } catch (err) {}
+    test.done();
+    finished = true;
   },
 };

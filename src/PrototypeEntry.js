@@ -2,6 +2,7 @@ import Entry from './Entry';
 import EntryInfo from './EntryInfo';
 import terms from './terms';
 
+const NEW_ID_PLACEHOLDER = '_newId';
 /**
  * A PrototypeEntry is used to create new entries by collecting information about the initial
  * state of the entry to send along to the repository upon creation.
@@ -19,27 +20,26 @@ export default class PrototypeEntry extends Entry {
    * @param {string} id - entry identifier, if not unique in the context the subsequent commit
    * will fail.
    */
-  constructor(context, id = '_newId') {
-    const _id = id;
+  constructor(context, id = NEW_ID_PLACEHOLDER) {
     const cru = context.getResourceURI();
-    const entryInfo = new EntryInfo(`${cru}/entry/${_id}`, null, context.getEntryStore());
+    const entryInfo = new EntryInfo(`${cru}/entry/${id}`, null, context.getEntryStore());
     if (context.getId() === '_contexts') {
-      entryInfo._resourceURI = context.getEntryStore().getBaseURI() + _id;
+      entryInfo._resourceURI = context.getEntryStore().getBaseURI() + id;
     } else {
-      entryInfo._resourceURI = `${cru}/resource/${_id}`;
+      entryInfo._resourceURI = `${cru}/resource/${id}`;
     }
-    const oldSetResourceURI = entryInfo.setResourceURI;
-    entryInfo.setResourceURI = function (uri) {
+    const oldSetResourceURI = entryInfo.setResourceURI.bind(entryInfo);
+    entryInfo.setResourceURI = (uri) => {
       this._resourceURI = uri;
-      oldSetResourceURI.call(this, uri);
-    };
-    entryInfo.getResourceURI = function () {
-      return this._resourceURI;
+      oldSetResourceURI(uri);
+      return this;
     };
 
+    entryInfo.getResourceURI = () => this._resourceURI || entryInfo._resourceURI;
+
     super(context, entryInfo); // Call the super constructor.
-    if (id != null) {
-      this.specificId = _id;
+    if (id !== NEW_ID_PLACEHOLDER) {
+      this.specificId = id;
     }
   }
 
@@ -70,8 +70,8 @@ export default class PrototypeEntry extends Entry {
    *
    * @returns {store/PrototypeEntry} - to allow the method call to be chained.
    */
-  setResourceURI() {
-    this._entryInfo.setResourceURI(...arguments);
+  setResourceURI(uri) {
+    this._entryInfo.setResourceURI(uri);
     return this;
   }
 

@@ -3,20 +3,47 @@ const { Graph } = require('rdfjson');
 const store = require('../dist/EntryStore.node');
 const config = require('./config');
 
-const { repository, contextId, adminUser, adminPassword } = config;
-const es = new store.EntryStore(repository);
-const c = es.getContextById(contextId);
+const { repository, adminUser, adminPassword } = config;
+let context;
+let finished = false;
 const dct = 'http://purl.org/dc/terms/';
+const createEntryId1 = 'orange';
+const createEntryId2 = 'apple1';
 
-exports.Entry = {
-  async setUp(callback) {
+const setUp = async (callback) => {
+  if (!context) {
+    const es = new store.EntryStore(repository);
     const auth = es.getAuth();
     await auth.logout();
-    await auth.login(adminUser, adminPassword, 6987);
-    callback();
-  },
+    await auth.login(adminUser, adminPassword, 698700);
+    const contextEntry = await es.newContext().commit();
+    context = contextEntry.getResource(true);
+  }
+  callback();
+};
+
+const tearDown = async (callback) => {
+  if (finished) {
+    try {
+      const contextEntry = await context.getEntry();
+      await contextEntry.del(true);
+
+      const es = new store.EntryStore(repository);
+      const auth = es.getAuth();
+      await auth.logout();
+    } catch (err) {
+      // console.error(err);
+    }
+  }
+  callback();
+};
+
+
+exports.Entry = {
+  setUp,
+  tearDown,
   async refresh(test) {
-    const entry = await c.newEntry().commit();
+    const entry = await context.newEntry().commit();
     const graph = entry.getMetadata();
     graph.add(entry.getResourceURI(), `${dct}title`, { type: 'literal', value: 'Some title' });
     test.ok(!graph.isEmpty(), 'Could not change the metadata graph.');
@@ -27,30 +54,30 @@ exports.Entry = {
   },
   async createEntry(test) {
     try {
-      const entry = await c.newEntry().commit();
+      const entry = await context.newEntry().commit();
       test.ok(entry.getId() != null, 'Entry created but without id!');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed creating entry in context ${contextId}`);
+      test.ok(false, `Failed creating entry in context ${context.getId()}`);
       test.done();
     }
   },
   async createEntryWithId(test) {
     let appleEntry = null;
     try {
-      appleEntry = await c.newEntry('apple').commit();
+      appleEntry = await context.newEntry(createEntryId1).commit();
     } catch (err) {
-      test.ok(false, `Failed to create a graph in context ${contextId}`);
+      test.ok(false, `Failed to create a graph in context ${context.getId()}`);
       test.done();
       return;
     }
-    test.ok(appleEntry.getId() === 'apple', 'Entry could not be created with specific id "apple"!');
+    test.ok(appleEntry.getId() === createEntryId1, `Entry could not be created with specific id "${createEntryId1}"!`);
     await appleEntry.del();
 
     try {
-      const bananaEntry = c.newEntry('banana').commit();
-      test.ok(bananaEntry.getId() === 'banana', 'Entry could not be created with specific id "banana"!');
-      bananaEntry.del();
+      const bananaEntry = await context.newEntry(createEntryId2).commit();
+      test.ok(bananaEntry.getId() === createEntryId2, `Entry could not be created with specific id "${createEntryId2}"!`);
+      await bananaEntry.del();
       test.done();
     } catch (err) {
       test.ok(false, 'Not allowed to create entry with id that already existed');
@@ -59,17 +86,17 @@ exports.Entry = {
   },
   async createNamedEntry(test) {
     try {
-      const entry = await c.newNamedEntry().commit();
+      const entry = await context.newNamedEntry().commit();
       test.ok(entry.getId() != null, 'Entry created but without id!');
       test.ok(entry.isNamedResource(), 'Entry but not as named resource!');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed creating entry in context ${contextId}`);
+      test.ok(false, `Failed creating entry in context ${context.getId()}`);
       test.done();
     }
   },
   async createWithMetadata(test) {
-    const pe = c.newEntry();
+    const pe = context.newEntry();
     const uri = pe.getResourceURI();
     const graph = new Graph();
     graph.add(uri, `${dct}title`, { value: 'Some title', type: 'literal' });
@@ -80,12 +107,12 @@ exports.Entry = {
       test.ok(md.findFirstValue(entry.getResourceURI(), `${dct}title`) === 'Some title', 'Failed to create an entry with a title.');
       test.done();
     } catch (err) {
-      test.ok(false, `Could not create an Entry in context ${contextId}`);
+      test.ok(false, `Could not create an Entry in context ${context.getId()}`);
       test.done();
     }
   },
   async updateMetadata(test) {
-    const entry = await c.newEntry().commit();
+    const entry = await context.newEntry().commit();
     entry.getMetadata().add(entry.getResourceURI(), `${dct}title`, { type: 'literal', value: 'Some title2' });
     try {
       await entry.commitMetadata();
@@ -102,8 +129,8 @@ exports.Entry = {
   },
   async updateMetadataViaPrototype(test) {
     try {
-      const e1 = await c.newEntry().commit();
-      await c.newEntry(e1.getId()).addL(`${dct}title`, 'Some title2').commitMetadata();
+      const e1 = await context.newEntry().commit();
+      await context.newEntry(e1.getId()).addL(`${dct}title`, 'Some title2').commitMetadata();
       test.done();
     } catch (err) {
       test.ok(false, 'Failed to update metadata via prototypeentry and a given entryid');
@@ -113,50 +140,50 @@ exports.Entry = {
   async linkEntry(test) {
     const uri = 'http://example.com/';
     try {
-      const entry = await c.newLink(uri).commit();
+      const entry = await context.newLink(uri).commit();
       test.ok(entry.isLink(), 'Failed to create a link.');
       test.ok(uri === entry.getResourceURI(), 'Failed to set resourceURI during creation step.');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed to create link in context ${contextId}`);
+      test.ok(false, `Failed to create link in context ${context.getId()}`);
       test.done();
     }
   },
   async linkRefEntry(test) {
     const uri = 'http://example.com/';
     try {
-      const entry = await c.newLinkRef(uri, uri).commit();
+      const entry = await context.newLinkRef(uri, uri).commit();
       test.ok(entry.isLinkReference(), 'Failed to create a link-reference.');
       test.ok(uri === entry.getResourceURI(), 'Failed to set resourceURI during creation step.');
       test.ok(uri === entry.getEntryInfo().getExternalMetadataURI(),
         'Failed to set external metadatat URI during creation step.');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed to create linkreference in context ${contextId}`);
+      test.ok(false, `Failed to create linkreference in context ${context.getId()}`);
       test.done();
     }
   },
   async refEntry(test) {
     const uri = 'http://example.com/';
     try {
-      const entry = await c.newRef(uri, uri).commit();
+      const entry = await context.newRef(uri, uri).commit();
       test.ok(entry.isReference(), 'Failed to create a reference.');
       test.ok(uri === entry.getResourceURI(), 'Failed to set resourceURI during creation step.');
       test.ok(uri === entry.getEntryInfo().getExternalMetadataURI(),
         'Failed to set external metadatat URI during creation step.');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed to create a reference in context ${contextId}`);
+      test.ok(false, `Failed to create a reference in context ${context.getId()}`);
       test.done();
     }
   },
   async listEntry(test) {
     try {
-      const entry = await c.newList().commit();
+      const entry = await context.newList().commit();
       test.ok(entry.isList(), 'Entry created, but it is not a list as expected.');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed to create a list in context ${contextId}`);
+      test.ok(false, `Failed to create a list in context ${context.getId()}`);
       test.done();
     }
   },
@@ -166,29 +193,33 @@ exports.Entry = {
 
     let entry = null;
     try {
-      entry = await c.newGraph(g).commit();
+      entry = await context.newGraph(g).commit();
+      test.ok(entry.isGraph(), 'Entry created, but it is not a graph as expected.');
     } catch (err) {
-      test.ok(false, `Failed to create a graph in context ${contextId}`);
+      console.log(err);
+      test.ok(false, `Failed to create a graph in context ${context.getId()}`);
       test.done();
       return;
     }
-    test.ok(entry.isGraph(), 'Entry created, but it is not a graph as expected.');
 
     let res = null;
     try {
       res = await entry.getResource();
+      test.ok(res.getGraph().find().length === 1, 'The created graph Entry does save the provided graph upon creation');
     } catch (err) {
-      test.ok(false, `Failed to create a graph in context ${contextId}`);
+      console.log(err);
+      test.ok(false, `Failed to create a graph in context ${context.getId()}`);
       test.done();
       return;
     }
 
-    test.ok(res.getGraph().find().length === 1, 'The created graph Entry does save the provided graph upon creation');
     const g2 = new Graph();
-    await res.setGraph(g2).commit();
-    entry.setRefreshNeeded();
-    await entry.refresh();
-    test.ok(res.getGraph().isEmpty(), 'Failed to update ');
+    try {
+      await res.setGraph(g2).commit();
+      entry.setRefreshNeeded();
+      await entry.refresh();
+      test.ok(res.getGraph().isEmpty(), 'Failed to update ');
+    } catch (err) {}
     test.done();
 
     g2.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title2' });
@@ -196,9 +227,9 @@ exports.Entry = {
   async updateGraphEntry(test) {
     let entry = null;
     try {
-      entry = c.newGraph().commit();
+      entry = await context.newGraph().commit();
     } catch (err) {
-      test.ok(false, `Failed to create a graph in context ${contextId}`);
+      test.ok(false, `Failed to create a graph in context ${context.getId()}`);
       test.done();
       return;
     }
@@ -207,11 +238,11 @@ exports.Entry = {
     g.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title' });
     try {
       await res.setGraph(g).commit();
+      test.ok(res.getGraph().find(null, `${dct}subject`).length === 1, 'Statement added after save missing, should be there until refresh.');
     } catch (err) {
       test.ok(false, `Failed to update resource of entry graph. ${err}`);
       test.done();
     }
-    test.ok(res.getGraph().find(null, `${dct}subject`).length === 1, 'Statement added after save missing, should be there until refresh.');
     entry.setRefreshNeeded();
     try {
       await entry.refresh();
@@ -229,13 +260,13 @@ exports.Entry = {
   },
   async stringEntry(test) {
     try {
-      const entry = await c.newString('one').commit();
+      const entry = await context.newString('one').commit();
       test.ok(entry.isString(), 'Entry created, but it is not a string as expected.');
       const res = await entry.getResource();
       test.ok(res.getString() === 'one', 'The created string entry does not have the string provided upon creation.');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed to create a string entry in context ${contextId}`);
+      test.ok(false, `Failed to create a string entry in context ${context.getId()}`);
       test.done();
     }
   },
@@ -243,13 +274,12 @@ exports.Entry = {
     const str = 'a string';
     let entry = null;
     try {
-      entry = await c.newString('').commit();
+      entry = await context.newString('').commit();
     } catch (err) {
-      test.ok(false, `Failed to create a string entry in context ${contextId}`);
+      test.ok(false, `Failed to create a string entry in context ${context.getId()}`);
       test.done();
       return;
     }
-    test.ok(false, `Failed to update resource of string entry. ${err}`);
     test.done();
     const res = await entry.getResource();
     test.ok(res.getString() === '', 'Empty string instead of null');
@@ -276,17 +306,17 @@ exports.Entry = {
     const graph = new Graph();
     graph.add(uri, `${dct}title`, { value: 'Some title', type: 'literal' });
     try {
-      const entry = await c.newLinkRef(uri, uri).setCachedExternalMetadata(graph).commit();
+      const entry = await context.newLinkRef(uri, uri).setCachedExternalMetadata(graph).commit();
       test.ok(!entry.getCachedExternalMetadata().isEmpty(), 'Failed to set cached external metadata in creation step.');
       test.done();
     } catch (err) {
-      test.ok(false, `Failed to create Entry with cached external metadata in context ${contextId}`);
+      test.ok(false, `Failed to create Entry with cached external metadata in context ${context.getId()}`);
       test.done();
     }
   },
   async updateCachedExternalMetadata(test) {
     const uri = 'http://example.com/';
-    const entry = await c.newRef(uri, uri).commit();
+    const entry = await context.newRef(uri, uri).commit();
     const cachedExternalMetadata = entry.getCachedExternalMetadata();
     test.ok(cachedExternalMetadata.isEmpty(), 'New Link entry has non-empty cached external metadata, strange.');
     cachedExternalMetadata.add(entry.getResourceURI(), `${dct}title`, { value: 'A title', type: 'literal' });
@@ -302,12 +332,13 @@ exports.Entry = {
   async ifUnModifiedSinceCheck(test) {
     let entry = null;
     try {
-      entry = await c.newEntry().commit();
+      entry = await context.newEntry().commit();
     } catch (err) {
-      test.ok(false, `Could not create an Entry in context ${contextId}`);
+      test.ok(false, `Could not create an Entry in context ${context.getId()}`);
       test.done();
       return;
     }
+
     const uri = entry.getResourceURI();
     entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
     await entry.commitMetadata();
@@ -326,5 +357,7 @@ exports.Entry = {
     } catch (err) {
       test.done();
     }
+    test.done();
+    finished = true;
   },
 };

@@ -45,7 +45,7 @@ export default class StringResource extends Resource {
    * @see store/String#setString
    */
   commit() {
-    return this._entryStore.handleAsync(es.getREST().put(this._resourceURI, this._data), 'commitString');
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, this._data), 'commitString');
   }
 
   getSource() {
