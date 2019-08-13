@@ -3,12 +3,12 @@ import List from './List';
 import factory from './factory';
 
 /**
- * @exports store/SearchList
+ * @exports SearchList
  */
 export default class SearchList {
 
   /**
-   * @param {store/EntryStore} entryStore
+   * @param {EntryStore} entryStore
    * @param {Object} query
    * @param {string} callType parameter provided to asyncListeners on query execution,
    * assumed to be 'search' if left out
@@ -21,7 +21,7 @@ export default class SearchList {
   }
 
   /**
-   * the query instance, e.g. an instance of store/SolrQuery, associated with this SearchList.
+   * the query instance, e.g. an instance of SolrQuery, associated with this SearchList.
    * @returns {Object}
    */
   getQuery() {

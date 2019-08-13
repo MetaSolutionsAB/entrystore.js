@@ -34,7 +34,7 @@ const getPreventCacheNumber = () => parseInt((Math.random() * 10000).toString(),
  * Authentication is done via cookies and accept headers are in general set to
  * application/json behind the scenes.
  *
- * @exports store/Rest
+ * @exports Rest
  */
 export default class Rest {
   constructor() {
@@ -133,7 +133,7 @@ export default class Rest {
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
    * @return {Promise} A thenable object
    * @async
-   * @throws
+   * @throws Error
    */
   async get(uri, format = null, nonJSONP = false) {
     const locHeaders = Object.assign({}, this.headers);

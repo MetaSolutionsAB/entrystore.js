@@ -7,13 +7,13 @@ import factory from './factory';
  * a list itself. To avoid circular references list entries are only allowed to appear
  * in one parent list.
  *
- * @exports store/List
+ * @exports List
  */
 export default class List extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
+   * @param {EntryStore} entryStore - the API's repository instance.
    */
   constructor(entryURI, resourceURI, entryStore) {
     super(entryURI, resourceURI, entryStore);
@@ -30,7 +30,7 @@ export default class List extends Resource {
    * Set the max amount of entries to include in each page during pagination.
    *
    * @param {integer} limit
-   * @returns {store/List} allows chaining of set-operations.
+   * @returns {List} allows chaining of set-operations.
    */
   setLimit(limit) {
     this._limit = limit;
@@ -50,8 +50,8 @@ export default class List extends Resource {
    * Sets the sort order when loading entries contained in this list.
    *
    * @param {Object} sortParams - same object structure as the sort parameter in
-   * optionalLoadParameters in {@link store/EntryStore#getEntry} method.
-   * @returns {store/List} allows chaining of set-operations.
+   * optionalLoadParameters in {@link EntryStore#getEntry} method.
+   * @returns {List} allows chaining of set-operations.
    */
   setSort(sortParams) {
     this._clearSortedEntries();
@@ -64,7 +64,7 @@ export default class List extends Resource {
    * pagination settings.
    * @param {number} page - the page to request an array of entries for,
    * first page is numbered 0.
-   * @returns {Promise.<store/Entry[]>} the promise will return an entry-array.
+   * @returns {Promise.<Entry[]>} the promise will return an entry-array.
    */
   getEntries(page = 0) {
     const results = this._getEntries(page);
@@ -127,8 +127,8 @@ export default class List extends Resource {
    * refresh due to stale inv-rel cache. However,since List entry is loaded it may be refreshed
    * already when method is resolved, it depends if it is in the first page of the list.
    *
-   * @param {store/Entry} entry - entry to add to the list.
-   * @returns {Promise.<store/Entry>}
+   * @param {Entry} entry - entry to add to the list.
+   * @returns {Promise.<Entry>}
    */
   async addEntry(entry) {
     const entries = await this.getAllEntryIds();
@@ -144,7 +144,7 @@ export default class List extends Resource {
    * of a refresh due to stale inv-rel cache. However,since List entry is loaded it may be
    * refreshed already when method is resolved, it depends if it is in the first page of the list.
    *
-   * @param {store/Entry} entry - entry to be removed from the list.
+   * @param {Entry} entry - entry to be removed from the list.
    * @returns {Promise}
    */
   async removeEntry(entry) {
@@ -182,7 +182,7 @@ export default class List extends Resource {
    *
    * @param {string[]} entries - array of entry ids (as strings, not full URIs).
    * @param {string} callType
-   * @returns {Promise.<store/Entry>}
+   * @returns {Promise.<Entry>}
    */
   setAllEntryIds(entries, callType) {
     return this._entryStore.handleAsync(

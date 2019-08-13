@@ -92,7 +92,7 @@ const buildQuery = (struct, isAnd) => {
  *
  * The example yields a search for entries that have a title that contains "some title"
  * and a rdf:type of "http://example.com/Person" expressed in the metadata.
- * To execute the query you can either ask for a {@link store/SearchList} and then call
+ * To execute the query you can either ask for a {@link SearchList} and then call
  * getEntries (or forEach):
  *
  *     const sl = sq.list();
@@ -114,18 +114,18 @@ const buildQuery = (struct, isAnd) => {
  *
  * Supported methods on the solr object correspond in large to the available solr fields
  * documented at, some method names are different to avoid dots:
- * {@link https://code.google.com/p/entrystore/wiki/KnowledgeBaseSearch}
+ * {@link https://code.google.com/p/entrywiki/KnowledgeBaseSearch}
  *
- * There is also a special method ({@link store/SolrQuery#getQuery getQuery}) for getting the
+ * There is also a special method ({@link SolrQuery#getQuery getQuery}) for getting the
  * query as a string that is used by EntryStore API behind the scenes, you can safely ignore
  * this method.
  *
- * @exports store/SolrQuery
+ * @exports SolrQuery
  */
 export default class SolrQuery {
 
   /**
-   * @param {store/EntryStore} entrystore
+   * @param {EntryStore} entrystore
    */
   constructor(entrystore) {
     this._entrystore = entrystore;
@@ -175,7 +175,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   title(val, modifier) {
     return this._q('title', val, modifier);
@@ -186,7 +186,7 @@ export default class SolrQuery {
    * Includes dc:description, dcterms:description, rdfs:comment
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   description(val, modifier) {
     return this._q('description', val, modifier);
@@ -198,7 +198,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   tagLiteral(val, modifier) {
     return this._q('tag.literal', val, modifier);
@@ -210,7 +210,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   tagURI(val, modifier) {
     return this._q('tag.uri', val, modifier);
@@ -222,7 +222,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   lang(val, modifier) {
     return this._q('lang', val, modifier);
@@ -233,7 +233,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   all(val, modifier) {
     return this._q('all', val, modifier);
@@ -244,7 +244,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   subject(val, modifier) {
     return this._q('metadata.subject', val, modifier);
@@ -255,7 +255,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   predicate(val, modifier) {
     return this._q('metadata.predicate', val, modifier);
@@ -266,7 +266,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   objectLiteral(val, modifier) {
     return this._q('metadata.object.literal', val, modifier);
@@ -277,7 +277,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   objectUri(val, modifier) {
     return this._q('metadata.object.uri', val, modifier);
@@ -288,7 +288,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   resource(val, modifier = null) {
     return this._q('resource', val, modifier);
@@ -299,7 +299,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   uri(val, modifier) {
     return this._q('uri', val, modifier);
@@ -311,7 +311,7 @@ export default class SolrQuery {
    *
    * @param {string|array} rdfType
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   rdfType(rdfType, modifier = null) {
     if (Array.isArray(rdfType)) {
@@ -325,7 +325,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   creator(val, modifier) {
     return this._q('creator', val, modifier);
@@ -336,7 +336,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   contributors(val, modifier) {
     return this._q('contributors', val, modifier);
@@ -347,7 +347,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   lists(val, modifier) {
     return this._q('lists', val, modifier);
@@ -358,7 +358,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   created(val, modifier) {
     return this._q('created', val, modifier);
@@ -369,43 +369,43 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   modified(val, modifier) {
     return this._q('modified', val, modifier);
   }
 
   /**
-   * Matches entries with the given entry type, use the values in {@link store/types}, e.g.
+   * Matches entries with the given entry type, use the values in {@link types}, e.g.
    * sq.entryType(types.ET_LINK).
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   entryType(val, modifier) {
     return this._q('entryType', val, modifier);
   }
 
   /**
-   * Matches entries with the given graph type, use the values in {@link store/types}, e.g.
+   * Matches entries with the given graph type, use the values in {@link types}, e.g.
    * sq.entryType(types.GT_USER).
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   graphType(val, modifier = null) {
     return this._q('graphType', val, modifier);
   }
 
   /**
-   * Matches entries with the given resource type, use the values in {@link store/types}, e.g.
+   * Matches entries with the given resource type, use the values in {@link types}, e.g.
    * sq.entryType(types.RT_INFORMATIONRESOURCE).
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   resourceType(val, modifier) {
     return this._q('resourceType', val, modifier);
@@ -417,7 +417,7 @@ export default class SolrQuery {
    * automatically. Hence, this flag may be incorrect.
    *
    * @param {true|false} isPublic
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   publicRead(isPublic = true) {
     return this._q('public', isPublic === true ? 'true' : 'false');
@@ -428,7 +428,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   admin(val, modifier) {
     return this._q('acl.admin', val, modifier);
@@ -439,7 +439,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   metadataRead(val, modifier) {
     return this._q('acl.metadata.r', val, modifier);
@@ -450,7 +450,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   metadataWrite(val, modifier) {
     return this._q('acl.metadata.rw', val, modifier);
@@ -461,7 +461,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   resourceRead(val, modifier) {
     return this._q('acl.resource.r', val, modifier);
@@ -472,7 +472,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   resourceWrite(val, modifier) {
     return this._q('acl.resource.rw', val, modifier);
@@ -483,7 +483,7 @@ export default class SolrQuery {
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   status(val, modifier) {
     return this._q('status', val, modifier);
@@ -492,12 +492,12 @@ export default class SolrQuery {
   /**
    * Matches only entries within specified context(s)
    *
-   * @param {string|store/Context} context either a contextId, the resourceURI for a
-   +     * context, a store/Context instance or an array containing any of those. In case of a
+   * @param {string|Context} context either a contextId, the resourceURI for a
+   +     * context, a Context instance or an array containing any of those. In case of a
    +     * string, either directly or within the array and it starts with 'http' it is assumed it is
    +     * the resourceURI of the context, otherwise the context is assumed to be a contextId.
    * @param {true|false|string} modifier
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   context(context, modifier = null) {
     const f = (c) => {
@@ -542,7 +542,7 @@ export default class SolrQuery {
    * use the disjunctive method.
    *
    * @param {Object} structure
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   or(structure) {
     this._or.add(structure);
@@ -565,7 +565,7 @@ export default class SolrQuery {
    * since there is no need for the grouping of the object structure otherwise.
    *
    * @param {Object} structure
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   and(structure) {
     this._and.add(structure);
@@ -584,7 +584,7 @@ export default class SolrQuery {
    * without multi value support. This is used in the context of sorting.
    * @param title {String} the title to search for
    * @param language {String} the language of the title for instance "en".
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   titleWithLanguage(title, language) {
     this._title_lang = { value: title, language };
@@ -600,7 +600,7 @@ export default class SolrQuery {
    * @param {text|string} [indexType=ngram] 'ngram' corresponds to partial string
    * matching, string corresponds to exact string matching and text corresponds to word matching.
    * @param {boolean} [related=false] will search in related properties if true, default is false
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   literalProperty(predicate, object, modifier, indexType = 'ngram', related = false) {
     const key = shorten(predicate);
@@ -634,7 +634,7 @@ export default class SolrQuery {
    * @param {string|array} object
    * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   integerProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
@@ -656,7 +656,7 @@ export default class SolrQuery {
    * @param {string|array} object
    * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   uriProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
@@ -676,7 +676,7 @@ export default class SolrQuery {
    * Sets the pagination limit.
    *
    * @param {string|number} limit
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   limit(limit) {
     this._limit = limit;
@@ -701,7 +701,7 @@ export default class SolrQuery {
    * If no sort is explicitly given the default sort string used is "score+asc".
    * @param sort {String} a list of fields together with '+asc' or '+desc', first field has the
    * highest priority when sorting.
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   sort(sort) {
     this._sort = sort;
@@ -712,7 +712,7 @@ export default class SolrQuery {
    * Set an explicit offset.
    *
    * @param {string|number} offset
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   offset(offset) {
     this._offset = offset;
@@ -724,7 +724,7 @@ export default class SolrQuery {
    * @param {string} facet
    * @param {string} predicate
    * @param {boolean} [related=false]
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   facet(facet, predicate, related = false) {
     this.facets = this.facets || [];
@@ -745,7 +745,7 @@ export default class SolrQuery {
    * Request to include literal facets for the given predicate
    * @param {string} predicate
    * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   literalFacet(predicate, related = false) {
     this.facet(`${related ? 'related.' : ''}metadata.predicate.literal_s.${shorten(predicate)}`, predicate, related);
@@ -756,7 +756,7 @@ export default class SolrQuery {
    * Request to include URI facets for the given predicate
    * @param {string} predicate
    * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   uriFacet(predicate, related = false) {
     this.facet(`${related ? 'related.' : ''}metadata.predicate.uri.${shorten(predicate)}`, predicate, related);
@@ -767,7 +767,7 @@ export default class SolrQuery {
    * Request to include integer facets for the given predicate
    * @param {string} predicate
    * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   integerFacet(predicate, related = false) {
     this.facet(`${related ? 'related.' : ''}metadata.predicate.integer.${shorten(predicate)}`, predicate, related);
@@ -786,7 +786,7 @@ export default class SolrQuery {
    * ex:Banana via dcterms:subject. The default, without disjunctiveProperties being called
    * is to create a conjunction, i.e. AND them together.
    *
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   disjunctiveProperties() {
     this.disjunctiveProperties = true;
@@ -802,7 +802,7 @@ export default class SolrQuery {
    * Will search for entries that have either a "banana" in the title or "tomato" in the
    * description rather than entries that have both which is the default.
    *
-   * @return {store/SolrQuery}
+   * @return {SolrQuery}
    */
   disjunctive() {
     this.disjunctive = true;
@@ -813,7 +813,7 @@ export default class SolrQuery {
    * Construct a SearchList fro this SolrQuery.
    *
    * @param asyncCallType
-   * @returns {store/SearchList}
+   * @returns {SearchList}
    */
   list(asyncCallType) {
     return new SearchList(this._entrystore, this, asyncCallType);
@@ -938,7 +938,7 @@ export default class SolrQuery {
   /**
    * @param page
    * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
-   * @see {store/List.getEntries}
+   * @see {List.getEntries}
    */
   getEntries(page) {
     return this.list().getEntries(page);
@@ -947,7 +947,7 @@ export default class SolrQuery {
   /**
    * @param func
    * @return {promise}
-   * @see {store/List.forEach}
+   * @see {List.forEach}
    */
   forEach(func) {
     return this.list().forEach(func);

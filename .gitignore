@@ -1,10 +1,9 @@
 node_modules
-/libs
 /tests/config.js
 /jsdoc
 .idea
-release/
 dist/
+out/
 samples/config.js
 *~
 *.vim

@@ -3,7 +3,7 @@
  * The cache also provides a listener functionality that allows you to be notified of
  * when entries are updated.
  *
- * @exports store/Cache
+ * @exports Cache
  */
 export default class Cache {
   constructor() {
@@ -14,13 +14,13 @@ export default class Cache {
     this._listenersIdx = new Map();
 
     /**
-     * @type {Map<string, store/Entry>}
+     * @type {Map<string, Entry>}
      * @private
      */
     this._cacheIdx = new Map();
 
     /**
-     * @type {Map<string, Set<store/Entry>>}
+     * @type {Map<string, Set<Entry>>}
      * @private
      */
     this._cacheIdxResource = new Map();
@@ -38,7 +38,7 @@ export default class Cache {
    * Add or update the entry to the cache.
    * All listeners will be notified unless silently is specified.
    *
-   * @param {store/Entry} entry
+   * @param {Entry} entry
    * @param {Boolean=} silently - listeners will be notified unless true is specified.
    */
   cache(entry, silently) {
@@ -67,7 +67,7 @@ export default class Cache {
 
   /**
    * Removes a single entry from the cache.
-   * @param {store/Entry} entry the entry to remove.
+   * @param {Entry} entry the entry to remove.
    */
   unCache(entry) {
     const entryURI = entry.getURI();
@@ -89,7 +89,7 @@ export default class Cache {
    * All listeners are notified of the entry now being in need of refreshing unless
    * silently is set to true.
    *
-   * @param {store/Entry} entry
+   * @param {Entry} entry
    * @param {Boolean=} silently
    */
   setRefreshNeeded(entry, silently) {
@@ -107,9 +107,9 @@ export default class Cache {
   /**
    * A convenience method for caching multiple entries.
    *
-   * @param {store/Entry[]} entryArr
+   * @param {Entry[]} entryArr
    * @param {Boolean=} silently
-   * @see store/Cache#cache
+   * @see Cache#cache
    */
   cacheAll(entryArr, silently) {
     entryArr.forEach((entry) => {
@@ -121,7 +121,7 @@ export default class Cache {
    * Retrieve the entry from it's URI.
    *
    * @param {String} entryURI
-   * @returns {store/Entry|undefined}
+   * @returns {Entry|undefined}
    */
   get(entryURI) {
     return this._cacheIdx.get(entryURI);
@@ -134,7 +134,7 @@ export default class Cache {
    * there will be zero or one entry per uri.
    *
    * @param {String} uri
-   * @returns {Set<store/Entry>} always returns a set, may be empty though.
+   * @returns {Set<Entry>} always returns a set, may be empty though.
    */
   getByResourceURI(uri) {
     return new Set(this._cacheIdxResource.get(uri));
@@ -143,7 +143,7 @@ export default class Cache {
   /**
    * Tells whether the entry is in need of a refresh from the repository.
    *
-   * @param {store/Entry} entry
+   * @param {Entry} entry
    * @returns {boolean}
    */
   needRefresh(entry) {
@@ -183,7 +183,7 @@ export default class Cache {
    * refreshed - the specified entry have been refreshed.
    *
    * @param {String} topic
-   * @param {store/Entry=} affectedEntry
+   * @param {Entry=} affectedEntry
    */
   messageListeners(topic, affectedEntry) {
     this._listenersIdx.forEach((func) => {

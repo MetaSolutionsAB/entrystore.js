@@ -8,20 +8,20 @@ import types from './types';
 /**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
  *
- * @exports store/Context
+ * @exports Context
  */
 export default class Context extends Resource {
   /**
    * Retrieves a list of entries in the context.
    *
    * @param {Object} sort - same sort object as provided in the optionalLoadParams to
-   * {@see store/EntryStore#getEntry getEntry} method.
+   * {@see EntryStore#getEntry getEntry} method.
    * @param {Object} limit - same limit as provided in the optionalLoadParams to
-   * {@see store/EntryStore#getEntry getEntry} method.
+   * {@see EntryStore#getEntry getEntry} method.
    * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify
    * which page to load, first page is 0.
-   * @returns {Promise.<store/Entry[]>} upon success the promise returns an array of entries.
-   * @see store/EntryStore#getListEntries
+   * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.
+   * @see EntryStore#getListEntries
    */
   listEntries(sort, limit, page) {
     return this.getEntryStore().getListEntries(`${this._resourceURI}/entry/_all`, sort, limit, page);
@@ -31,9 +31,9 @@ export default class Context extends Resource {
    * Convenience method, to retrieve an entry from this context.
    *
    * @param {string} entryId
-   * @param {object} optionalLoadParams same parameter as in {@see store/EntryStore#getEntry}
-   * @returns {Promise.<store/Entry>}
-   * @see store/EntryStore#getEntry
+   * @param {object} optionalLoadParams same parameter as in {@see EntryStore#getEntry}
+   * @returns {Promise.<Entry>}
+   * @see EntryStore#getEntry
    */
   getEntryById(entryId, optionalLoadParams = {}) {
     return this.getEntryStore().getEntry(this.getEntryURIbyId(entryId), optionalLoadParams);
@@ -51,12 +51,12 @@ export default class Context extends Resource {
 
   /**
    * Factory method to create a PrototypeEntry that has the current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
    * @param {string=} id - id for the entry, fails after commit if an entry exists already with
    * this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newEntry(id) {
     return new PrototypeEntry(this, id);
@@ -65,12 +65,12 @@ export default class Context extends Resource {
   /**
    * Factory method to create a PrototypeEntry that corresponds to a local named resource that
    * has the current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
    * @param {string=} id - id for the entry, fails after commit if an entry exists already
    * with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newNamedEntry(id) {
     return new PrototypeEntry(this, id).setResourceType(types.RT_NAMEDRESOURCE);
@@ -79,13 +79,13 @@ export default class Context extends Resource {
   /**
    * Factory method to create a PrototypeEntry that corresponds to a link that has the
    * current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create
    * it (returns a promise).
    *
    * @param {string} link - the URI for the resource we are making a link to, mandatory.
    * @param {string=} id - id for the entry, fails after commit if an entry exists already
    * with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newLink(link, id) {
     return new PrototypeEntry(this, id).setResourceURI(link).setEntryType(types.ET_LINK);
@@ -93,14 +93,14 @@ export default class Context extends Resource {
 
   /**
    * Factory method to create a PrototypeEntry that is a linkref that has the current context
-   * as container. Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to
+   * as container. Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to
    * actually create it (returns a promise).
    *
    * @param {string} link - is the URI for the resource we are making a link to, mandatory.
    * @param {string} metadataLink - is the URI for the metadata are referring to, mandatory.
    * @param {string=} id - id for the entry, fails after commit if an entry exists already
    * with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newLinkRef(link, metadataLink, id) {
     return new PrototypeEntry(this, id)
@@ -111,7 +111,7 @@ export default class Context extends Resource {
 
   /**
    * Factory method to create a PrototypeEntry that is a reference and has the current
-   * context as container. Call {@link store/PrototypeEntry#commit commit} on the
+   * context as container. Call {@link PrototypeEntry#commit commit} on the
    * PrototypeEntry to actually create it (returns a promise).
    * The only difference to the newLinkRef method is that the EntryType is Reference instead
    * of LinkReference which implies that there is no local metadata.
@@ -120,7 +120,7 @@ export default class Context extends Resource {
    * @param {string} metadataLink - the URI for the metadata are referring to, mandatory.
    * @param {string=} id for the entry, fails after commit if an entry exists already with
    * this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newRef(link, metadataLink, id) {
     return new PrototypeEntry(this, id)
@@ -130,29 +130,29 @@ export default class Context extends Resource {
   }
 
   /**
-   * Factory method to create a PrototypeEntry whose resource is a {@link store/List List)
+   * Factory method to create a PrototypeEntry whose resource is a {@link List List)
    * and has the current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create
    * it (returns a promise).
    *
    * @param {string} id an optional id for the entry, fails on commit if an entry exists already
    * with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newList(id) {
     return new PrototypeEntry(this, id).setGraphType(types.GT_LIST);
   }
 
   /**
-   * Factory method to create a PrototypeEntry whose resource is a {@link store/Graph Graph}
+   * Factory method to create a PrototypeEntry whose resource is a {@link Graph Graph}
    * and has the current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
    * @param {rdfjson/Graph|{}} graph - graph to store as a resource.
    * @param {string=} id - id for the entry, fails upon commit if an entry exists already
    * with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newGraph(graph = {}, id) {
     const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
@@ -164,15 +164,15 @@ export default class Context extends Resource {
   }
 
   /**
-   * Factory method to create a PrototypeEntry whose resource is a {@link store/String String}
+   * Factory method to create a PrototypeEntry whose resource is a {@link String String}
    * that has the current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create
    * it (returns a promise).
    *
    * @param {string=} str an optional string for the String Resource.
    * @param {String} id an optional id for the entry, fails upon commit if an entry exists
    * already with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newString(str, id) {
     const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_STRING);
@@ -185,13 +185,13 @@ export default class Context extends Resource {
 
   /**
    * Factory method to create a PrototypeEntry whose resource is a
-   * {@link store/Pipeline pipeline} that has the current context as container.
-   * Call {@link store/PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
+   * {@link Pipeline pipeline} that has the current context as container.
+   * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
    * @param {String} id an optional id for the entry, fails upon commit if an entry exists
    * already with this id.
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newPipeline(id) {
     const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_PIPELINE);
@@ -234,7 +234,7 @@ export default class Context extends Resource {
   /**
    * Finds the user or group that has this context as homecontext if any.
    *
-   * @returns {Promise.<store/Entry>} if succeeds if context a homecontext of some user or group.
+   * @returns {Promise.<Entry>} if succeeds if context a homecontext of some user or group.
    * @async
    */
   async getHomeContextOf() {

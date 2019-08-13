@@ -19,12 +19,12 @@ import User from './User';
  *
  * Hence, **you should avoid using factory methods directly in application code as there are
  * most probably other ways to achieve the same thing. Most likely by using method in
- * {@link store/EntryStore}!**
+ * {@link EntryStore}!**
  *
  * The utility methods are currently not visible as they are not documented yet.
  * (The methods cannot be marked as private as they need to be used throughout the API.)
  *
- * @exports store/factory
+ * @exports factory
  * @namespace
  */
 
@@ -180,7 +180,7 @@ const _updateEntry = (entry, data) => {
  *
  * @param entryStore
  * @param contextEntryURI
- * @return {store/Context}
+ * @return {Context}
  */
 const getContext = (entryStore, contextEntryURI) => {
   const baseURI = entryStore.getBaseURI();
@@ -297,7 +297,7 @@ const extractSearchResults = (data, list, entryStore) => {
 const getCachedExternalMetadataURI = entryURI => entryURI.replace('/entry/', '/cached-external-metadata/');
 
 /**
- * @deprecated in favor of {@link store/factory#getEntryId}
+ * @deprecated in favor of {@link factory#getEntryId}
  */
 const getId = uri => uri.substr(uri.lastIndexOf('/') + 1);
 

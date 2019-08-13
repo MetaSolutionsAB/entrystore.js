@@ -25,7 +25,8 @@
     "eslint": "^5.6.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "jaguarjs-jsdoc": "0.0.1",
+    "jaguarjs-jsdoc": "^1.1.0",
+    "jsdoc": "^3.6.3",
     "nodeunit": "^0.11.2",
     "print-licenses": "https://bitbucket.org/metasolutions/print-licenses#master",
     "webpack": "^4.39.1",
@@ -46,6 +47,7 @@
     "build:dev": "webpack --config webpack.all.js --mode development",
     "test": "nodeunit ./tests/executeTests.js",
     "eslint": "eslint 'src/**/*.js'",
+    "jsdoc": "jsdoc src -r -t node_modules/jaguarjs-jsdoc -c jsdocConf.json",
     "print-licenses": "print-licenses"
   }
 }

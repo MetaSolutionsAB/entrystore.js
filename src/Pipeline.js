@@ -5,7 +5,7 @@ import terms from './terms';
  * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
  * specific type and takes a set of arguments.
  *
- * @exports store/Pipeline
+ * @exports Pipeline
  */
 export default class Pipeline extends GraphResource {
   /**
@@ -24,7 +24,7 @@ export default class Pipeline extends GraphResource {
   }
 
   /**
-   * @see store/Pipeline#getDestination
+   * @see Pipeline#getDestination
    * @param {String} entryOrEntryURI entry URI, empty string for new entries every time,
    * use undefined to remove destination setting altogether.
    */
@@ -64,7 +64,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    *
-   * @see store/Pipeline#getDetectDestination
+   * @see Pipeline#getDetectDestination
    * @param {boolean} detect if true detection of entry references in the graph is attempted.
    */
   setDetectDestination(detect) {
@@ -114,7 +114,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Adds a new transform.
    *
-   * @param {String} type one of the [getTransforms]{@link store/Pipeline#getTransforms}.
+   * @param {String} type one of the [getTransforms]{@link Pipeline#getTransforms}.
    * @param {Object} args a hash of key value pairs for this transform.
    * @returns {String} the newly transforms id (for this session, may change after save / load
    * so take care).
@@ -136,8 +136,8 @@ export default class Pipeline extends GraphResource {
    * Removes a transform.
    *
    * @param {String} transformId the blank node of a specific transform as retrieved by
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @see store/Pipeline#getTransforms
+   * [getTransforms]{@link Pipeline#getTransforms}.
+   * @see Pipeline#getTransforms
    */
   removeTransform(transformId) {
     this.setTransformArguments(transformId, {});
@@ -149,8 +149,8 @@ export default class Pipeline extends GraphResource {
    * Changes the order of the transforms by changing their priority properties.
    *
    * @param {Array} transforms
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @see store/Pipeline#getTransforms
+   * [getTransforms]{@link Pipeline#getTransforms}.
+   * @see Pipeline#getTransforms
    */
   setOrderOfTransforms(transforms) {
     for (let i = 0; i < transforms.length; i++) {
@@ -163,7 +163,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    * @param {String} transformId the blank node of a specific transform as retrieved by
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
+   * [getTransforms]{@link Pipeline#getTransforms}.
    * @returns {number} the priority as a float.
    */
   getPriority(transformId) {
@@ -180,9 +180,9 @@ export default class Pipeline extends GraphResource {
   /**
    * It is recommended to use setOrderOfTransforms instead.
    * @param {String} transformId the blank node of a specific transform as retrieved by
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
+   * [getTransforms]{@link Pipeline#getTransforms}.
    * @param {number} prio the priority as a float.
-   * @see store/Pipeline#setOrderOfTransforms
+   * @see Pipeline#setOrderOfTransforms
    */
   setPriority(transformId, prio) {
     this._graph.findAndRemove(transformId, terms.pipeline.transformPriority);
@@ -193,8 +193,8 @@ export default class Pipeline extends GraphResource {
 
   /**
    * @param {String} transformId the blank node of a specific transform as retrieved by
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @returns {String} one of the values specified in {@link store/Pipeline#transformTypes}.
+   * [getTransforms]{@link Pipeline#getTransforms}.
+   * @returns {String} one of the values specified in {@link Pipeline#transformTypes}.
    */
   getTransformType(transformId) {
     return this._graph.findFirstValue(transformId, terms.pipeline.transformType);
@@ -203,8 +203,8 @@ export default class Pipeline extends GraphResource {
   /**
    *
    * @param {String} transformId the blank node of a specific transform as retrieved by
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
-   * @param {String} transformType one of the options in {@link store/Pipeline#transformTypes}.
+   * [getTransforms]{@link Pipeline#getTransforms}.
+   * @param {String} transformType one of the options in {@link Pipeline#transformTypes}.
    */
   setTransformType(transformId, transformType) {
     this._graph.findAndRemove(transformId, terms.pipeline.transformType);
@@ -213,7 +213,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    * @param {String} transformId the blank node of a specific transform as retrieved
-   * by [getTransforms]{@link store/Pipeline#getTransforms}.  If no id is provided
+   * by [getTransforms]{@link Pipeline#getTransforms}.  If no id is provided
    * arguments from all transforms will be returned in a single merged object.
    * @returns {Object|undefined} the arguments for a transform (or all transforms) as an object
    * hash with property value pairs.
@@ -235,7 +235,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    * @param {String} transformId the blank node of a specific transform as retrieved
-   * by [getTransforms]{@link store/Pipeline#getTransforms}.
+   * by [getTransforms]{@link Pipeline#getTransforms}.
    * @returns {Array} of arguments' keys
    */
   getTransformArgumentsKeys(transformId = null) {
@@ -253,7 +253,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Replaces the current arguments with those provided.
    * @param {String} transformId the blank node of a specific transform as retrieved by
-   * [getTransforms]{@link store/Pipeline#getTransforms}.
+   * [getTransforms]{@link Pipeline#getTransforms}.
    * @param {Object} args the arguments for the transform as an object hash with property value pairs.
    */
   setTransformArguments(transformId, args) {
@@ -314,7 +314,7 @@ export default class Pipeline extends GraphResource {
    * Executes the pipeline with the given source entry as input, if not provided the pipeline
    * will be used as sourceentry.
    *
-   * @param {store/Entry} sourceEntry an optional entry containing some data that is to be
+   * @param {Entry} sourceEntry an optional entry containing some data that is to be
    * transformed, e.g. can be a CSV file.
    * @param {object} params additional parameters used in the execution of the pipeline, e.g.
    * action (with value create, replace or append) and datasetURL pointing to the existing

@@ -4,13 +4,13 @@ import Resource from './Resource';
  * User instances are resources corresponding to users that can be authenticated to access
  * the EntryStore repository. The user resource URI can be referred to from access control lists.
  *
- * @exports store/User
+ * @exports User
  */
 export default class User extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
+   * @param {EntryStore} entryStore - the API's repository instance.
    * @param {Object} data - information about the user, e.g. object with name and homecontext.
    */
   constructor(entryURI, resourceURI, entryStore, data) {

@@ -2,7 +2,7 @@
    * Types is a module containing the three different types: GraphType, EntryType and
    * ResourceType shortened GT, ET and RT.
    *
-   * @exports {store/types}
+   * @exports {types}
    */
 const types = {
   /**
@@ -11,7 +11,7 @@ const types = {
    * is determined by the graphtype.
    *
    * @const
-   * @see store/Entry#isLocal
+   * @see Entry#isLocal
    */
   ET_LOCAL: 'Local',
 
@@ -21,7 +21,7 @@ const types = {
    * The metadata is still maintained in the repository though.
    *
    * @const
-   * @see store/Entry#isLink
+   * @see Entry#isLink
    */
   ET_LINK: 'Link',
 
@@ -29,14 +29,14 @@ const types = {
    * Similar to link, only the metadata is also external to the repository.
    * In many cases it is possible to access a locally cached version of the external
    * metadata though.
-   * @see store/Entry#getCachedExternalMetadata
-   * @see store/Entry#isReference
+   * @see Entry#getCachedExternalMetadata
+   * @see Entry#isReference
    */
   ET_REF: 'Reference',
 
   /**
    * Similar to link and reference, only there is both local metadata and external metadata.
-   * @see store/Entry#isLinkReference
+   * @see Entry#isLinkReference
    */
   ET_LINKREF: 'Linkreference',
 
@@ -44,87 +44,87 @@ const types = {
    * No graph type specified means that no knowledge of the resources character is known.
    * Hence, no special treatment of the resource is expected.
    * This is common when handling regular files, web resources or abstract entities.
-   * @see store/Entry#isNone
+   * @see Entry#isNone
    */
   GT_NONE: 'None',
 
   /**
    * The resource is a context, i.e. a container for other entries.
    *
-   * @see store/Entry#isContext
-   * @see store/Context
+   * @see Entry#isContext
+   * @see Context
    */
   GT_CONTEXT: 'Context',
 
   /**
    * The resource is one of the special context of this repository, e.g. _contexts or _principals.
-   * @see store/Entry#isSystemContext
+   * @see Entry#isSystemContext
    */
   GT_SYSTEMCONTEXT: 'Systemcontext',
 
   /**
    * The resource is a user.
    *
-   * @see store/Entry#isUser
-   * @see store/User
+   * @see Entry#isUser
+   * @see User
    */
   GT_USER: 'User',
 
   /**
    * The resource is a group.
    *
-   * @see store/Entry#isGroup
-   * @see store/Group
+   * @see Entry#isGroup
+   * @see Group
    */
   GT_GROUP: 'Group',
 
   /**
    * The resource is a list.
    *
-   * @see store/Entry#isList
-   * @see store/List
+   * @see Entry#isList
+   * @see List
    */
   GT_LIST: 'List',
 
   /**
    * @todo remains to be supported in this API
-   * @see store/Entry#isResultList
+   * @see Entry#isResultList
    */
   GT_RESULTLIST: 'Resultlist',
 
   /**
    * The resource is a RDF graph.
-   * @see store/Entry#isGraph
-   * @see store/Graph
+   * @see Entry#isGraph
+   * @see Graph
    */
   GT_GRAPH: 'Graph',
 
   /**
    * The resource is a string.
-   * @see store/Entry#isString
-   * @see store/String
+   * @see Entry#isString
+   * @see String
    */
   GT_STRING: 'String',
 
   /**
    * The resource is a pipeline, e.g. an entry that can somehow be executed on the server side.
-   * @see store/Entry#isPipeline
-   * @see store/Pipeline
+   * @see Entry#isPipeline
+   * @see Pipeline
    */
   GT_PIPELINE: 'Pipeline',
 
   /**
    * The resource is a pipelineresult, e.g. the result of the execution of a pipeline
    * on the server side.
-   * @see store/Entry#isPipelineResult
-   * @see store/Pipeline
+   * @see Entry#isPipelineResult
+   * @see Pipeline
    */
   GT_PIPELINERESULT: 'PipelineResult',
 
   /**
    * The resource is available as a digital representation of some sort.
    * Opposite to resources that have no representation, referred to as
-   * {@link store/types.NAMEDRESOURCE named}.
+   * {@link types.NAMEDRESOURCE named}.
    */
   RT_INFORMATIONRESOURCE: 'Information',
 

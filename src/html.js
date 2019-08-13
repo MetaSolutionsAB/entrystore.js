@@ -3,7 +3,7 @@ import { print } from 'rdfjson';
 /**
  * A module that contain utility methods for generating html for entries.
  *
- * @exports store/html
+ * @exports html
  * @namespace
  */
 const html = {};
@@ -12,7 +12,7 @@ const html = {};
 
 /**
  * Generates a table with columns subject, predicate, and object.
- * @param {store/Entry} entry to expose metadata for
+ * @param {Entry} entry to expose metadata for
  * @returns {string} rendered html as a string
  */
 html.metadataTable = (entry) => {
@@ -67,7 +67,7 @@ html.metadataIndent = function (graph, subject) {
 
 /**
  * Prints the three types of the entry, i.e. entry, resource and graphtype.
- * @param {store/EntryInfo} entryInfo
+ * @param {EntryInfo} entryInfo
  * @returns {string}
  */
 html.entryInfo = entryInfo =>
@@ -80,7 +80,7 @@ html.entryInfo = entryInfo =>
  * Prints information about the entry, including entryinfo, metadata, cached external metadata
  * as well as which context the entry belongs to.
  *
- * @param {store/Entry} entry
+ * @param {Entry} entry
  * @returns {string} information about the entry as a HTML string.
  */
 html.print = (entry) => {

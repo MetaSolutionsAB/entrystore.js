@@ -17,7 +17,7 @@ const getResourceTypeHelper = (entry, vocab) => {
 
 /**
  * EntryInfo is a class that contains all the administrative information of an entry.
- * @exports store/EntryInfo
+ * @exports EntryInfo
  */
 export default class EntryInfo {
   /**
@@ -25,7 +25,7 @@ export default class EntryInfo {
    * the store:resource property which allows us to infer the entryURI.
    * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
    * statements
-   * @param {store/EntryStore} entryStore
+   * @param {EntryStore} entryStore
    */
   constructor(entryURI, graph, entryStore) {
     this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
@@ -34,7 +34,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {store/Entry}
+   * @returns {Entry}
    */
   getEntry() {
     return this._entry;
@@ -56,10 +56,10 @@ export default class EntryInfo {
 
   /**
    * Pushes the entry information to the repository, e.g. posts to
-   * basepath/store/{contextId}/entry/{entryId}
+   * basepath/{contextId}/entry/{entryId}
    * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
-   * @returns {Promise.<store/EntryInfo>}
+   * @returns {Promise.<EntryInfo>}
    */
   commit(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this._entry.getEntryStore();
@@ -179,7 +179,7 @@ export default class EntryInfo {
 
   /**
    * @returns {String} one of the entryTypes
-   * @see store/terms#entryType
+   * @see terms#entryType
    */
   getEntryType() {
     const et = this._graph.findFirstValue(this._entryURI, terms.rdf.type);
@@ -189,7 +189,7 @@ export default class EntryInfo {
 
   /**
    * the resource type of the entry, e.g. "Information", "Resolvable" etc.
-   * The allowed values are available in store/types beginning with 'RT_'.
+   * The allowed values are available in types beginning with 'RT_'.
    * E.g. to check if the entry is an information resource:
    * if (ei.getResourceType() === types.RT_INFORMATIONRESOURCE) {...}
    *
@@ -201,7 +201,7 @@ export default class EntryInfo {
 
   /**
    * the graph type of the entry, e.g. "User", "List", "String", etc.
-   * The allowed values are available in store/types beginning with 'GT_'.
+   * The allowed values are available in types beginning with 'GT_'.
    * E.g. to check if the entry is a list:
    * if (ei.getGraphType() === types.GT_LIST) {...}
    *
@@ -317,7 +317,7 @@ export default class EntryInfo {
    * The uri of the revision can be used by the method getMetadataRevisionGraph
    * to get a hold of the actual new graph that caused the revision.
    *
-   * @return {{time: Date, by: string, rev: string, uri: string}[]} a sorted array of revisions, latest revision first.
+   * @return {Array.<{time: Date, by: string, rev: string, uri: string}>} a sorted array of revisions, latest revision first.
    */
   getMetadataRevisions() {
     const revs = [];
@@ -369,7 +369,7 @@ export default class EntryInfo {
 
   /**
    * Sets a new label of the resource in the graph, call
-   * {@link store/EntryInfo#commit commit} to push
+   * {@link EntryInfo#commit commit} to push
    * the updated graph to the repository.
    *
    * @param {string} label - a new label for the resource.
@@ -392,7 +392,7 @@ export default class EntryInfo {
   }
 
   /**
-   * Sets a new format of the resource in the graph, call {@link store/EntryInfo#commit commit}
+   * Sets a new format of the resource in the graph, call {@link EntryInfo#commit commit}
    * to push the updated graph to the repository.
    *
    * @param {string} format - a format in the form application/json or text/plain.
@@ -444,7 +444,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {String} a URI to creator, the user Entry resource URI is used, e.g. "http://somerepo/store/_principals/resource/4", never null.
+   * @returns {String} a URI to creator, the user Entry resource URI is used, e.g. "http://somerepo/_principals/resource/4", never null.
    */
   getCreator() {
     return this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/creator');
@@ -463,7 +463,7 @@ export default class EntryInfo {
 
   /**
    * @returns {Array} an array of URIs to the contributors using their Entry resource URIs,
-   * e.g. ["http://somerepo/store/_principals/resource/4"], never null although the array might be empty.
+   * e.g. ["http://somerepo/_principals/resource/4"], never null although the array might be empty.
    */
   getContributors() {
     return this._graph.find(this.getEntryURI(), 'http://purl.org/dc/terms/contributor').map(stmt => stmt.getValue());

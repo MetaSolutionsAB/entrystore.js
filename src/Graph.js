@@ -4,13 +4,13 @@ import Resource from './Resource';
 /**
  * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
  *
- * @exports store/Graph
+ * @exports Graph
  */
 export default class GraphResource extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
+   * @param {EntryStore} entryStore - the API's repository instance.
    * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
    */
   constructor(entryURI, resourceURI, entryStore, data) {
@@ -21,7 +21,7 @@ export default class GraphResource extends Resource {
   /**
    * Get the rdf Graph. The returned graph is not a copy, subsequent getGraph calls will return
    * the same instance as long as the entry has not been refreshed or a new instance set via
-   * {@link store/Graph#setGraph setGraph}.
+   * {@link Graph#setGraph setGraph}.
    *
    * @returns {rdfjson/Graph} will never be null or undefined, although the graph may be empty.
    */
@@ -31,11 +31,11 @@ export default class GraphResource extends Resource {
 
   /**
    * Set the rdf Graph. To update the graph in the repository call the
-   * {@link store/EntryStore#commit commit}.
+   * {@link EntryStore#commit commit}.
    *
    * @param {rdfjson/Graph} graph - the new graph, if null or undefined a new empty graph will
    * be set.
-   * @returns {store/Graph} - to allow chaining with commit.
+   * @returns {Graph} - to allow chaining with commit.
    */
   setGraph(graph) {
     this._graph = graph || new Graph();

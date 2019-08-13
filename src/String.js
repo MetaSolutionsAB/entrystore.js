@@ -3,13 +3,13 @@ import Resource from './Resource';
 /**
  * String is a resource for handling simple strings of data.
  *
- * @exports store/String
+ * @exports String
  */
 export default class StringResource extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
+   * @param {EntryStore} entryStore - the API's repository instance.
    * @param {string} data - the actual string, may the empty string, but not null or undefined.
    */
   constructor(entryURI, resourceURI, entryStore, data) {
@@ -30,8 +30,8 @@ export default class StringResource extends Resource {
    *     stringresource.setString("New value").commit().then(function() {...});
    *
    * @param {string} string - the new string
-   * @returns {store/StringResource} allows chaining with commit.
-   * @see store/String#commit
+   * @returns {StringResource} allows chaining with commit.
+   * @see String#commit
    */
   setString(string) {
     this._data = string || '';
@@ -42,7 +42,7 @@ export default class StringResource extends Resource {
    * Pushes the string back to the repository.
    *
    * @returns {Promise}
-   * @see store/String#setString
+   * @see String#setString
    */
   commit() {
     return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, this._data), 'commitString');

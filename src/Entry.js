@@ -16,13 +16,13 @@ import factory from './factory';
  * The same is true for the majority of the get methods,
  * only those that have corresponding set methods are really unique for this class.
  *
- * @link store/EntryInfo
- * @exports store/Entry
+ * @link EntryInfo
+ * @exports Entry
  */
 export default class Entry {
   /**
-   * @param {store/Context} context container for this entry
-   * @param {store/EntryInfo} entryInfo defines the basics of this entry
+   * @param {Context} context container for this entry
+   * @param {EntryInfo} entryInfo defines the basics of this entry
    */
   constructor(context, entryInfo) {
     this._context = context;
@@ -31,14 +31,14 @@ export default class Entry {
   }
 
   /**
-   * @returns {store/EntryStore}
+   * @returns {EntryStore}
    */
   getEntryStore() {
     return this._context.getEntryStore();
   }
 
   /**
-   * @returns {store/EntryInfo}
+   * @returns {EntryInfo}
    */
   getEntryInfo() {
     return this._entryInfo;
@@ -47,7 +47,7 @@ export default class Entry {
   /**
    * Convenience method, same as calling entry.getEntryInfo().getEntryURI()
    * @return {string} the entry uri.
-   * @see store/EntryInfo#getEntryURI
+   * @see EntryInfo#getEntryURI
    */
   getURI() {
     return this._entryInfo.getEntryURI();
@@ -56,7 +56,7 @@ export default class Entry {
   /**
    * Convenience method, same as calling entry.getEntryInfo().getId()
    * @returns {string} the id of the entry
-   * @see store/EntryInfo#getId
+   * @see EntryInfo#getId
    */
   getId() {
     return this._entryInfo.getId();
@@ -71,7 +71,7 @@ export default class Entry {
   }
 
   /**
-   * @returns {store/Context}
+   * @returns {Context}
    */
   getContext() {
     return this._context;
@@ -101,7 +101,7 @@ export default class Entry {
    *
    * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current
    * metadata graph is saved (there is currently no check whether it has been modified or not).
-   * @return store/Entry - to allow chaining with other methods, e.g. with commitMetadata.
+   * @return Entry - to allow chaining with other methods, e.g. with commitMetadata.
    */
   setMetadata(graph) {
     this._metadata = graph;
@@ -114,7 +114,7 @@ export default class Entry {
    * the entry type will change to 'linkreference' upon a successful commit.
    * @params {boolean} [ignoreIfUnmodifiedSinceCheck=false] if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
-   * @return {Promise.<store/Entry>} a promise that on success will contain the current updated entry.
+   * @return {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
   commitMetadata(ignoreIfUnmodifiedSinceCheck = false) {
     let p;
@@ -157,7 +157,7 @@ export default class Entry {
    *
    * @param {string} predicate the predicate
    * @param {object} object the object
-   * @returns {store/Entry}
+   * @returns {Entry}
    */
   add(predicate, object) {
     this.getMetadata().add(this.getResourceURI(), predicate, object);
@@ -172,7 +172,7 @@ export default class Entry {
    * @param {string} predicate the predicate
    * @param {string} literal the literal value
    * @param {string} language an optional language
-   * @returns {store/Entry}
+   * @returns {Entry}
    */
   addL(predicate, literal, language) {
     this.getMetadata().addL(this.getResourceURI(), predicate, literal, language);
@@ -187,7 +187,7 @@ export default class Entry {
    * @param {string} predicate the predicate
    * @param {string} literal the literal value
    * @param {string} datatype the datatype (should be a string)
-   * @returns {store/Entry}
+   * @returns {Entry}
    */
   addD(predicate, literal, datatype) {
     this.getMetadata().addD(this.getResourceURI(), predicate, literal, datatype);
@@ -219,7 +219,7 @@ export default class Entry {
    * it to the repository.
    *
    * @param {rdfjson/Graph} graph is an RDF graph with metadata.
-   * @return store/Entry - to allow chaining with other methods,
+   * @return Entry - to allow chaining with other methods,
    * e.g. with commitCachedExternalMetadata.
    */
   setCachedExternalMetadata(graph) {
@@ -233,7 +233,7 @@ export default class Entry {
   /**
    * Pushes the current cached external metadata graph for this entry to the repository.
    *
-   * @return {Promise.<store/Entry>} a promise that on success will contain the current updated entry.
+   * @return {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
   commitCachedExternalMetadata() {
     const es = this.getEntryStore();
@@ -273,7 +273,7 @@ export default class Entry {
    * For all other resources it will work if the resource, e.g. a Graph,
    * a String etc. is already loaded. If it is not loaded null will be returned.
    *
-   * @returns {store/Resource | Promise.<store/Resource>}
+   * @returns {Resource | Promise.<Resource>}
    */
   getResource(direct = false) {
     if (direct) {
@@ -452,7 +452,7 @@ export default class Entry {
 
   /**
    * Is the entry of the EntryType link, linkreference or reference?
-   * That is, the resource can be controlled via {@link store/EntryInfo#setResourceURI}.
+   * That is, the resource can be controlled via {@link EntryInfo#setResourceURI}.
    *
    * @returns {boolean} true if entrytype is NOT local.
    */
@@ -463,7 +463,7 @@ export default class Entry {
   /**
    * Is the EntryType local, i.e. the resources URI is maintained
    * automatically by the repository for this entry.
-   * Opposite to {@link store/Entry#isLinkLike}.
+   * Opposite to {@link Entry#isLinkLike}.
    *
    * @returns {boolean}
    */
@@ -487,7 +487,7 @@ export default class Entry {
    * Is the entry is a link to another entry (as either a link, linkreference or reference) the
    * linked to entry is returned in a promise.
    *
-   * @returns {Promise.<store/Entry>|undefined} undefined only if the entry does not link to another entry.
+   * @returns {Promise.<Entry>|undefined} undefined only if the entry does not link to another entry.
    */
   getLinkedEntry() {
     if (this.isLinkToEntry()) {
@@ -653,7 +653,7 @@ export default class Entry {
    * Tells whether an entry needs to be refreshed.
    *
    * @return {boolean} true if the entry need to be refreshed before used.
-   * @see store/Entry#refresh.
+   * @see Entry#refresh.
    */
   needRefresh() {
     return this.getEntryStore().getCache().needRefresh(this);

@@ -1,11 +1,11 @@
 /**
  * EntryStore is the main class that is used to connect to a running server-side
  * EntryStore repository.
- * @exports store/Auth
+ * @exports Auth
  */
 export default class Auth {
   /**
-   * @param {store/EntryStore} entrystore - a repository instance.
+   * @param {EntryStore} entrystore - a repository instance.
    */
   constructor(entrystore) {
     this._entryStore = entrystore;
@@ -51,11 +51,11 @@ export default class Auth {
 
   /**
    * Yields information about who currently is authenticated against the EntryStore repository.
-   * @returns {Promise.<store/EntryInfo>} - upon success an object containing attributes "user" being
+   * @returns {Promise.<EntryInfo>} - upon success an object containing attributes "user" being
    * the username, "id" of the user entry,
    * and "homecontext" being the entry-id of the home context is provided.
-   * @see {@link store/EntryStore#auth auth}
-   * @see {@link store/EntryStore#logout logout}
+   * @see {@link EntryStore#auth auth}
+   * @see {@link EntryStore#logout logout}
    */
   async getUserInfo(forceLookup = false) {
     if (this.userInfo && !forceLookup) {
@@ -69,7 +69,7 @@ export default class Auth {
   }
 
   /**
-   * @returns {Promise.<store/Entry>} on success the entry for the currently signed in user is provided.
+   * @returns {Promise.<Entry>} on success the entry for the currently signed in user is provided.
    */
   async getUserEntry(forceLookup = false) {
     if (this.userEntry && !forceLookup) {

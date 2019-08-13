@@ -1,10 +1,10 @@
 /**
  * EntryStoreUtil provides utility functionality for working with entries.
- * @exports store/EntryStoreUtil
+ * @exports EntryStoreUtil
  */
 export default class EntryStoreUtil {
   /**
-   * @param {store/EntryStore} entrystore
+   * @param {EntryStore} entrystore
    */
   constructor(entrystore) {
     this._entrystore = entrystore;
@@ -12,7 +12,7 @@ export default class EntryStoreUtil {
   }
 
   /**
-   * @returns {store/EntryStore}
+   * @returns {EntryStore}
    */
   getEntryStore() {
     return this._entrystore;
@@ -24,8 +24,8 @@ export default class EntryStoreUtil {
    * Up to a maximum of 100 entries are preloaded.
    *
    * @param {string} ofType
-   * @param {store/Context} context if provided limits the preload to a specific context.
-   * @returns {store/Entry}
+   * @param {Context} context if provided limits the preload to a specific context.
+   * @returns {Entry}
    */
   preloadEntries(ofType, context) {
     let preloadForType = this._preloadIdx.get(ofType);
@@ -77,11 +77,11 @@ export default class EntryStoreUtil {
    * Hence, only use this function if you expect there to be a single entry per resource URI.
    *
    * @param {string} resourceURI is the URI for the resource.
-   * @param {store/Context=} context only look for entries in this context, may be left out.
+   * @param {Context=} context only look for entries in this context, may be left out.
    * @param {string} asyncCallType the callType used when making the search.
-   * @returns {Promise.<store/Entry>}
+   * @returns {Promise.<Entry>}
    * @async
-   * @throws
+   * @throws Error
    */
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     const cache = this._entrystore.getCache();
@@ -106,7 +106,7 @@ export default class EntryStoreUtil {
 
   /**
    * @param {string} resourceURI is the URI for the resource.
-   * @returns {store/Entry}
+   * @returns {Entry}
    */
   getEntryListByResourceURI(resourceURI) {
     return this._entrystore.newSolrQuery().resource(resourceURI).list();
@@ -118,11 +118,11 @@ export default class EntryStoreUtil {
    * You may restrict to a specific context.
    *
    * @param {string} typeURI is the rdf:type URI for the entry to match.
-   * @param {store/Context} context restrict to finding the entry in this context
+   * @param {Context} context restrict to finding the entry in this context
    * @param {string} asyncCallType the callType used when making the search.
-   * @returns {Promise.<store/Entry>}
+   * @returns {Promise.<Entry>}
    * @async
-   * @throws
+   * @throws Error
    */
   async getEntryByType(typeURI, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
@@ -142,12 +142,12 @@ export default class EntryStoreUtil {
    * You may restrict to a specific context.
    *
    * @param {string} graphType is the graph type for the entry to match, e.g. use
-   * {@see store/types#GT_USER}.
-   * @param {store/Context} context restrict to finding the entry in this context
+   * {@see types#GT_USER}.
+   * @param {Context} context restrict to finding the entry in this context
    * @param {string} asyncCallType the callType used when making the search.
-   * @returns {Promise.<store/Entry>}
+   * @returns {Promise.<Entry>}
    * @async
-   * @throws
+   * @throws Error
    */
   async getEntryByGraphType(graphType, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
@@ -169,7 +169,7 @@ export default class EntryStoreUtil {
    * The removal is accomplished by first iterating through the searchlist and collecting
    * uris to all entries that should be removed. After that the entries are removed.
    *
-   * @param {store/SearchList} list
+   * @param {SearchList} list
    * @returns {Promise}
    */
   async removeAll(list) {

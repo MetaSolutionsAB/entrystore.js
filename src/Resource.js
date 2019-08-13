@@ -3,20 +3,20 @@ import factory from './factory';
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.
  *
- * @exports store/Resource
- * @see subclass {@link store/Context}
- * @see subclass {@link store/List}
- * @see subclass {@link store/Graph}
- * @see subclass {@link store/String}
- * @see subclass {@link store/File}
- * @see subclass {@link store/User}
- * @see subclass {@link store/Group}
+ * @exports Resource
+ * @see subclass {@link Context}
+ * @see subclass {@link List}
+ * @see subclass {@link Graph}
+ * @see subclass {@link String}
+ * @see subclass {@link File}
+ * @see subclass {@link User}
+ * @see subclass {@link Group}
  */
 export default class Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
-   * @param {store/EntryStore} entryStore - the API's repository instance.
+   * @param {EntryStore} entryStore - the API's repository instance.
    */
   constructor(entryURI, resourceURI, entryStore) {
     this._entryURI = entryURI;
@@ -27,7 +27,7 @@ export default class Resource {
   /**
    * Retrieves the API's repository instance
    *
-   * @returns {store/EntryStore}
+   * @returns {EntryStore}
    */
   getEntryStore() {
     return this._entryStore;
@@ -45,7 +45,7 @@ export default class Resource {
    * > resource is that such an approach, depending on the use-case, may lead to dramatic
    * > increases in the amount of requests to the repository._
    *
-   * @return {Promise.<store/Entry>|store/Entry} if direct=true an Entry is returned (or undefined if not
+   * @return {Promise.<Entry>|Entry} if direct=true an Entry is returned (or undefined if not
    * in cache, only happens sometimes for Contexts) otherwise a promise is returned that on
    * success provides the entry for this resource.
    */

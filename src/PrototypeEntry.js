@@ -12,11 +12,11 @@ const NEW_ID_PLACEHOLDER = '_newId';
  * changed in an entry, e.g. the entry, graph and resource types, but are crucial before creation.
  * Hence, some methods have been introduced to cover for this need.
  *
- * @exports store/PrototypeEntry
+ * @exports PrototypeEntry
  */
 export default class PrototypeEntry extends Entry {
   /**
-   * @param {store/Context} context where this prototypeEntry belongs.
+   * @param {Context} context where this prototypeEntry belongs.
    * @param {string} id - entry identifier, if not unique in the context the subsequent commit
    * will fail.
    */
@@ -45,18 +45,18 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Direct access method for the resource instance for prorotypeEntries.
-   * @returns {store/Resource}
+   * @returns {Resource}
    */
   getResource() {
     return this._resource;
   }
 
   /**
-   * Exposes the {@link store/EntryInfo#setACL setACL} method from {@link store/EntryInfo}
+   * Exposes the {@link EntryInfo#setACL setACL} method from {@link EntryInfo}
    * on PrototypeEntry
    * and makes it chainable.
    *
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setACL() {
     EntryInfo.prototype.setACL.apply(this._entryInfo, arguments);
@@ -64,11 +64,11 @@ export default class PrototypeEntry extends Entry {
   }
 
   /**
-   * Exposes the {@link store/EntryInfo#setResourceURI setResourceURI} method from
-   * {@link store/EntryInfo} on this class
+   * Exposes the {@link EntryInfo#setResourceURI setResourceURI} method from
+   * {@link EntryInfo} on this class
    * and makes it chainable.
    *
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setResourceURI(uri) {
     this._entryInfo.setResourceURI(uri);
@@ -76,11 +76,11 @@ export default class PrototypeEntry extends Entry {
   }
 
   /**
-   * Exposes the {@link store/EntryInfo#setExternalMetadataURI setExternalMetadataURI} method
-   * from {@link store/EntryInfo} on this class
+   * Exposes the {@link EntryInfo#setExternalMetadataURI setExternalMetadataURI} method
+   * from {@link EntryInfo} on this class
    * and makes it chainable.
    *
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setExternalMetadataURI() {
     EntryInfo.prototype.setExternalMetadataURI.apply(this._entryInfo, arguments);
@@ -90,7 +90,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the EntryType (which is not allowed on existing entries).
    *
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setEntryType(et) {
     const uri = terms.invEntryType[et];
@@ -106,7 +106,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the GraphType (which is not allowed on existing entries).
    *
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setGraphType(gt) {
     this._gt = gt;
@@ -123,7 +123,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the ResourceType (which is not allowed on existing entries).
    *
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setResourceType(rt) {
     const uri = terms.invResourceType[rt];
@@ -140,8 +140,8 @@ export default class PrototypeEntry extends Entry {
    * When creating new entries a single parent list can be specified, hence we need a way to set
    * it in PrototypeEntry.
    *
-   * @param {store/Entry} parentListEntry
-   * @returns {store/PrototypeEntry} - to allow the method call to be chained.
+   * @param {Entry} parentListEntry
+   * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setParentList(parentListEntry) {
     this.parentListEntry = parentListEntry;
@@ -150,7 +150,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Get the parent list (as an entry) for this PrototypeEntry.
-   * @returns {store/Entry}
+   * @returns {Entry}
    */
   getParentList() {
     return this.parentListEntry;
@@ -194,8 +194,8 @@ export default class PrototypeEntry extends Entry {
   }
 
   /**
-   * @deprecated use {@link store/PrototypeEntry#commit commit} instead.
-   * @returns {Promise.<store/Entry>}
+   * @deprecated use {@link PrototypeEntry#commit commit} instead.
+   * @returns {Promise.<Entry>}
    */
   create() {
     return this._context.getEntryStore().createEntry(this);
@@ -204,8 +204,8 @@ export default class PrototypeEntry extends Entry {
   /**
    * Create a new entry according to the information specified in the prototype entry.
    *
-   * @returns {Promise.<store/Entry>}
-   * @see store/EntryStore#createEntry
+   * @returns {Promise.<Entry>}
+   * @see EntryStore#createEntry
    */
   commit() {
     return this._context.getEntryStore().createEntry(this);

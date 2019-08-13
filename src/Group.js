@@ -5,7 +5,7 @@ import terms from './terms';
  * Group is a subclass of the List resource and contains a list of users.
  * The group resource URI can be referred to from access control lists.
  *
- * @exports store/Group
+ * @exports Group
  */
 export default class Group extends List {
   /**
@@ -65,7 +65,7 @@ export default class Group extends List {
    * @param {boolean} doNotPushToRepository if true the changes will be made in the
    * entryinformation but it will not be pushed to the respository. To do this you need to get
    * a hold of the entryinformation and call commit.
-   * @returns {Promise.<store/EntryInfo>|undefined}
+   * @returns {Promise.<EntryInfo>|undefined}
    */
   setHomeContext(contextId, doNotPushToRepository) {
     const es = this.getEntryStore();

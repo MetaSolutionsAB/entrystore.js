@@ -14,19 +14,19 @@ const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @H
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
  * repository.
- * @exports store/EntryStore
+ * @exports EntryStore
  */
 export default class EntryStore {
   /**
    * @param {String=} baseURI - URL to the EntryStore repository we should communicate with,
    * may be left out and
-   * guessed if run in a browser environment (appends "/store/" to the window.location.origin)
-   * @param {Object=} credentials - same as provided in the {@link store/EntryStore#auth auth}
+   * guessed if run in a browser environment (appends "/" to the window.location.origin)
+   * @param {Object=} credentials - same as provided in the {@link EntryStore#auth auth}
    * method.
    */
   constructor(baseURI, credentials) {
     if (isBrowser() && baseURI == null) {
-      this._baseURI = `${window.location.origin}/store/`;
+      this._baseURI = `${window.location.origin}/`;
     } else {
       this._baseURI = baseURI;
       if (this._baseURI[this._baseURI.length - 1] !== '/') {
@@ -123,7 +123,7 @@ export default class EntryStore {
   }
 
   /**
-   * @returns {store/Auth} where functionality related to authorization are located,
+   * @returns {Auth} where functionality related to authorization are located,
    * including a listener infrastructure.
    */
   getAuth() {
@@ -132,11 +132,11 @@ export default class EntryStore {
 
   /**
    * Yields information about who currently is authenticated against the EntryStore repository.
-   * @returns {Promise.<store/EntryInfo>} - upon success an object containing attributes "user" being
+   * @returns {Promise.<EntryInfo>} - upon success an object containing attributes "user" being
    * the username, "id" of the user entry, and "homecontext" being the entry-id of the
    * home context is provided.
-   * @see {@link store/EntryStore#auth auth}
-   * @see {@link store/EntryStore#logout logout}
+   * @see {@link EntryStore#auth auth}
+   * @see {@link EntryStore#logout logout}
    * @deprecated use corresponding method on auth object instead.
    */
   getUserInfo() {
@@ -144,7 +144,7 @@ export default class EntryStore {
   }
 
   /**
-   * @returns {Promise.<store/Entry>} on success the entry for the currently signed in user is provided.
+   * @returns {Promise.<Entry>} on success the entry for the currently signed in user is provided.
    * @deprecated use corresponding method on auth object instead.
    */
   getUserEntry() {
@@ -208,8 +208,8 @@ export default class EntryStore {
    *
    *
    * **Note** - in the case where the entry is a list it is possible to change the limit,
-   * offset and sort later by calling the corresponding methods on the {@link store/List}
-   * resource, e.g. {@link store/List#setSort}. However, setting the values already in this
+   * offset and sort later by calling the corresponding methods on the {@link List}
+   * resource, e.g. {@link List#setSort}. However, setting the values already in this
    * method call has as a consequence that one less request to the repository is made as you
    * will get members (in the right amount and order) in the same request as you get metadata
    * and other information.
@@ -234,11 +234,11 @@ export default class EntryStore {
    *
    * @param {string} entryURI - the entryURI for the entry to retrieve.
    * @param {{forceLoad, direct, loadResource, limit, offset, sort, asyncContext}} optionalLoadParams - parameters for how to load an entry.
-   * @return {Promise.<store/Entry> | store/Entry | undefined} - by default a promise is returned,
+   * @return {Promise.<Entry> | Entry | undefined} - by default a promise is returned,
    * if the direct parameter is specified the entry is returned directly or undefined if the
    * entry is not in cache.
-   * @see {@link store/EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
-   * @see {@link store/Context#getEntryById} for loading entries relative to a context.
+   * @see {@link EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
+   * @see {@link Context#getEntryById} for loading entries relative to a context.
    */
   getEntry(entryURI, optionalLoadParams = {}) {
     const forceLoad = optionalLoadParams ? optionalLoadParams.forceLoad === true : false;
@@ -286,12 +286,12 @@ export default class EntryStore {
    *
    * @param {string} entryURI - URI of the list entry to load entries from.
    * @param {Object} sort - same sort object as provided in the optionalLoadParams to
-   * {@see store/EntryStore#getEntry getEntry} method.
+   * {@see EntryStore#getEntry getEntry} method.
    * @param {Object} limit - same limit as provided in the optionalLoadParams to
-   * {@see store/EntryStore#getEntry getEntry} method.
+   * {@see EntryStore#getEntry getEntry} method.
    * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify which
    * page to load, first page is 0.
-   * @returns {Promise.<store/Entry[]>} upon success the promise returns an array of entries.
+   * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.
    */
   getListEntries(entryURI, sort, limit, page) {
     return new Promise((resolve, reject) => {
@@ -329,15 +329,15 @@ export default class EntryStore {
    * the context as well as the default ownership and access control that applies to all entries
    * inside of this context.
    *
-   * To get a hold of the contexts own entry use the {@link store/Resource#getEntry}
-   * method on the context (inherited from the generic {@link store/Resource} class.
+   * To get a hold of the contexts own entry use the {@link Resource#getEntry}
+   * method on the context (inherited from the generic {@link Resource} class.
    *
    * Advanced: Entrys corresponding to contexts are stored in the special _contexts
    * context which, since it is a context, contains its own entry.
    *
    * @param {string} contextId - identifier for the context (not necessarily the same as the
    * alias/name for the context)
-   * @return {store/Context}
+   * @return {Context}
    */
   getContextById(contextId) {
     return factory.getContext(this, `${this._baseURI}_contexts/entry/${contextId}`);
@@ -347,8 +347,8 @@ export default class EntryStore {
    * Retrieves a Context instance via its entry's URI.
    *
    * @param {String} contextEntryURI - URI to the context's entry, e.g. base/_contexts/entry/1.
-   * @returns {store/Context}
-   * @see {@link store/EntryStore#getContextById getContextById}
+   * @returns {Context}
+   * @see {@link EntryStore#getContextById getContextById}
    */
   getContext(contextEntryURI) {
     return factory.getContext(this, contextEntryURI);
@@ -356,7 +356,7 @@ export default class EntryStore {
 
   /**
    * Retrieves a paginated list of all contexts in the EntryStore repository.
-   * @return {store/List} - the list contains entries which have contexts as resources.
+   * @return {List} - the list contains entries which have contexts as resources.
    */
   getContextList() {
     return this.newSolrQuery().graphType(types.GT_CONTEXT).list();
@@ -364,7 +364,7 @@ export default class EntryStore {
 
   /**
    * Retrieves a paginated list of all users and groups in the EntryStore repository
-   * @return {store/List} the list contains entries that have principals as resources.
+   * @return {List} the list contains entries that have principals as resources.
    * @todo May include folders and other entries as well...
    */
   getPrincipalList() {
@@ -372,26 +372,26 @@ export default class EntryStore {
   }
 
   /**
-   * Creates a new entry according to information in the provided {@link store/PrototypeEntry}.
+   * Creates a new entry according to information in the provided {@link PrototypeEntry}.
    * The information specifies the type of entry, which context it should reside in,
    * initial metadata etc. This method is seldom called explicitly, instead it is called
-   * indirectly via the {@link store/PrototypeEntry#commit} method. E.g.:
+   * indirectly via the {@link PrototypeEntry#commit} method. E.g.:
    *
    *     context.newEntry().commit().then(function(newlyCreatedEntry) {...}
    *
-   * @param {store/PrototypeEntry} prototypeEntry - information about the entry to create.
+   * @param {PrototypeEntry} prototypeEntry - information about the entry to create.
    * @return {Promise}
-   * @see store/PrototypeEntry#commit
-   * @see store/EntryStore#newContext
-   * @see store/EntryStore#newUser
-   * @see store/EntryStore#newGroup
-   * @see store/Context#newEntry
-   * @see store/Context#newLink
-   * @see store/Context#newLinkRef
-   * @see store/Context#newRef
-   * @see store/Context#newList
-   * @see store/Context#newGraph
-   * @see store/Context#newString
+   * @see PrototypeEntry#commit
+   * @see EntryStore#newContext
+   * @see EntryStore#newUser
+   * @see EntryStore#newGroup
+   * @see Context#newEntry
+   * @see Context#newLink
+   * @see Context#newLinkRef
+   * @see Context#newRef
+   * @see Context#newList
+   * @see Context#newGraph
+   * @see Context#newString
    */
   async createEntry(prototypeEntry) {
     const postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
@@ -421,7 +421,7 @@ export default class EntryStore {
    * must be unique in the _principals context
    * @param {string=} id - optional requested identifier (entryId) for the context,
    * cannot be changed later, must be unique in the _principals context
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newContext(contextName, id) {
     const _contexts = factory.getContext(this, `${this._baseURI}_contexts/entry/_contexts`);
@@ -438,7 +438,7 @@ export default class EntryStore {
   /**
    *
    * @param name
-   * @return {Promise.<store/Entry>}
+   * @return {Promise.<Entry>}
    * @async
    */
   async createGroupAndContext(name) {
@@ -456,7 +456,7 @@ export default class EntryStore {
    * @param {string=} password - the password the user will use to authenticate himself
    * @param {string=} homeContext - a specific context the user will consider his own home
    * @param {string=} id - requested identifier for the user
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newUser(username, password, homeContext, id) {
     const _principals = factory.getContext(this, `${this._baseURI}_contexts/entry/_principals`);
@@ -481,7 +481,7 @@ export default class EntryStore {
    * must be unique in the _principals context
    * @param {string=} id - optional requested identifier (entryId) for the group,
    * cannot be changed later, must be unique in the _principals context
-   * @returns {store/PrototypeEntry}
+   * @returns {PrototypeEntry}
    */
   newGroup(groupName, id) {
     const _principals = factory.getContext(this, `${this._baseURI}_contexts/entry/_principals`);
@@ -498,9 +498,9 @@ export default class EntryStore {
   /**
    * Move an entry from one list to another.
    *
-   * @param {store/Entry} entry - entry to move
-   * @param {store/Entry} fromList - source list where the entry is currently residing.
-   * @param {store/Entry} toList - destination list where the entry is supposed to end up.
+   * @param {Entry} entry - entry to move
+   * @param {Entry} fromList - source list where the entry is currently residing.
+   * @param {Entry} toList - destination list where the entry is supposed to end up.
    * @returns {Promise}
    */
   moveEntry(entry, fromList, toList) {
@@ -572,7 +572,7 @@ export default class EntryStore {
 
   /**
    * Performing searches against an EntryStore repository is achieved by creating a
-   * {@link store/SearchList} which is similar to a regular {@link store/List}.
+   * {@link SearchList} which is similar to a regular {@link List}.
    * From this list it is possible to get paginated results in form of matching entries.
    * For example:
    *
@@ -580,7 +580,7 @@ export default class EntryStore {
    *     var searchList = entrystore.newSolrQuery().rdfType(personType).list();
    *     searchList.setLimit(20).getEntries().then(function(results) {...});
    *
-   * @returns {store/SolrQuery}
+   * @returns {SolrQuery}
    */
   newSolrQuery() {
     return new SolrQuery(this);
@@ -680,7 +680,7 @@ export default class EntryStore {
   /**
    * The cache where all entries are cached after loading.
    *
-   * @returns {store/Cache}
+   * @returns {Cache}
    */
   getCache() {
     return this._cache;
@@ -690,7 +690,7 @@ export default class EntryStore {
    * The loading mechanism are performed via REST calls, this REST module can be
    * used for doing manual lookups outside of the scope of this API.
    *
-   * @returns {store/Rest}
+   * @returns {Rest}
    */
   getREST() {
     return this._rest;
