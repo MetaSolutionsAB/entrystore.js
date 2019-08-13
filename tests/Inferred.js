@@ -1,4 +1,4 @@
-const { EntryStore, terms } = require('../dist/EntryStore.node');
+const { EntryStore, terms } = require('../dist/entrystore.node');
 const config = require('./config');
 
 const es = new EntryStore(config.repository);

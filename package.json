@@ -1,13 +1,11 @@
 {
   "name": "entrystore-js",
   "version": "4.8.0-SNAPSHOT",
-  "main": "dist/EntryStore.node.js",
+  "main": "dist/entrystore.node.js",
   "module": "src/index.js",
   "dependencies": {
     "blueimp-md5": "^2.10.0",
     "core-js": "^3.1.4",
-    "he": "^1.2.0",
-    "lodash": "^4.17.10",
     "moment": "^2.22.2",
     "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
     "regenerator-runtime": "^0.13.3",
@@ -26,7 +24,6 @@
     "eslint": "^5.6.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
-    "jaguarjs-jsdoc": "^1.1.0",
     "jsdoc": "^3.6.3",
     "nodeunit": "^0.11.2",
     "print-licenses": "https://bitbucket.org/metasolutions/print-licenses#master",
@@ -34,7 +31,7 @@
     "webpack-cli": "^3.2.1",
     "webpack-merge": "^4.1.4"
   },
-  "description": "Store is a JS-library for working EntryStore.",
+  "description": "A JS-library for working EntryStore",
   "licenses": [
     {
       "type": "LGPL-3.0-only",
@@ -44,9 +41,9 @@
   "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "scripts": {
-    "build": "webpack --config webpack.all.js --mode production",
-    "build:dev": "webpack --config webpack.all.js --mode development",
-    "test": "nodeunit ./tests/executeTests.js",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "test": "nodeunit ./tests/run.js",
     "eslint": "eslint 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",
     "print-licenses": "print-licenses"

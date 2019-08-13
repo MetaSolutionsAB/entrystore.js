@@ -1,6 +1,6 @@
 import { Graph } from 'rdfjson';
-import types from './types';
 import factory from './factory';
+import types from './types';
 
 /**
  * Entries are at the center of this API. Entries holds together metadata, external metadata,
@@ -115,38 +115,37 @@ export default class Entry {
    * if information is stale, also it will not automatically refresh with the latest date
    * @return {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
-  commitMetadata(ignoreIfUnmodifiedSinceCheck = false) {
-    let p;
+  async commitMetadata(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this.getEntryStore();
     if (this.isReference()) {
-      p = Promise.reject(`Entry "${this.getURI()}" is a reference and have no local metadata that can be saved.`);
+      return Promise.reject(`Entry "${this.getURI()}" is a reference and have no local metadata that can be saved.`);
     } else if (!this.canWriteMetadata()) {
-      p = Promise.reject(`You do not have sufficient access rights to save metadata on entry "${this.getURI()}".`);
+      return Promise.reject(`You do not have sufficient access rights to save metadata on entry "${this.getURI()}".`);
     } else if (this.needRefresh()) {
-      p = Promise.reject(`The entry "${this.getURI()}" need to be refreshed before its local metadata can be saved.\n` +
+      return Promise.reject(`The entry "${this.getURI()}" need to be refreshed before its local metadata can be saved.\n` +
         'This message indicates that the client is written poorly, this case should have been taken into account.');
     } else if (this._metadata == null) {
-      p = Promise.reject(`The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`);
+      return Promise.reject(`The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`);
     } else {
       if (ignoreIfUnmodifiedSinceCheck) {
-        p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
-          JSON.stringify(this._metadata.exportRDFJSON())).then(() => this);
+        const promise = await es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()));
+        es.handleAsync(promise, 'commitMetadata');
       } else {
         const mod = this.getEntryInfo().getModificationDate();
-        p = es.getREST().put(this.getEntryInfo().getMetadataURI(),
-          JSON.stringify(this._metadata.exportRDFJSON()), mod)
-          .then(() => {
-            this.setRefreshNeeded(true);
-            return this.refresh().then(() => this, () => {
-              // Failed refreshing, but succeeded at saving metadata,
-              // at least send out message that it needs to be refreshed.
-              this.getEntryStore().getCache().message('refreshed', this);
-              return this;
-            });
-          });
+        const promise = await es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()), mod);
+        es.handleAsync(promise, 'commitMetadata');
+        this.setRefreshNeeded(true);
+        try {
+          await this.refresh();
+        } catch (err) {
+          // Failed refreshing, but succeeded at saving metadata,
+          // at least send out message that it needs to be refreshed.
+          this.getEntryStore().getCache().message('refreshed', this);
+        }
       }
     }
-    return es.handleAsync(p, 'commitMetadata');
+
+    return Promise.resolve(this);
   }
 
   /**

@@ -1,4 +1,4 @@
-const store = require('../dist/EntryStore.node');
+const store = require('../dist/entrystore.node');
 
 const Cache = store.Cache;
 

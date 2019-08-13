@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { EntryStore } = require('../dist/EntryStore.node');
+const { EntryStore } = require('../dist/entrystore.node');
 const config = require('./config');
 
 const { repository, nonAdminUser, nonAdminPassword } = config;

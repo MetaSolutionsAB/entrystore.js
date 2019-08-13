@@ -1,4 +1,4 @@
-const { EntryStore } = require('../dist/EntryStore.node');
+const { EntryStore } = require('../dist/entrystore.node');
 const config = require('./config');
 
 const { repository, adminUser, adminPassword } = config;
@@ -16,9 +16,9 @@ const setUp = async (callback) => {
     const contextEntry = await es.newContext().commit();
     context = contextEntry.getResource(true);
 
-    lst = await context.newList().create();
-    await context.newEntry().setParentList(lst).create();
-    await context.newEntry().setParentList(lst).create();
+    lst = await context.newList().commit();
+    await context.newEntry().setParentList(lst).commit();
+    await context.newEntry().setParentList(lst).commit();
   }
   callback();
 };
@@ -51,7 +51,7 @@ exports.List = {
   },
 
   async addMember(test) {
-    const entry = await context.newEntry().create();
+    const entry = await context.newEntry().commit();
     const lres = lst.getResource(true);
     test.ok(entry.getParentLists().length === 0, 'New entry should not belong to a parentList unless explicitly specified.');
     test.ok(!entry.needRefresh(), 'New entry should not be in need of a refresh.');
@@ -63,14 +63,14 @@ exports.List = {
   },
 
   async addMemberOnCreate(test) {
-    const entry = await context.newEntry().setParentList(lst).create();
+    const entry = await context.newEntry().setParentList(lst).commit();
     const entries = await lst.getResource(true).getEntries();
     test.ok(entries.indexOf(entry) >= 0, 'Entry not contained in list, list not refreshed or entry not added to list.');
     test.done();
   },
 
   async removeMember(test) {
-    const entry = await context.newEntry().setParentList(lst).create();
+    const entry = await context.newEntry().setParentList(lst).commit();
     const listResource = lst.getResource(true);
     test.ok(entry.getParentLists().length === 1, 'New entry should belong to the specified parentList provided upon creation.');
     test.ok(!entry.needRefresh(), 'New entry should not be in need of a refresh.');

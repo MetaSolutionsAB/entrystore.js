@@ -1,4 +1,4 @@
-const { EntryStore } = require('../dist/EntryStore.node');
+const { EntryStore } = require('../dist/entrystore.node');
 const config = require('./config');
 
 const { repository, contextId, entryId, adminUser, adminPassword } = config;

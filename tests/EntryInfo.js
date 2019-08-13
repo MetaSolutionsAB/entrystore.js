@@ -1,8 +1,8 @@
 const { Graph } = require('rdfjson');
-const store = require('../dist/EntryStore.node');
+const store = require('../dist/entrystore.node');
 const config = require('./config');
 
-const { repository, adminUser, adminPassword} = config;
+const { repository, adminUser, adminPassword } = config;
 const es = new store.EntryStore(repository);
 const now = new Date();
 const yesterday = (new Date()).setDate(now.getDate() - 1);
@@ -40,7 +40,7 @@ exports.EntryInfo = {
   setUp,
   tearDown,
   async dates(test) {
-    const entry = await context.newEntry().create();
+    const entry = await context.newEntry().commit();
     const ei = entry.getEntryInfo();
     const cr = ei.getCreationDate();
     test.ok(cr > yesterday && cr < tomorrow, 'Creation date seems to be incorrect.');
@@ -61,14 +61,14 @@ exports.EntryInfo = {
   },
   async creator(test) {
     const user = await es.getUserEntry();
-    const entry = await context.newEntry().create();
+    const entry = await context.newEntry().commit();
     const ei = entry.getEntryInfo();
     test.ok(ei.getCreator() === user.getResourceURI(), 'Creator does not match current user.');
     test.done();
   },
   async contributors(test) {
     const user = await es.getUserEntry();
-    const entry = await context.newEntry().create();
+    const entry = await context.newEntry().commit();
     const contr = entry.getEntryInfo().getContributors();
     test.ok(contr.length === 1 && contr[0] === user.getResourceURI(), 'No contributors.');
     test.done();
@@ -95,14 +95,14 @@ exports.EntryInfo = {
   },
   async createWithACL(test) {
     const acl = { admin: [es.getEntryURI('_principals', 'admin')] };
-    const entry = await context.newEntry().setACL(acl).create();
+    const entry = await context.newEntry().setACL(acl).commit();
     test.ok(entry.getEntryInfo().hasACL(), 'No ACL present although it was provided on create.');
     test.done();
   },
   async changeResourceURI(test) {
     const uri = 'http://example.com';
     const uri2 = `${uri}/about`;
-    const entry = await context.newLink(uri).create();
+    const entry = await context.newLink(uri).commit();
     const ei = entry.getEntryInfo();
     ei.setResourceURI(uri2);
     test.ok(uri2 === ei.getResourceURI(), 'Failed to set new URI');
@@ -115,7 +115,7 @@ exports.EntryInfo = {
     const res = 'http://slashdot.org';
     const mduri = 'http://example.com';
     const mduri2 = `${mduri}/about`;
-    const entry = await context.newRef(res, mduri).create();
+    const entry = await context.newRef(res, mduri).commit();
     const ei = entry.getEntryInfo();
     ei.setExternalMetadataURI(mduri2);
     test.ok(ei.getExternalMetadataURI() === mduri2, 'Failed to set new external metadata URI');
@@ -145,7 +145,8 @@ exports.EntryInfo = {
     try {
       const a = await ei.getMetadataRevisionGraph(`${ei.getMetadataURI()}?rev=3`);
       test.ok(false, 'Should not be able to load non-existing versions');
-    } catch (err) {}
+    } catch (err) {
+    }
     test.done();
     finished = true;
   },

@@ -1,5 +1,4 @@
-const _ = require('lodash');
-const { EntryStore, utils } = require('../dist/EntryStore.node');
+const { EntryStore, utils } = require('../dist/entrystore.node');
 const config = require('./config');
 
 const { repository, adminUser, adminPassword } = config;
@@ -52,7 +51,7 @@ exports.File = {
     await entry.refresh();
     test.ok(entry.getEntryInfo().getFormat() === 'application/json', 'Mimetype is not application/json as it should.');
     const data = await r.getJSON();
-    test.ok(_.isObject(data) && data.a === 'v', 'Json not set correctly.');
+    test.ok(typeof data === 'object' && data.a === 'v', 'Json not set correctly.');
     test.done();
   },
   async createTextFile(test) {
@@ -68,7 +67,7 @@ exports.File = {
     await entry.refresh();
     test.ok(entry.getEntryInfo().getFormat() === 'text/plain', 'Mimetype is not text/plain as it should.');
     const data = await resource.getText();
-    test.ok(_.isString(data) && data === 'test', 'Text not set correctly as resource.');
+    test.ok(typeof data === 'string' && data === 'test', 'Text not set correctly as resource.');
     test.done();
   },
   async createXMLFile(test) {
@@ -95,7 +94,7 @@ exports.File = {
         'XML not stored correctly, document contains other xml than sent.');
       test.done();
     } else {
-      test.ok(_.isString(data) && data === '<book/>', 'XMl not set correctly as a resource.');
+      test.ok(typeof data === 'string' && data === '<book/>', 'XMl not set correctly as a resource.');
       test.done();
     }
     finished = true;

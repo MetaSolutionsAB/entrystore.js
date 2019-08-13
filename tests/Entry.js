@@ -1,6 +1,6 @@
 const moment = require('moment');
 const { Graph } = require('rdfjson');
-const store = require('../dist/EntryStore.node');
+const store = require('../dist/entrystore.node');
 const config = require('./config');
 
 const { repository, adminUser, adminPassword } = config;
@@ -281,7 +281,6 @@ exports.Entry = {
       test.done();
       return;
     }
-    test.done();
     const res = await entry.getResource();
     test.ok(res.getString() === '', 'Empty string instead of null');
     try {
@@ -289,6 +288,7 @@ exports.Entry = {
     } catch (err) {
       test.ok(false, `Failed to update resource of string entry. ${err}`);
       test.done();
+      return;
     }
     test.ok(res.getString() === str, 'String is not set correctly');
     await res.setString('').commit();
@@ -296,11 +296,10 @@ exports.Entry = {
     try {
       await entry.refresh();
       test.ok(res.getString() === '', 'Reload from repository gave wrong string');
-      test.done();
     } catch (err) {
       test.ok(false, `Failed refreshing: ${err}`);
-      test.done();
     }
+    test.done();
   },
   async createWithCachedExternalMetadata(test) {
     const uri = 'http://example.com/';
@@ -309,11 +308,10 @@ exports.Entry = {
     try {
       const entry = await context.newLinkRef(uri, uri).setCachedExternalMetadata(graph).commit();
       test.ok(!entry.getCachedExternalMetadata().isEmpty(), 'Failed to set cached external metadata in creation step.');
-      test.done();
     } catch (err) {
       test.ok(false, `Failed to create Entry with cached external metadata in context ${context.getId()}`);
-      test.done();
     }
+    test.done();
   },
   async updateCachedExternalMetadata(test) {
     const uri = 'http://example.com/';
@@ -324,11 +322,10 @@ exports.Entry = {
     try {
       await entry.commitCachedExternalMetadata();
       test.ok(!cachedExternalMetadata.isEmpty(), 'Failed to save cached external metadata.');
-      test.done();
     } catch (err) {
       test.ok(false, 'Something went wrong updating cachedExternalMetadata.');
-      test.done();
     }
+    test.done();
   },
   async ifUnModifiedSinceCheck(test) {
     let entry = null;
@@ -355,9 +352,7 @@ exports.Entry = {
     try {
       await entry.commitMetadata();
       test.ok(false, 'No conflict although saving metadata twice in a row');
-    } catch (err) {
-      test.done();
-    }
+    } catch (err) {}
     test.done();
     finished = true;
   },

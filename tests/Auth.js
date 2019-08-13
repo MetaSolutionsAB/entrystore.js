@@ -1,5 +1,5 @@
 const config = require('./config');
-const store = require('../dist/EntryStore.node');
+const store = require('../dist/entrystore.node');
 
 const { repository, nonAdminUser, nonAdminPassword } = config;
 const es = new store.EntryStore(repository);

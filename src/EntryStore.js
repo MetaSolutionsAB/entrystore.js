@@ -9,7 +9,7 @@ import types from './types';
 import User from './User';
 import { isBrowser } from './utils';
 
-const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @Hannes
+// const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @Hannes
 
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
@@ -537,6 +537,7 @@ export default class EntryStore {
    *
    * @param {node} data - input element corresponding to the file to upload (echo).
    * @returns {Promise}
+   * @deprecated files can be read in browsers so no need for echoFile
    */
   echoFile(data) {
     // noinspection AmdModulesDependencies
@@ -563,7 +564,8 @@ export default class EntryStore {
 
           const textAreaValue = response.substr(idx + 1).replace('</textarea>', ''); // TODO remove when EntryStore is fixed
 
-          return he.decode(textAreaValue);
+          return decodeURIComponent(textAreaValue);
+          // return he.decode(textAreaValue);
         }
 
         return response; // empty

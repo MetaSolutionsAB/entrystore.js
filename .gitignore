@@ -1,10 +1,10 @@
-node_modules
+/node_modules
 /tests/config.js
+/samples/config.js
 /jsdoc
-.idea
 dist/
 out/
-samples/config.js
+.idea
 *~
 *.vim
 *.ackrc
