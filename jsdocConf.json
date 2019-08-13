@@ -27,10 +27,6 @@
     "static": false,
     "typedefs": false,
     "collapse": true,
-    "search": true,
-    "sectionOrder": [
-      "Classes",
-      "Namespaces"
-    ]
+    "search": true
   }
 }
