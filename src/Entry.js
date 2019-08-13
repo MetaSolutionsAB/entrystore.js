@@ -622,16 +622,11 @@ export default class Entry {
    * lists and all entries that is only contained in the current list or any of its child lists.
    * @return {Promise} which on success indicates that the deletion has succeeded.
    */
-  del(recursive = false) {
+  async del(recursive = false) {
     const es = this.getEntryStore();
-    const unCache = () => es.getCache().unCache(this);
-
-    if (recursive === true) {
-      return es.handleAsync(es.getREST().del(`${this.getURI()}?recursive=true`)
-        .then(unCache), 'delEntry');
-    }
-
-    return es.handleAsync(es.getREST().del(this.getURI()).then(unCache), 'delEntry');
+    const uri = `${this.getURI()}${recursive ? '?recursive=true' : ''}`;
+    await es.handleAsync(es.getREST().del(uri), 'delEntry');
+    es.getCache().unCache(this);
   }
 
   /**
