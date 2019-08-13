@@ -10,6 +10,10 @@ import { isBrowser } from './utils';
  * @exports File
  */
 export default class FileResource extends Resource {
+  constructor(...args) {
+    super(...args);
+  }
+
   /**
    * Pushes a file to the server for this resource.
    * In a browser environment a file is represented via an input tag which references
@@ -110,7 +114,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {xhrPromise} which format the resource is returned in the promise (string, json or
+   * @returns {Promise} which format the resource is returned in the promise (string, json or
    * xml) depends on what is specified in the mimetype. Xml is only returned in a browser
    * environment, if not in a browser a string is returned.
    */
@@ -121,7 +125,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {Promise} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise.<String>} ignores what is specified in the mimetype and returns the resource
    * as a string in the promise.
    */
   getText() {
@@ -130,7 +134,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {Promise} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise.<Object>} ignores what is specified in the mimetype and returns the resource
    * as a javascript object in the promise.
    */
   getJSON() {

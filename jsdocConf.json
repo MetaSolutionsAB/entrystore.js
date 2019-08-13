@@ -11,7 +11,7 @@
       "url": ""
     },
     "meta": {
-      "title": "API documentation for Entrystore.js",
+      "title": "API documentation for EntryStore.js",
       "description": "EntryStore.js provides a javascript API to communicate with an EntryStore repository instance.",
       "keyword": ""
     },
@@ -19,5 +19,18 @@
   },
   "plugins": [
     "plugins/markdown"
-  ]
+  ],
+  "opts": {
+    "template": "node_modules/docdash"
+  },
+  "docdash": {
+    "static": false,
+    "typedefs": false,
+    "collapse": true,
+    "search": true,
+    "sectionOrder": [
+      "Classes",
+      "Namespaces"
+    ]
+  }
 }

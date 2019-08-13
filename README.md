@@ -4,26 +4,18 @@ EntryStore.js is a JavaScript library that simplifies the communication with the
 
 # Installation
 
-Before you can use entrystore.js you need to make sure all dependencies are available. Simply run:
+Before you can use entrystore.js you need to make sure that you have all dependencies are available. Simply run:
 
     $ cd path_to_entrystore.js
-    $ npm   install
-    $ bower install
+    $ yarn
 
-This requires that you have [nodejs](http://nodejs.org/) and [npm](https://www.npmjs.org/) installed as well as [bower](http://bower.io/). Note: npm installs the nodeunit library used by the tests while bower installs dojo, rdfjson, r.js and the require.js library for loading dependencies according to the AMD specification.
-
-# Development
-
-We try to follow the development guide outlined here:
-https://github.com/maqetta/maqetta/wiki/Development-Guide
-
-Except that at this time we do not rely on es5 or a shim, hence we use dojos lang.hitch and array.forEach etc.
+This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmjs.org/) and [yarn](https://yarnpkg.com) installed.
 
 # Build
 
-Run `npm run build`.
+Run `yarn build`.
 
-The resulting build is located in `release` and is called `all.js`.
+The resulting build is located in `dist`.
 
 # Latest Build
 
@@ -32,13 +24,13 @@ You can also load the latest stable build of EntryStore.js from:
 
 # Getting started with the API
 
-Lets do three examples for getting an idea of how to use the API.
+Here are three examples for getting an idea of how to use the API.
 
 ## Loading an entry - complete walk through
-We start by walking through a complete example for loading an existing entry from an EntryStore repository. First we need to load the
+What follows is a complete example for loading an existing entry from an EntryStore repository. First we need to load the
 Entrystore.js library, i.e.:
 
-      <script src="../release/all.js"></script>
+      <script src="../dist/all.js"></script>
 
 Second we need to load the part of the API we need, as the EntryStore.js uses the AMD approach you use the require method for this:
 
@@ -128,51 +120,17 @@ for instance by making a copy of `tests/config.js_example` and then adapt it.
 
 The tests are written according to the style of [Nodeunit](https://github.com/caolan/nodeunit).
 
-## Running unit tests in node
+## Running tests 
 
-Make sure you have nodeunit installed:
-
-    > cd tests/node
-    > npm install nodeunit
-
-Then to run the test do the following:
-
-    > node init.js
-
-## Running unit tests in a browser
-
-Point your browser to the `tests/html/index.html` file. It works both via the file and http protocolls.
-Note though that the http requires that you configure a webserver to serve StoreJS.
-
-The nodeunit js and css file is retrieved by compiling the nodeunit framework.
-The current files were generated from the master branch at the 27:th of January 2014.
+    > yarn tests
 
 ## Developing new tests
 
-It is recommended to create a new AMD module for each group of tests. Include it in the `tests/config.js` file to make it part of the testsuite.
+It is recommended to create a new module for each group of tests. Include it in the `tests/config.js` file to make it part of the testsuite.
 
 # Command line
 
-The StoreJS library also allows command line access to a EntryStore repository. To start the command line you need to have node installed, then:
-
-    > cd bin
-    > node cmdline.js
-     ---------------------------------------------------------------------------
-    | Welcome to the EntryStore Shell, to get help with commands type 'help()'  |
-     ---------------------------------------------------------------------------
-    ES>
-
-The first thing you need to do is to connect to a repository, and then to select a context and maybe a entry like this:
-
-    ES> repository("http://localhost:8080/store")
-    ==>   Variable 'r' contains the current respository, that is: "http://localhost:8080/store"
-    ES> context("1")
-    ==>   Variable 'c' contains the current context, that is: "http://localhost:8080/store/1"
-    ==>   Variable 'o' contains the current contexts own entry, that is "http://localhost:8080/store/_contexts/entry/1"
-    ES> entry("1")
-    ==>   Variable 'e' contains the current entry, that is: "http://localhost:8080/store/1/entry/1"
-
-Check the help() command to get an idea of what you can do more.
+This feature is not supported currently.
 
 ### Generating Licenses
 If you would like to create a file listing all the licenses of dependencies run:

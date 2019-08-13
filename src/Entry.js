@@ -1,6 +1,5 @@
 import { Graph } from 'rdfjson';
 import types from './types';
-import EntryStore from './EntryStore';
 import factory from './factory';
 
 /**
@@ -31,14 +30,14 @@ export default class Entry {
   }
 
   /**
-   * @returns {EntryStore}
+   * @returns {module:EntryStore}
    */
   getEntryStore() {
     return this._context.getEntryStore();
   }
 
   /**
-   * @returns {EntryInfo}
+   * @returns {module:EntryInfo}
    */
   getEntryInfo() {
     return this._entryInfo;

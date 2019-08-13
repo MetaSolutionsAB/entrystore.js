@@ -12,10 +12,19 @@ import types from './types';
  */
 export default class Context extends Resource {
   /**
+   * @param {string} entryURI - URI to an entry where this resource is contained.
+   * @param {string} resourceURI - URI to the resource.
+   * @param {EntryStore} entryStore - the API's repository instance.
+   */
+  constructor(entryURI, resourceURI, entryStore) {
+    super(entryURI, resourceURI, entryStore);
+  }
+
+  /**
    * Retrieves a list of entries in the context.
    *
    * @param {Object} sort - same sort object as provided in the optionalLoadParams to
-   * {@see EntryStore#getEntry getEntry} method.
+   * @link EntryStore#getEntry getEntry method.
    * @param {Object} limit - same limit as provided in the optionalLoadParams to
    * {@see EntryStore#getEntry getEntry} method.
    * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify

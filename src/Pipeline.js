@@ -9,6 +9,15 @@ import terms from './terms';
  */
 export default class Pipeline extends GraphResource {
   /**
+   * @param {string} entryURI - URI to an entry where this resource is contained.
+   * @param {string} resourceURI - URI to the resource.
+   * @param {EntryStore} entryStore - the API's repository instance.
+   * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
+   */
+  constructor(entryURI, resourceURI, entryStore, data) {
+    super(entryURI, resourceURI, entryStore, data); // Call the super constructor.
+  }
+  /**
    * The destination where the result (in the form of a single RDF graph) should
    * end up (within the specified entry's graph resource).
    * If empty string, a new entry will be created to store the results.

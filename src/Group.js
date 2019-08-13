@@ -9,6 +9,15 @@ import terms from './terms';
  */
 export default class Group extends List {
   /**
+   * @param {string} entryURI - URI to an entry where this resource is contained.
+   * @param {string} resourceURI - URI to the resource.
+   * @param {EntryStore} entryStore - the API's repository instance.
+   */
+  constructor(entryURI, resourceURI, entryStore) {
+    super(entryURI, resourceURI, entryStore);
+  }
+
+  /**
    * Get the name of the group, this is a a unique name (username) in the current
    * repository's _principals context.
    * @returns {string}

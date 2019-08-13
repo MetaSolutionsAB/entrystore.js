@@ -31,7 +31,7 @@ export default class EntryInfo {
    * the store:resource property which allows us to infer the entryURI.
    * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
    * statements
-   * @param {EntryStore} entryStore
+   * @param {module:EntryStore} entryStore
    */
   constructor(entryURI, graph, entryStore) {
     this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
@@ -40,7 +40,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {Entry}
+   * @returns {module:Entry}
    */
   getEntry() {
     return this._entry;

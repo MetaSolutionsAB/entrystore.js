@@ -1,9 +1,9 @@
 /**
-   * Types is a module containing the three different types: GraphType, EntryType and
-   * ResourceType shortened GT, ET and RT.
-   *
-   * @exports {types}
-   */
+ * Types is a module containing the three different types: GraphType, EntryType and
+ * ResourceType shortened GT, ET and RT.
+ *
+ * @namespace types
+ */
 const types = {
   /**
    * Local entrytype implies that the resource is maintained in the repository.

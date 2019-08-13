@@ -536,7 +536,7 @@ export default class EntryStore {
    * it will be restored to its original position afterwards (both upon success and failure).
    *
    * @param {node} data - input element corresponding to the file to upload (echo).
-   * @returns {xhrPromise}
+   * @returns {Promise}
    */
   echoFile(data) {
     // noinspection AmdModulesDependencies
