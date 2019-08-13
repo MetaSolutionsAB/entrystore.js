@@ -24,6 +24,7 @@
     "eslint": "^5.6.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
+    "http-server": "^0.11.1",
     "jsdoc": "^3.6.3",
     "nodeunit": "^0.11.2",
     "print-licenses": "https://bitbucket.org/metasolutions/print-licenses#master",
@@ -46,6 +47,7 @@
     "test": "nodeunit ./tests/run.js",
     "eslint": "eslint 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",
+    "samples": "http-server -o",
     "print-licenses": "print-licenses"
   }
 }

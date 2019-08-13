@@ -57,7 +57,6 @@ const clientConfig = {
     path: path.join(__dirname, 'dist'),
     filename: 'entrystore.js',
     library: 'EntryStore',
-    libraryTarget: 'commonjs2',
   },
   plugins,
   context, // string (absolute path!)

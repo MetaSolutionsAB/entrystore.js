@@ -13,7 +13,7 @@ This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmj
 
 # Build
 
-Run `yarn build`.
+Run `yarn build`
 
 The resulting build is located in `dist`.
 
@@ -28,17 +28,11 @@ Here are three examples for getting an idea of how to use the API.
 
 ## Loading an entry - complete walk through
 What follows is a complete example for loading an existing entry from an EntryStore repository. First we need to load the
-Entrystore.js library, i.e.:
+Entrystore.js library in our application, i.e.:
 
-      <script src="../dist/all.js"></script>
+      <script src="../dist/entrystore.js"></script>
 
-Second we need to load the part of the API we need, as the EntryStore.js uses the AMD approach you use the require method for this:
-
-      require(['store/EntryStore'], function(EntryStore) {
-          //Some code using the EntryStore class from the API.
-      });
-
-Third, we need to initialize the EntryStore API using a repository URL:
+Then, we need to initialize the EntryStore API using a repository URL:
 
     // Specify the repository URL.
     var es = new EntryStore("http://localhost:8080/store");
@@ -49,40 +43,65 @@ Notice that when running in the browser, you cannot currently point to a reposit
 this will not work according to the cross-domain restriction of current browsers. (There are plans to fix this issue using
 CORS and / or hidden iframes to overcome various browser limitations.)
 
-Fourth, we need to construct a URI for the entry to fetch:
+Then, we need to construct a URI for the entry to fetch:
 
     var entryURI = es.getEntryURI("1", "5")
 
 Here we are assuming there is a contextId "1" and a entryId "5" in the referred to repository. For in-memory test installation with the test-suite installed these ids exists by default, change accordingly otherwise.
 
-Fifth, we need to load the entry and wait for the result using the Promise approach (the .then method).
+Then, we need to load the entry and wait for the result using Promise or async/await.
 
     es.getEntry(entryURI).then(function(entry) {
     });
+    // or
+    const entry = await es.getEntry(entryURI);
 
-Finally we want to do something with the loaded entry. In this example we just fetch the metadata object of the entry and find the first value with the dcterms:title property:
+Finally, we want to do something with the loaded entry.
+In this example we just fetch the metadata object of the entry and find the first value with the dcterms:title property:
 
-    alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "dcterms:title"));
+    alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(entry.getResourceURI(), "dcterms:title"));
 
-All taken together and packaged into a minimal HTML file the example looks like the following:
+We can also change that value as follows:
 
-    //See file in trunk/samples/loadEntry-dev.html
-    <html><body>
-      <script src="../release/all.js"></script>
-      <script type="text/javascript">
-          require(['store/EntryStore'], function(EntryStore) {
-              var es = new EntryStore();
-              var entryURI = es.getEntryURI("1", "5");
-              es.getEntry(entryURI).then(function(entry) {
-                  alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(null, "dcterms:title"));
-              }, function(err) {
-                  alert("Failure to load entry: "+err);
+    var md = entry.getMetadata();
+    var stmts = md.findAndRemove(entry.getResourceURI(), "dcterms:title");
+    md.addL(entry.getResourceURI(), "dcterms:title", "New title at " + new Date(), "en");
+    entry.commitMetadata().then(() => {
+        alert("Success: changed metadata");
+    }, (err) => {
+        alert("Failure saving metadata: " + err);
+    });
+
+Here is the above example in a minimal HTML file.
+    
+    <html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script src="../dist/entrystore.js"></script>
+        <script src="./config.js"></script>
+        <script>
+          const es = new EntryStore.EntryStore(config.repository);
+          es.getAuth().login(config.username, config.password, 86400).then(() => {
+            const entryURI = es.getEntryURI(config.contextId, config.entryId);
+            es.getEntry(entryURI).then((entry) => {
+              var md = entry.getMetadata();
+              var stmts = md.findAndRemove(null, "dcterms:title");
+              md.addL(entry.getResourceURI(), "dcterms:title", "New title at " + new Date(), "en");
+              entry.commitMetadata().then(() => {
+                alert("Success: changed metadata");
+              }, (err) => {
+                alert("Failure saving metadata: " + err);
               });
+            }, (err) => {
+              alert("Failed loading entry: " + err);
+            });
           });
-      </script>
-    </body></html>
+        </script>
+    </head>
+    <body>
+    </html>
 
-See trunk/samples/loadEntry-dev.html, but there is also a version that works directly with the built code, see trunk/samples/loadEntry.html
+
 
 ## Creating an entry
 To create an entry we need to first authenticate and get a hold of the specific context we want to create the entry in:
@@ -108,6 +127,17 @@ Taken together the example, looks like (full code in trunk/samples/createEntry.h
            alert("Failed to create an entry! + err");
        });
     });
+
+## More samples
+To check the suite of samples you can just run:
+    
+    yarn samples
+    
+your default web browser should open a new page where you can select the 'samples' directory.
+There should be a listing of the samples which you can run directly in the browser. 
+
+NOTE! you need to have a `config.js` file in the samples folder for the samples to work correctly. 
+For more info check 'samples/config.js_example'.
 
 ## Modifying metadata
 //TODO
