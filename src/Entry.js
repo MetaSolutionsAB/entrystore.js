@@ -30,14 +30,14 @@ export default class Entry {
   }
 
   /**
-   * @returns {module:EntryStore}
+   * @returns {EntryStore}
    */
   getEntryStore() {
     return this._context.getEntryStore();
   }
 
   /**
-   * @returns {module:EntryInfo}
+   * @returns {EntryInfo}
    */
   getEntryInfo() {
     return this._entryInfo;
