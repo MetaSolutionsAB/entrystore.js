@@ -13,7 +13,7 @@ This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmj
 
 # Build
 
-Run `yarn build`
+Run `$ yarn build`
 
 The resulting build is located in `dist`.
 
@@ -131,7 +131,7 @@ Taken together the example, looks like (full code in trunk/samples/createEntry.h
 ## More samples
 To check the suite of samples you can just run:
     
-    yarn samples
+    $ yarn samples
     
 your default web browser should open a new page where you can select the 'samples' directory.
 There should be a listing of the samples which you can run directly in the browser. 
@@ -152,7 +152,7 @@ The tests are written according to the style of [Nodeunit](https://github.com/ca
 
 ## Running tests 
 
-    > yarn tests
+    $ yarn tests
 
 ## Developing new tests
 
@@ -165,4 +165,4 @@ This feature is not supported currently.
 ### Generating Licenses
 If you would like to create a file listing all the licenses of dependencies run:
 ```
-yarn print-licenses
+    $ yarn print-licenses
