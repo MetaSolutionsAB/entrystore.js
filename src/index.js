@@ -1,9 +1,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-/*
- * The exposed EntryStore API
- */
 export { default as factory } from './factory';
 export { default as html } from './html';
 export { default as promiseUtil } from './promiseUtil';

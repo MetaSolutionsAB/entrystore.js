@@ -3,6 +3,12 @@ import { Graph } from 'rdfjson';
 import factory from './factory';
 import terms from './terms';
 
+/**
+ *
+ * @param entry
+ * @param vocab
+ * @returns {*}
+ */
 const getResourceTypeHelper = (entry, vocab) => {
   const stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
   for (let i = 0; i < stmts.length; i++) {
@@ -13,7 +19,7 @@ const getResourceTypeHelper = (entry, vocab) => {
   }
 
   return vocab.default;
-}
+};
 
 /**
  * EntryInfo is a class that contains all the administrative information of an entry.

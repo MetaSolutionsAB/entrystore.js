@@ -31,6 +31,12 @@ import User from './User';
 let sortObj = { sortBy: 'title', prio: 'List' };
 let defaultLimit = 50;
 
+/**
+ *
+ * @param entryURI
+ * @param entryStore
+ * @returns {*}
+ */
 const getContextForEntry = (entryURI, entryStore) => {
   const baseURI = entryStore.getBaseURI();
   const contextId = entryURI.substr(baseURI.length, entryURI.indexOf('/', baseURI.length)
@@ -45,6 +51,10 @@ const getContextForEntry = (entryURI, entryStore) => {
   return context;
 };
 
+/**
+ *
+ * @param rights
+ */
 const transformRights = (rights) => {
   const o = {};
   const r = rights || [];
@@ -54,6 +64,11 @@ const transformRights = (rights) => {
   return o;
 };
 
+/**
+ *
+ * @param resObj
+ * @param data
+ */
 const fixNameAndDisabled = (resObj, data) => {
   const { resource } = data;
   // Special case of searches and similar when name is provided but not full resource.
@@ -75,6 +90,13 @@ const fixNameAndDisabled = (resObj, data) => {
   }
 };
 
+/**
+ *
+ * @param entry
+ * @param data
+ * @param force
+ * @private
+ */
 const _updateOrCreateResource = (entry, data, force) => {
   const _data = data || {};
   let resource = entry.getResource(true);
@@ -153,6 +175,13 @@ const _updateOrCreateResource = (entry, data, force) => {
   }
 };
 
+/**
+ *
+ * @param entry
+ * @param data
+ * @returns {*}
+ * @private
+ */
 const _updateEntry = (entry, data) => {
   entry._metadata = data.metadata ? new Graph(data.metadata) : null;
   entry._cachedExternalMetadata = data['cached-external-metadata'] ? new Graph(data['cached-external-metadata']) : null;
