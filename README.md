@@ -15,7 +15,7 @@ This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmj
 
 Run `$ yarn build`
 
-The resulting build is located in `dist`.
+The resulting build is located in `dist`. There will be two versions of the library, one for browser and one for node usage.
 
 # Latest Build
 
