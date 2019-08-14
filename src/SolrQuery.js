@@ -158,11 +158,16 @@ export default class SolrQuery {
   }
 
   /**
+   *
+   * @param key
+   * @param val
+   * @param modifier
+   * @returns {SolrQuery}
    * @private
    */
   _q(key, val, modifier = null) {
     this.params.set(key, val);
-    if (modifier === null) {
+    if (modifier !== null) {
       this.modifiers.set(key, modifier);
     }
     return this;
