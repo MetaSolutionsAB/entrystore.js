@@ -39,6 +39,18 @@
       "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
     }
   ],
+  "author": {
+    "name": "Matthias Palmér",
+    "email": "matthias@metasolutions.se",
+    "url": "https://entryscape.com/"
+  },
+  "contributors": [
+    {
+      "name": "Valentino Hudhra",
+      "email": "valentino@metasolutions.se",
+      "url": "http://valentinohudhra.com/"
+    }
+  ],
   "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
   "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
   "scripts": {
