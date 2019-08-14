@@ -794,7 +794,7 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   disjunctiveProperties() {
-    this.disjunctiveProperties = true;
+    this._disjunctiveProperties = true;
     return this;
   }
 
@@ -810,7 +810,7 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   disjunctive() {
-    this.disjunctive = true;
+    this._disjunctive = true;
     return this;
   }
 
@@ -876,7 +876,7 @@ export default class SolrQuery {
       });
       and.push(`(${or.join('+OR+')})`);
     }
-    if (this.disjunctiveProperties || this.disjunctive) {
+    if (this._disjunctiveProperties || this._disjunctive) {
       const or = [];
       this.properties.forEach((prop) => {
         const obj = prop.object;
@@ -937,7 +937,7 @@ export default class SolrQuery {
     if (this.facets) {
       trail += `&facetFields=${this.facets.join(',')}`;
     }
-    return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(this.disjunctive ? '+OR' : '+AND+')}${trail}`;
+    return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(this._disjunctive ? '+OR' : '+AND+')}${trail}`;
   }
 
   /**
