@@ -112,7 +112,7 @@ export default class SearchList {
  *
  * @returns {number} the amount of entries in the list, -1 if unknown.
  */
-// SearchList.prototype.getSize = List.prototype.getSize;
+SearchList.prototype.getSize = List.prototype.getSize;
 
 /**
  * Retrieves an array of entries contained in this list according to the current page and

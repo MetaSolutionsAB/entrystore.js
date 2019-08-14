@@ -182,7 +182,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  title(val, modifier) {
+  title(val, modifier = null) {
     return this._q('title', val, modifier);
   }
 
@@ -193,7 +193,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  description(val, modifier) {
+  description(val, modifier = null) {
     return this._q('description', val, modifier);
   }
 
@@ -205,7 +205,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  tagLiteral(val, modifier) {
+  tagLiteral(val, modifier = null) {
     return this._q('tag.literal', val, modifier);
   }
 
@@ -217,7 +217,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  tagURI(val, modifier) {
+  tagURI(val, modifier = null) {
     return this._q('tag.uri', val, modifier);
   }
 
@@ -229,7 +229,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  lang(val, modifier) {
+  lang(val, modifier = null) {
     return this._q('lang', val, modifier);
   }
 
@@ -240,7 +240,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  all(val, modifier) {
+  all(val, modifier = null) {
     return this._q('all', val, modifier);
   }
 
@@ -251,7 +251,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  subject(val, modifier) {
+  subject(val, modifier = null) {
     return this._q('metadata.subject', val, modifier);
   }
 
@@ -262,7 +262,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  predicate(val, modifier) {
+  predicate(val, modifier = null) {
     return this._q('metadata.predicate', val, modifier);
   }
 
@@ -273,7 +273,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  objectLiteral(val, modifier) {
+  objectLiteral(val, modifier = null) {
     return this._q('metadata.object.literal', val, modifier);
   }
 
@@ -284,7 +284,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  objectUri(val, modifier) {
+  objectUri(val, modifier = null) {
     return this._q('metadata.object.uri', val, modifier);
   }
 
@@ -306,7 +306,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  uri(val, modifier) {
+  uri(val, modifier = null) {
     return this._q('uri', val, modifier);
   }
 
@@ -332,7 +332,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  creator(val, modifier) {
+  creator(val, modifier = null) {
     return this._q('creator', val, modifier);
   }
 
@@ -343,7 +343,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  contributors(val, modifier) {
+  contributors(val, modifier = null) {
     return this._q('contributors', val, modifier);
   }
 
@@ -354,7 +354,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  lists(val, modifier) {
+  lists(val, modifier = null) {
     return this._q('lists', val, modifier);
   }
 
@@ -365,7 +365,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  created(val, modifier) {
+  created(val, modifier = null) {
     return this._q('created', val, modifier);
   }
 
@@ -376,7 +376,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  modified(val, modifier) {
+  modified(val, modifier = null) {
     return this._q('modified', val, modifier);
   }
 
@@ -388,7 +388,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  entryType(val, modifier) {
+  entryType(val, modifier = null) {
     return this._q('entryType', val, modifier);
   }
 
@@ -412,7 +412,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  resourceType(val, modifier) {
+  resourceType(val, modifier = null) {
     return this._q('resourceType', val, modifier);
   }
 
@@ -435,7 +435,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  admin(val, modifier) {
+  admin(val, modifier = null) {
     return this._q('acl.admin', val, modifier);
   }
 
@@ -446,7 +446,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  metadataRead(val, modifier) {
+  metadataRead(val, modifier = null) {
     return this._q('acl.metadata.r', val, modifier);
   }
 
@@ -457,7 +457,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  metadataWrite(val, modifier) {
+  metadataWrite(val, modifier = null) {
     return this._q('acl.metadata.rw', val, modifier);
   }
 
@@ -468,7 +468,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  resourceRead(val, modifier) {
+  resourceRead(val, modifier = null) {
     return this._q('acl.resource.r', val, modifier);
   }
 
@@ -479,7 +479,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  resourceWrite(val, modifier) {
+  resourceWrite(val, modifier = null) {
     return this._q('acl.resource.rw', val, modifier);
   }
 
@@ -490,7 +490,7 @@ export default class SolrQuery {
    * @param {true|false|string} modifier
    * @return {SolrQuery}
    */
-  status(val, modifier) {
+  status(val, modifier = null) {
     return this._q('status', val, modifier);
   }
 
