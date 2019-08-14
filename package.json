@@ -2,9 +2,10 @@
   "name": "entrystore-js",
   "version": "4.8.0-SNAPSHOT",
   "main": "dist/entrystore.node.js",
+  "browser": "dist/entrystore.js",
   "module": "src/index.js",
   "dependencies": {
-    "blueimp-md5": "^2.10.0",
+    "blueimp-md5": "^2.10.0",q
     "core-js": "^3.1.4",
     "moment": "^2.22.2",
     "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
