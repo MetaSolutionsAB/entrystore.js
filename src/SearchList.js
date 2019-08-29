@@ -104,11 +104,6 @@ const SearchList = class {
 
     const limit = this.getLimit();
 
-    // remove last item if the current view (based on the limit) is full
-    if (this._sortedChildren.length === limit) {
-      this._sortedChildren.pop();
-    }
-
     if (first) {
       this._sortedChildren.unshift(entry.getURI());
     } else {
