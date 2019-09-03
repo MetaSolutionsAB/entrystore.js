@@ -132,10 +132,11 @@ export default class Entry {
         es.handleAsync(promise, 'commitMetadata');
       } else {
         const mod = this.getEntryInfo().getModificationDate();
-        const promise = await es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()), mod);
+        const promise = es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()), mod);
         es.handleAsync(promise, 'commitMetadata');
-        this.setRefreshNeeded(true);
         try {
+          await promise;
+          this.setRefreshNeeded(true);
           await this.refresh();
         } catch (err) {
           // Failed refreshing, but succeeded at saving metadata,
