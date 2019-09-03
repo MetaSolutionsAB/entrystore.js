@@ -7,7 +7,7 @@ import factory from './factory';
  * a list itself. To avoid circular references list entries are only allowed to appear
  * in one parent list.
  *
- * @exports List
+ * @exports store/List
  */
 export default class List extends Resource {
   /**

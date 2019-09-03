@@ -3,7 +3,7 @@ import { print } from 'rdfjson';
 /**
  * A module that contain utility methods for generating html for entries.
  *
- * @exports html
+ * @exports store/html
  * @namespace
  */
 const html = {};

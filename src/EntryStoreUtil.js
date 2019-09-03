@@ -1,6 +1,6 @@
 /**
  * EntryStoreUtil provides utility functionality for working with entries.
- * @exports EntryStoreUtil
+ * @exports store/EntryStoreUtil
  */
 export default class EntryStoreUtil {
   /**

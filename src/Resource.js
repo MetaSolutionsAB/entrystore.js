@@ -3,7 +3,7 @@ import factory from './factory';
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.
  *
- * @exports Resource
+ * @exports store/Resource
  * @see subclass {@link Context}
  * @see subclass {@link List}
  * @see subclass {@link Graph}

@@ -24,7 +24,7 @@ import User from './User';
  * The utility methods are currently not visible as they are not documented yet.
  * (The methods cannot be marked as private as they need to be used throughout the API.)
  *
- * @exports factory
+ * @exports store/factory
  * @namespace
  */
 

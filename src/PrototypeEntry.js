@@ -12,7 +12,7 @@ const NEW_ID_PLACEHOLDER = '_newId';
  * changed in an entry, e.g. the entry, graph and resource types, but are crucial before creation.
  * Hence, some methods have been introduced to cover for this need.
  *
- * @exports PrototypeEntry
+ * @exports store/PrototypeEntry
  */
 export default class PrototypeEntry extends Entry {
   /**

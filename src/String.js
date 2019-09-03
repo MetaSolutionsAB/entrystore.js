@@ -3,7 +3,7 @@ import Resource from './Resource';
 /**
  * String is a resource for handling simple strings of data.
  *
- * @exports String
+ * @exports store/String
  */
 export default class StringResource extends Resource {
   /**

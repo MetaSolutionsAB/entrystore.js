@@ -4,7 +4,7 @@ import factory from './factory';
 import Entry from './Entry';
 
 /**
- * @exports SearchList
+ * @exports store/SearchList
  */
 export default class SearchList {
 

@@ -16,7 +16,7 @@ import types from './types';
  * only those that have corresponding set methods are really unique for this class.
  *
  * @link EntryInfo
- * @exports Entry
+ * @exports store/Entry
  */
 export default class Entry {
   /**

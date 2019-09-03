@@ -1,7 +1,7 @@
 /**
  * This module contains utility methods for promises.
  *
- * @exports promiseUtil
+ * @exports store/promiseUtil
  * @namespace
  */
 const promiseUtil = {};

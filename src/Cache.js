@@ -3,7 +3,7 @@
  * The cache also provides a listener functionality that allows you to be notified of
  * when entries are updated.
  *
- * @exports Cache
+ * @exports store/Cache
  */
 export default class Cache {
   constructor() {

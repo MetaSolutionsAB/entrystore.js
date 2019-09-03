@@ -4,7 +4,7 @@ import Resource from './Resource';
  * User instances are resources corresponding to users that can be authenticated to access
  * the EntryStore repository. The user resource URI can be referred to from access control lists.
  *
- * @exports User
+ * @exports store/User
  */
 export default class User extends Resource {
   /**

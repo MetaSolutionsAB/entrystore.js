@@ -1,7 +1,7 @@
 /**
  * EntryStore is the main class that is used to connect to a running server-side
  * EntryStore repository.
- * @exports Auth
+ * @exports store/Auth
  */
 export default class Auth {
   /**

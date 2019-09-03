@@ -4,7 +4,7 @@ import Resource from './Resource';
 /**
  * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
  *
- * @exports Graph
+ * @exports store/Graph
  */
 export default class GraphResource extends Resource {
   /**

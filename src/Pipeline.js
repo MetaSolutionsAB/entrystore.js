@@ -5,7 +5,7 @@ import terms from './terms';
  * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
  * specific type and takes a set of arguments.
  *
- * @exports Pipeline
+ * @exports store/Pipeline
  */
 export default class Pipeline extends GraphResource {
   /**

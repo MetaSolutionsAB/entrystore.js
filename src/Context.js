@@ -8,7 +8,7 @@ import types from './types';
 /**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
  *
- * @exports Context
+ * @exports store/Context
  */
 export default class Context extends Resource {
   /**

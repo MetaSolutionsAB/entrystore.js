@@ -5,7 +5,7 @@ import terms from './terms';
  * Group is a subclass of the List resource and contains a list of users.
  * The group resource URI can be referred to from access control lists.
  *
- * @exports Group
+ * @exports store/Group
  */
 export default class Group extends List {
   /**
