@@ -1,6 +1,7 @@
 import EntryStore from './EntryStore';
 import List from './List';
 import factory from './factory';
+import Entry from './Entry';
 
 /**
  * @exports SearchList
@@ -88,6 +89,69 @@ export default class SearchList {
         }
       });
     }
+  }
+
+  /**
+   *
+   * Add an entry to the current search (result) list.
+   * Utilizes the this._sortedChildren of the {@see List} for the actual entries in memory.
+   *
+   * @param {Entry} entry
+   * @param {boolean} [first=true] add on top of the list
+   * @return {SearchList}
+   */
+  addEntry(entry, first = true) {
+    if (entry && !entry instanceof Entry) {
+      return this;
+    }
+
+    const limit = this.getLimit();
+
+    if (first) {
+      this._sortedChildren.unshift(entry.getURI());
+    } else {
+      this._sortedChildren[this._size - 1] = entry.getURI(); // @todo perhaps there's no use case for this
+    }
+
+    this._size += 1; // increase list size
+
+    return this;
+  }
+
+  /**
+   * Remove an entry from the current search (result) list.
+   * This can cause a request for the next page load in order to maintain a consistent number
+   * of entries in memory (or rather in a front-end view)
+   * Utilizes the this._sortedChildren of the {@see List} for the actual entries in memory.
+   *
+   * @param {Entry} entry
+   * @return {Promise<SearchList>}
+   */
+  async removeEntry(entry) {
+    if (!entry || (entry && !entry instanceof Entry)) {
+      return this;
+    }
+    const limit = this.getLimit();
+
+    if (this._sortedChildren.length === limit && this._sortedChildren.length < this._size) {
+      const nextPageToLoad = this._sortedChildren.length / limit;
+      try {
+        await this.getEntries(nextPageToLoad);
+      } catch (err) {
+        console.warn(`Failed to load search list's next page ${nextPageToLoad}`);
+        console.error(err);
+      }
+
+    }
+
+    const sortedIndex = this._sortedChildren.indexOf(entry.getURI());
+    if (sortedIndex !== -1) {
+      this._sortedChildren.splice(sortedIndex, 1)
+    }
+
+    this._size -= 1; // decrease list size
+
+    return this;
   }
 
   /**
