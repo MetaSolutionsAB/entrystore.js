@@ -361,7 +361,7 @@ export default class EntryInfo {
    * @return {Promise.<rdfjson/Graph>}
    */
   async getMetadataRevisionGraph(revisionURI) {
-    const data = this._entryStore.getREST().get(revisionURI);
+    const data = await this._entryStore.getREST().get(revisionURI);
     return new Graph(data);
   }
 
