@@ -1,6 +1,6 @@
 {
   "name": "entrystore-js",
-  "version": "4.8.0-SNAPSHOT",
+  "version": "4.7.4",
   "main": "dist/entrystore.node.js",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -8,7 +8,7 @@
     "blueimp-md5": "^2.10.0",
     "core-js": "^3.1.4",
     "moment": "^2.22.2",
-    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#develop",
+    "rdfjson": "https://bitbucket.org/metasolutions/rdfjson.git#2.2.1",
     "regenerator-runtime": "^0.13.3",
     "superagent": "^3.8.3",
     "superagent-jsonp": "^0.2.1",
