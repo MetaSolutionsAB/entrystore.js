@@ -1,6 +1,6 @@
 {
-  "name": "entrystore-js",
-  "version": "4.7.4",
+  "name": "@entryscape/entrystore-js",
+  "version": "4.7.5",
   "main": "dist/entrystore.node.js",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -52,8 +52,12 @@
       "url": "http://valentinohudhra.com/"
     }
   ],
+  "files": [
+    "dist/entrystore.js",
+    "dist/entrystore.node.js"
+  ],
   "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
-  "homepage": "https://bitbucket.org/metasolutions/entrystore.js",
+  "homepage": "https://entrystore.org",
   "scripts": {
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
