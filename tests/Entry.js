@@ -100,12 +100,12 @@ exports.Entry = {
     const pe = context.newEntry();
     const uri = pe.getResourceURI();
     const graph = new Graph();
-    graph.add(uri, `${dct}title`, { value: 'Some title', type: 'literal' });
+    graph.addL(uri, 'dcterms:title', 'Some title');
     pe.setMetadata(graph);
     try {
       const entry = await pe.commit();
       const md = entry.getMetadata();
-      test.ok(md.findFirstValue(entry.getResourceURI(), `${dct}title`) === 'Some title', 'Failed to create an entry with a title.');
+      test.ok(md.findFirstValue(entry.getResourceURI(), 'dcterms:title') === 'Some title', 'Failed to create an entry with a title.');
       test.done();
     } catch (err) {
       test.ok(false, `Could not create an Entry in context ${context.getId()}`);
@@ -239,7 +239,7 @@ exports.Entry = {
     g.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title' });
     try {
       await res.setGraph(g).commit();
-      test.ok(res.getGraph().find(null, `${dct}subject`).length === 1, 'Statement added after save missing, should be there until refresh.');
+      test.ok(res.getGraph().find(null, `${dct}title`).length === 1, 'Statement added after save missing, should be there until refresh.');
     } catch (err) {
       test.ok(false, `Failed to update resource of entry graph. ${err}`);
       test.done();

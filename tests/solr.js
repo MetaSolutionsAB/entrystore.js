@@ -38,6 +38,7 @@ exports.solr = {
   tearDown,
   async titleSearch(test) {
     try {
+      const entries = await es.newSolrQuery().title('Donald').list().getEntries(0);
       test.ok(entries.length > 0, "No entries found for title 'Donald', despite that we are searching against disney suite.");
     } catch (err) {
       test.ok(false, 'Failed performing the search, REST call went wrong.');
@@ -91,7 +92,11 @@ exports.solr = {
   },
   async literalPropertySearch(test) {
     try {
-      const entries = await es.newSolrQuery().literalProperty('dcterms:title', 'Donald').list().getEntries(0);
+      const entries = [
+        // @todo one query only
+        ...await es.newSolrQuery().literalProperty('dcterms:title', 'Donald').list().getEntries(0),
+        ...await es.newSolrQuery().literalProperty('foaf:name', 'Donald').list().getEntries(0),
+      ];
       test.ok(entries.length > 0, 'Cannot find title Donald via property search.');
     } catch (err) {
       test.ok(false, `Failed performing the search, REST call went wrong: ${err}`);
