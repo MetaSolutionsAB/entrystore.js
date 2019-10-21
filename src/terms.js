@@ -1,4 +1,4 @@
-import { namespaces } from 'rdfjson';
+import { namespaces } from '@entryscape/rdfjson';
 import types from './types';
 
 const inv = (obj) => {

@@ -26,4 +26,4 @@ export { default as String } from './String';
 export { default as User } from './User';
 export { default as terms } from './terms';
 export { default as utils } from './utils';
-export { namespaces } from 'rdfjson'; // @todo @valentino not ideal
+export { namespaces } from '@entryscape/rdfjson'; // @todo @valentino not ideal

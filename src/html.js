@@ -1,4 +1,4 @@
-import { print } from 'rdfjson';
+import { print } from '@entryscape/rdfjson';
 
 /**
  * A module that contain utility methods for generating html for entries.
