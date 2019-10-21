@@ -675,10 +675,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@entryscape/rdfjson@2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.2.2.tgz#cbe665a10b5b6f1420e460d51bbc2cffebbce831"
-  integrity sha512-I0Ns/G4jwTt7wnmRfj7bDzdeKw23twhI0kuVAzIA6e/QFuuJcxZ56/1rUuGWXARHe6/R5Peh8r6ePyBxKU8USA==
+"@entryscape/rdfjson@^2.2.2":
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.2.3.tgz#983d9035bfbf66a9d5a2667c4376816c70ca7833"
+  integrity sha512-CP8og1P9zBAXw7A6ynbqCLxXjfq2T8rawGONHGS42Bn3f5kLS8sXaVccU/2d9o6VuVA9UY+21K00MwASzrUR+w==
   dependencies:
     md5 "^2.2.1"
     xmldom "~0.1.19"
