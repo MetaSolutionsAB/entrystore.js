@@ -62,4 +62,25 @@ exports.Pipeline = {
     test.done();
     finished = true;
   },
+  async setArguments(test) {
+    const protoPipeline = context.newPipeline();
+    const pipelineResource = protoPipeline.getResource();
+    const args = {
+      validation: 'strict',
+      harvesting: 'lax',
+      enabled: 'off',
+    };
+    pipelineResource.setPipelineArguments(args);
+    let entry;
+    try {
+      entry = await protoPipeline.commit();
+    } catch (err) {
+      test.ok(false, 'Something went wrong when creating a Pipeline with some configuration arguments.');
+    }
+
+    const pipelineResource2 = entry.getResource(true);
+    const transforms = pipelineResource2.getPipelineArguments();
+    test.deepEqual(transforms, args);
+    test.done();
+  },
 };

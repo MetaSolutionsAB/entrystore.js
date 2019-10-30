@@ -17,6 +17,7 @@ export default class Pipeline extends GraphResource {
   constructor(entryURI, resourceURI, entryStore, data) {
     super(entryURI, resourceURI, entryStore, data); // Call the super constructor.
   }
+
   /**
    * The destination where the result (in the form of a single RDF graph) should
    * end up (within the specified entry's graph resource).
@@ -83,6 +84,68 @@ export default class Pipeline extends GraphResource {
         type: 'literal', value: 'true', datatype: terms.xsd.boolean,
       });
     }
+  }
+
+  /**
+   * Generic <key, value, type> arguments to be saved in the pipeline resource
+   *
+   * @param args
+   * @param argumentType
+   */
+  setPipelineArguments(args, argumentType = terms.argumentTypes.configuration) {
+    const stmts = this._graph.find(this._resourceURI, terms.config.args);
+
+    // remove all previous arguments (key value pairs)
+    stmts.forEach((stmt) => {
+      this._graph.findAndRemove(stmt.getValue(), terms.config.argumentKey);
+      this._graph.findAndRemove(stmt.getValue(), terms.config.argumentValue);
+      this._graph.remove(stmt);
+    }, this);
+
+    // introduce new arguments (key value pair)
+    Object.keys(args).forEach((key) => {
+      const newArg = this._graph.add(this._resourceURI, terms.config.args);
+      this._graph.addL(newArg.getValue(), terms.config.argumentKey, key);
+      this._graph.addL(newArg.getValue(), terms.config.argumentValue, args[key]);
+      this._graph.addL(newArg.getValue(), terms.config.argumentType, argumentType);
+    });
+  }
+
+  /**
+   * @param argumentType
+   * @return {(String|*|string)[]}
+   */
+  getPipelineArgumentIds(argumentType = terms.argumentTypes.configuration) {
+    const stmts = this._graph.find(this._resourceURI, terms.config.args);
+    const getStatementValue = stmt => stmt.getValue();
+    const hasSpecificArgumentType = (stmt) => {
+      const stmts = this._graph.find(stmt.getValue(), terms.config.argumentType, argumentType);
+      return stmts.length > 0;
+    };
+
+    return argumentType
+      ? stmts.map(getStatementValue)
+      : stmts.filter(hasSpecificArgumentType);
+  }
+
+  /**
+   * Get the pipeline generic arguments
+   *
+   * @param argumentType
+   * @return {Object} there's a one to one mapping between object <key, values> and argument <key, value>
+   * @todo make Map?
+   */
+  getPipelineArguments(argumentType = terms.argumentTypes.configuration) {
+    const argumentIds = this.getPipelineArgumentIds(argumentType);
+    const args = {};
+    argumentIds.forEach((id) => {
+      const key = this._graph.findFirstValue(id, terms.config.argumentKey);
+      if (key) {
+        args[key] = this._graph.findFirstValue(id, terms.config.argumentValue);
+      }
+    });
+
+    return args;
   }
 
   /**

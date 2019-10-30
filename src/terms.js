@@ -33,6 +33,12 @@ const terms = {
   rdf: {
     type: `${rdfns}type`,
   },
+  config: {
+    args: `${ns}arguments`,
+    argumentKey: `${ns}argumentKey`,
+    argumentValue: `${ns}argumentValue`,
+    argumentType: `${ns}argumentType`,
+  },
   pipeline: {
     pipeline: `${ns}pipeline`,
     pipelineData: `${ns}pipelineData`,
@@ -92,5 +98,12 @@ rt[`${ns}Unknown`] = types.RT_UNKNOWN;
 rt.default = types.RT_INFORMATIONRESOURCE; // The default option
 terms.resourceType = rt;
 terms.invResourceType = inv(rt);
+
+// Argument types
+const argTypes = {
+  configuration: 'configuration',
+  transform: 'transform',
+};
+terms.argumentTypes = argTypes;
 
 export default terms;
