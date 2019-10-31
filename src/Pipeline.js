@@ -123,7 +123,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Get arguments marked with a specific type or all otherwise
    * @param argumentType
-   * @return {(String|*|string)[]}
+   * @return {Array.<rdfjson/Statement>}
    */
   getPipelineArgumentStatements(argumentType) {
     const stmts = this._graph.find(this._resourceURI, terms.config.argument);
