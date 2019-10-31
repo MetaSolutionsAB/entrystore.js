@@ -88,44 +88,49 @@ export default class Pipeline extends GraphResource {
 
   /**
    * Generic <key, value, type> arguments to be saved in the pipeline resource
+   * Removes existing arguments by argumentType
    *
    * @param args
    * @param argumentType
    */
   setPipelineArguments(args, argumentType = terms.argumentTypes.configuration) {
-    const stmts = this._graph.find(this._resourceURI, terms.config.args);
-
-    // remove all previous arguments (key value pairs)
-    stmts.forEach((stmt) => {
-      this._graph.findAndRemove(stmt.getValue(), terms.config.argumentKey);
-      this._graph.findAndRemove(stmt.getValue(), terms.config.argumentValue);
-      this._graph.remove(stmt);
-    }, this);
+    this.removePipelineArguments(argumentType);
 
     // introduce new arguments (key value pair)
     Object.keys(args).forEach((key) => {
-      const newArg = this._graph.add(this._resourceURI, terms.config.args);
-      this._graph.addL(newArg.getValue(), terms.config.argumentKey, key);
-      this._graph.addL(newArg.getValue(), terms.config.argumentValue, args[key]);
-      this._graph.addL(newArg.getValue(), terms.config.argumentType, argumentType);
+      const newArgumentStmt = this._graph.add(this._resourceURI, terms.config.argument);
+      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentKey, key);
+      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentValue, args[key]);
+      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentType, argumentType);
     });
   }
 
   /**
+   * Remove all argument statements
+   * @param argumentType
+   */
+  removePipelineArguments(argumentType = terms.argumentTypes.configuration) {
+    const stmts = this.getPipelineArgumentStatements(argumentType);
+
+    stmts.forEach((stmt) => {
+      this._graph.findAndRemove(stmt.getValue());
+      this._graph.remove(stmt);
+    });
+  }
+
+  /**
+   * Get arguments marked with a specific type or all otherwise
    * @param argumentType
    * @return {(String|*|string)[]}
    */
-  getPipelineArgumentIds(argumentType = terms.argumentTypes.configuration) {
-    const stmts = this._graph.find(this._resourceURI, terms.config.args);
-    const getStatementValue = stmt => stmt.getValue();
-    const hasSpecificArgumentType = (stmt) => {
-      const stmts = this._graph.find(stmt.getValue(), terms.config.argumentType, argumentType);
-      return stmts.length > 0;
-    };
+  getPipelineArgumentStatements(argumentType = terms.argumentTypes.configuration) {
+    const stmts = this._graph.find(this._resourceURI, terms.config.argument);
+    if (!argumentType) {
+      return stmts;
+    }
 
-    return argumentType
-      ? stmts.map(getStatementValue)
-      : stmts.filter(hasSpecificArgumentType);
+    return stmts.filter(stmt =>
+      this._graph.findFirstValue(stmt.getValue(), terms.config.argumentType) === argumentType);
   }
 
   /**
@@ -136,12 +141,12 @@ export default class Pipeline extends GraphResource {
    * @todo make Map?
    */
   getPipelineArguments(argumentType = terms.argumentTypes.configuration) {
-    const argumentIds = this.getPipelineArgumentIds(argumentType);
+    const stmts = this.getPipelineArgumentStatements(argumentType);
     const args = {};
-    argumentIds.forEach((id) => {
-      const key = this._graph.findFirstValue(id, terms.config.argumentKey);
+    stmts.forEach((stmt) => {
+      const key = this._graph.findFirstValue(stmt.getValue(), terms.config.argumentKey);
       if (key) {
-        args[key] = this._graph.findFirstValue(id, terms.config.argumentValue);
+        args[key] = this._graph.findFirstValue(stmt.getValue(), terms.config.argumentValue);
       }
     });
 

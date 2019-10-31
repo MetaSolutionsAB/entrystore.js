@@ -62,7 +62,7 @@ exports.Pipeline = {
     test.done();
     finished = true;
   },
-  async setArguments(test) {
+  async setAndUpdateArguments(test) {
     const protoPipeline = context.newPipeline();
     const pipelineResource = protoPipeline.getResource();
     const args = {
@@ -70,7 +70,14 @@ exports.Pipeline = {
       harvesting: 'lax',
       enabled: 'off',
     };
+
+    const argsTyped = {
+      typed: 'yes',
+    };
+
     pipelineResource.setPipelineArguments(args);
+    pipelineResource.setPipelineArguments(argsTyped, 'transform');
+
     let entry;
     try {
       entry = await protoPipeline.commit();
@@ -79,8 +86,23 @@ exports.Pipeline = {
     }
 
     const pipelineResource2 = entry.getResource(true);
-    const transforms = pipelineResource2.getPipelineArguments();
-    test.deepEqual(transforms, args);
+    const configurationArgs = pipelineResource2.getPipelineArguments();
+    const transformArgs = pipelineResource2.getPipelineArguments('transform');
+    test.deepEqual(configurationArgs, args);
+    test.deepEqual(transformArgs, argsTyped);
+
+
+    args.validation = 'lax';
+    pipelineResource2.setPipelineArguments(args);
+    try {
+      await pipelineResource2.commit();
+    } catch (err) {
+      test.ok(false, 'Something went wrong when updating Pipeline arguments.');
+    }
+
+    const configArgs = pipelineResource2.getPipelineArguments();
+    test.equal(configArgs.validation, 'lax');
+
     test.done();
   },
 };

@@ -34,7 +34,7 @@ const terms = {
     type: `${rdfns}type`,
   },
   config: {
-    args: `${ns}arguments`,
+    argument: `${ns}argument`,
     argumentKey: `${ns}argumentKey`,
     argumentValue: `${ns}argumentValue`,
     argumentType: `${ns}argumentType`,
