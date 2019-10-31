@@ -93,7 +93,7 @@ export default class Pipeline extends GraphResource {
    * @param args
    * @param argumentType
    */
-  setPipelineArguments(args, argumentType = terms.argumentTypes.configuration) {
+  setPipelineArguments(args, argumentType) {
     this.removePipelineArguments(argumentType);
 
     // introduce new arguments (key value pair)
@@ -101,7 +101,9 @@ export default class Pipeline extends GraphResource {
       const newArgumentStmt = this._graph.add(this._resourceURI, terms.config.argument);
       this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentKey, key);
       this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentValue, args[key]);
-      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentType, argumentType);
+      if (argumentType) {
+        this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentType, argumentType);
+      }
     });
   }
 
@@ -109,7 +111,7 @@ export default class Pipeline extends GraphResource {
    * Remove all argument statements
    * @param argumentType
    */
-  removePipelineArguments(argumentType = terms.argumentTypes.configuration) {
+  removePipelineArguments(argumentType) {
     const stmts = this.getPipelineArgumentStatements(argumentType);
 
     stmts.forEach((stmt) => {
@@ -123,7 +125,7 @@ export default class Pipeline extends GraphResource {
    * @param argumentType
    * @return {(String|*|string)[]}
    */
-  getPipelineArgumentStatements(argumentType = terms.argumentTypes.configuration) {
+  getPipelineArgumentStatements(argumentType) {
     const stmts = this._graph.find(this._resourceURI, terms.config.argument);
     if (!argumentType) {
       return stmts;
@@ -140,7 +142,7 @@ export default class Pipeline extends GraphResource {
    * @return {Object} there's a one to one mapping between object <key, values> and argument <key, value>
    * @todo make Map?
    */
-  getPipelineArguments(argumentType = terms.argumentTypes.configuration) {
+  getPipelineArguments(argumentType) {
     const stmts = this.getPipelineArgumentStatements(argumentType);
     const args = {};
     stmts.forEach((stmt) => {

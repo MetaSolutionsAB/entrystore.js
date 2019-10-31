@@ -75,7 +75,7 @@ exports.Pipeline = {
       typed: 'yes',
     };
 
-    pipelineResource.setPipelineArguments(args);
+    pipelineResource.setPipelineArguments(args, 'configuration');
     pipelineResource.setPipelineArguments(argsTyped, 'transform');
 
     let entry;
@@ -86,21 +86,23 @@ exports.Pipeline = {
     }
 
     const pipelineResource2 = entry.getResource(true);
-    const configurationArgs = pipelineResource2.getPipelineArguments();
+    const configurationArgs = pipelineResource2.getPipelineArguments('configuration');
     const transformArgs = pipelineResource2.getPipelineArguments('transform');
+    const allArgs = pipelineResource2.getPipelineArguments();
     test.deepEqual(configurationArgs, args);
     test.deepEqual(transformArgs, argsTyped);
+    test.deepEqual(allArgs, { ...args, ...argsTyped });
 
 
     args.validation = 'lax';
-    pipelineResource2.setPipelineArguments(args);
+    pipelineResource2.setPipelineArguments(args, 'configuration');
     try {
       await pipelineResource2.commit();
     } catch (err) {
       test.ok(false, 'Something went wrong when updating Pipeline arguments.');
     }
 
-    const configArgs = pipelineResource2.getPipelineArguments();
+    const configArgs = pipelineResource2.getPipelineArguments('configuration');
     test.equal(configArgs.validation, 'lax');
 
     test.done();
