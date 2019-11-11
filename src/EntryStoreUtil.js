@@ -86,11 +86,15 @@ export default class EntryStoreUtil {
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     const cache = this._entrystore.getCache();
     const entriesSet = cache.getByResourceURI(resourceURI);
-    if (context) {
-      for (const entry of entriesSet) { // eslint-disable-line
-        if (entry.getContext().getId() === context.getId()) {
-          return Promise.resolve(entry);
+    if (entriesSet.size() > 0) {
+      if (context) {
+        for (const entry of entriesSet) { // eslint-disable-line
+          if (entry.getContext().getId() === context.getId()) {
+            return Promise.resolve(entry);
+          }
         }
+      } else {
+        return Promise.resolve(entriesSet.values()[0]);
       }
     }
     const query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
@@ -198,5 +202,74 @@ export default class EntryStoreUtil {
 
     deleteNext(result);
   }
-}
 
+  /**
+   * Loads entries by first checking if they are in the cache, second if there are ongoing loading attempts that
+   * can be waited on and lastly loads them itself by via a solr query. Note, if too many entries are asked for at
+   * once the solr query will be divided into smaller chunks.
+   *
+   * @param {Array<String>} resourceURIs array of resourceURIs to load.
+   * @param {boolean} acceptMissing if true then the array returned may contain holes
+   * @returns {Promise<Entry>}
+   */
+  async loadEntriesByResourceURIs(resourceURIs, acceptMissing = false) {
+    const es = this._entrystore;
+    const cache = es.getCache();
+    const id2Entry = {};
+    const previouslyLoadingPromises = [];
+    const toLoad = [];
+    resourceURIs.forEach((uri) => {
+      const entryset = cache.getByResourceURI(uri);
+      if (entryset.size() > 0) {
+        id2Entry[uri] = entryset.values()[0];
+      } else {
+        const loadpromise = cache.getPromise(uri);
+        if (loadpromise) {
+          previouslyLoadingPromises.push(loadpromise.then((entry) => {
+            id2Entry[uri] = entry;
+          }, (e) => {
+            if (!acceptMissing) {
+              throw e;
+            }
+          }));
+        } else {
+          toLoad.push(uri);
+        }
+      }
+    });
+
+    const chunked = [];
+    const chunkLimit = 20;
+    for (let i = 0; i < toLoad.length; i += chunkLimit) {
+      chunked.push(toLoad.slice(i, i + chunkLimit));
+    }
+    const chunkLoadingPromises = chunked.map((chunk) => {
+      chunk.forEach((ruri) => {
+        cache.addPromise(ruri, new Promise());
+      });
+      const loadEntries = new Set(chunk);
+      return es.newSolrQuery().resource(chunk).forEach((entry) => {
+        const ruri = entry.getResourceURI();
+        if (loadEntries.has(ruri)) {
+          loadEntries.delete(ruri);
+          cache.getPromise(ruri).resolve(entry);
+          id2Entry[ruri] = entry;
+          cache.removePromise(ruri);
+        }
+        return loadEntries.size() !== 0;
+      }).then(() => {
+        if (loadEntries.size() > 0) {
+          loadEntries.values().forEach((ruri) => {
+            cache.getPromise(ruri).reject(new Error(`No resource found for ${ruri}`));
+            cache.removePromise(ruri);
+          });
+          if (!acceptMissing) {
+            throw new Error(`The following resources could not be found ${loadEntries.values().join(', ')}`);
+          }
+        }
+      });
+    });
+    return Promise.all(previouslyLoadingPromises.concat(chunkLoadingPromises))
+      .then(() => resourceURIs.map(ruri => id2Entry[ruri] || null));
+  }
+}

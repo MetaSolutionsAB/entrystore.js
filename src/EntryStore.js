@@ -269,15 +269,24 @@ export default class EntryStore {
       // Will only refresh if needed, a promise is returned in any case
       return this.handleAsync(e.refresh().then(checkResourceLoaded), asyncContext);
     }
+
+    const entryPromise = this._cache.getPromise(entryURI);
+    if (entryPromise) {
+      return entryPromise;
+    }
     const self = this;
     const entryLoadURI = factory.getEntryLoadURI(entryURI, optionalLoadParams);
-    return this.handleAsync(this._rest.get(entryLoadURI).then((data) => {
+    const loadEntryPromise = this.handleAsync(this._rest.get(entryLoadURI).then((data) => {
       // The entry, will always be there.
       const entry = factory.updateOrCreate(entryURI, data, self);
       return checkResourceLoaded(entry);
     }, (err) => {
       throw new Error(`Failed fetching entry. ${err}`);
-    }), asyncContext);
+    }), asyncContext).finally(() => {
+      this._cache.removePromise(entryURI);
+    });
+    this._cache.addPromise(entryURI, loadEntryPromise);
+    return loadEntryPromise;
   }
 
   /**
