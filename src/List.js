@@ -102,7 +102,7 @@ export default class List extends Resource {
         if (entries.length === 0) {
           return Promise.resolve(true);
         }
-        const res = func(entries.pop(), idx);
+        const res = func(entries.shift(), idx);
         idx += 1;
         if (typeof res !== 'undefined' && typeof res.then === 'function') {
           return res.then(g);

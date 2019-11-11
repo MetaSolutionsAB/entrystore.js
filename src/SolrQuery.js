@@ -1,5 +1,5 @@
 import md5 from 'blueimp-md5';
-import { namespaces } from 'rdfjson';
+import { namespaces } from '@entryscape/rdfjson';
 import Context from './Context';
 import EntryStore from './EntryStore';
 import SearchList from './SearchList';

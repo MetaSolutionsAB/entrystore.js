@@ -1,4 +1,4 @@
-import { Graph } from 'rdfjson';
+import { Graph } from '@entryscape/rdfjson';
 import factory from './factory';
 import types from './types';
 

@@ -1,4 +1,4 @@
-import { Graph } from 'rdfjson';
+import { Graph } from '@entryscape/rdfjson';
 import Context from './Context';
 import Entry from './Entry';
 import EntryInfo from './EntryInfo';

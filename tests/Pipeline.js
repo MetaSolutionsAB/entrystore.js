@@ -62,4 +62,49 @@ exports.Pipeline = {
     test.done();
     finished = true;
   },
+  async setAndUpdateArguments(test) {
+    const protoPipeline = context.newPipeline();
+    const pipelineResource = protoPipeline.getResource();
+    const args = {
+      validation: 'strict',
+      harvesting: 'lax',
+      enabled: 'off',
+    };
+
+    const argsTyped = {
+      typed: 'yes',
+    };
+
+    pipelineResource.setPipelineArguments(args, 'configuration');
+    pipelineResource.setPipelineArguments(argsTyped, 'transform');
+
+    let entry;
+    try {
+      entry = await protoPipeline.commit();
+    } catch (err) {
+      test.ok(false, 'Something went wrong when creating a Pipeline with some configuration arguments.');
+    }
+
+    const pipelineResource2 = entry.getResource(true);
+    const configurationArgs = pipelineResource2.getPipelineArguments('configuration');
+    const transformArgs = pipelineResource2.getPipelineArguments('transform');
+    const allArgs = pipelineResource2.getPipelineArguments();
+    test.deepEqual(configurationArgs, args);
+    test.deepEqual(transformArgs, argsTyped);
+    test.deepEqual(allArgs, { ...args, ...argsTyped });
+
+
+    args.validation = 'lax';
+    pipelineResource2.setPipelineArguments(args, 'configuration');
+    try {
+      await pipelineResource2.commit();
+    } catch (err) {
+      test.ok(false, 'Something went wrong when updating Pipeline arguments.');
+    }
+
+    const configArgs = pipelineResource2.getPipelineArguments('configuration');
+    test.equal(configArgs.validation, 'lax');
+
+    test.done();
+  },
 };

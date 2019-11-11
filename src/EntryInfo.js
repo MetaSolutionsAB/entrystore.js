@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Graph } from 'rdfjson';
+import { Graph } from '@entryscape/rdfjson';
 import factory from './factory';
 import terms from './terms';
 
