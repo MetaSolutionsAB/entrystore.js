@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { Graph } = require('rdfjson');
+const { Graph } = require('@entryscape/rdfjson');
 const store = require('../dist/entrystore.node');
 const config = require('./config');
 

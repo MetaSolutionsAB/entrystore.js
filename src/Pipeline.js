@@ -17,6 +17,7 @@ export default class Pipeline extends GraphResource {
   constructor(entryURI, resourceURI, entryStore, data) {
     super(entryURI, resourceURI, entryStore, data); // Call the super constructor.
   }
+
   /**
    * The destination where the result (in the form of a single RDF graph) should
    * end up (within the specified entry's graph resource).
@@ -83,6 +84,75 @@ export default class Pipeline extends GraphResource {
         type: 'literal', value: 'true', datatype: terms.xsd.boolean,
       });
     }
+  }
+
+  /**
+   * Generic <key, value, type> arguments to be saved in the pipeline resource
+   * Removes existing arguments by argumentType
+   *
+   * @param args
+   * @param argumentType
+   */
+  setPipelineArguments(args, argumentType) {
+    this.removePipelineArguments(argumentType);
+
+    // introduce new arguments (key value pair)
+    Object.keys(args).forEach((key) => {
+      const newArgumentStmt = this._graph.add(this._resourceURI, terms.config.argument);
+      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentKey, key);
+      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentValue, args[key]);
+      if (argumentType) {
+        this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentType, argumentType);
+      }
+    });
+  }
+
+  /**
+   * Remove all argument statements
+   * @param argumentType
+   */
+  removePipelineArguments(argumentType) {
+    const stmts = this.getPipelineArgumentStatements(argumentType);
+
+    stmts.forEach((stmt) => {
+      this._graph.findAndRemove(stmt.getValue());
+      this._graph.remove(stmt);
+    });
+  }
+
+  /**
+   * Get arguments marked with a specific type or all otherwise
+   * @param argumentType
+   * @return {Array.<rdfjson/Statement>}
+   */
+  getPipelineArgumentStatements(argumentType) {
+    const stmts = this._graph.find(this._resourceURI, terms.config.argument);
+    if (!argumentType) {
+      return stmts;
+    }
+
+    return stmts.filter(stmt =>
+      this._graph.findFirstValue(stmt.getValue(), terms.config.argumentType) === argumentType);
+  }
+
+  /**
+   * Get the pipeline generic arguments
+   *
+   * @param argumentType
+   * @return {Object} there's a one to one mapping between object <key, values> and argument <key, value>
+   * @todo make Map?
+   */
+  getPipelineArguments(argumentType) {
+    const stmts = this.getPipelineArgumentStatements(argumentType);
+    const args = {};
+    stmts.forEach((stmt) => {
+      const key = this._graph.findFirstValue(stmt.getValue(), terms.config.argumentKey);
+      if (key) {
+        args[key] = this._graph.findFirstValue(stmt.getValue(), terms.config.argumentValue);
+      }
+    });
+
+    return args;
   }
 
   /**

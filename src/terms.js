@@ -1,4 +1,4 @@
-import { namespaces } from 'rdfjson';
+import { namespaces } from '@entryscape/rdfjson';
 import types from './types';
 
 const inv = (obj) => {
@@ -32,6 +32,12 @@ const terms = {
   },
   rdf: {
     type: `${rdfns}type`,
+  },
+  config: {
+    argument: `${ns}argument`,
+    argumentKey: `${ns}argumentKey`,
+    argumentValue: `${ns}argumentValue`,
+    argumentType: `${ns}argumentType`,
   },
   pipeline: {
     pipeline: `${ns}pipeline`,
@@ -92,5 +98,12 @@ rt[`${ns}Unknown`] = types.RT_UNKNOWN;
 rt.default = types.RT_INFORMATIONRESOURCE; // The default option
 terms.resourceType = rt;
 terms.invResourceType = inv(rt);
+
+// Argument types
+const argTypes = {
+  configuration: 'configuration',
+  transform: 'transform',
+};
+terms.argumentTypes = argTypes;
 
 export default terms;
