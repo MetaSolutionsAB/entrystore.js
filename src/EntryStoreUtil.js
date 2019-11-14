@@ -86,7 +86,7 @@ export default class EntryStoreUtil {
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     const cache = this._entrystore.getCache();
     const entriesSet = cache.getByResourceURI(resourceURI);
-    if (entriesSet.size() > 0) {
+    if (entriesSet.size > 0) {
       if (context) {
         for (const entry of entriesSet) { // eslint-disable-line
           if (entry.getContext().getId() === context.getId()) {
@@ -94,7 +94,7 @@ export default class EntryStoreUtil {
           }
         }
       } else {
-        return Promise.resolve(entriesSet.values()[0]);
+        return Promise.resolve(entriesSet.values().next().value);
       }
     }
     const query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
@@ -220,8 +220,8 @@ export default class EntryStoreUtil {
     const toLoad = [];
     resourceURIs.forEach((uri) => {
       const entryset = cache.getByResourceURI(uri);
-      if (entryset.size() > 0) {
-        id2Entry[uri] = entryset.values()[0];
+      if (entryset.size > 0) {
+        id2Entry[uri] = entryset.values().next().value;
       } else {
         const loadpromise = cache.getPromise(uri);
         if (loadpromise) {
@@ -256,15 +256,15 @@ export default class EntryStoreUtil {
           id2Entry[ruri] = entry;
           cache.removePromise(ruri);
         }
-        return loadEntries.size() !== 0;
+        return loadEntries.size !== 0;
       }).then(() => {
-        if (loadEntries.size() > 0) {
-          loadEntries.values().forEach((ruri) => {
+        if (loadEntries.size > 0) {
+          loadEntries.forEach((ruri) => {
             cache.getPromise(ruri).reject(new Error(`No resource found for ${ruri}`));
             cache.removePromise(ruri);
           });
           if (!acceptMissing) {
-            throw new Error(`The following resources could not be found ${loadEntries.values().join(', ')}`);
+            throw new Error(`The following resources could not be found ${Array.from(loadEntries).join(', ')}`);
           }
         }
       });
