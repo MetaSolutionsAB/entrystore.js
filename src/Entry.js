@@ -141,7 +141,7 @@ export default class Entry {
         } catch (err) {
           // Failed refreshing, but succeeded at saving metadata,
           // at least send out message that it needs to be refreshed.
-          this.getEntryStore().getCache().message('refreshed', this);
+          this.getEntryStore().getCache().messageListeners('refreshed', this);
         }
       }
     }
