@@ -1,3 +1,25 @@
+const getContextURI = (es, c) => {
+  if (c && c.getResourceURI) {
+    return c.getResourceURI();
+  } else if (typeof c === 'string' && c !== '') {
+    if (c.indexOf('http') === 0) {
+      return c;
+    } else {
+      return es.getContextById(c).getResourceURI();
+    }
+  }
+};
+
+const contextEquals = (es, c1, c2) => getContextURI(es, c1) === getContextURI(es, c2);
+
+const promiseInScope = (es, promise, c2) => getContextURI(es, promise.__context) === getContextURI(es, c2);
+const markPromise = (es, promise, context) => {
+  const curi = getContextURI(es, context);
+  if (curi) {
+    promise.__context = curi;
+  }
+};
+
 /**
  * EntryStoreUtil provides utility functionality for working with entries.
  * @exports store/EntryStoreUtil
@@ -84,13 +106,19 @@ export default class EntryStoreUtil {
    * @throws Error
    */
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
-    const cache = this._entrystore.getCache();
+    return this.loadEntriesByResourceURIs([resourceURI], context, false, asyncCallType)
+      .then(arr => arr[0]);
+/*    const cache = this._entrystore.getCache();
     const entriesSet = cache.getByResourceURI(resourceURI);
-    if (context) {
-      for (const entry of entriesSet) { // eslint-disable-line
-        if (entry.getContext().getId() === context.getId()) {
-          return Promise.resolve(entry);
+    if (entriesSet.size > 0) {
+      if (context) {
+        for (const entry of entriesSet) { // eslint-disable-line
+          if (entry.getContext().getId() === context.getId()) {
+            return Promise.resolve(entry);
+          }
         }
+      } else {
+        return Promise.resolve(entriesSet.values().next().value);
       }
     }
     const query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
@@ -101,7 +129,7 @@ export default class EntryStoreUtil {
     if (entryArr.length > 0) {
       return entryArr[0];
     }
-    throw new Error(`No entries for resource with URI: ${resourceURI}`);
+    throw new Error(`No entries for resource with URI: ${resourceURI}`);*/
   }
 
   /**
@@ -198,5 +226,86 @@ export default class EntryStoreUtil {
 
     deleteNext(result);
   }
-}
 
+  /**
+   * Loads entries by first checking if they are in the cache, second if there are ongoing loading attempts that
+   * can be waited on and lastly loads them itself by via a solr query. Note, if too many entries are asked for at
+   * once the solr query will be divided into smaller chunks.
+   *
+   * @param {Array<String>} resourceURIs array of resourceURIs to load.
+   * @param {Context=} context only look for entries in this context, may be left out.
+   * @param {boolean} acceptMissing if true then the array returned may contain holes
+   * @param {string} asyncCallType the callType used when making the search.
+   * @returns {Promise<Entry>}
+   */
+  async loadEntriesByResourceURIs(resourceURIs, context, acceptMissing = false, asyncCallType) {
+    const es = this._entrystore;
+    const cache = es.getCache();
+    const id2Entry = {};
+    const previouslyLoadingPromises = [];
+    const toLoad = [];
+    resourceURIs.forEach((uri) => {
+      let entries = Array.from(cache.getByResourceURI(uri).values());
+      if (context) {
+        entries = entries.filter(e => e.getContext().getResourceURI() === getContextURI(es, context));
+      }
+      if (entries.length > 0) {
+        id2Entry[uri] = entries[0];
+      } else {
+        const loadpromise = cache.getPromise(uri);
+        if (loadpromise && promiseInScope(es, loadpromise, context)) {
+          previouslyLoadingPromises.push(loadpromise.then((entry) => {
+            id2Entry[uri] = entry;
+          }, (e) => {
+            if (!acceptMissing) {
+              throw e;
+            }
+          }));
+        } else {
+          toLoad.push(uri);
+        }
+      }
+    });
+
+    const chunked = [];
+    const chunkLimit = 20;
+    for (let i = 0; i < toLoad.length; i += chunkLimit) {
+      chunked.push(toLoad.slice(i, i + chunkLimit));
+    }
+    const chunkLoadingPromises = chunked.map((chunk) => {
+      const uri2resolve = {};
+      const uri2reject = {};
+      chunk.forEach((ruri) => {
+        const p = new Promise((resolve, reject) => {
+          uri2resolve[ruri] = resolve;
+          uri2reject[ruri] = reject;
+        });
+        markPromise(es, p, context);
+        cache.addPromise(ruri, p);
+      });
+      const loadEntries = new Set(chunk);
+      return es.newSolrQuery().resource(chunk).context(context).list(asyncCallType).forEach((entry) => {
+        const ruri = entry.getResourceURI();
+        if (loadEntries.has(ruri)) {
+          loadEntries.delete(ruri);
+          uri2resolve[ruri](entry);
+          id2Entry[ruri] = entry;
+          cache.removePromise(ruri);
+        }
+        return loadEntries.size !== 0;
+      }).then(() => {
+        if (loadEntries.size > 0) {
+          loadEntries.forEach((ruri) => {
+            uri2reject[ruri](new Error(`No resource found for ${ruri}`));
+            cache.removePromise(ruri);
+          });
+          if (!acceptMissing) {
+            throw new Error(`The following resources could not be found ${Array.from(loadEntries).join(', ')}`);
+          }
+        }
+      });
+    });
+    return Promise.all(previouslyLoadingPromises.concat(chunkLoadingPromises))
+      .then(() => resourceURIs.map(ruri => id2Entry[ruri] || null));
+  }
+}

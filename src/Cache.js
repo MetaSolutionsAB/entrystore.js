@@ -32,6 +32,8 @@ export default class Cache {
     this._cacheCtrl = new Map();
 
     this._listenerCounter = 0;
+
+    this._cacheLoadPromise = {};
   }
 
   /**
@@ -138,6 +140,35 @@ export default class Cache {
    */
   getByResourceURI(uri) {
     return new Set(this._cacheIdxResource.get(uri));
+  }
+
+  /**
+   * Retrieve a load promise.
+   *
+   * @param {String} loadID
+   * @returns {Promise|undefined}
+   */
+  getPromise(loadID) {
+    return this._cacheLoadPromise[loadID];
+  }
+
+  /**
+   * Store the promise for loading something.
+   *
+   * @param {String} loadID
+   * @param {Promise} loadPromise
+   */
+  addPromise(loadID, loadPromise) {
+    this._cacheLoadPromise[loadID] = loadPromise;
+  }
+
+  /**
+   * Remove the promise responsible for loading something.
+   *
+   * @param {String} loadID
+   */
+  removePromise(loadID) {
+    delete this._cacheLoadPromise[loadID];
   }
 
   /**

@@ -1,6 +1,7 @@
 module.exports = {
     tests: [
         "EntryStore",
+        "EntryStoreUtil",
         "Auth",
         "Entry",
         "EntryInfo",

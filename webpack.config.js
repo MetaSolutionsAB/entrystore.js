@@ -46,6 +46,7 @@ const serverConfig = {
     library: 'EntryStore',
     libraryTarget: 'commonjs2',
   },
+  devtool: 'cheap-module-source-map',
   plugins,
   context, // string (absolute path!)
   module: moduleConfig,

@@ -106,5 +106,30 @@ exports.EntryStore = {
         test.done();
       }
     },
+    async singleRequestInCache(test) {
+      try {
+        // Bertrand Russels would be proud of this entry
+        const contextsEntryURI = es.getEntryURI('_contexts', '_contexts');
+        const cache = es.getCache();
+        const contextEntry = cache.get(contextsEntryURI);
+        if (contextEntry) {
+          cache.unCache(contextEntry);
+        }
+        test.ok(cache.get(contextsEntryURI) === undefined, 'Alredy something in cache for explicitly uncached entry');
+        test.ok(cache.getPromise(contextsEntryURI) === undefined, 'Alredy a promise in cache before requesting it');
+        const promise1 = es.getEntry(contextsEntryURI);
+        const promise2 = es.getEntry(contextsEntryURI);
+        test.ok(promise1 === promise2, 'Not reusing same promise for same entry.');
+        test.ok(cache.get(contextsEntryURI) === undefined, 'Entry in cache without delay.');
+        test.ok(cache.getPromise(contextsEntryURI) !== undefined, 'No promise in cache for requested entry.');
+        await promise1;
+        test.ok(cache.getPromise(contextsEntryURI) === undefined, 'Promise remains in cache after entry returned.');
+        test.ok(cache.get(contextsEntryURI) !== undefined, 'Entry not in cache after being returned');
+        test.done();
+      } catch (err) {
+        test.ok(false, 'Failed in single request check.');
+        test.done();
+      }
+    },
   },
 };
