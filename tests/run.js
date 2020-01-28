@@ -4,6 +4,7 @@ const Cache = require('./Cache');
 const Entry = require('./Entry');
 const EntryInfo = require('./EntryInfo');
 const EntryStore = require('./EntryStore');
+const EntryStoreUtil = require('./EntryStoreUtil');
 const File = require('./File');
 const List = require('./List');
 const Pipeline = require('./Pipeline');
@@ -16,6 +17,7 @@ const allTests = {
   Entry,
   EntryInfo,
   EntryStore,
+  EntryStoreUtil,
   File,
   List,
   Pipeline,
