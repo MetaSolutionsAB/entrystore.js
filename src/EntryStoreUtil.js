@@ -1,3 +1,25 @@
+const getContextURI = (es, c) => {
+  if (c && c.getResourceURI) {
+    return c.getResourceURI();
+  } else if (typeof c === 'string' && c !== '') {
+    if (c.indexOf('http') === 0) {
+      return c;
+    } else {
+      return es.getContextById(c).getResourceURI();
+    }
+  }
+};
+
+const contextEquals = (es, c1, c2) => getContextURI(es, c1) === getContextURI(es, c2);
+
+const promiseInScope = (es, promise, c2) => getContextURI(es, promise.__context) === getContextURI(es, c2);
+const markPromise = (es, promise, context) => {
+  const curi = getContextURI(es, context);
+  if (curi) {
+    promise.__context = curi;
+  }
+};
+
 /**
  * EntryStoreUtil provides utility functionality for working with entries.
  * @exports store/EntryStoreUtil
@@ -84,7 +106,9 @@ export default class EntryStoreUtil {
    * @throws Error
    */
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
-    const cache = this._entrystore.getCache();
+    return this.loadEntriesByResourceURIs([resourceURI], context, false, asyncCallType)
+      .then(arr => arr[0]);
+/*    const cache = this._entrystore.getCache();
     const entriesSet = cache.getByResourceURI(resourceURI);
     if (entriesSet.size > 0) {
       if (context) {
@@ -105,7 +129,7 @@ export default class EntryStoreUtil {
     if (entryArr.length > 0) {
       return entryArr[0];
     }
-    throw new Error(`No entries for resource with URI: ${resourceURI}`);
+    throw new Error(`No entries for resource with URI: ${resourceURI}`);*/
   }
 
   /**
@@ -209,22 +233,27 @@ export default class EntryStoreUtil {
    * once the solr query will be divided into smaller chunks.
    *
    * @param {Array<String>} resourceURIs array of resourceURIs to load.
+   * @param {Context=} context only look for entries in this context, may be left out.
    * @param {boolean} acceptMissing if true then the array returned may contain holes
+   * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise<Entry>}
    */
-  async loadEntriesByResourceURIs(resourceURIs, acceptMissing = false) {
+  async loadEntriesByResourceURIs(resourceURIs, context, acceptMissing = false, asyncCallType) {
     const es = this._entrystore;
     const cache = es.getCache();
     const id2Entry = {};
     const previouslyLoadingPromises = [];
     const toLoad = [];
     resourceURIs.forEach((uri) => {
-      const entryset = cache.getByResourceURI(uri);
-      if (entryset.size > 0) {
-        id2Entry[uri] = entryset.values().next().value;
+      let entries = Array.from(cache.getByResourceURI(uri).values());
+      if (context) {
+        entries = entries.filter(e => e.getContext().getResourceURI() === getContextURI(es, context));
+      }
+      if (entries.length > 0) {
+        id2Entry[uri] = entries[0];
       } else {
         const loadpromise = cache.getPromise(uri);
-        if (loadpromise) {
+        if (loadpromise && promiseInScope(es, loadpromise, context)) {
           previouslyLoadingPromises.push(loadpromise.then((entry) => {
             id2Entry[uri] = entry;
           }, (e) => {
@@ -244,15 +273,22 @@ export default class EntryStoreUtil {
       chunked.push(toLoad.slice(i, i + chunkLimit));
     }
     const chunkLoadingPromises = chunked.map((chunk) => {
+      const uri2resolve = {};
+      const uri2reject = {};
       chunk.forEach((ruri) => {
-        cache.addPromise(ruri, new Promise());
+        const p = new Promise((resolve, reject) => {
+          uri2resolve[ruri] = resolve;
+          uri2reject[ruri] = reject;
+        });
+        markPromise(es, p, context);
+        cache.addPromise(ruri, p);
       });
       const loadEntries = new Set(chunk);
-      return es.newSolrQuery().resource(chunk).forEach((entry) => {
+      return es.newSolrQuery().resource(chunk).context(context).list(asyncCallType).forEach((entry) => {
         const ruri = entry.getResourceURI();
         if (loadEntries.has(ruri)) {
           loadEntries.delete(ruri);
-          cache.getPromise(ruri).resolve(entry);
+          uri2resolve[ruri](entry);
           id2Entry[ruri] = entry;
           cache.removePromise(ruri);
         }
@@ -260,7 +296,7 @@ export default class EntryStoreUtil {
       }).then(() => {
         if (loadEntries.size > 0) {
           loadEntries.forEach((ruri) => {
-            cache.getPromise(ruri).reject(new Error(`No resource found for ${ruri}`));
+            uri2reject[ruri](new Error(`No resource found for ${ruri}`));
             cache.removePromise(ruri);
           });
           if (!acceptMissing) {
