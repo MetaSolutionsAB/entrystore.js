@@ -686,10 +686,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@entryscape/rdfjson@^2.2.5":
-  version "2.2.6"
-  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.2.6.tgz#f45e4e3032d7112512988a4975432d455818de1d"
-  integrity sha512-WqMLlw0rSJjqBohd8NsHOxabT3AvacMp9yg0lGnEHnpnFRh0+bv5LBFn2xthd3aXaFuY5KMQmHSJFSJgDPdm/g==
+"@entryscape/rdfjson@^2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.2.9.tgz#bcb35dbd0976a521cc6dafc43e934fb9ee4a80c5"
+  integrity sha512-79B71t25STy4SPnGjriEtdkFRTLnS3a0SbApKfN266gAZxhtu+Kbem+zTNjZq2uTEVikDKe3dv4WJeJE9G8TBg==
   dependencies:
     core-js "^3.4.0"
     md5 "^2.2.1"
@@ -3414,9 +3414,9 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-"license-checker@git+https://github.com/mwittig/license-checker.git#d546e3f738e14c62e732346fa355162d46700893":
+"license-checker@git+https://github.com/mwittig/license-checker#d546e3f738e14c62e732346fa355162d46700893":
   version "1.0.0"
-  resolved "git+https://github.com/mwittig/license-checker.git#d546e3f738e14c62e732346fa355162d46700893"
+  resolved "git+https://github.com/mwittig/license-checker#d546e3f738e14c62e732346fa355162d46700893"
   dependencies:
     chalk "~0.5.1"
     mkdirp "^0.3.5"
