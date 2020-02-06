@@ -222,24 +222,25 @@ export default class Context extends Resource {
   /**
    * Change of context name, succeeds if name is not in use already by another context.
    * @param {string} name
-   * @returns {Promise}
+   * @returns {Promise.<string>}
    */
-  setName(name) {
+  async setName(name) {
     const oldName = this._name;
     this._name = name;
-    return this.getEntryStore().handleAsync(this.getEntryStore().getREST()
-      .put(`${this.getEntryURI()}/name`, JSON.stringify({ name })).then((data) => {
-        const entry = this.getEntry(true);
-        if (entry) {
-          entry.getEntryInfo()._name = data;
-        }
-        return data;
-      }, (e) => {
-        this._name = oldName;
-        throw e;
-      }), 'setContextName');
+    try {
+      const promise = this.getEntryStore().getREST().put(`${this.getEntryURI()}/name`, JSON.stringify({ name }));
+      this.getEntryStore().handleAsync(promise, 'setContextName');
+      await promise;
+      const entry = this.getEntry(true);
+      if (entry) {
+        entry.getEntryInfo()._name = name;
+      }
+      return name;
+    } catch (e) {
+      this._name = oldName;
+      throw e;
+    }
   }
-
   /**
    * Finds the user or group that has this context as homecontext if any.
    *
