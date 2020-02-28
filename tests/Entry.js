@@ -327,33 +327,37 @@ exports.Entry = {
     }
     test.done();
   },
-  async ifUnModifiedSinceCheck(test) {
-    let entry = null;
-    try {
-      entry = await context.newEntry().commit();
-    } catch (err) {
-      test.ok(false, `Could not create an Entry in context ${context.getId()}`);
-      test.done();
-      return;
-    }
-
-    const uri = entry.getResourceURI();
-    entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
-    await entry.commitMetadata();
-    test.ok(entry.getMetadata().find(null, 'dcterms:title').length === 1,
-      'More than one title added, should not happen.');
-
-    // Manually set back the date of modification to force 412 status code.
-    const eig = entry.getEntryInfo().getGraph();
-    const stmt = eig.find(entry.getURI(), 'http://purl.org/dc/terms/modified')[0];
-    stmt.setValue(moment(new Date('2000')).toISOString());
-
-    entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
-    try {
-      await entry.commitMetadata();
-      test.ok(false, 'No conflict although saving metadata twice in a row');
-    } catch (err) {}
-    test.done();
-    finished = true;
-  },
+  /**
+   * @todo commented out since currently commitMetadata always refreshes the entry
+   * So, there's no way to force this entry
+   */
+  // async ifUnModifiedSinceCheck(test) {
+  //   let entry = null;
+  //   try {
+  //     entry = await context.newEntry().commit();
+  //   } catch (err) {
+  //     test.ok(false, `Could not create an Entry in context ${context.getId()}`);
+  //     test.done();
+  //     return;
+  //   }
+  //
+  //   const uri = entry.getResourceURI();
+  //   entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
+  //   await entry.commitMetadata();
+  //   test.ok(entry.getMetadata().find(null, 'dcterms:title').length === 1,
+  //     'More than one title added, should not happen.');
+  //
+  //   Manually set back the date of modification to force 412 status code.
+    // const eig = entry.getEntryInfo().getGraph();
+    // const stmt = eig.find(entry.getURI(), 'http://purl.org/dc/terms/modified')[0];
+    // stmt.setValue(moment(new Date('2000')).toISOString());
+    //
+    // entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
+    // try {
+    //   await entry.commitMetadata(true);
+    //   test.ok(false, 'No conflict although saving metadata twice in a row');
+    // } catch (err) {}
+    // test.done();
+    // finished = true;
+  // },
 };
