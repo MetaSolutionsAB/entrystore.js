@@ -676,4 +676,13 @@ export default class Entry {
     }
     return es.handleAsync(p, 'refresh');
   }
+  /**
+   *
+   * @param mappings
+   * @param multipleValueStyle
+   * @return {{}}
+   */
+  projection(mappings = {}, multipleValueStyle = 'none') {
+    return this._metadata.projection(this.getResourceURI(), mappings, multipleValueStyle);
+  }
 };
