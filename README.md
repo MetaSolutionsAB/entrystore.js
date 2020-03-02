@@ -31,13 +31,16 @@ What follows is a complete example for loading an existing entry from an EntrySt
 Entrystore.js library in our application, i.e.:
 
       <script src="../dist/entrystore.js"></script>
+      // or
+      <script src="https://unpkg.com/@entryscape/entrystore-js"></script>
+ 
 
 Then, we need to initialize the EntryStore API using a repository URL:
 
     // Specify the repository URL.
-    var es = new EntryStore("http://localhost:8080/store");
+    var es = new EntryStore.EntryStore("http://localhost:8080/store");
     // OR, rely on the defaults, it will initialize using the window.location.origin + "/store/".
-    var es = new EntryStore();
+    var es = new EntryStore.EntryStore();
 
 Notice that when running in the browser, you cannot currently point to a repository residing on another domain as
 this will not work according to the cross-domain restriction of current browsers. (There are plans to fix this issue using

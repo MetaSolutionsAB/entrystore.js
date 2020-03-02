@@ -678,8 +678,8 @@ export default class Entry {
   }
   /**
    *
-   * Retrieves a projection, a plain object with simple attribute value pairs given a subject
-   * and a mapping.
+   * Retrieves a projection, a plain object with simple attribute value pairs given mapping.
+   * The subject will always be the resource uri of the entry.
    * The mapping is an object where the same attributes appear but with the predicates are values.
    * Hence, each attribute gives rise to a search for all statements with the given subject and
    * the predicate specified by the attribute.
@@ -696,7 +696,7 @@ export default class Entry {
    * @returns {Object}
    * @see rdfjson/Graph
    * @example
-   * var proj = graph.projection("http://example.com", {
+   * var proj = entry.projection({
    *     "title":       "http://purl.org/dc/terms/title",
    *     "description": "http://purl.org/dc/terms/description"
    * });
