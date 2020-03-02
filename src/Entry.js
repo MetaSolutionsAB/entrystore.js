@@ -676,4 +676,41 @@ export default class Entry {
     }
     return es.handleAsync(p, 'refresh');
   }
+  /**
+   *
+   * Retrieves a projection, a plain object with simple attribute value pairs given a subject
+   * and a mapping.
+   * The mapping is an object where the same attributes appear but with the predicates are values.
+   * Hence, each attribute gives rise to a search for all statements with the given subject and
+   * the predicate specified by the attribute.
+   * The result object will contain the mapping attributes with values from the the first
+   * matched statements object value if there are any.
+   * To access additional information like multiple statement or the statements
+   * (type, language, datatype) a "*" prepended version of each attribute can be provided that
+   * contains a list of matching Statements if so indicated by the multipleValueStyle parameter.
+   *
+   * @param {Object} mappings the mapping configuration
+   * @param {String} multipleValueStyle if provided an array is provided for that property
+   * prefixed with "*", the array should be indicated to be either
+   * "statements", "values" or "objects".
+   * @returns {Object}
+   * @see rdfjson/Graph
+   * @example
+   * var proj = graph.projection("http://example.com", {
+   *     "title":       "http://purl.org/dc/terms/title",
+   *     "description": "http://purl.org/dc/terms/description"
+   * });
+   * // The object proj now has the attributes title, *title, description, and *description.
+   *
+   * // Accessing the title of http://example.com
+   * console.log(proj.title);
+   *
+   * // To get hold of additional information available in the statement,
+   * // for instance the language of a literal:
+   * console.log(proj["*title"][0].getLanguage())
+   *
+   */
+  projection(mappings = {}, multipleValueStyle = 'none') {
+    return this._metadata.projection(this.getResourceURI(), mappings, multipleValueStyle);
+  }
 };
