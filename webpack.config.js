@@ -59,6 +59,9 @@ const clientConfig = {
     filename: 'entrystore.js',
     library: 'EntryStore',
   },
+  resolve: {
+    mainFields: ['module', 'browser', 'main'],
+  },
   plugins,
   context, // string (absolute path!)
   module: moduleConfig,

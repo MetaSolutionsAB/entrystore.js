@@ -236,7 +236,7 @@ export default class EntryStoreUtil {
    * @param {Context=} context only look for entries in this context, may be left out.
    * @param {boolean} acceptMissing if true then the array returned may contain holes
    * @param {string} asyncCallType the callType used when making the search.
-   * @returns {Promise<Entry>}
+   * @returns {Promise<Entry[]>}
    */
   async loadEntriesByResourceURIs(resourceURIs, context, acceptMissing = false, asyncCallType) {
     const es = this._entrystore;

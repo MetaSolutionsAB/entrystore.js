@@ -220,7 +220,8 @@ exports.Entry = {
       entry.setRefreshNeeded();
       await entry.refresh();
       test.ok(res.getGraph().isEmpty(), 'Failed to update ');
-    } catch (err) {}
+    } catch (err) {
+    }
     test.done();
 
     g2.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title2' });
@@ -327,6 +328,44 @@ exports.Entry = {
     }
     test.done();
   },
+  async useProjection(test) {
+    let entry = null;
+    try {
+      entry = await context.newEntry().commit();
+    } catch (err) {
+      test.ok(false, `Could not create an Entry in context ${context.getId()}`);
+      test.done();
+      return;
+    }
+
+    const uri = entry.getResourceURI();
+    entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
+    entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
+    await entry.commitMetadata();
+
+
+    let titleProjection = entry.projection({
+      title: 'dcterms:title',
+    });
+
+    test.ok((typeof titleProjection === 'object') && ('title' in titleProjection),
+      'Projection did not have a `title` property');
+
+    test.ok(titleProjection.title === 'title1' || titleProjection.title === 'title2',
+      'Projection with single value was not correct.');
+
+    titleProjection = entry.projection({
+      '*titles': 'dcterms:title',
+    });
+
+    test.ok(Array.isArray(titleProjection.titles) &&
+      titleProjection.titles.includes('title1') &&
+      titleProjection.titles.includes('title2'),
+      'Projection with multiple values was not correct.');
+
+    test.done();
+  },
+
   /**
    * @todo commented out since currently commitMetadata always refreshes the entry
    * So, there's no way to force this entry
@@ -348,16 +387,16 @@ exports.Entry = {
   //     'More than one title added, should not happen.');
   //
   //   Manually set back the date of modification to force 412 status code.
-    // const eig = entry.getEntryInfo().getGraph();
-    // const stmt = eig.find(entry.getURI(), 'http://purl.org/dc/terms/modified')[0];
-    // stmt.setValue(moment(new Date('2000')).toISOString());
-    //
-    // entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
-    // try {
-    //   await entry.commitMetadata(true);
-    //   test.ok(false, 'No conflict although saving metadata twice in a row');
-    // } catch (err) {}
-    // test.done();
-    // finished = true;
+  // const eig = entry.getEntryInfo().getGraph();
+  // const stmt = eig.find(entry.getURI(), 'http://purl.org/dc/terms/modified')[0];
+  // stmt.setValue(moment(new Date('2000')).toISOString());
+  //
+  // entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
+  // try {
+  //   await entry.commitMetadata(true);
+  //   test.ok(false, 'No conflict although saving metadata twice in a row');
+  // } catch (err) {}
+  // test.done();
+  // finished = true;
   // },
 };
