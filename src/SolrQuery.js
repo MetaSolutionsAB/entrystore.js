@@ -34,7 +34,7 @@ const solrFriendly = (key, term, isFacet) => {
     if (and.indexOf(' ') === -1) {
       and = [encodeStr(and)];
     } else {
-      and = [`"${encodeStr(and)}"`];
+      and = [`%22${encodeStr(and)}%22`];
     }
   } else {
     and = and.split(' ').map(t => encodeStr(t));
@@ -88,7 +88,7 @@ const buildQuery = (struct, isAnd) => {
  * The SolrQuery class provides a way to create a query by chaining method calls according to
  * the builder pattern. For example:
  *
- *     const sq = es.newSolrQuery().title("some title").type("http://example.com/Person")
+ *     const sq = es.newSolrQuery().title("some title").rdfType("http://example.com/Person")
  *
  * The example yields a search for entries that have a title that contains "some title"
  * and a rdf:type of "http://example.com/Person" expressed in the metadata.
@@ -957,4 +957,6 @@ export default class SolrQuery {
   forEach(func) {
     return this.list().forEach(func);
   }
+
+
 }
