@@ -36,7 +36,7 @@ export default class User extends Resource {
   setName(name) {
     const oldName = this._data.name;
     this._data.name = name;
-    return this._entryStore.handleAsync(es.getREST().put(this._resourceURI, JSON.stringify({ name }))
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ name }))
       .then((data) => {
         const entry = this.getEntry(true);
         if (entry) {
