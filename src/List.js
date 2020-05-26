@@ -122,6 +122,20 @@ export default class List extends Resource {
   }
 
   /**
+   * Loops through with forEach and accumulates the entries in a single array.
+   * Note! this might be memory intensive for large lists
+   * @see forEach
+   * @returns {Promise.<Entry[]>}
+   * @todo add tests
+   */
+  async getAllEntries() {
+    const entries = [];
+    await this.forEach(entry => entries.push(entry));
+
+    return entries;
+  }
+
+  /**
    * Adds an entry to this list, on success the List entry will be returned (updated with
    * latest modification date). The added entry will be marked as in need of a
    * refresh due to stale inv-rel cache. However,since List entry is loaded it may be refreshed
