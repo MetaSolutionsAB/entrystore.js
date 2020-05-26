@@ -7,7 +7,6 @@ import Entry from './Entry';
  * @exports store/SearchList
  */
 export default class SearchList {
-
   /**
    * @param {EntryStore} entryStore
    * @param {Object} query
@@ -101,7 +100,7 @@ export default class SearchList {
    * @return {SearchList}
    */
   addEntry(entry, first = true) {
-    if (entry && !entry instanceof Entry) {
+    if (entry && !(entry instanceof Entry)) {
       return this;
     }
 
@@ -128,7 +127,7 @@ export default class SearchList {
    * @return {Promise<SearchList>}
    */
   async removeEntry(entry) {
-    if (!entry || (entry && !entry instanceof Entry)) {
+    if (!entry || (entry && !(entry instanceof Entry))) {
       return this;
     }
     const limit = this.getLimit();
@@ -141,12 +140,11 @@ export default class SearchList {
         console.warn(`Failed to load search list's next page ${nextPageToLoad}`);
         console.error(err);
       }
-
     }
 
     const sortedIndex = this._sortedChildren.indexOf(entry.getURI());
     if (sortedIndex !== -1) {
-      this._sortedChildren.splice(sortedIndex, 1)
+      this._sortedChildren.splice(sortedIndex, 1);
     }
 
     this._size -= 1; // decrease list size
@@ -183,7 +181,7 @@ SearchList.prototype.getSize = List.prototype.getSize;
  * pagination settings.
  *
  * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
- * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
+ * @returns {Promise.<Entry[]>} the promise will return an entry-array.
  * @method
  */
 SearchList.prototype.getEntries = List.prototype.getEntries;
@@ -194,8 +192,16 @@ SearchList.prototype.getEntries = List.prototype.getEntries;
  * the function is not called for consecutive matched entries.
  *
  * @param {Function} func
+ * @returns {Promise}
  */
 SearchList.prototype.forEach = List.prototype.forEach;
+
+/**
+   * Loops through with forEach and accumulates the entries in a single array.
+   * Note! this might be memory intensive for large lists
+   * @see forEach
+   * @returns {Promise.<Entry[]>}
+   */
+SearchList.prototype.getAllEntries = List.prototype.getAllEntries;
 SearchList.prototype._getEntries = List.prototype._getEntries;
 SearchList.prototype._update = List.prototype._update;
-
