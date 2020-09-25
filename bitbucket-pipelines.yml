@@ -28,7 +28,7 @@ pipelines:
           - sed 's/:8080\/store/:8181/g' tests/config.js_example > tests/config.js
           - yarn
           - yarn build
-          #- yarn test
+          - yarn test
           - ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/" )
           - yarn jsdoc
           - rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/doc/"
