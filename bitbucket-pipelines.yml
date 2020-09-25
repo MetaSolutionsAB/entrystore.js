@@ -12,7 +12,7 @@ pipelines:
           - yarn cache dir
           - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
           # We allow semantic versioning plus x.y-z (e.g. 4.10-SNAPSHOT which does not exactly conform to semver)
-          - echo $ES_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+          - echo $ESJS_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
           #- pushd /tmp
           #- git clone --branch $BITBUCKET_BRANCH --depth 1 https://bitbucket.org/metasolutions/entrystore.git
           #- cd entrystore
