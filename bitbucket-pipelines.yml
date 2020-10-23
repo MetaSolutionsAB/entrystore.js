@@ -29,7 +29,7 @@ pipelines:
           - yarn
           - yarn build
           - yarn test
-          - ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/" )
+          - ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/" )
           - yarn jsdoc && ls -al out
-          - rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.org/js/$ESJS_VERSION/doc/"
-          - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.org/js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.org/js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
+          - rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/doc/"
+          - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
