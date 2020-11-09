@@ -31,6 +31,16 @@ export default class EntryStoreUtil {
   constructor(entrystore) {
     this._entrystore = entrystore;
     this._preloadIdx = new Map();
+    this._publicRead = false;
+  }
+
+  /**
+   * When loading entries via solr queries restrict to those marked as public.
+   * Corresponds to calling publicRead on all solr queries used internally in these help functions.
+   * @param {boolean} publicRead
+   */
+  loadOnlyPublicEntries(publicRead) {
+    this._publicRead = publicRead;
   }
 
   /**
@@ -67,6 +77,9 @@ export default class EntryStoreUtil {
     }
 
     const searchObj = this._entrystore.newSolrQuery().resourceType(ofType).limit(100);
+    if (this._publicRead) {
+      searchObj.publicRead(true);
+    }
     if (context) {
       searchObj.context(context);
     }
@@ -137,7 +150,11 @@ export default class EntryStoreUtil {
    * @returns {Entry}
    */
   getEntryListByResourceURI(resourceURI) {
-    return this._entrystore.newSolrQuery().resource(resourceURI).list();
+    const query = this._entrystore.newSolrQuery().resource(resourceURI);
+    if (this._publicRead) {
+      query.publicRead(true);
+    }
+    return query.list();
   }
 
   /**
@@ -154,6 +171,9 @@ export default class EntryStoreUtil {
    */
   async getEntryByType(typeURI, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
+    if (this._publicRead) {
+      query.publicRead(true);
+    }
     if (context) {
       query.context(context);
     }
@@ -179,6 +199,9 @@ export default class EntryStoreUtil {
    */
   async getEntryByGraphType(graphType, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
+    if (this._publicRead) {
+      query.publicRead(true);
+    }
     if (context) {
       query.context(context);
     }
@@ -284,7 +307,11 @@ export default class EntryStoreUtil {
         cache.addPromise(ruri, p);
       });
       const loadEntries = new Set(chunk);
-      return es.newSolrQuery().resource(chunk).context(context).list(asyncCallType).forEach((entry) => {
+      const query = es.newSolrQuery();
+      if (this._publicRead) {
+        query.publicRead(true);
+      }
+      return query.resource(chunk).context(context).list(asyncCallType).forEach((entry) => {
         const ruri = entry.getResourceURI();
         if (loadEntries.has(ruri)) {
           loadEntries.delete(ruri);
