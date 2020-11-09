@@ -1,4 +1,4 @@
-image: metasolutions/openjdk11-node:latest
+image: metasolutions/openjdk-node:latest
 
 pipelines:
   default:
