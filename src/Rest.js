@@ -39,10 +39,10 @@ const getPreventCacheNumber = () => parseInt((Math.random() * 10000).toString(),
 export default class Rest {
   constructor() {
     this.timeout = 30000; // 30 seconds
+    this.JSONP = true;
     this.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
-      'X-Requested-With': null,
     };
 
     const rest = this;
@@ -71,12 +71,28 @@ export default class Rest {
         });
 
         return superagent.post(uri)
-          .query({ preventCache: getPreventCacheNumber() })
           .accept(format)
           .withCredentials()
           .send(stubForm);
       };
     }
+  }
+
+  /**
+   * Disable JSONP for all requests, e.g. when there is a need for performance and there
+   * is a need for relable caching which does not work with JSONP.
+   */
+  disableJSONP() {
+    this.JSONP = false;
+  }
+
+  /**
+   * Enable JSONP for all get requests. JSONP will only be used if EntryStore.js is running in the browser and
+   * there are cross-site GET requests.
+   * Note that JSONP is enabled in this scenario by default.
+   */
+  enableJSONP() {
+    this.JSONP = true;
   }
 
   /**
@@ -91,7 +107,6 @@ export default class Rest {
 
     if (logout) {
       const logoutRequestResult = superagent.get(`${base}auth/logout`)
-        .query({ preventCache: getPreventCacheNumber() })
         .accept('application/json')
         .withCredentials()
         .timeout({ response: this.timeout });
@@ -137,6 +152,7 @@ export default class Rest {
    */
   async get(uri, format = null, nonJSONP = false) {
     const locHeaders = Object.assign({}, this.headers);
+    locHeaders['X-Requested-With'] = null;
     delete locHeaders['Content-Type'];
 
     let _uri = uri;
@@ -156,7 +172,7 @@ export default class Rest {
     }
 
     // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
-    if (isBrowser() && !sameOrigin(_uri) && !nonJSONP) {
+    if (isBrowser() && !sameOrigin(_uri) && !nonJSONP && this.JSONP) {
       return new Promise((resolve, reject) => {
         const queryParameter = new RegExp('[?&]format=');
         if (!queryParameter.test(_uri)) {
@@ -181,7 +197,6 @@ export default class Rest {
       .timeout({
         response: this.timeout,
       })
-      .query({ preventCache: getPreventCacheNumber() })
       .withCredentials();
 
     if (handleAs === 'xml') {
@@ -234,8 +249,7 @@ export default class Rest {
       locHeaders['Content-Type'] = format;
     }
 
-    const POSTRequest = superagent.post(uri)
-      .query({ 'request.preventCache': getPreventCacheNumber() });
+    const POSTRequest = superagent.post(uri);
 
     if (data) {
       POSTRequest.send(data)
@@ -305,7 +319,6 @@ export default class Rest {
     }
 
     const putRequest = superagent.put(uri)
-      .query({ preventCache: getPreventCacheNumber() })
       .send(data)
       .withCredentials()
       .timeout({ response: this.timeout });
@@ -330,7 +343,6 @@ export default class Rest {
     }
 
     const deleteRequest = superagent.del(uri)
-      .query({ preventCache: getPreventCacheNumber() })
       .withCredentials()
       .timeout({ response: this.timeout });
 
@@ -361,4 +373,3 @@ export default class Rest {
     return this.post(uri, data, null, format);
   }
 }
-
