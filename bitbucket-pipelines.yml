@@ -20,8 +20,8 @@ pipelines:
           - mvn -q -Dmaven.test.skip=true install
           - mkdir /tmp/entrystore-test-files
           - mkdir /tmp/entrystore-test-solr
-          - chmod +x modules/rest-standalone/target/dist/bin/entrystore
-          - nohup modules/rest-standalone/target/dist/bin/entrystore modules/rest/target/entrystore-rest-${ES_VERSION}/WEB-INF/classes/entrystore.properties_test 8181 &
+          - chmod +x modules/rest-standalone/simple/target/dist/bin/entrystore
+          - nohup modules/rest-standalone/simple/target/dist/bin/entrystore --config file:///tmp/entrystore/modules/rest/target/entrystore-rest-${ES_VERSION}/WEB-INF/classes/entrystore.properties_test --port 8181 --log-level DEBUG &
           - sleep 20
           - curl http://localhost:8181/management/status
           - popd
