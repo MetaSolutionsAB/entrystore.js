@@ -38,7 +38,7 @@ const types = {
    * Similar to link and reference, only there is both local metadata and external metadata.
    * @see Entry#isLinkReference
    */
-  ET_LINKREF: 'Linkreference',
+  ET_LINKREF: 'LinkReference',
 
   /**
    * No graph type specified means that no knowledge of the resources character is known.
