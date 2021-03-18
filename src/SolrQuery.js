@@ -1,7 +1,5 @@
 import md5 from 'blueimp-md5';
 import { namespaces } from '@entryscape/rdfjson';
-import Context from './Context';
-import EntryStore from './EntryStore';
 import SearchList from './SearchList';
 
 const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:')
@@ -15,6 +13,9 @@ const isNgram = key => key.indexOf('title') === 0
   || (key.indexOf('related.metadata.predicate.literal') === 0 &&
     key.indexOf('related.metadata.predicate.literal_') !== 0);
 const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexOf('predicate.literal') === -1;
+
+const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf('metadata.predicate.date') >= 0;
+
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
  * In addition, fields indexed as text_ngram will have to be shortened to the ngram max limit
@@ -30,6 +31,9 @@ const solrFriendly = (key, term, isFacet) => {
   if (isNgram(key) && isFacet !== true) {
     and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t) :
       encodeStr(t.substr(0, ngramLimit))));
+  } else if (isDateKey(key)) {
+    and = Array.isArray(and) ? and : [and];
+    and = and.map(v => v.replace(/\s+/g, '%20'));
   } else if (isExactMatch(key)) {
     if (and.indexOf(' ') === -1) {
       and = [encodeStr(and)];
@@ -41,6 +45,9 @@ const solrFriendly = (key, term, isFacet) => {
   }
   return and.length === 1 ? and[0] : `(${and.join('+AND+')})`;
 };
+
+const toDateRange = (from, to) => `[${from ? from.toISOString() : '*'} TO ${to ? to.toISOString() : '*'}]`;
+const toIntegerRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
 
 /**
  *
@@ -359,7 +366,8 @@ export default class SolrQuery {
   }
 
   /**
-   * Matches entries that are created at the specific date, most useful for sorting.
+   * Matches entries that are created at a specific date or in a range.
+   * Ranges must be given as strings as [2010-01-01T00:00:00Z TO *].
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
@@ -370,7 +378,20 @@ export default class SolrQuery {
   }
 
   /**
-   * Matches entries that are modified at the specific date, most useful for sorting.
+   * Utility function to create a range expression for the created function.
+   *
+   * @param {Date} from - no lower range restriction if undefined or null is passed
+   * @param {Date} to - no upper range restriction if undefined or null is passed
+   * @param {true|false|string} modifier
+   * @return {SolrQuery}
+   */
+  createdRange(from, to, modifier = null) {
+    return this._q('created', toDateRange(from, to), modifier);
+  }
+
+  /**
+   * Matches entries that are modified at a specific date or in a range.
+   * Ranges are given as strings as [2010-01-01T00:00:00Z TO *].
    *
    * @param {string|array} val
    * @param {true|false|string} modifier
@@ -378,6 +399,19 @@ export default class SolrQuery {
    */
   modified(val, modifier = null) {
     return this._q('modified', val, modifier);
+  }
+
+  /**
+   * Utility function to create a range expression for the modified function.
+
+   *
+   * @param {Date} from - no lower range restriction if undefined or null is passed
+   * @param {Date} to - no upper range restriction if undefined or null is passed
+   * @param {true|false|string} modifier
+   * @return {SolrQuery}
+   */
+  modifiedRange(from, to, modifier = null) {
+    return this._q('created', toDateRange(from, to), modifier);
   }
 
   /**
@@ -634,6 +668,7 @@ export default class SolrQuery {
   /**
    * Matches specific property value combinations when the value is an integer.
    * Note that the integer values are single value per property and can be used for sorting.
+   * Ranges are allowed as strings, for instance [0 TO 100] or [0 TO *] for all positive integers.
    *
    * @param {string} predicate
    * @param {string|array} object
@@ -654,8 +689,57 @@ export default class SolrQuery {
   }
 
   /**
+   * Utility function for creating a integer range for integerProperty.
+   *
+   * @param {string} predicate
+   * @param {string|number} from - if undefined no lower bound will be created, corresponds to *
+   * @param {string|number} to - if undefined no upper bound will be created, corresponds to *
+   * @param {boolean} related - will search in related properties if true, default is false
+   * @return {SolrQuery}
+   */
+  integerPropertyRange(predicate, from, to, modifier, related = false) {
+    return this.integerProperty(predicate, toIntegerRange(from, to), modifier, related);
+  }
+
+  /**
    * Matches specific property value combinations when the value is an integer.
    * Note that the integer values are single value per property and can be used for sorting.
+   * Ranges are allowed as strings, for instance [* TO 2010-01-01T00:00:00Z].
+   *
+   * @param {string} predicate
+   * @param {string|array} object
+   * @param {true|false|string} modifier
+   * @param {boolean} related - will search in related properties if true, default is false
+   * @return {SolrQuery}
+   */
+  dateProperty(predicate, object, modifier, related = false) {
+    const key = shorten(predicate);
+    (related ? this.relatedProperties : this.properties).push({
+      md5: key,
+      pred: predicate,
+      object,
+      modifier,
+      nodetype: 'date',
+    });
+    return this;
+  }
+
+  /**
+   * Utility function for creating a date range for dateProperty.
+   *
+   * @param {string} predicate
+   * @param {Date} from
+   * @param {Date} to
+   * @param {true|false|string} modifier
+   * @param {boolean} related - will search in related properties if true, default is false
+   * @return {SolrQuery}
+   */
+  datePropertyRange(predicate, from, to, modifier, related = false) {
+    return this.dateProperty(predicate, toDateRange(from, to), modifier, related);
+  }
+
+  /**
+   * Matches specific property value combinations when the value is an uri.
    *
    * @param {string} predicate
    * @param {string|array} object
