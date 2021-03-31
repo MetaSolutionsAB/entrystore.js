@@ -28,9 +28,14 @@ const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf(
  */
 const solrFriendly = (key, term, isFacet) => {
   let and = term.trim().replace(/\s\s+/g, ' ');
+  let boost = '';
+  if (term.indexOf('^') >= 0) {
+    and = term.split('^')[0];
+    boost = `^${term.split('^')[1]}`;
+  }
   if (isNgram(key) && isFacet !== true) {
-    and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t) :
-      encodeStr(t.substr(0, ngramLimit))));
+    and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t)
+      : encodeStr(t.substr(0, ngramLimit))));
   } else if (isDateKey(key)) {
     and = Array.isArray(and) ? and : [and];
     and = and.map(v => v.replace(/\s+/g, '%20'));
@@ -43,7 +48,7 @@ const solrFriendly = (key, term, isFacet) => {
   } else {
     and = and.split(' ').map(t => encodeStr(t));
   }
-  return and.length === 1 ? and[0] : `(${and.join('+AND+')})`;
+  return and.length === 1 ? `${and[0]}${boost}` : `(${and.join(`${boost}+AND+`)}${boost})`;
 };
 
 const toDateRange = (from, to) => `[${from ? from.toISOString() : '*'} TO ${to ? to.toISOString() : '*'}]`;
