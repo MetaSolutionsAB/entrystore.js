@@ -29,9 +29,10 @@ const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf(
 const solrFriendly = (key, term, isFacet) => {
   let and = term.trim().replace(/\s\s+/g, ' ');
   let boost = '';
-  if (term.indexOf('^') >= 0) {
-    and = term.split('^')[0];
-    boost = `^${term.split('^')[1]}`;
+  if (and.indexOf('^') >= 0) {
+    const andArr = and.split('^');
+    and = andArr[0];
+    boost = `^${andArr[1]}`;
   }
   if (isNgram(key) && isFacet !== true) {
     and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t)
