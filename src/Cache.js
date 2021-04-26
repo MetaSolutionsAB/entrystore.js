@@ -160,6 +160,7 @@ export default class Cache {
    */
   addPromise(loadID, loadPromise) {
     this._cacheLoadPromise[loadID] = loadPromise;
+    this._cacheLoadPromise[loadID].catch(() => {});
   }
 
   /**
