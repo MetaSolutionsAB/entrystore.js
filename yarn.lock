@@ -632,13 +632,13 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@entryscape/rdfjson@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.3.0.tgz#7209334474a7b3d16708fb4ccf51a2932f6228f9"
+"@entryscape/rdfjson@^2.5.1":
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.5.1.tgz#add39f0c95bc2a6050348d6cfe8ef645e081a505"
   dependencies:
     core-js "^3.4.0"
     md5 "^2.2.1"
-    xmldom "~0.1.19"
+    xmldom "^0.6.0"
 
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
@@ -5042,9 +5042,9 @@ xmldom@^0.1.27:
   version "0.1.27"
   resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.1.27.tgz#d501f97b3bdb403af8ef9ecc20573187aadac0e9"
 
-xmldom@~0.1.19:
-  version "0.1.31"
-  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.1.31.tgz#b76c9a1bd9f0a9737e5a72dc37231cf38375e2ff"
+xmldom@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.6.0.tgz#43a96ecb8beece991cef382c08397d82d4d0c46f"
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"
