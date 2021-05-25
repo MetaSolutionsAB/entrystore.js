@@ -28,7 +28,7 @@
     "http-server": "^0.12.1",
     "jsdoc": "^3.6.3",
     "nodeunit": "^0.11.2",
-    "print-licenses": "https://bitbucket.org/metasolutions/print-licenses#master",
+    "print-licenses": "https://bitbucket.org/metasolutions/print-licenses",
     "webpack": "^4.39.1",
     "webpack-cli": "^3.2.1",
     "webpack-merge": "^4.1.4"
