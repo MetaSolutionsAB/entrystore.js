@@ -1,6 +1,6 @@
 {
   "name": "@entryscape/entrystore-js",
-  "version": "4.8.0-next",
+  "version": "4.7.33",
   "main": "dist/entrystore.node.js",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
