@@ -155,7 +155,7 @@ The tests are written according to the style of [Nodeunit](https://github.com/ca
 
 ## Running tests 
 
-    $ yarn tests
+    $ yarn test
 
 ## Developing new tests
 
