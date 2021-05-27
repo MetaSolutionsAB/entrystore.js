@@ -8,11 +8,17 @@ const MAX_AGE = 86400;
 exports.EntryStore = {
   inGroups: true,
   withoutLogin: {
-    async setUp(callback) {
-      await es.getAuth().logout();
-      callback();
+    setUp(callback) {
+      es.getAuth().logout().then(() => {
+        callback();
+      }, (err) => {
+        console.log(err);
+        console.log(err.stack);
+      });
     },
     initStore(test) {
+      console.log("::::: BaseURI = " + es.getBaseURI());
+      console.log("::::: config = " + repository);
       test.ok(es.getBaseURI() === repository);
       test.done();
     },
