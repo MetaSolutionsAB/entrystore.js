@@ -1,35 +1,42 @@
 image: metasolutions/openjdk11-node:latest
 
+options:
+  max-time: 12
+
+stepdefinitions:
+- build: &build
+    size: 2x
+    name: Build
+    script:
+      - node --version
+      - npm --version
+      - java -version
+      - yarn --version
+      - yarn cache dir
+      - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
+      # We allow semantic versioning plus x.y-z (e.g. 4.10-SNAPSHOT which does not exactly conform to semver)
+      - echo $ESJS_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+      - pushd /tmp
+      - git clone --branch $BITBUCKET_BRANCH --depth 1 https://bitbucket.org/metasolutions/entrystore.git
+      - cd entrystore
+      - export ES_VERSION=`cat VERSION.txt` && echo $ES_VERSION
+      - mvn -q -Dmaven.test.skip=true install
+      - mkdir /tmp/entrystore-test-files
+      - mkdir /tmp/entrystore-test-solr
+      - chmod +x modules/rest-standalone/simple/target/dist/bin/entrystore
+      - nohup modules/rest-standalone/simple/target/dist/bin/entrystore --config file:///tmp/entrystore/modules/rest/target/entrystore-rest-${ES_VERSION}/WEB-INF/classes/entrystore.properties_test --port 8181 --log-level DEBUG &
+      - sleep 20
+      - curl http://localhost:8181/management/status
+      - popd
+      - sed 's/:8080\/store/:8181/g' tests/config.js_example > tests/config.js
+      - yarn
+      - yarn build
+      - yarn test
+      - ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/" )
+      - yarn jsdoc && ls -al out
+      - rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/doc/"
+      - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
+
 pipelines:
   default:
-    - step:
-        script:
-          - if [ $BITBUCKET_BRANCH != "master" ] && [ $BITBUCKET_BRANCH != "develop" ]; then exit 0 ; fi
-          - node --version
-          - npm --version
-          - java -version
-          - yarn --version
-          - yarn cache dir
-          - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
-          # We allow semantic versioning plus x.y-z (e.g. 4.10-SNAPSHOT which does not exactly conform to semver)
-          - echo $ESJS_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
-          - pushd /tmp
-          - git clone --branch $BITBUCKET_BRANCH --depth 1 https://bitbucket.org/metasolutions/entrystore.git
-          - cd entrystore
-          - export ES_VERSION=`cat VERSION.txt` && echo $ES_VERSION
-          - mvn -q -Dmaven.test.skip=true install
-          - mkdir /tmp/entrystore-test-files
-          - mkdir /tmp/entrystore-test-solr
-          - chmod +x modules/rest-standalone/simple/target/dist/bin/entrystore
-          - nohup modules/rest-standalone/simple/target/dist/bin/entrystore --config file:///tmp/entrystore/modules/rest/target/entrystore-rest-${ES_VERSION}/WEB-INF/classes/entrystore.properties_test --port 8181 --log-level DEBUG &
-          - sleep 20
-          - curl http://localhost:8181/management/status
-          - popd
-          - sed 's/:8080\/store/:8181/g' tests/config.js_example > tests/config.js
-          - yarn
-          - yarn build
-          - yarn test
-          - ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/" )
-          - yarn jsdoc && ls -al out
-          - rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/doc/"
-          - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
+    - step: *build
