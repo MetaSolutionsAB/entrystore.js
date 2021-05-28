@@ -66,7 +66,8 @@ exports.solr = {
   async userAndTitleSearch(test) {
     try {
       const entries = await es.newSolrQuery().graphType(types.GT_USER).title('Donald').list().getEntries(0);
-      test.ok(entries.length > 0 && entries[0].isUser(), 'No users found, or entry found was not a user');
+      test.ok(entries.length > 0 && entries[0].isUser(), 'No users found with title "Donald" ' +
+        '(assuming default test data in Entrystore), or entry found was not a user');
     } catch (err) {
       test.ok(false, 'Failed performing the search, REST call went wrong.');
     }

@@ -17,8 +17,6 @@ exports.EntryStore = {
       });
     },
     initStore(test) {
-      console.log("::::: BaseURI = " + es.getBaseURI());
-      console.log("::::: config = " + repository);
       test.ok(es.getBaseURI() === repository);
       test.done();
     },
