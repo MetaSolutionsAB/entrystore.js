@@ -18,6 +18,7 @@ stepdefinitions:
         - yarn build
       artifacts:
         - dist/**
+        - node_modules/**
   - test: &test
       name: Test
       script:
