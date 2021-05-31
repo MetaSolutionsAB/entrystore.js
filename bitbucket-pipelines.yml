@@ -23,7 +23,8 @@ stepdefinitions:
       script:
         - if [ $BITBUCKET_BRANCH == "develop" ]; then ESIMGVER="develop" ; else ESIMGVER="latest" ; fi
         - echo $ESIMGVER
-        - docker run --rm -v tests/entrystore.properties_test:/srv/entrystore/entrystore.properties:ro -p 8080 metasolutions/entrystore:$ESIMGVER /srv/entrystore/bin/entrystore --port 8080 --log-level info &
+        - echo $BITBUCKET_CLONE_DIR
+        - docker run --rm -v $BITBUCKET_CLONE_DIR/tests/entrystore.properties_test:/srv/entrystore/entrystore.properties:ro -p 8080 metasolutions/entrystore:$ESIMGVER /srv/entrystore/bin/entrystore --port 8080 --log-level info &
         - sleep 20
         - curl http://localhost:8080/management/status
         - sed 's/\/store//g' tests/config.js_example > tests/config.js
