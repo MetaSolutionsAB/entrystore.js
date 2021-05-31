@@ -9,7 +9,6 @@ stepdefinitions:
       script:
         - node --version
         - npm --version
-        - java -version
         - yarn --version
         - yarn cache dir
         - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
