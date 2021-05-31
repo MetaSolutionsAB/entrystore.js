@@ -5,6 +5,7 @@ pipelines:
     - step:
         script:
           - if [ $BITBUCKET_BRANCH != "master" ] && [ $BITBUCKET_BRANCH != "develop" ]; then exit 0 ; fi
+          - echo $BITBUCKET_BRANCH
           - node --version
           - npm --version
           - java -version
