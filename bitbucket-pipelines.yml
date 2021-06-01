@@ -1,14 +1,13 @@
 image: metasolutions/node-yarn:latest
 
 options:
-  max-time: 10
+  max-time: 8
 
 stepdefinitions:
   - build: &build
       name: Build
       script:
         - node --version
-        - npm --version
         - yarn --version
         - yarn cache dir
         - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
@@ -16,15 +15,16 @@ stepdefinitions:
         - echo $ESJS_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
         - yarn
         - yarn build
+        - yarn jsdoc && ls -al out
       artifacts:
         - dist/**
+        - out/**
         - node_modules/**
   - test: &test
       name: Test
       script:
         - if [ $BITBUCKET_BRANCH == "develop" ]; then ESIMGVER="develop" ; else ESIMGVER="latest" ; fi
         - echo $ESIMGVER
-        - echo $BITBUCKET_CLONE_DIR
         - docker pull metasolutions/entrystore:$ESIMGVER
         - docker run --rm -v $BITBUCKET_CLONE_DIR/tests/entrystore.properties_test:/srv/entrystore/entrystore.properties:ro -p 127.0.0.1:8080:8080 metasolutions/entrystore:$ESIMGVER /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level info &
         - sleep 15
@@ -39,10 +39,9 @@ stepdefinitions:
       name: Deploy
       script:
         - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
-        #- ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/" )
-        - yarn jsdoc && ls -al out
-        #- rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/doc/"
-        #- if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
+        - ( cd dist && rsync -avrz --delete * "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/" )
+        - rsync -avrz --delete out/ "deploy@meta1.metasolutions.se:/var/www/entrystore.js/$ESJS_VERSION/doc/"
+        - if [ $BITBUCKET_BRANCH == "develop" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm latest; ln -s $ESJS_VERSION latest" ; elif [ $BITBUCKET_BRANCH == "master" ]; then ssh deploy@meta1.metasolutions.se "cd /var/www/entrystore.js/; rm stable; ln -s $ESJS_VERSION stable" ; fi
 
 pipelines:
   default:
