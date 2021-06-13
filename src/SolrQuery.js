@@ -15,6 +15,7 @@ const isNgram = key => key.indexOf('title') === 0
 const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexOf('predicate.literal') === -1;
 
 const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf('metadata.predicate.date') >= 0;
+const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
 
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
@@ -37,7 +38,7 @@ const solrFriendly = (key, term, isFacet) => {
   if (isNgram(key) && isFacet !== true) {
     and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t)
       : encodeStr(t.substr(0, ngramLimit))));
-  } else if (isDateKey(key)) {
+  } else if (isDateKey(key) || isIntegerKey(key)) {
     and = Array.isArray(and) ? and : [and];
     and = and.map(v => v.replace(/\s+/g, '%20'));
   } else if (isExactMatch(key)) {
