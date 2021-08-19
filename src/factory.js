@@ -191,10 +191,10 @@ const _updateEntry = (entry, data) => {
   entry._rights = transformRights(data.rights);
   // Sometimes we get the name that is really part of the resource without getting the full
   // resource, in this case we store this in the entryinfo.
-  if (data.name || (data.resource && data.resource.name)) {
+  if (data.name || data.alias || (data.resource && data.resource.name)) {
     const ei = entry.getEntryInfo();
     // ei._alias = data.alias;
-    ei._name = data.name || data.resource.name;
+    ei._name = data.name || data.alias || data.resource.name;
   }
   // Sometimes we get the disabled state that is really part of the resource
   // without getting the full resource, in this case we store this in the entryinfo.
