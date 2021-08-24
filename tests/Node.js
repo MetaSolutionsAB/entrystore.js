@@ -1,27 +1,45 @@
 const fs = require('fs');
-const { EntryStore } = require('../dist/entrystore.node');
+const store = require('../dist/entrystore.node');
 const config = require('./config');
 
-const { repository, nonAdminUser, nonAdminPassword } = config;
-const es = new EntryStore(repository);
-const c = es.getContextById('1');
-let ready;
+const { repository, adminUser, adminPassword } = config;
+let context;
+
+const setUp = async (callback) => {
+  if (!context) {
+    const es = new store.EntryStore(repository);
+    const auth = es.getAuth();
+    await auth.logout();
+    await auth.login(adminUser, adminPassword);
+    const contextEntry = await es.newContext().commit();
+    context = contextEntry.getResource(true);
+  }
+  callback();
+};
+
+const tearDown = async (callback) => {
+  try {
+    const contextEntry = await context.getEntry();
+    await contextEntry.del(true);
+
+    const es = new store.EntryStore(repository);
+    const auth = es.getAuth();
+    await auth.logout();
+  } catch (err) {
+    // console.error(err);
+  }
+  callback();
+};
+
 
 exports.Node = {
-  setUp(callback) {
-    if (!ready) {
-      es.auth({ user: 'Donald', password: 'donalddonald' }).then(() => {
-        ready = true;
-        callback();
-      });
-    } else {
-      callback();
-    }
-  },
+  setUp,
+  tearDown,
   uploadFile(test) {
-    c.newEntry().commit().then((entry) => {
+    context.newEntry().commit().then((entry) => {
       const r = entry.getResource(true);
-      return r.putFile(fs.createReadStream('./test.jpg'), 'image/jpg').then(() => {
+      // Tests are executed from root of repository
+      return r.putFile(fs.createReadStream('./tests/test.jpg'), 'image/jpg').then(() => {
         entry.setRefreshNeeded(true);
         return entry.refresh().then(() => {
           test.ok(entry.getEntryInfo().getFormat() === 'image/jpg',
