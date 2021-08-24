@@ -2,8 +2,7 @@ import md5 from 'blueimp-md5';
 import superagent from 'superagent';
 import xmldom from 'xmldom';
 import { isBrowser } from './utils';
-
-const jsonp = require('superagent-jsonp');
+import jsonp from 'superagent-jsonp';
 
 /**
  * Check if requests will be to the same domain, i.e. no CORS.
@@ -144,31 +143,39 @@ export default class Rest {
    * If a cross-domain call is made and we are in a browser environment a jsonp call is made.
    *
    * @param {string} uri - URI to a resource to fetch.
-   * @param {string|null} format - the format to request as a mimetype.
+   * @param {string|null} _format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
    * @return {Promise} A thenable object
    * @async
    * @throws Error
    */
   async get(uri, format = null, nonJSONP = false) {
+    let _format = format;
     const locHeaders = Object.assign({}, this.headers);
     locHeaders['X-Requested-With'] = null;
     delete locHeaders['Content-Type'];
 
     let _uri = uri;
     let handleAs = 'json';
-    if (format != null) {
-      locHeaders.Accept = format;
-      switch (format) {
+    if (_format != null) {
+      switch (_format) {
         case 'application/json': // This is the default in the headers.
           break;
+        case 'xml': // backward compatible case
         case 'application/xml':
         case 'text/xml':
+          _format = 'text/xml';
           handleAs = 'xml';
           break;
-        default: // All other situations, including text/plain.
+        case 'text': // backward compatible case
+        case 'text/plain':
+          _format = 'text/plain';
           handleAs = 'text';
+          break;
+        default: // All other situations, including text/plain.
+          handleAs = '';
       }
+      locHeaders.Accept = _format;
     }
 
     // Use jsonp instead of CORS for GET requests when doing cross-domain calls, it is cheaper
@@ -193,14 +200,13 @@ export default class Rest {
       });
     }
     const GETRequest = superagent.get(_uri)
-      .accept(handleAs)
       .timeout({
         response: this.timeout,
       })
       .withCredentials();
 
     if (handleAs === 'xml') {
-      GETRequest.parse['application/xml'] = (res, callback) => {
+      GETRequest.parse['text/xml'] = (res, callback) => {
         const DOMParser = isBrowser() ? window.DOMParser : xmldom.DOMParser;
         const parser = new DOMParser();
 
@@ -221,8 +227,10 @@ export default class Rest {
 
     const response = await GETRequest;
     if (response.statusCode === 200) {
-      if (handleAs === 'text' || format === 'text/xml') {
-        return response.text;
+      if (handleAs === 'text' || handleAs === 'xml') {
+        // eslint-disable-next-line no-nested-ternary
+        return response.text !== undefined ? response.text
+          : (response.body instanceof Buffer ? response.toString() : undefined);
       }
       return response.body;
     }
@@ -352,13 +360,13 @@ export default class Rest {
   }
 
   /**
-   * Post a file to a URI.
+   * Put a file to a URI.
    * In a browser environment a file is represented via an input tag which references
    * the file to be uploaded via its value attribute.
    * In node environments the file is represented as a stream constructed via
    * fs.createReadStream('file.txt').
    *
-   * > _**Under the hood** the tag is moved into a form in an invisible iframe
+   * _**Under the hood** the tag is moved into a form in an invisible iframe
    * which then is submitted. If there is a response it is provided in a textarea which
    * can be looked into since we are on the same domain._
    *
@@ -370,6 +378,30 @@ export default class Rest {
    * @return {Promise} A thenable object
    */
   putFile(uri, data, format) {
-    return this.post(uri, data, null, format);
+    if (data && data.constructor && data.constructor.pipeline) {
+      return new Promise((resolve, reject) => {
+        const upload = superagent.put(uri)
+          .timeout({ response: this.timeout });
+        const locHeaders = Object.assign({}, this.headers);
+        if (format) {
+          locHeaders['Content-Type'] = format;
+        }
+        Object.entries(locHeaders).map(keyVal => upload.set(keyVal[0], keyVal[1]));
+
+        const req = upload.request();
+        data.constructor.pipeline(data, req, (err) => {
+          if (err) {
+            upload.abort();
+            return reject(err);
+          }
+
+          upload.end((err2, res) => {
+            if (err2) return reject(err2);
+            return resolve(res.body);
+          });
+        });
+      });
+    }
+    return Promise.reject(new Error('Data parameter must be a readable stream'));
   }
 }

@@ -5,7 +5,8 @@ import SearchList from './SearchList';
 const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:')
   .replace(/\(/g, '\\(').replace(/\)/g, '\\)'));
 const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);
-const ngramLimit = 15;
+const ngramMaxLimit = 15;
+const ngramMinLimit = 3;
 const isNgram = key => key.indexOf('title') === 0
   || key.indexOf('tag.literal') === 0
   || (key.indexOf('metadata.predicate.literal') === 0 &&
@@ -36,8 +37,9 @@ const solrFriendly = (key, term, isFacet) => {
     boost = `^${andArr[1]}`;
   }
   if (isNgram(key) && isFacet !== true) {
-    and = and.split(' ').map(t => (t.length < ngramLimit ? encodeStr(t)
-      : encodeStr(t.substr(0, ngramLimit))));
+    and = and.split(' ').map(t => (t.length < ngramMaxLimit ? encodeStr(t)
+      : encodeStr(t.substr(0, ngramMaxLimit))))
+      .map(t => (t.length < ngramMinLimit && !t.endsWith('*') ? `${t}*` : t));
   } else if (isDateKey(key) || isIntegerKey(key)) {
     and = Array.isArray(and) ? and : [and];
     and = and.map(v => v.replace(/\s+/g, '%20'));

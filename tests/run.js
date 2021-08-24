@@ -9,6 +9,7 @@ const File = require('./File');
 const List = require('./List');
 const Pipeline = require('./Pipeline');
 const solr = require('./solr');
+const Node = require('./Node');
 // const Inferred = require('./Inferred');
 
 const allTests = {
@@ -22,10 +23,11 @@ const allTests = {
   List,
   Pipeline,
   solr,
+  Node,
   // Inferred,
 };
 
-module.exports = config.tests.reduce((accum, property) => {
+module.exports = [...config.tests, ...config.nodeTests].reduce((accum, property) => {
   accum[property] = allTests[property];
   return accum;
 }, {});
