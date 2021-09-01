@@ -13,7 +13,7 @@ stepdefinitions:
         - export ESJS_VERSION=`jq -r .version package.json` && echo $ESJS_VERSION
         # We allow semantic versioning plus x.y-z (e.g. 4.10-dev which does not exactly conform to semver due to missing patch level)
         - echo $ESJS_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
-        - if [ $BITBUCKET_BRANCH == "develop" ] && [[ $ES_VERSION != *-dev ]]; then echo "Development version must end with \"-dev\""; exit 1; fi
+        - if [ $BITBUCKET_BRANCH == "develop" ] && [[ $ESJS_VERSION != *-dev ]]; then echo "Development version must end with \"-dev\""; exit 1; fi
         - yarn
         - yarn build
         - yarn jsdoc && ls -al out
