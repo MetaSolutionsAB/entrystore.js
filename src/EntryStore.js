@@ -409,8 +409,7 @@ export default class EntryStore {
     try {
       entryURI = await this.handleAsync(this._rest.create(postURI, postParams), 'createEntry');
     } catch (err) {
-      console.error(err);
-      return;
+      return Promise.reject(err);
     }
 
     // var euri = factory.getURIFromCreated(data, prototypeEntry.getContext());
