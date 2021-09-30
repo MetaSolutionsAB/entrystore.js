@@ -45,6 +45,15 @@ exports.solr = {
     }
     test.done();
   },
+  async usernameSearch(test) {
+    try {
+      const entries = await es.newSolrQuery().username('donald').list().getEntries(0);
+      test.ok(entries.length > 0, "No entries found for username 'donald', despite that we are searching against disney suite.");
+    } catch (err) {
+      test.ok(false, 'Failed performing search by username, REST call went wrong.');
+    }
+    test.done();
+  },
   async listSearch(test) {
     try {
       const entries = await es.newSolrQuery().graphType(types.GT_LIST).list().getEntries(0);
