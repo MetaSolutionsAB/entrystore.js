@@ -214,6 +214,17 @@ export default class SolrQuery {
   }
 
   /**
+   * Matches the username.
+   *
+   * @param {string|array} val
+   * @param {true|false|string} modifier
+   * @return {SolrQuery}
+   */
+  username(val, modifier = null) {
+    return this._q('username', val, modifier);
+  }
+
+  /**
    * Matches all tags literals in all languages, multivalued, cannot be sorted on.
    * Includes dc:subject, dcterms:subject, dcat:keyword and lom:keyword
    *
