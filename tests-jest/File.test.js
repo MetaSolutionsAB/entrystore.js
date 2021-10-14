@@ -3,7 +3,6 @@ const config = require('./config');
 
 const { repository, adminUser, adminPassword } = config;
 let context;
-let finished = false;
 const MAX_AGE = 86400;
 
 
@@ -19,14 +18,12 @@ async function setUp() {
 };
 
 async function tearDown() {
-    if (finished) {
-          const contextEntry = await context.getEntry();
-          await contextEntry.del(true);
-          const es = new EntryStore(repository);
-          const auth = es.getAuth();
-          await auth.logout(); 
-      }
-  };
+  const contextEntry = await context.getEntry();
+  await contextEntry.del(true);
+  const es = new EntryStore(repository);
+  const auth = es.getAuth();
+
+};
 
 beforeAll(setUp);
 afterAll(tearDown);

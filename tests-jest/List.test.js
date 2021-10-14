@@ -5,7 +5,6 @@ const { repository, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 let lst;
 let context;
-let finished = false;
 const MAX_AGE = 86400;
 
 
@@ -25,16 +24,14 @@ async function setUp() {
 
 
 async function tearDown() {
-    if (finished) {
-        const contextEntry = await context.getEntry();
-        await contextEntry.del(true);
+    const contextEntry = await context.getEntry();
+    await contextEntry.del(true);
 
-        const listEntry = await lst.getEntry();
-        await listEntry.del(true);
+    const listEntry = await lst.getEntry();
+    await listEntry.del(true);
 
-        const auth = es.getAuth();
-        await auth.logout();
-    }
+    const auth = es.getAuth();
+    await auth.logout();
 };
 
 beforeAll(setUp);

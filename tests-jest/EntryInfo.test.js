@@ -8,7 +8,6 @@ const now = new Date();
 const yesterday = (new Date()).setDate(now.getDate() - 1);
 const tomorrow = (new Date()).setDate(now.getDate() + 1);
 let context;
-let finished = false;
 const MAX_AGE = 86400;
 
 
@@ -23,17 +22,11 @@ async function setUp() {
 };
 
 async function tearDown() {
-    if (finished) {
-        try {
-            const contextEntry = await context.getEntry();
-            await contextEntry.del(true);
+    const contextEntry = await context.getEntry();
+    await contextEntry.del(true);
 
-            const auth = es.getAuth();
-            await auth.logout();
-        } catch (err) {
-            // console.error(err);
-        }
-    }
+    const auth = es.getAuth();
+    await auth.logout();
 }
 
 

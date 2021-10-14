@@ -5,7 +5,6 @@ const config = require('./config');
 
 const { repository, adminUser, adminPassword } = config;
 let context;
-let finished = false;
 const dct = 'http://purl.org/dc/terms/';
 const createEntryId1 = 'orange';
 const createEntryId2 = 'apple1';
@@ -24,18 +23,12 @@ async function setUp() {
 };
 
 async function tearDown() {
-    if (finished) {
-        try {
-          const contextEntry = await context.getEntry();
-          await contextEntry.del(true);
-    
-          const es = new store.EntryStore(repository);
-          const auth = es.getAuth();
-          await auth.logout();
-        } catch (err) {
-          // console.error(err);
-        }
-      }
+    const contextEntry = await context.getEntry();
+    await contextEntry.del(true);
+
+    const es = new store.EntryStore(repository);
+    const auth = es.getAuth();
+    await auth.logout();
 }
 
 
