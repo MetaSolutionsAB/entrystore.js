@@ -1,0 +1,7 @@
+I Jest funkar ej:
+  ● usernameSearch
+  ● listSearch - ibland funkar den, ibland inte?
+
+I Nodeunit funkar ej:
+    usernameSearch
+

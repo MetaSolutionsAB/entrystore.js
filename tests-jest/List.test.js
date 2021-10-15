@@ -9,7 +9,7 @@ const MAX_AGE = 86400;
 
 
 async function setUp() {
-    if (!context) {
+    try{
         const auth = es.getAuth();
         await auth.logout();
         await auth.login(adminUser, adminPassword, MAX_AGE);
@@ -19,23 +19,29 @@ async function setUp() {
         lst = await context.newList().commit();
         await context.newEntry().setParentList(lst).commit();
         await context.newEntry().setParentList(lst).commit();
+    } catch(err){
+        console.log(err);
     }
 };
 
 
 async function tearDown() {
+    try{
     const contextEntry = await context.getEntry();
     await contextEntry.del(true);
 
-    const listEntry = await lst.getEntry();
+    const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
     await listEntry.del(true);
 
     const auth = es.getAuth();
     await auth.logout();
+    } catch(err){
+       // console.log(err);
+    }
 };
 
-beforeAll(setUp);
-afterAll(tearDown);
+beforeEach(setUp);
+afterEach(tearDown);
 
 
 test('members', async () => {

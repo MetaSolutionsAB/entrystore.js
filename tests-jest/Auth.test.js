@@ -8,26 +8,18 @@ const auth = es.getAuth();
 const MAX_AGE = 86400;
 
 
-describe('authorize', () => {
+describe('Should be able to sign in and sign out using cookies', () => {
     
-    test('cookieSignIn', async () => {
+    test('Sign in with cookies', async () => {
         const data = await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
         expect(data.user).toBe(nonAdminUser);
     });
 
-
-    test('cookieSignOut', async () => {
+    test('Sign out with cookies', async () => {
         await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
         const data = await auth.logout();
         expect(data.user).toBe('guest'); // If fail:`Failed sign out from account ${nonAdminUser}.`
     });
-
-    test('cookieSignOut', async () => {
-        await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
-        const data = await auth.logout();
-        expect(data.user).toBe('guest'); // If fail:`Failed sign out from account ${nonAdminUser}.`
-    });
-
 });
 
 describe('fromGuestListeners', () => {
