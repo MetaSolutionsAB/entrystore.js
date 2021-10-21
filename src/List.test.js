@@ -12,7 +12,7 @@ const MAX_AGE = 86400;
 
 
 async function setUp() {
-    try{
+    try {
         const auth = es.getAuth();
         await auth.logout();
         await auth.login(adminUser, adminPassword, MAX_AGE);
@@ -22,40 +22,36 @@ async function setUp() {
         lst = await context.newList().commit();
         await context.newEntry().setParentList(lst).commit();
         await context.newEntry().setParentList(lst).commit();
-    } catch(err){
-        console.log(err);
-    }
+    } catch(err) {}
 };
 
 
 async function tearDown() {
-    try{
-    const contextEntry = await context.getEntry();
-    await contextEntry.del(true);
+    try {
+        const contextEntry = await context.getEntry();
+        await contextEntry.del(true);
 
-    const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
-    await listEntry.del(true);
+        const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
+        await listEntry.del(true);
 
-    const auth = es.getAuth();
-    await auth.logout();
-    } catch(err){
-       // console.log(err);
-    }
+        const auth = es.getAuth();
+        await auth.logout();
+    } catch (err) { }
 };
 
 beforeEach(setUp);
 afterEach(tearDown);
 
 
-test('members', async () => {
+test('Make sure list has two members', async () => {
     const resource = lst.getResource(true);
     const entries = await resource.getEntries();
-    expect(entries.length).toBeGreaterThanOrEqual(2); // If fail: 'List have to few children');
+    expect(entries.length).toBeGreaterThanOrEqual(2); // If fail: 'List have too few children');
 });
 
 
 
-test('addMember', async () => {
+test('Add a member to existing list', async () => {
     const entry = await context.newEntry().commit();
     const lres = lst.getResource(true);
     expect(entry.getParentLists().length).toBe(0); // If fail: 'New entry should not belong to a parentList unless explicitly specified.');
@@ -66,13 +62,13 @@ test('addMember', async () => {
     });
 });
 
-test('addMemberOnCreate', async () => {
+test('Add member to list on creation', async () => {
     const entry = await context.newEntry().setParentList(lst).commit();
     const entries = await lst.getResource(true).getEntries();
     expect(entries.indexOf(entry)).toBeGreaterThanOrEqual(0); // If fail: 'Entry not contained in list, list not refreshed or entry not added to list.');
 });
 
-test('removeMember', async () => {
+test('Remove member from list', async () => {
     const entry = await context.newEntry().setParentList(lst).commit();
     const listResource = lst.getResource(true);
     expect(entry.getParentLists().length).toBe(1); // If fail: 'New entry should belong to the specified parentList provided upon creation.');

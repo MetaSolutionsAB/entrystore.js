@@ -38,7 +38,7 @@ async function tearDown() {
 beforeAll(setUp);
 afterAll(tearDown);
 
-test('uploadFile', async () => {
+test('Upload a file', async () => {
     expect.assertions(3);
     return context.newEntry().commit().then((entry) => {
         const r = entry.getResource(true);

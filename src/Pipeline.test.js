@@ -31,18 +31,7 @@ async function tearDown() {
 beforeAll(setUp);
 afterAll(tearDown);
 
-test('pipelineAPI', () => {
-    expect.assertions(5);
-    const pipeline = context.newPipeline().getResource();
-    expect(pipeline.getGraph().isEmpty()).toBeTruthy();
-    const tr = pipeline.addTransform(pipeline.transformTypes.TABULAR, { key1: 'val1' });
-    expect(pipeline.getGraph().isEmpty()).not.toBeTruthy(); // If fail: 'Error, transform not created in graph.');
-    expect(pipeline.getTransforms().length).toBe(1); // If fail: 'Error, transform not detected correctly in graph.');
-    expect(pipeline.getTransformType(tr)).toBe(pipeline.transformTypes.TABULAR); // If fail: 'Transform type not set correctly in graph.');
-    expect(pipeline.getTransformArguments(tr).key1).toBe('val1'); // If fail: 'Transform arguments not set correctly in graph.');
-});
-
-test('createPipeline', async () => {
+test('Create a pipeline', async () => {
     expect.assertions(2);
     const protoPipeline = context.newPipeline();
     const pipelineResource = protoPipeline.getResource();
@@ -55,7 +44,19 @@ test('createPipeline', async () => {
     expect(pipelineResource2.getTransformType(transforms[0])).toBe(pipelineResource2.transformTypes.TABULAR);
 });
 
-test('setAndUpdateArguments', async () => {
+
+test('Check pipeline API', () => {
+    expect.assertions(5);
+    const pipeline = context.newPipeline().getResource();
+    expect(pipeline.getGraph().isEmpty()).toBeTruthy();
+    const tr = pipeline.addTransform(pipeline.transformTypes.TABULAR, { key1: 'val1' });
+    expect(pipeline.getGraph().isEmpty()).not.toBeTruthy(); // If fail: 'Error, transform not created in graph.');
+    expect(pipeline.getTransforms().length).toBe(1); // If fail: 'Error, transform not detected correctly in graph.');
+    expect(pipeline.getTransformType(tr)).toBe(pipeline.transformTypes.TABULAR); // If fail: 'Transform type not set correctly in graph.');
+    expect(pipeline.getTransformArguments(tr).key1).toBe('val1'); // If fail: 'Transform arguments not set correctly in graph.');
+});
+
+test('Set and update arguments of pipeline', async () => {
     expect.assertions(4);
     const protoPipeline = context.newPipeline();
     const pipelineResource = protoPipeline.getResource();

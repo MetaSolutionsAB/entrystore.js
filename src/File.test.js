@@ -35,7 +35,7 @@ beforeAll(setUp);
 afterAll(tearDown);
 
 
-test('createJSONFile', async () => {
+test('Create entry with a JSON file', async () => {
     let entry;
     entry = await context.newEntry().commit();
     const r = entry.getResource(true);
@@ -49,7 +49,7 @@ test('createJSONFile', async () => {
 });
 
 
-test('createTextFile', async () => {
+test('Create entry with a text file', async () => {
     let entry;
     entry = await context.newEntry().commit();
     const resource = entry.getResource(true);
@@ -62,7 +62,7 @@ test('createTextFile', async () => {
     expect(data).toBe('test'); // If fail: Text not set correctly as resource.');
 });
 
-test('createXMLFile', async () => {
+test('Create entry with a xml file', async () => {
     let entry;
     entry = await context.newEntry().commit();
 

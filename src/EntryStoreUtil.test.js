@@ -18,13 +18,13 @@ async function logInlogOut()    {
 }
 
 
-describe('tests that require admin login', () => {
+describe('User with an admin login', () => {
     
     beforeAll(() => {
         return logInlogOut();
     });
 
-    test('loadEntries', async () => {
+    test('Load entries from EntryStore', async () => {
         const adminURI = es.getEntryURI('_principals', '_admin');
         const adminRURI = es.getResourceURI('_principals', '_admin');
         const adminsURI = es.getEntryURI('_principals', '_admins');

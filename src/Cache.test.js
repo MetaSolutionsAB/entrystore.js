@@ -15,18 +15,18 @@ const e1 = {
 };
 
 
-test('initCache',  () => {
+test('Initialize cache',  () => {
     const cache = new Cache();
     expect(cache).not.toBeNull();
 });
 
-test('basicCacheFunctionality',  () => {
+test('Check cached entry',  () => {
     const cache = new Cache();
     cache.cache(e1);
     expect(cache.get(e1.getURI())).toBe(e1); // If fail: Failed to retrieve cached entry.');
 });
 
-test('invalidateCache', () => {
+test('Invalidate cache', () => {
     expect.assertions(1);
     const cache = new Cache();
     cache.cache(e1);
@@ -36,13 +36,4 @@ test('invalidateCache', () => {
     cache.allNeedRefresh();
 });
 
-// Samma test som 'invalidateCache?
-test('listeners', () => {
-    const cache = new Cache();
-    cache.cache(e1);
-    cache.addCacheUpdateListener((event) => {
-        expect(event).toBe('allEntriesNeedRefresh');
-    });
-    cache.allNeedRefresh();
-});
 

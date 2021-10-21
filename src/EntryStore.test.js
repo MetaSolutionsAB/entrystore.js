@@ -22,25 +22,23 @@ async function logInlogOut()    {
     await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
 }
 
-describe('tests that require logout', () => {
+describe('A signed out user', () => {
     
-
-    // ändra till before så att det händer en gång bara före alla tester
     beforeEach(() => {
         return logOut();
     });
 
-    test('initStore test', () => {
+    test('Make sure EntryStore is initialized', () => {
         expect(es.getBaseURI()).toBe(repository);
     });
 
 
-    test('getEntry test finish with success', async () => {
+    test('Fetching an entry', async () => {
         const entry = await es.getEntry(`${repository}${contextId}/entry/${entryId}`);
         expect(entry).not.toBeNull(); 
     });
 
-    test('getContext', () => {
+    test('Fetch a context', () => {
         const c = es.getContextById('1');
         expect(c.getId()).toBe('1');
     });
@@ -49,24 +47,17 @@ describe('tests that require logout', () => {
 
 
 
-describe('tests that require login', () => {
+describe('A signed in user', () => {
 
 
-    // ändra till before så att det händer en gång bara före alla tester
     beforeEach(() => {
         return logInlogOut();
     });
 
-    /*
-    * to send custom messages based on excpected result
-    * lib https://github.com/mattphillips/jest-expect-message
-    * seems to be needed OR expect.extend(matchers) see Jest API
-    */
-
-    test('asyncListenerLogout', done => {
+    test('Sign out then checking if listener caught the signout', done => {
         expect.assertions(1);
         const asyncListener = async (promise, callType) => {
-            expect(callType).toBe('logout'); //if fail: Wrong calltype, should be 'logout'
+            expect(callType).toBe('logout'); // If fail: Wrong calltype, should be 'logout'
             try {
                 await promise;
                 done();
@@ -80,46 +71,46 @@ describe('tests that require login', () => {
     });
 
 
-    test('getContextList', async () => {
+    test('Fetch context list', async () => {
         expect.assertions(1);
         const entries = await es.getContextList().getEntries();
-        expect(entries.length).toBeGreaterThan(0); // if fail: No contexts found.
+        expect(entries.length).toBeGreaterThan(0); // If fail: No contexts found.
     });
 
-    test('getPrincipalList', async () => {
+    test('Fetch principal list', async () => {
         expect.assertions(1);
         const plist = es.getPrincipalList();
         const entries = await plist.getEntries();
-        expect(entries.length).toBeGreaterThan(0); // if fail: No principals found
+        expect(entries.length).toBeGreaterThan(0); // If fail: No principals found
     });
 
 
-    test('createContext', async () => {
+    test('Create a context', async () => {
         expect.assertions(1);
         const entry = await es.newContext().commit();
-        expect(entry.isContext()).toBeTruthy(); // if fail: Entry created, but it is not a context
+        expect(entry.isContext()).toBeTruthy(); // If fail: Entry created, but it is not a context
 
     });
 
 
-    test('createUser', async () => {
+    test('Create a user', async () => {
         expect.assertions(2);
         const username = `${new Date().getTime()}`;
         const entry = await es.newUser(username).commit();
-        expect(entry.isUser()).toBeTruthy(); // if fail: Entry created, but it is not a user!
-        expect(entry.getResource(true).getName()).toBe(username); //if fail: User created, but username provided in creation step is missing.
+        expect(entry.isUser()).toBeTruthy(); // If fail: Entry created, but it is not a user!
+        expect(entry.getResource(true).getName()).toBe(username); // If fail: User created, but username provided in creation step is missing.
     });
 
 
-    test('createGroup', async () => {
+    test('Create a group', async () => {
         expect.assertions(1);
         const entry = await es.newGroup().commit();
-        expect(entry.isGroup()).toBeTruthy(); // if fail: Entry created, but it is not a group!
+        expect(entry.isGroup()).toBeTruthy(); // If fail: Entry created, but it is not a group!
     });
 
 
     // Bertrand Russel would be proud of this entry
-    test('singleRequestInCache', async () => {
+    test('Check so that cache only has one request', async () => {
         expect.assertions(7);
         const contextsEntryURI = es.getEntryURI('_contexts', '_contexts');
         const cache = es.getCache();
@@ -127,16 +118,16 @@ describe('tests that require login', () => {
         if (contextEntry) {
             cache.unCache(contextEntry);
         }
-        expect(cache.get(contextsEntryURI)).toBe(undefined); // if fail: Alredy something in cache for explicitly uncached entry
-        expect(cache.getPromise(contextsEntryURI)).toBe(undefined); // if fail: Alredy a promise in cache before requesting it
+        expect(cache.get(contextsEntryURI)).toBe(undefined); // If fail: Alredy something in cache for explicitly uncached entry
+        expect(cache.getPromise(contextsEntryURI)).toBe(undefined); // If fail: Alredy a promise in cache before requesting it
         const promise1 = es.getEntry(contextsEntryURI);
         const promise2 = es.getEntry(contextsEntryURI);
-        expect(promise1).toBe(promise2); // if fail: Not reusing same promise for same entry.
-        expect(cache.get(contextsEntryURI)).toBe(undefined); // if fail: Entry in cache without delay.'
-        expect(cache.getPromise(contextsEntryURI)).not.toBe(undefined); // if fail: 'No promise in cache for requested entry.'
+        expect(promise1).toBe(promise2); // If fail: Not reusing same promise for same entry.
+        expect(cache.get(contextsEntryURI)).toBe(undefined); // If fail: Entry in cache without delay.'
+        expect(cache.getPromise(contextsEntryURI)).not.toBe(undefined); // If fail: 'No promise in cache for requested entry.'
         await promise1;
-        expect(cache.getPromise(contextsEntryURI)).toBe(undefined); // if fail: romise remains in cache after entry returned.
-        expect(cache.get(contextsEntryURI)).not.toBe(undefined); // if fail: 'Entry not in cache after being returned'
+        expect(cache.getPromise(contextsEntryURI)).toBe(undefined); // If fail: romise remains in cache after entry returned.
+        expect(cache.get(contextsEntryURI)).not.toBe(undefined); // If fail: 'Entry not in cache after being returned'
     });
 });
 

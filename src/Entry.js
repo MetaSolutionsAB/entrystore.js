@@ -2,6 +2,9 @@ import { Graph } from '@entryscape/rdfjson';
 import factory from './factory';
 import types from './types';
 
+
+
+
 /**
  * Entries are at the center of this API. Entries holds together metadata, external metadata,
  * resources, access control, and provenance. Hence, entries appear in the majority of methods,

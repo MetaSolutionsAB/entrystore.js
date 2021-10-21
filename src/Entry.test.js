@@ -47,23 +47,23 @@ afterAll(() => {
 });
 
 
-test('refresh', async () => {
+test('Add entry and refresh', async () => {
     const entry = await context.newEntry().commit();
     const graph = entry.getMetadata();
     graph.add(entry.getResourceURI(), `${dct}title`, { type: 'literal', value: 'Some title' });
-    expect(!graph.isEmpty()).toBeTruthy(); // If fail: 'Could not change the metadata graph.');
+    expect(graph.isEmpty()).not.toBeTruthy(); // If fail: 'Could not change the metadata graph.');
 
     await entry.refresh(true, true);
     expect(entry.getMetadata().isEmpty()).toBeTruthy(); // If fail: 'Could not refresh, unsaved changes in metadata graph remains.');
 });
 
 
-test('createEntry', async () => {
+test('Create an entry', async () => {
     const entry = await context.newEntry().commit();
     expect(entry.getId()).not.toBeNull(); // If fail: Entry created but without id!');
 });
 
-test('createEntryWithId', async () => {
+test('Create an entry using an id', async () => {
     let appleEntry = null;
     appleEntry = await context.newEntry(createEntryId1).commit();
     expect(appleEntry.getId()).toBe(createEntryId1); // If fail: `Entry could not be created with specific id "${createEntryId1}"!`);
@@ -74,13 +74,13 @@ test('createEntryWithId', async () => {
 });
 
 
-test('createNamedEntry', async () => {
+test('Create a named entry', async () => {
     const entry = await context.newNamedEntry().commit();
     expect(entry.getId()).not.toBeNull(); // If fail: 'Entry created but without id!');
     expect(entry.isNamedResource()).toBeTruthy(); // If fail: 'Entry but not as named resource!');
 });
 
-test('createWithMetadata', async () => {
+test('Create an entry with metadata', async () => {
     const pe = context.newEntry();
     const uri = pe.getResourceURI();
     const graph = new Graph();
@@ -92,7 +92,7 @@ test('createWithMetadata', async () => {
 });
 
 
-test('updateMetadata', async () => {
+test('Update the metadata of an entry', async () => {
     const entry = await context.newEntry().commit();
     entry.getMetadata().add(entry.getResourceURI(), `${dct}title`, { type: 'literal', value: 'Some title2' });
     await entry.commitMetadata();
@@ -102,29 +102,21 @@ test('updateMetadata', async () => {
     expect(entry.getMetadata().findFirstValue(entry.getResourceURI(), `${dct}title`)).toBe('Some title2'); // If fail: 'Failed to create and update the metadata with a new title.');
 });
 
-test('updateMetadataViaPrototype', async () => {
+test('Update the metadata of an entry using prototype', async () => {
     expect.assertions(1);
     const e1 = await context.newEntry().commit();
     await context.newEntry(e1.getId()).addL(`${dct}title`, 'Some title2').commitMetadata();
     expect(1).toBe(1);
 });
 
-test('linkEntry', async () => {
+test('Create a link entry', async () => {
     const uri = 'http://example.com/';
     const entry = await context.newLink(uri).commit();
     expect(entry.isLink()).toBeTruthy(); // If fail: 'Failed to create a link.');
     expect(entry.getResourceURI()).toBe(uri); // If fail: 'Failed to set resourceURI during creation step.');
 });
 
-test('linkEntry', async () => {
-    const uri = 'http://example.com/';
-    const entry = await context.newLink(uri).commit();
-    expect(entry.isLink()).toBeTruthy(); // If fail: 'Failed to create a link.');
-    expect(entry.getResourceURI()).toBe(uri); // If fail: 'Failed to set resourceURI during creation step.');
-});
-
-
-test('linkRefEntry', async () => {
+test('Create a link-reference entry', async () => {
     const uri = 'http://example.com/';
     const entry = await context.newLinkRef(uri, uri).commit();
     expect(entry.isLinkReference()).toBeTruthy(); // If fail: 'Failed to create a link-reference.')
@@ -132,7 +124,7 @@ test('linkRefEntry', async () => {
     expect(entry.getEntryInfo().getExternalMetadataURI()).toBe(uri); // If fail: 'Failed to set external metadatat URI during creation step.'
 });
 
-test('refEntry', async () => {
+test('Create a reference entry', async () => {
     const uri = 'http://example.com/';
     const entry = await context.newRef(uri, uri).commit();
     expect(entry.isReference()).toBeTruthy(); // If fail: 'Failed to create a reference.'
@@ -141,13 +133,13 @@ test('refEntry', async () => {
 });
 
 
-test('listEntry', async () => {
+test('Create a list entry', async () => {
     const entry = await context.newList().commit();
     expect(entry.isList()).toBeTruthy(); // If fail: 'Entry created, but it is not a list as expected.');
 });
 
 
-test('graphEntry', async () => {
+test('Create a graph entry', async () => {
     const g = new Graph();
     g.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title1' });
 
@@ -170,7 +162,7 @@ test('graphEntry', async () => {
     g2.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title2' });
 });
 
-test('updateGraphEntry', async () => {
+test('Update graph entry', async () => {
     let entry = null;
     entry = await context.newGraph().commit();
 
@@ -192,14 +184,14 @@ test('updateGraphEntry', async () => {
     });
 });
 
-test('stringEntry', async () => {
+test('Create a string entry', async () => {
         const entry = await context.newString('one').commit();
         expect(entry.isString()).toBeTruthy(); // If fail: 'Entry created, but it is not a string as expected.');
         const res = await entry.getResource();
         expect(res.getString()).toBe('one'); // If fail: 'The created string entry does not have the string provided upon creation.');
 });
 
-test('updateStringEntry', async () => {
+test('Update a string entry', async () => {
     expect.assertions(3);
     const str = 'a string';
     let entry = null;
@@ -217,7 +209,7 @@ test('updateStringEntry', async () => {
     expect(res.getString()).toBe(''); // If fail: 'Reload from repository gave wrong string');
 });
 
-test('createWithCachedExternalMetadata', async () => {
+test('Create an entry with cached external metadata', async () => {
     const uri = 'http://example.com/';
     const graph = new Graph();
     graph.add(uri, `${dct}title`, { value: 'Some title', type: 'literal' });
@@ -225,7 +217,7 @@ test('createWithCachedExternalMetadata', async () => {
     expect(!entry.getCachedExternalMetadata().isEmpty()).toBeTruthy(); // If fail: 'Failed to set cached external metadata in creation step.');
 });
 
-test('updateCachedExternalMetadata', async () => {
+test('Update an entry with cached external metadata', async () => {
     expect.assertions(2);
     const uri = 'http://example.com/';
     const entry = await context.newRef(uri, uri).commit();
@@ -236,7 +228,7 @@ test('updateCachedExternalMetadata', async () => {
     expect(!cachedExternalMetadata.isEmpty()).toBeTruthy(); // If fail: 'Failed to save cached external metadata.');
 });
 
-test('useProjection', async () => {
+test('Projection on an entry', async () => {
     expect.assertions(5); // number of assertions is actually six, and they all seem to execute, but jest only counts five?
     let entry = null;
     entry = await context.newEntry().commit();
