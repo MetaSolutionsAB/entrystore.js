@@ -1,6 +1,6 @@
 {
   "name": "@entryscape/entrystore-js",
-  "type": "commonjs",
+  "type": "module",
   "version": "4.9.0-dev",
   "main": "dist/entrystore.node.js",
   "browser": "dist/entrystore.js",
@@ -73,7 +73,7 @@
     "build:dev": "webpack --mode development",
     "test": "nodeunit ./tests/run.js",
     "test-jest": "jest",
-    "test-jest-coverage": "jest --coverage",
+    "test-jest-exp": "jest --experimental-vm-modules jest",
     "eslint": "eslint 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",
     "samples": "http-server -o",
@@ -83,7 +83,8 @@
     "verbose": true,
     "testTimeout": 40000,
     "collectCoverage": true,
-    "collectCoverageFrom": ["dist/entrystore.node.js"],
-    "watchAll": false
-   }
+    "collectCoverageFrom": [
+      "src/*.js"
+    ]
+  }
 }

@@ -5,16 +5,16 @@ PATH:
   /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
 
 Yarn version: 
-  1.22.15
+  1.22.17
 
 Node version: 
-  12.21.0
+  12.22.5
 
 Platform: 
   linux x64
 
 Trace: 
-  SyntaxError: /home/august/Documents/Code/metasolutions/entrystore.js/package.json: Unexpected string in JSON at position 2429
+  SyntaxError: /home/august/Documents/Code/metasolutions/entrystore.js/package.json: Unexpected token } in JSON at position 2389
       at JSON.parse (<anonymous>)
       at /usr/local/lib/node_modules/yarn/lib/cli.js:1625:59
       at Generator.next (<anonymous>)
@@ -104,12 +104,10 @@ npm manifest:
       "print-licenses": "print-licenses"
     },
     "jest": {
-      "verbose": false,
+      "verbose": true,
       "testTimeout": 40000,
-      "collectCoverage": false,
-      "collectCoverageFrom": "src/*.js"
-      "watchAll": false
-     }
+      "collectCoverage": true,
+      }
   }
 
 yarn manifest: 
