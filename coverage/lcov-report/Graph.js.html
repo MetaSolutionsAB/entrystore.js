@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -55,7 +55,7 @@
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -147,8 +147,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -159,7 +159,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -171,8 +171,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -183,7 +183,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -193,7 +193,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -202,7 +202,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Graph } from '@entryscape/rdfjson';
@@ -220,9 +220,9 @@ export default class GraphResource extends Resource {
    * @param {EntryStore} entryStore - the API's repository instance.
    * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
    */
-<span class="fstat-no" title="function not covered" >  co</span>nstructor(entryURI, resourceURI, entryStore, data) {
-<span class="cstat-no" title="statement not covered" >    super(entryURI, resourceURI, entryStore); </span>// Call the super constructor.
-<span class="cstat-no" title="statement not covered" >    this._graph = data &amp;&amp; data._graph ? data : new Graph(data);</span>
+  constructor(entryURI, resourceURI, entryStore, data) {
+    super(entryURI, resourceURI, entryStore); // Call the super constructor.
+    this._graph = data &amp;&amp; data._graph ? data : new Graph(data);
   }
 &nbsp;
   /**
@@ -232,8 +232,8 @@ export default class GraphResource extends Resource {
    *
    * @returns {rdfjson/Graph} will never be null or undefined, although the graph may be empty.
    */
-<span class="fstat-no" title="function not covered" >  ge</span>tGraph() {
-<span class="cstat-no" title="statement not covered" >    return this._graph;</span>
+  getGraph() {
+    return this._graph;
   }
 &nbsp;
   /**
@@ -244,9 +244,9 @@ export default class GraphResource extends Resource {
    * be set.
    * @returns {Graph} - to allow chaining with commit.
    */
-<span class="fstat-no" title="function not covered" >  se</span>tGraph(graph) {
-<span class="cstat-no" title="statement not covered" >    this._graph = graph || new Graph();</span>
-<span class="cstat-no" title="statement not covered" >    return this;</span>
+  setGraph(graph) {
+    this._graph = graph || <span class="branch-1 cbranch-no" title="branch not covered" >new Graph();</span>
+    return this;
   }
 &nbsp;
   /**
@@ -256,8 +256,8 @@ export default class GraphResource extends Resource {
    * @param {rdfjson/Graph} graph
    * @returns {Promise}
    */
-<span class="fstat-no" title="function not covered" >  co</span>mmit() {
-<span class="cstat-no" title="statement not covered" >    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,</span>
+  commit() {
+    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
       JSON.stringify(this._graph.exportRDFJSON())), 'commitGraph');
   }
 &nbsp;
@@ -266,8 +266,8 @@ export default class GraphResource extends Resource {
    *
    * @returns {Object}
    */
-<span class="fstat-no" title="function not covered" >  ge</span>tSource() {
-<span class="cstat-no" title="statement not covered" >    return this._graph.exportRDFJSON();</span>
+  getSource() {
+    return this._graph.exportRDFJSON();
   }
 &nbsp;
   /**
@@ -275,8 +275,8 @@ export default class GraphResource extends Resource {
    * @param data
    * @private
    */
-<span class="fstat-no" title="function not covered" >  _u</span>pdate(data) {
-<span class="cstat-no" title="statement not covered" >    this._graph = new Graph(data);</span>
+  _update(data) {
+    this._graph = new Graph(data);
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -286,7 +286,7 @@ export default class GraphResource extends Resource {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Fri Oct 22 2021 10:26:36 GMT+0200 (Central European Summer Time)
+                at Fri Oct 22 2021 11:53:54 GMT+0200 (Central European Summer Time)
             </div>
         </div>
         <script src="prettify.js"></script>

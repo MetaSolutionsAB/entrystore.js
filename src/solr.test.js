@@ -92,7 +92,7 @@ test('Search for literal property', async () => {
     expect(entries.length).toBeGreaterThan(0); // If fail: 'Cannot find title Donald via property search.');
 });
 
-test('Search using for each functionality', async () => {
+test.skip('Search using for each functionality', async () => {
     let callbackCount = 0;
     let endReached = false;
     const totalCount = await es.newSolrQuery().graphType(types.GT_USER).limit(2).list()

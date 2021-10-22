@@ -148,10 +148,10 @@ For more info check 'samples/config.js_example'.
 # Testing
 
 The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store.
-The base URL of the instance is configured in a file `tests/config.js` that you have to provide,
-for instance by making a copy of `tests/config.js_example` and then adapt it.
+The base URL of the instance is configured in a file `src/config.js` that you have to provide,
+for instance by making a copy of `src/config.js_example` and then adapt it.
 
-The tests are written according to the style of [Nodeunit](https://github.com/caolan/nodeunit).
+The tests are written according to the style of [Jest](https://jestjs.io/).
 
 ## Running tests 
 
@@ -159,7 +159,7 @@ The tests are written according to the style of [Nodeunit](https://github.com/ca
 
 ## Developing new tests
 
-It is recommended to create a new module for each group of tests. Include it in the `tests/config.js` file to make it part of the testsuite.
+It is recommended to create a new module for each group of tests. Include it in the `src` folder, using the Jest naming convention of 'file.test.js' to make it part of the testsuite.
 
 # Command line
 
