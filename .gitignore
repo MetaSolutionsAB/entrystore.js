@@ -4,6 +4,7 @@
 /src/config.js
 /coverage
 /jsdoc
+coverage/
 dist/
 out/
 .idea
