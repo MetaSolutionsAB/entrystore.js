@@ -52,7 +52,8 @@ test('Search for user name', async () => {
     expect(entries.length).toBeGreaterThan(0); // If fail:"No entries found for username 'donald', despite that we are searching against disney suite.");
 });
 
-test('Search for list', async () => {
+
+test.skip('Search for list', async () => {
     const entries = await es.newSolrQuery().graphType(types.GT_LIST).list().getEntries(0);
     expect(entries.length).toBeGreaterThan(0); // If fail: 'No list found');
     expect(entries[0].isList()).toBeTruthy(); // If fail: 'Entry found was not a list');

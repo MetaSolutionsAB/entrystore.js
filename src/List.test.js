@@ -31,8 +31,8 @@ async function tearDown() {
         const contextEntry = await context.getEntry();
         await contextEntry.del(true);
 
-        const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
-        await listEntry.del(true);
+        //const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
+        await lst.del(true);
 
         const auth = es.getAuth();
         await auth.logout();
@@ -41,7 +41,6 @@ async function tearDown() {
 
 beforeEach(setUp);
 afterEach(tearDown);
-
 
 test('Make sure list has two members', async () => {
     const resource = lst.getResource(true);

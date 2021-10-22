@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>0/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
@@ -55,7 +55,7 @@
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -126,29 +126,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -158,11 +144,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import Resource from './Resource';
@@ -179,16 +179,16 @@ export default class StringResource extends Resource {
    * @param {EntryStore} entryStore - the API's repository instance.
    * @param {string} data - the actual string, may the empty string, but not null or undefined.
    */
-  constructor(entryURI, resourceURI, entryStore, data) {
-    super(entryURI, resourceURI, entryStore); // Call the super constructor.
-    this._data = data;
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(entryURI, resourceURI, entryStore, data) {
+<span class="cstat-no" title="statement not covered" >    super(entryURI, resourceURI, entryStore); </span>// Call the super constructor.
+<span class="cstat-no" title="statement not covered" >    this._data = data;</span>
   }
 &nbsp;
   /**
    * @returns {string} may be an empty string, never null or undefined.
    */
-  getString() {
-    return this._data;
+<span class="fstat-no" title="function not covered" >  ge</span>tString() {
+<span class="cstat-no" title="statement not covered" >    return this._data;</span>
   }
 &nbsp;
   /**
@@ -200,9 +200,9 @@ export default class StringResource extends Resource {
    * @returns {StringResource} allows chaining with commit.
    * @see String#commit
    */
-  setString(string) {
-    this._data = string || '';
-    return this;
+<span class="fstat-no" title="function not covered" >  se</span>tString(string) {
+<span class="cstat-no" title="statement not covered" >    this._data = string || '';</span>
+<span class="cstat-no" title="statement not covered" >    return this;</span>
   }
 &nbsp;
   /**
@@ -211,12 +211,12 @@ export default class StringResource extends Resource {
    * @returns {Promise}
    * @see String#setString
    */
-  commit() {
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, this._data), 'commitString');
+<span class="fstat-no" title="function not covered" >  co</span>mmit() {
+<span class="cstat-no" title="statement not covered" >    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, this._data), 'commitString');</span>
   }
 &nbsp;
-  getSource() {
-    return this._data;
+<span class="fstat-no" title="function not covered" >  ge</span>tSource() {
+<span class="cstat-no" title="statement not covered" >    return this._data;</span>
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -226,7 +226,7 @@ export default class StringResource extends Resource {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Thu Oct 21 2021 15:07:55 GMT+0200 (Central European Summer Time)
+                at Fri Oct 22 2021 10:26:36 GMT+0200 (Central European Summer Time)
             </div>
         </div>
         <script src="prettify.js"></script>
