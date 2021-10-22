@@ -1,6 +1,8 @@
 /node_modules
 /tests/config.js
 /samples/config.js
+/src/config.js
+/coverage
 /jsdoc
 dist/
 out/
