@@ -153,9 +153,11 @@ for instance by making a copy of `src/config.js_example` and then adapt it.
 
 The tests are written according to the style of [Jest](https://jestjs.io/).
 
+Collecting code coverage can be done by setting the property of package.json "jest": "collectCoverage" to true. The coverage an then be found in the coverage folder.
+
 ## Running tests 
 
-    $ yarn test
+    $ yarn test-jest
 
 ## Developing new tests
 
