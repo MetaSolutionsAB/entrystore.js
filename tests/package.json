@@ -1,4 +1,9 @@
 {
-    "type": "module"
+    "type": "module",
+    "exports": {
+        ".": {
+          "default": "./config.js"
+        }
+      }
   }
   
