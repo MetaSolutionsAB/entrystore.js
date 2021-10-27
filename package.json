@@ -7,7 +7,7 @@
   "module": "src/index.js",
   "exports": {
     ".": {
-      "module": "./src/main.js",
+      "module": "./src/index.js",
       "require": "./dist/entrystore.node.js",
       "browser": "./dist/entrystore.js",
       "default": "./src/index.js"
