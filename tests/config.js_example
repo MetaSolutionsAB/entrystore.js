@@ -1,20 +1,4 @@
-module.exports = {
-    tests: [
-        "EntryStore",
-        "EntryStoreUtil",
-        "Auth",
-        "Entry",
-        "EntryInfo",
-        "Cache",
-        "List",
-        "solr",
-        "File",
-        "Pipeline",
-        // "Inferred",
-    ],
-    nodeTests: [
-      "Node"
-    ],
+export default  {
     repository: "http://localhost:8080/store/",
     nonAdminUser: 'donald',
     nonAdminPassword: 'donalddonald',
