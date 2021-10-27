@@ -7,13 +7,14 @@
   "module": "src/index.js",
   "exports": {
     ".": {
+      "module": "./src/main.js",
       "require": "./dist/entrystore.node.js",
       "browser": "./dist/entrystore.js",
       "default": "./src/index.js"
     }
   },
   "dependencies": {
-    "@entryscape/rdfjson": "^2.5.2",
+    "@entryscape/rdfjson": "^2.5.3",
     "blueimp-md5": "^2.10.0",
     "core-js": "^3.1.4",
     "moment": "^2.22.2",
@@ -83,7 +84,7 @@
     "collectCoverage": true,
     "testTimeout": 75000,
     "moduleNameMapper": {
-      "^@entryscape\/rdfjson": "<rootDir>/node_modules/@entryscape/rdfjson/src/main.js"
+      "^@entryscape/rdfjson": "<rootDir>/node_modules/@entryscape/rdfjson/src/main.js"
     },
     "collectCoverageFrom": [
       "src/*.js"
