@@ -6,7 +6,7 @@
 import moment from 'moment';
 import { Graph } from '@entryscape/rdfjson';
 import EntryStore from './EntryStore';
-import config from './config';
+import config from '../tests/config';
 
 
 const { repository, adminUser, adminPassword } = config;

@@ -148,16 +148,16 @@ For more info check 'samples/config.js_example'.
 # Testing
 
 The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store.
-The base URL of the instance is configured in a file `src/config.js` that you have to provide,
-for instance by making a copy of `src/config.js_example` and then adapt it.
+The base URL of the instance is configured in a file `tests/config.js` that you have to provide,
+for instance by making a copy of `tests/config.js_example` and then adapt it.
 
 The tests are written according to the style of [Jest](https://jestjs.io/).
 
-Collecting code coverage can be done by setting the property of package.json "jest": "collectCoverage" to true. The coverage an then be found in the coverage folder.
+Collecting code coverage can be done by setting the property of package.json "jest": "collectCoverage" to true. The coverage an then be found in the folder located at tests/coverage
 
 ## Running tests 
 
-    $ yarn test-jest
+    $ yarn test
 
 ## Developing new tests
 

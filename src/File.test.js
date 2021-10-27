@@ -4,7 +4,7 @@
 import  xmldom from 'xmldom';
 import EntryStore from './EntryStore';
 import utils from './utils';
-import config from './config';
+import config from '../tests/config';
 
 
 const { repository, adminUser, adminPassword } = config;

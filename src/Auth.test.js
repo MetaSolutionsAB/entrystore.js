@@ -6,7 +6,7 @@
 //import Auth from './Auth';
 
 import EntryStore from './EntryStore';
-import config from './config';
+import config from '../tests/config';
 
 //const EntryStore = require('./EntryStore');
 //const config = require('./config');

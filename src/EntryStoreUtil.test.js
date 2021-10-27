@@ -4,7 +4,7 @@
 import EntryStore from './EntryStore';
 import EntryStoreUtil from './EntryStoreUtil';
 import types from './types';
-import config from './config';
+import config from '../tests/config';
 
 const { repository, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);

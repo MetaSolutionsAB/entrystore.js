@@ -3,7 +3,7 @@
 
 import EntryStore from './EntryStore';
 import terms from './terms';
-import config from './config';
+import config from '../tests/config';
 
 const es = new EntryStore(config.repository);
 let authAdminReady = false;
