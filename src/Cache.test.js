@@ -11,25 +11,25 @@ const cachedentry = {
 };
 
 
-test('Initialize cache',  () => {
-    const cache = new Cache();
-    expect(cache).not.toBeNull();
+test('Initialize cache', () => {
+  const cache = new Cache();
+  expect(cache).not.toBeNull();
 });
 
-test('Check cached entry',  () => {
-    const cache = new Cache();
-    cache.cache(cachedentry);
-    expect(cache.get(cachedentry.getURI())).toBe(cachedentry); // If fail: Failed to retrieve cached entry.');
+test('Check cached entry', () => {
+  const cache = new Cache();
+  cache.cache(cachedentry);
+  expect(cache.get(cachedentry.getURI())).toBe(cachedentry); // If fail: Failed to retrieve cached entry.');
 });
 
 test('Invalidate cache', () => {
-    expect.assertions(1);
-    const cache = new Cache();
-    cache.cache(cachedentry);
-    cache.addCacheUpdateListener((event) => {
-        expect(event).toBe('allEntriesNeedRefresh');
-    });
-    cache.allNeedRefresh();
+  expect.assertions(1);
+  const cache = new Cache();
+  cache.cache(cachedentry);
+  cache.addCacheUpdateListener((event) => {
+    expect(event).toBe('allEntriesNeedRefresh');
+  });
+  cache.allNeedRefresh();
 });
 
 

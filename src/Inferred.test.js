@@ -7,18 +7,18 @@ let authAdminReady = false;
 
 
 async function setUp() {
-    if (!authAdminReady) {
-        es.getAuth().login('admin', 'adminadmin').then(() => {
-          authAdminReady = true;
-        });
-      } else {
-      }
+  if (!authAdminReady) {
+    es.getAuth().login('admin', 'adminadmin').then(() => {
+      authAdminReady = true;
+    });
+  } else {
+  }
 };
 
 beforeAll(setUp);
 
-test('A dummy test',  () => {
-    expect(1).toBeTruthy();
+test('A dummy test', () => {
+  expect(1).toBeTruthy();
 });
 
 /*

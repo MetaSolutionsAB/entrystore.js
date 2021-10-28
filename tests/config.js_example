@@ -1,9 +1,9 @@
 export default  {
-    repository: "http://localhost:8080/store/",
-    nonAdminUser: 'donald',
-    nonAdminPassword: 'donalddonald',
-    adminUser: 'admin',
-    adminPassword: 'adminadmin',
-    contextId: 1,
-    entryId: 1,
+  repository: "http://localhost:8080/store/",
+  nonAdminUser: 'donald',
+  nonAdminPassword: 'donalddonald',
+  adminUser: 'admin',
+  adminPassword: 'adminadmin',
+  contextId: 1,
+  entryId: 1,
 };
