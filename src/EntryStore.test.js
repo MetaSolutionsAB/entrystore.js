@@ -52,17 +52,17 @@ describe('A signed in user', () => {
     });
 
     test('Sign out then checking if listener caught the signout', done => {
-        expect.assertions(1);
+        expect.assertions(2);
         const asyncListener = async (promise, callType) => {
             expect(callType).toBe('logout'); // If fail: Wrong calltype, should be 'logout'
-            try {
-                await promise;
-                console.log(promise);
+            promise.then((value) =>    {
+                expect(1).toBeTruthy();
                 done();
-            } catch (err) {
-                expect(0).toBeTruthy(); // Something went south
-                done(err);
-            }
+            }, reason => {
+                expect(0).toBeTruthy();
+                done(reason);
+            });
+
           };
         es.addAsyncListener(asyncListener);
         es.getAuth().logout();
@@ -84,7 +84,7 @@ describe('A signed in user', () => {
     });
 
 
-    test('Create a context', async () => {
+    test('Create a new context and check if it exitsts', async () => {
         expect.assertions(1);
         const entry = await es.newContext().commit();
         expect(entry.isContext()).toBeTruthy(); // If fail: Entry created, but it is not a context

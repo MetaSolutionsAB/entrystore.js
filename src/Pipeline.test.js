@@ -33,8 +33,7 @@ test('Create a pipeline', async () => {
     const protoPipeline = context.newPipeline();
     const pipelineResource = protoPipeline.getResource();
     pipelineResource.addTransform(pipelineResource.transformTypes.TABULAR, { key1: 'value1' });
-    let entry;
-    entry = await protoPipeline.commit();
+    const entry = await protoPipeline.commit();
     const pipelineResource2 = entry.getResource(true);
     const transforms = pipelineResource2.getTransforms();
     expect(transforms.length).toBeGreaterThan(0);
@@ -70,8 +69,7 @@ test('Set and update arguments of pipeline', async () => {
     pipelineResource.setPipelineArguments(args, 'configuration');
     pipelineResource.setPipelineArguments(argsTyped, 'transform');
 
-    let entry;
-    entry = await protoPipeline.commit();
+    const entry = await protoPipeline.commit();
 
     const pipelineResource2 = entry.getResource(true);
     const configurationArgs = pipelineResource2.getPipelineArguments('configuration');

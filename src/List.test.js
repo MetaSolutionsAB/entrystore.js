@@ -8,7 +8,7 @@ let context;
 const MAX_AGE = 86400;
 
 
-async function setUp() {
+async function setUpList() {
     try {
         const auth = es.getAuth();
         await auth.logout();
@@ -18,26 +18,30 @@ async function setUp() {
 
         lst = await context.newList().commit();
         await context.newEntry().setParentList(lst).commit();
-        await context.newEntry().setParentList(lst).commit();
-    } catch(err) {}
+        await context.newEntry().setParentList(lst).commit(); // Not duplicate, but a second entry
+    } catch(err) {
+        console.log('Could not set up list test caused by: ' + err + '.');
+    }
 };
 
 
-async function tearDown() {
+async function tearDownList() {
     try {
         const contextEntry = await context.getEntry();
         await contextEntry.del(true);
 
         //const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
-        await lst.del(true);
+        //await lst.del(true);
 
         const auth = es.getAuth();
         await auth.logout();
-    } catch (err) { }
+    } catch (err) { 
+        console.log('Could not tear down list test caused by: ' + err + '.');
+    }
 };
 
-beforeEach(setUp);
-afterEach(tearDown);
+beforeAll(setUpList);
+afterAll(tearDownList);
 
 test('Make sure list has two members', async () => {
     const resource = lst.getResource(true);

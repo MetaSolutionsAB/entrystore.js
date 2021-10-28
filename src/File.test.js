@@ -33,8 +33,7 @@ afterAll(tearDown);
 
 
 test('Create entry with a JSON file', async () => {
-    let entry;
-    entry = await context.newEntry().commit();
+    const entry = await context.newEntry().commit();
     const r = entry.getResource(true);
     await r.putJSON({ a: 'v' });
     entry.setRefreshNeeded(true);
@@ -47,8 +46,7 @@ test('Create entry with a JSON file', async () => {
 
 
 test('Create entry with a text file', async () => {
-    let entry;
-    entry = await context.newEntry().commit();
+    const entry = await context.newEntry().commit();
     const resource = entry.getResource(true);
     await resource.putText('test');
     entry.setRefreshNeeded(true);
@@ -60,21 +58,17 @@ test('Create entry with a text file', async () => {
 });
 
 test('Create entry with a xml file', async () => {
-    let entry;
-    entry = await context.newEntry().commit();
+    const entry = await context.newEntry().commit();
 
     const r = entry.getResource(true);
     if (utils.isBrowser()){
       const DOMParser = DOMParser;
-    }else{
+    } else{
       const DOMParser = xmldom.DOMParser;
-    }
-    // const DOMParser = utils.isBrowser() ? DOMParser : require('xmldom').DOMParser;
-    
-    const parser = new xmldom.DOMParser();
+    };    
 
-    let xml = '<book></book>';
-    xml = parser.parseFromString(xml, 'text/xml');
+    const parser = new xmldom.DOMParser();
+    let xml = parser.parseFromString('<book></book>', 'text/xml');
 
     await r.putXML(xml);
     entry.setRefreshNeeded(true);

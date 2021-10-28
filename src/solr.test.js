@@ -81,11 +81,9 @@ test('Search for link', async () => {
 });
 
 test('Search for literal property', async () => {
-    const entries = [
-        // @todo one query only
-        ...await es.newSolrQuery().literalProperty('dcterms:title', 'Donald').list().getEntries(0),
-        ...await es.newSolrQuery().literalProperty('foaf:name', 'Donald').list().getEntries(0),
-    ];
+    const titleEntry = await es.newSolrQuery().literalProperty('dcterms:title', 'Donald').list().getEntries(0);
+    const nameEntry = await es.newSolrQuery().literalProperty('foaf:name', 'Donald').list().getEntries(0);
+    const entries = [...titleEntry, ...nameEntry];
     expect(entries.length).toBeGreaterThan(0); // If fail: 'Cannot find title Donald via property search.');
 });
 
@@ -114,10 +112,10 @@ test('Search using for each functionality with break', async () => {
 });
 
 test('Fetch entry by graph type', async () => {
+    expect.assertions(0);
     try {
         const testt = await esu.getEntryByGraphType(types.GT_USER);
     } catch (err) {
-        console.log(err);
-        expect(true).toBeTruthy();
+        expect(false).toBeTruthy(); // Should be able to find at least one user.
     }
 });
