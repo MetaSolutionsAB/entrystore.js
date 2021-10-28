@@ -1,15 +1,5 @@
-//const config = require('./config');
-//const store = require('../dist/entrystore.node');
-//const { jsxEmptyExpression } = require('babel-plugin-jest-hoist/node_modules/@babel/types');
-
-//const Auth2 = require('./Auth');
-//import Auth from './Auth';
-
 import EntryStore from './EntryStore';
 import config from '../tests/config';
-
-//const EntryStore = require('./EntryStore');
-//const config = require('./config');
 
 const { repository, nonAdminUser, nonAdminPassword } = config;
 const es = new EntryStore(repository);
@@ -41,15 +31,12 @@ describe('Authentication using a guest profile', () => {
 
 
     test('Signing in', done => {
-        expect.assertions(1);
+        expect.assertions(2);
         const authCallback = (topic, data) => {
-            if (topic === 'login') {
-                expect(data.user).toBe(nonAdminUser);
-                done();
-                auth.removeAuthListener(authCallback);
-            } else {
-                done('Could not login');
-            }
+            expect(topic).toBe('login');
+            expect(data.user).toBe(nonAdminUser);
+            done();
+            auth.removeAuthListener(authCallback);
         };
         auth.addAuthListener(authCallback);
         auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
@@ -58,10 +45,9 @@ describe('Authentication using a guest profile', () => {
 
     test('Check user entry is guest', async () => {
         expect.assertions(1);
-        return auth.getUserEntry().then((entry) => {
-            const name = entry.getResource(true).getName();
-            expect(name).toBe('guest');
-        });
+        const entry = await auth.getUserEntry();
+        const name = entry.getResource(true).getName();
+        expect(name).toBe('guest');
     });
 });
 
@@ -74,13 +60,12 @@ describe('Authentication using a user profile', () => {
     beforeEach(setUpNonAdmin);
 
     test('Signing out', done => {
-        expect.assertions(1);
+        expect.assertions(2);
         const authCallback = (topic, data) => {
-            if (topic === 'logout') {
-                expect(data.user).toBe('guest');
-                done();
-                auth.removeAuthListener(authCallback);
-            }
+            expect(topic).toBe('logout');
+            expect(data.user).toBe('guest');
+            done();
+            auth.removeAuthListener(authCallback);
         };
         auth.addAuthListener(authCallback);
         auth.logout();

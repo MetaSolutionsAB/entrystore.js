@@ -1,7 +1,6 @@
 /node_modules/
 /tests/coverage/
 /samples/config.js
-/src/config.js
 /jsdoc
 /coverage/
 /dist/

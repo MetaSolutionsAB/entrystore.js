@@ -1,6 +1,3 @@
-//const { EntryStore } = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import EntryStore from './EntryStore';
 import config from '../tests/config';
 

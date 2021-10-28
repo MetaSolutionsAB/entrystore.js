@@ -1,6 +1,3 @@
-//const { EntryStore, utils } = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import  xmldom from 'xmldom';
 import EntryStore from './EntryStore';
 import utils from './utils';

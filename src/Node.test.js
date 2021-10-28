@@ -1,7 +1,3 @@
-//const fs = require('fs');
-//const store = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import fs from 'fs';
 import EntryStore from './EntryStore';
 import config from '../tests/config';

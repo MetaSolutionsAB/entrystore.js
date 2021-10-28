@@ -81,7 +81,7 @@
   },
   "jest": {
     "verbose": true,
-    "collectCoverage": true,
+    "collectCoverage": false,
     "testTimeout": 75000,
     "moduleNameMapper": {
       "^@entryscape/rdfjson": "<rootDir>/node_modules/@entryscape/rdfjson/src/main.js"

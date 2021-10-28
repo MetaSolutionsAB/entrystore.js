@@ -1,6 +1,3 @@
-//const { EntryStore } = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import EntryStore from './EntryStore';
 import config from '../tests/config';
 
@@ -60,8 +57,10 @@ describe('A signed in user', () => {
             expect(callType).toBe('logout'); // If fail: Wrong calltype, should be 'logout'
             try {
                 await promise;
+                console.log(promise);
                 done();
             } catch (err) {
+                expect(0).toBeTruthy(); // Something went south
                 done(err);
             }
           };

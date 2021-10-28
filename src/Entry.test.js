@@ -1,13 +1,7 @@
-//const moment = require('moment');
-//const { Graph } = require('@entryscape/rdfjson');
-//const store = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import moment from 'moment';
 import { Graph } from '@entryscape/rdfjson';
 import EntryStore from './EntryStore';
 import config from '../tests/config';
-
 
 const { repository, adminUser, adminPassword } = config;
 let context;
@@ -25,7 +19,7 @@ async function setUp() {
         await auth.login(adminUser, adminPassword, MAX_AGE);
         const contextEntry = await es.newContext().commit();
         context = contextEntry.getResource(true);
-      }
+    }
 };
 
 async function tearDown() {
@@ -64,8 +58,7 @@ test('Create an entry', async () => {
 });
 
 test('Create an entry using an id', async () => {
-    let appleEntry = null;
-    appleEntry = await context.newEntry(createEntryId1).commit();
+    const appleEntry = await context.newEntry(createEntryId1).commit();
     expect(appleEntry.getId()).toBe(createEntryId1); // If fail: `Entry could not be created with specific id "${createEntryId1}"!`);
     await appleEntry.del();
     const bananaEntry = await context.newEntry(createEntryId2).commit();
@@ -147,11 +140,8 @@ test('Create a graph entry', async () => {
     entry = await context.newGraph(g).commit();
     expect(entry.isGraph()).toBeTruthy(); // If fail: 'Entry created, but it is not a graph as expected.');
 
-
-    let res = null;
-    res = await entry.getResource();
+    const res = await entry.getResource();
     expect(res.getGraph().find().length).toBe(1); // If fail: 'The created graph Entry does save the provided graph upon creation');
-
 
     const g2 = new Graph();
     await res.setGraph(g2).commit();
@@ -163,9 +153,7 @@ test('Create a graph entry', async () => {
 });
 
 test('Update graph entry', async () => {
-    let entry = null;
-    entry = await context.newGraph().commit();
-
+    const entry = await context.newGraph().commit();
     const res = await entry.getResource();
     const g = new Graph();
     g.add('http://example.com/', `${dct}title`, { type: 'literal', value: 'Some title' });
@@ -185,17 +173,16 @@ test('Update graph entry', async () => {
 });
 
 test('Create a string entry', async () => {
-        const entry = await context.newString('one').commit();
-        expect(entry.isString()).toBeTruthy(); // If fail: 'Entry created, but it is not a string as expected.');
-        const res = await entry.getResource();
-        expect(res.getString()).toBe('one'); // If fail: 'The created string entry does not have the string provided upon creation.');
+    const entry = await context.newString('one').commit();
+    expect(entry.isString()).toBeTruthy(); // If fail: 'Entry created, but it is not a string as expected.');
+    const res = await entry.getResource();
+    expect(res.getString()).toBe('one'); // If fail: 'The created string entry does not have the string provided upon creation.');
 });
 
 test('Update a string entry', async () => {
     expect.assertions(3);
     const str = 'a string';
-    let entry = null;
-    entry = await context.newString('').commit();
+    const entry = await context.newString('').commit();
 
     const res = await entry.getResource();
     expect(res.getString()).toBe(''); // If fail: 'Empty string instead of null');
@@ -229,25 +216,24 @@ test('Update an entry with cached external metadata', async () => {
 });
 
 test('Projection on an entry', async () => {
-    expect.assertions(5); // number of assertions is actually six, and they all seem to execute, but jest only counts five?
-    let entry = null;
-    entry = await context.newEntry().commit();
+    expect.assertions(6); // number of assertions is actually six, and they all seem to execute, but jest only counts five?
+    const entry = await context.newEntry().commit();
     const uri = entry.getResourceURI();
     entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
     entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
     await entry.commitMetadata();
     let titleProjection = entry.projection({
-      title: 'dcterms:title',
+        title: 'dcterms:title',
     });
 
     expect(typeof titleProjection).toBe('object'); // if fail: 'Projection did not have a `title` property'
 
     expect('title' in titleProjection).toBeTruthy(); // if fail: 'Projection did not have a `title` property'
 
-    expect(titleProjection.title === 'title1' || titleProjection.title === 'title2'); // If fail: 'Projection with single value was not correct.'
+    expect(titleProjection.title === 'title1' || titleProjection.title === 'title2').toBeTruthy(); // If fail: 'Projection with single value was not correct.'
 
     titleProjection = entry.projection({
-      '*titles': 'dcterms:title',
+        '*titles': 'dcterms:title',
     });
 
     expect(Array.isArray(titleProjection.titles)).toBeTruthy(); // If fail: 'Projection with multiple values was not correct.');
@@ -258,10 +244,10 @@ test('Projection on an entry', async () => {
 
 
 
-  /**
-   * @todo commented out since currently commitMetadata always refreshes the entry
-   * So, there's no way to force this entry
-   */
+/**
+ * @todo commented out since currently commitMetadata always refreshes the entry
+ * So, there's no way to force this entry
+ */
   // async ifUnModifiedSinceCheck(test) {
   //   let entry = null;
   //   try {

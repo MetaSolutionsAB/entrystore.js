@@ -1,6 +1,3 @@
-//const { EntryStore, EntryStoreUtil, types } = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import EntryStore from './EntryStore';
 import EntryStoreUtil from './EntryStoreUtil';
 import types from './types';

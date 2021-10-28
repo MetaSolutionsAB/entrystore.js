@@ -1,7 +1,3 @@
-//const { Graph } = require('@entryscape/rdfjson');
-//const store = require('../dist/entrystore.node');
-//const config = require('./config');
-
 import { Graph } from '@entryscape/rdfjson'
 import EntryStore from './EntryStore';
 import config from '../tests/config';
@@ -130,8 +126,7 @@ describe('User with admin login', () => {
     });
 
     test('Fetch metadata revisions', async () => {
-        let entry;
-        entry = await context.newEntry().addL('dcterms:title', 'First').commit();
+        const entry = await context.newEntry().addL('dcterms:title', 'First').commit();
         expect(entry.getEntryInfo().getMetadataRevisions().length).toBe(1);
         entry.addL('dcterms:description', 'Second');
 

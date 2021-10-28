@@ -1,11 +1,7 @@
-//const store = require('../dist/entrystore.node');
-
-//const Cache = store.Cache;
-
 import Cache from './Cache';
 
 
-const e1 = {
+const cachedentry = {
   getURI() {
     return 'http://example.com/1/entry/1';
   },
@@ -22,14 +18,14 @@ test('Initialize cache',  () => {
 
 test('Check cached entry',  () => {
     const cache = new Cache();
-    cache.cache(e1);
-    expect(cache.get(e1.getURI())).toBe(e1); // If fail: Failed to retrieve cached entry.');
+    cache.cache(cachedentry);
+    expect(cache.get(cachedentry.getURI())).toBe(cachedentry); // If fail: Failed to retrieve cached entry.');
 });
 
 test('Invalidate cache', () => {
     expect.assertions(1);
     const cache = new Cache();
-    cache.cache(e1);
+    cache.cache(cachedentry);
     cache.addCacheUpdateListener((event) => {
         expect(event).toBe('allEntriesNeedRefresh');
     });
