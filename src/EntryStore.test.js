@@ -19,7 +19,7 @@ async function logInlogOut() {
   await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
 }
 
-describe('A signed out user', () => {
+describe('A signed out (admin) user', () => {
 
   beforeEach(() => {
     return logOut();
@@ -44,7 +44,7 @@ describe('A signed out user', () => {
 
 
 
-describe('A signed in user', () => {
+describe('A signed in admin (user)', () => {
 
 
   beforeEach(() => {

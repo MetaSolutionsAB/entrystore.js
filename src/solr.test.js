@@ -102,7 +102,7 @@ test('Find two users by utilizing forEach functionality', async () => {
   expect(callbackCount).toBe(totalCount); // If fail: 'Total count does not agree with amount of callbacks.');
 });
 
-test('SFind two users by utilizing forEach functionality with breaks', async () => {
+test('Find two users by utilizing forEach functionality with breaks', async () => {
   const totalCount = await es.newSolrQuery().graphType(types.GT_USER).limit(2).list()
     .forEach((userEntry, index) => {
       expect(index).toBeLessThan(3); // If fail: 'Callbacks continues after attempt to break.');
@@ -112,10 +112,6 @@ test('SFind two users by utilizing forEach functionality with breaks', async () 
 });
 
 test('Fetch entry by graph type', async () => {
-  expect.assertions(0);
-  try {
-    const testt = await esu.getEntryByGraphType(types.GT_USER);
-  } catch (err) {
-    expect(false).toBeTruthy(); // Should be able to find at least one user.
-  }
+  const entry = await esu.getEntryByGraphType(types.GT_USER);
+  expect(entry).not.toBeUndefined();
 });
