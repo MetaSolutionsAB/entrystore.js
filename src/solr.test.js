@@ -1,5 +1,6 @@
 import EntryStore from './EntryStore';
 import EntryStoreUtil from './EntryStoreUtil';
+import Entry from './Entry';
 import types from './types';
 import config from '../tests/config';
 
@@ -113,5 +114,5 @@ test('Find two users by utilizing forEach functionality with breaks', async () =
 
 test('Fetch entry by graph type', async () => {
   const entry = await esu.getEntryByGraphType(types.GT_USER);
-  expect(entry).not.toBeUndefined();
+  expect(entry).toBeInstanceOf(Entry);
 });
