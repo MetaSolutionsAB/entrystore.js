@@ -6,6 +6,7 @@
 /coverage/
 /dist/
 out/
+package-lock.json
 .idea
 *~
 *.vim
