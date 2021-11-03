@@ -3,12 +3,20 @@ import EntryStoreUtil from './EntryStoreUtil';
 import Entry from './Entry';
 import types from './types';
 import config from '../tests/config';
+import fixtures from '../tests/fixtures';
 
+const { USERNAME, TITLE } = fixtures;
 const { repository, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 const esu = new EntryStoreUtil(es);
+const dct = 'http://purl.org/dc/terms/';
 let context;
+let userEntry;
 const MAX_AGE = 86400;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function setUp() {
   if (!context) {
@@ -18,6 +26,21 @@ async function setUp() {
     const contextEntry = await es.newContext().commit();
     context = contextEntry.getResource(true);
   }
+
+  // Check for user
+  const entries = await es.newSolrQuery().username(USERNAME).list().getEntries(0);
+  if (entries.length == 0) {
+    try{
+      userEntry = await es.newUser(USERNAME).commit();
+      await userEntry.addL(`${dct}title`, TITLE).commitMetadata();
+    } catch(err){
+      console.log(err);
+    }
+  }  else{
+    userEntry = entries[0]; // User already exists, fetch that user!
+  }
+  await context.newLink('http://example.com/').commit();
+  await sleep(1500); // Sleeping so that commits exists before queries
 };
 
 async function tearDown() {
@@ -25,13 +48,16 @@ async function tearDown() {
     const contextEntry = await context.getEntry();
     await contextEntry.del(true);
 
-    const listEntry = await lst.getEntry();  // getEntry() does not exist in List.js
-    await listEntry.del(true);
+    //const listEntry = await lst.getEntry();  // getEntry() does not exist in List.js
+    //await listEntry.del(true);
 
     const auth = es.getAuth();
     await auth.logout();
+
+    //await userEntry.del(true);
+
   } catch (err) {
-    // console.error(err);
+    console.error(err);
   }
 };
 
@@ -40,14 +66,14 @@ beforeAll(setUp);
 afterAll(tearDown);
 
 test('Search for specific title', async () => {
-  const entries = await es.newSolrQuery().title('Donald').list().getEntries(0);
-  expect(entries.length).toBeGreaterThan(0); // If fail: "No entries found for title 'Donald', despite that we are searching against disney suite.");
+  const entries = await es.newSolrQuery().title(TITLE).list().getEntries(0);
+  expect(entries.length).toBeGreaterThan(0); // If fail: "No entries found for title 'Test user', despite that we are searching against test suite.");
 });
 
 // This test doesn't work using Nodeunit either..
 test('Search for specific user name', async () => {
-  const entries = await es.newSolrQuery().username('donald').list().getEntries(0);
-  expect(entries.length).toBeGreaterThan(0); // If fail:"No entries found for username 'donald', despite that we are searching against disney suite.");
+  const entries = await es.newSolrQuery().username(USERNAME).list().getEntries(0);
+  expect(entries.length).toBeGreaterThan(0); // If fail:"No entries found for username 'Test', despite that we are searching against test suite.");
 });
 
 
@@ -63,10 +89,10 @@ test('Search for a user', async () => {
   expect(entries[0].isUser()).toBeTruthy(); // If fail: 'No users found, or entry found was not a user');
 });
 
-test('Check if there exists at leas one user which has specific user name', async () => {
-  const entries = await es.newSolrQuery().graphType(types.GT_USER).title('Donald').list().getEntries(0);
+test('Check if there exists at least one user which has specific user name', async () => {
+  const entries = await es.newSolrQuery().graphType(types.GT_USER).title(USERNAME).list().getEntries(0);
   expect(entries.length).toBeGreaterThan(0);
-  expect(entries[0].isUser()).toBeTruthy(); // If fail:  'No users found with title "Donald" ' + '(assuming default test data in Entrystore), or entry found was not a user');
+  expect(entries[0].isUser()).toBeTruthy(); // If fail:  'No users found with title "Test user" or entry found was not a user');
 });
 
 test('Search for a context', async () => {
@@ -82,10 +108,10 @@ test('Search for a link', async () => {
 });
 
 test('Search for specific literal property', async () => {
-  const titleEntry = await es.newSolrQuery().literalProperty('dcterms:title', 'Donald').list().getEntries(0);
-  const nameEntry = await es.newSolrQuery().literalProperty('foaf:name', 'Donald').list().getEntries(0);
+  const titleEntry = await es.newSolrQuery().literalProperty('dcterms:title', TITLE).list().getEntries(0);
+  const nameEntry = await es.newSolrQuery().literalProperty('foaf:name', TITLE).list().getEntries(0);
   const entries = [...titleEntry, ...nameEntry];
-  expect(entries.length).toBeGreaterThan(0); // If fail: 'Cannot find title Donald via property search.');
+  expect(entries.length).toBeGreaterThan(0); // If fail: 'Cannot find title 'Test user' via property search.');
 });
 
 test('Find two users by utilizing forEach functionality', async () => {

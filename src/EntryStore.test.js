@@ -35,7 +35,7 @@ describe('A signed out (admin) user', () => {
     expect(entry).not.toBeNull();
   });
 
-  test('Fetch a context', () => {
+  test('Fetch a specific context', () => {
     const c = es.getContextById('1');
     expect(c.getId()).toBe('1');
   });
@@ -45,7 +45,6 @@ describe('A signed out (admin) user', () => {
 
 
 describe('A signed in admin (user)', () => {
-
 
   beforeEach(() => {
     return logInlogOut();
@@ -62,7 +61,6 @@ describe('A signed in admin (user)', () => {
         expect(0).toBeTruthy();
         done(reason);
       });
-
     };
     es.addAsyncListener(asyncListener);
     es.getAuth().logout();
@@ -71,13 +69,11 @@ describe('A signed in admin (user)', () => {
 
 
   test('Fetch context list', async () => {
-    expect.assertions(1);
     const entries = await es.getContextList().getEntries();
     expect(entries.length).toBeGreaterThan(0); // If fail: No contexts found.
   });
 
   test('Fetch principal list', async () => {
-    expect.assertions(1);
     const plist = es.getPrincipalList();
     const entries = await plist.getEntries();
     expect(entries.length).toBeGreaterThan(0); // If fail: No principals found
@@ -85,19 +81,17 @@ describe('A signed in admin (user)', () => {
 
 
   test('Create a new context and check if it exitsts', async () => {
-    expect.assertions(1);
     const entry = await es.newContext().commit();
     expect(entry.isContext()).toBeTruthy(); // If fail: Entry created, but it is not a context
-
   });
 
 
   test('Create a user', async () => {
-    expect.assertions(2);
     const username = `${new Date().getTime()}`;
-    const entry = await es.newUser(username).commit();
-    expect(entry.isUser()).toBeTruthy(); // If fail: Entry created, but it is not a user!
-    expect(entry.getResource(true).getName()).toBe(username); // If fail: User created, but username provided in creation step is missing.
+    const userEntry = await es.newUser(username).commit();
+    expect(userEntry.isUser()).toBeTruthy(); // If fail: Entry created, but it is not a user!
+    expect(userEntry.getResource(true).getName()).toBe(username); // If fail: User created, but username provided in creation step is missing.
+    await userEntry.del(true);
   });
 
 

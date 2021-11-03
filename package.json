@@ -72,6 +72,7 @@
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test-specific": "NODE_OPTIONS='--experimental-vm-modules' jest -t 'EntryStore'",
     "test-nodeunit": "nodeunit ./tests/run.js",
     "eslint": "eslint 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",

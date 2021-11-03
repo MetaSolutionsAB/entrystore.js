@@ -201,7 +201,7 @@ test('Create an entry with cached external metadata', async () => {
   const graph = new Graph();
   graph.add(uri, `${dct}title`, { value: 'Some title', type: 'literal' });
   const entry = await context.newLinkRef(uri, uri).setCachedExternalMetadata(graph).commit();
-  expect(!entry.getCachedExternalMetadata().isEmpty()).toBeTruthy(); // If fail: 'Failed to set cached external metadata in creation step.');
+  expect(entry.getCachedExternalMetadata().isEmpty()).toBeFalsy(); // If fail: 'Failed to set cached external metadata in creation step.');
 });
 
 test('Update an entry with cached external metadata', async () => {
