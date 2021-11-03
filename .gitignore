@@ -1,9 +1,12 @@
-/node_modules
+/node_modules/
+/tests/coverage/
 /tests/config.js
 /samples/config.js
 /jsdoc
-dist/
+/coverage/
+/dist/
 out/
+package-lock.json
 .idea
 *~
 *.vim
