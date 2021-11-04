@@ -10,44 +10,49 @@ const MAX_AGE = 86400;
 * Auxilary functions for setups
 */
 
-async function logOut() {
+async function setUp1() {
   await es.getAuth().logout()
 };
 
-async function logInlogOut() {
+async function setUp2() {
   await es.getAuth().logout();
   await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
 }
 
-describe('A signed out (admin) user', () => {
+describe('Not signed in', () => {
 
   beforeEach(() => {
-    return logOut();
+    return setUp1();
   });
 
   test('Make sure EntryStore is initialized', () => {
     expect(es.getBaseURI()).toBe(repository);
   });
 
-
-  test('Fetching an entry', async () => {
-    const entry = await es.getEntry(`${repository}${contextId}/entry/${entryId}`);
-    expect(entry).not.toBeNull();
-  });
-
   test('Fetch a specific context', () => {
     const c = es.getContextById('1');
     expect(c.getId()).toBe('1');
+  });
+
+  test('Fetching a specific entry', async () => {
+    //const entry = await es.getEntry(`orange`);
+    //'https://a.dev.entryscape.com/store/270/entry/orange',
+    const c = await es.getContextById('1');
+    //console.log(c);
+    const entry = await c.getEntryById('1');
+    //console.log(entry);
+    //const entry = await es.getEntry(`${repository}/${contextId}/entry/${entryId}`);
+    expect(entry).not.toBeNull();
   });
 });
 
 
 
 
-describe('A signed in admin (user)', () => {
+describe('Signed in as admin user', () => {
 
   beforeEach(() => {
-    return logInlogOut();
+    return setUp2();
   });
 
   test('Sign out then checking if listener caught the signout', done => {
@@ -96,9 +101,9 @@ describe('A signed in admin (user)', () => {
 
 
   test('Create a group', async () => {
-    expect.assertions(1);
-    const entry = await es.newGroup().commit();
-    expect(entry.isGroup()).toBeTruthy(); // If fail: Entry created, but it is not a group!
+    const groupEntry = await es.newGroup().commit();
+    expect(groupEntry.isGroup()).toBeTruthy(); // If fail: Entry created, but it is not a group!
+    await groupEntry.del(true);
   });
 
 

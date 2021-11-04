@@ -29,7 +29,6 @@ beforeAll(setUp);
 afterAll(tearDown);
 
 test('Create a pipeline', async () => {
-  expect.assertions(2);
   const protoPipeline = context.newPipeline();
   const pipelineResource = protoPipeline.getResource();
   pipelineResource.addTransform(pipelineResource.transformTypes.TABULAR, { key1: 'value1' });
@@ -42,7 +41,6 @@ test('Create a pipeline', async () => {
 
 
 test('Check pipeline API', () => {
-  expect.assertions(5);
   const pipeline = context.newPipeline().getResource();
   expect(pipeline.getGraph().isEmpty()).toBeTruthy();
   const tr = pipeline.addTransform(pipeline.transformTypes.TABULAR, { key1: 'val1' });
@@ -53,7 +51,6 @@ test('Check pipeline API', () => {
 });
 
 test('Set and update arguments of pipeline', async () => {
-  expect.assertions(4);
   const protoPipeline = context.newPipeline();
   const pipelineResource = protoPipeline.getResource();
   const args = {

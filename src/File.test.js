@@ -41,7 +41,7 @@ test('Create entry with a JSON file', async () => {
   expect(entry.getEntryInfo().getFormat()).toBe('application/json'); // If fail: Mimetype is not application/json as it should.');
   const data = await r.getJSON();
   expect(typeof data).toBe('object');
-  expect(data.a).toBe('v'); // If fail: Json not set correctly.');
+  expect(data.a).toBe('v'); // If fail: JSON not set correctly.');
 });
 
 

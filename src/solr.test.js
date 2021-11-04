@@ -5,7 +5,7 @@ import types from './types';
 import config from '../tests/config';
 import fixtures from '../tests/fixtures';
 
-const { USERNAME, TITLE } = fixtures;
+const { USERNAME, TITLE, PASSWORD } = fixtures;
 const { repository, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 const esu = new EntryStoreUtil(es);
@@ -31,7 +31,7 @@ async function setUp() {
   const entries = await es.newSolrQuery().username(USERNAME).list().getEntries(0);
   if (entries.length == 0) {
     try{
-      userEntry = await es.newUser(USERNAME).commit();
+      userEntry = await es.newUser(USERNAME, PASSWORD).commit();
       await userEntry.addL(`${dct}title`, TITLE).commitMetadata();
     } catch(err){
       console.log(err);

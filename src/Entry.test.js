@@ -74,14 +74,14 @@ test('Create a named entry', async () => {
 });
 
 test('Create an entry with metadata', async () => {
-  const pe = context.newEntry();
-  const uri = pe.getResourceURI();
+  const prototypeEntry = context.newEntry();
+  const uri = prototypeEntry.getResourceURI();
   const graph = new Graph();
   graph.addL(uri, 'dcterms:title', 'Some title');
-  pe.setMetadata(graph);
-  const entry = await pe.commit();
-  const md = entry.getMetadata();
-  expect(md.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe('Some title'); // If fail: 'Failed to create an entry with a title.');
+  prototypeEntry.setMetadata(graph);
+  const entry = await prototypeEntry.commit();
+  let metadata = entry.getMetadata();
+  expect(metadata.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe('Some title'); // If fail: 'Failed to create an entry with a title.');
 });
 
 

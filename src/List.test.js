@@ -30,8 +30,8 @@ async function tearDownList() {
     const contextEntry = await context.getEntry();
     await contextEntry.del(true);
 
-    const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
-    await listEntry.del(true);
+    //const listEntry = await lst.getEntry(); // getEntry() does not exist in List.js
+    // await listEntry.del(true);
 
     const auth = es.getAuth();
     await auth.logout();
