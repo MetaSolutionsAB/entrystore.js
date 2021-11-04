@@ -34,7 +34,7 @@ describe('Not signed in', () => {
     expect(c.getId()).toBe('1');
   });
 
-  test('Fetching a specific entry', async () => {
+  test.skip('Fetching a specific entry', async () => {
     //const entry = await es.getEntry(`orange`);
     //'https://a.dev.entryscape.com/store/270/entry/orange',
     const c = await es.getContextById('1');
