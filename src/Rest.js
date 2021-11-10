@@ -145,11 +145,12 @@ export default class Rest {
    * @param {string} uri - URI to a resource to fetch.
    * @param {string|null} _format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
+   * @param {stream} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
    * @return {Promise} A thenable object
    * @async
    * @throws Error
    */
-  async get(uri, format = null, nonJSONP = false) {
+  async get(uri, format = null, nonJSONP = false, writableStream) {
     let _format = format;
     const locHeaders = Object.assign({}, this.headers);
     locHeaders['X-Requested-With'] = null;
@@ -224,6 +225,19 @@ export default class Rest {
     }
 
     Object.entries(locHeaders).map(keyVal => GETRequest.set(keyVal[0], keyVal[1]));
+
+    if (writableStream) {
+      return new Promise((succ, err) => {
+        GETRequest.pipe(writableStream);
+        GETRequest.on('end', (error) => {
+          if (error) {
+            err(error);
+          } else {
+            succ();
+          }
+        });
+      });
+    }
 
     const response = await GETRequest;
     if (response.statusCode === 200) {
