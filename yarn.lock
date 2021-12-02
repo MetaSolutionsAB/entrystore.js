@@ -991,10 +991,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@entryscape/rdfjson@^2.5.3":
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.5.3.tgz#a40f6cbd8114849bccaa6e712c1b915b41abf31c"
-  integrity sha512-301Yuo74vYE/BvGesZidgY0hTQLQy6vdFfjS8mr1aVZ7jptP8zh/KyAoXC63hBN/6AhF+XAVDDJgWKItaTbpBw==
+"@entryscape/rdfjson@^2.5.4":
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/@entryscape/rdfjson/-/rdfjson-2.5.4.tgz#d7a58b4f9cac02538013e1c6306eb9d431464162"
+  integrity sha512-R2Q2DpVadl88tGUyw+A0mpNPZDOXuzDTlrVcm8mk2dVo8DG72UIDvs7rlkcZx5bcZGbU//XQUdwdehKPPsbwcg==
   dependencies:
     core-js "^3.4.0"
     md5 "^2.2.1"

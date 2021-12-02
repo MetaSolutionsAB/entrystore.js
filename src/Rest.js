@@ -174,7 +174,7 @@ export default class Rest {
           handleAs = 'text';
           break;
         default: // All other situations, including text/plain.
-          handleAs = '';
+          handleAs = 'text';
       }
       locHeaders.Accept = _format;
     }
