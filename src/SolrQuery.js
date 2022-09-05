@@ -431,7 +431,7 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   modifiedRange(from, to, modifier = null) {
-    return this._q('created', toDateRange(from, to), modifier);
+    return this._q('modified', toDateRange(from, to), modifier);
   }
 
   /**
