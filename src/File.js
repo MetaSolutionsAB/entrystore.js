@@ -1,4 +1,4 @@
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import factory from './factory';
 import Resource from './Resource';
 import { isBrowser } from './utils';

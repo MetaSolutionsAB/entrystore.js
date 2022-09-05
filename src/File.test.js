@@ -1,4 +1,4 @@
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import EntryStore from './EntryStore';
 import utils from './utils';
 import config from '../tests/config';
