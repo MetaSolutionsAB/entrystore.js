@@ -18,3 +18,5 @@ entrystore.cors.origins=*
 entrystore.cors.max-age=3600
 
 entrystore.nonadmin.group-context-creation=on
+
+entrystore.auth.adminpw=adminadmin
