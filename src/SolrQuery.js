@@ -189,6 +189,10 @@ export default class SolrQuery {
     return this;
   }
 
+  profile(val, modifier = null) {
+    return this._q('profile', val, modifier);
+  }
+
   /**
    * Matches all titles in all languages, multivalued, cannot be sorted on.
    * Includes dc:title, dcterms:title, skos:prefLabel, skos:altLabel, skos:hiddenLabel,
