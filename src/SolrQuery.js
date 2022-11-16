@@ -189,6 +189,13 @@ export default class SolrQuery {
     return this;
   }
 
+  /**
+   * Matches the profile.
+   *
+   * @param {string|array} val
+   * @param {true|false|string} modifier
+   * @return {SolrQuery}
+   */
   profile(val, modifier = null) {
     return this._q('profile', val, modifier);
   }
