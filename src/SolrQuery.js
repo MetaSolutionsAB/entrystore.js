@@ -68,8 +68,14 @@ const buildQuery = (struct, isAnd) => {
   const terms = [];
   Object.keys(struct).forEach((key) => {
     let val = struct[key];
-    val = Array.isArray(val) ? val.map(v => namespaces.expand(v)) : namespaces.expand(val);
+    const valueIsArray = Array.isArray(val);
+    if (valueIsArray || typeof val === 'string') {
+      val = valueIsArray ? val.map(v => namespaces.expand(v)) : namespaces.expand(val);
+    }
     switch (key) {
+      case 'not':
+        terms.push(`NOT(${buildQuery(val, false)})`);
+        break;
       case 'or':
         terms.push(buildQuery(val, false));
         break;
@@ -187,6 +193,17 @@ export default class SolrQuery {
       this.modifiers.set(key, modifier);
     }
     return this;
+  }
+
+  /**
+   * Matches the profile.
+   *
+   * @param {string|array} val
+   * @param {true|false|string} modifier
+   * @return {SolrQuery}
+   */
+  profile(val, modifier = null) {
+    return this._q('profile', val, modifier);
   }
 
   /**
