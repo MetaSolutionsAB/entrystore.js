@@ -1,4 +1,4 @@
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import factory from './factory';
 import Resource from './Resource';
 import { isBrowser } from './utils';
@@ -117,11 +117,12 @@ export default class FileResource extends Resource {
    * @returns {Promise} which format the resource is returned in the promise (string, json or
    * xml) depends on what is specified in the mimetype. Xml is only returned in a browser
    * environment, if not in a browser a string is returned.
+   * @param writableStream a writable stream, e.g. in nodejs it can be created via fs.createWriteStream('./output');
    */
-  get() {
+  get(writableStream) {
     const format = this.getEntry(true).getEntryInfo().getFormat();
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().get(this.getResourceURI(), format), 'getFile');
+    return es.handleAsync(es.getREST().get(this.getResourceURI(), format, undefined, writableStream), 'getFile');
   }
 
   /**

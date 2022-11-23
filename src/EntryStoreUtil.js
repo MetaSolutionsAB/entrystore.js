@@ -221,10 +221,11 @@ export default class EntryStoreUtil {
    * uris to all entries that should be removed. After that the entries are removed.
    *
    * @param {SearchList} list
-   * @returns {Promise}
+   * @returns {Promise<String[]>} array of uris that where deleted
    */
   async removeAll(list) {
     const uris = [];
+    const deleted = [];
     const es = this._entrystore;
     const cache = es.getCache();
     const rest = es.getREST();
@@ -234,20 +235,22 @@ export default class EntryStoreUtil {
         const uri = uris.pop();
         try {
           await rest.del(uri);
+          deleted.push(uri);
         } catch (err) {
           console.log(`Could not remove entry with uri: ${uri} continuing anyway.`);
         }
-        deleteNext();
+        await deleteNext();
       }
       return undefined;
     };
 
     const result = await list.forEach((entry) => {
       uris.push(entry.getURI());
-      cache.unCache(entry); // @todo @valentino perhaps they are removed from cache too early. Move to deleteNext?
+      cache.unCache(entry);
     });
 
-    deleteNext(result);
+    await deleteNext(result);
+    return deleted;
   }
 
   /**
