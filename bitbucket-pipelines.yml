@@ -26,7 +26,7 @@ stepdefinitions:
       script:
         - if [ $BITBUCKET_BRANCH == "develop" ]; then ESIMGVER="develop" ; else ESIMGVER="latest" ; fi
         - echo $ESIMGVER
-        - export NODE_OPTIONS="--dns-result-order=ipv4first" && echo $NODE_OPTIONS
+        - export NODE_OPTIONS="--dns-result-order=ipv4first --openssl-legacy-provider" && echo $NODE_OPTIONS
         - docker pull metasolutions/entrystore:$ESIMGVER
         - docker run --rm -v $BITBUCKET_CLONE_DIR/tests/entrystore.properties_test:/srv/entrystore/entrystore.properties:ro -p 127.0.0.1:8080:8080 metasolutions/entrystore:$ESIMGVER /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level info &
         - sleep 15
