@@ -8,6 +8,7 @@ const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);
 const ngramMaxLimit = 15;
 const ngramMinLimit = 3;
 const isNgram = key => key.indexOf('title') === 0
+  || key.indexOf('description') === 0
   || key.indexOf('tag.literal') === 0
   || (key.indexOf('metadata.predicate.literal') === 0 &&
     key.indexOf('metadata.predicate.literal_') !== 0)
@@ -17,6 +18,9 @@ const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexO
 
 const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf('metadata.predicate.date') >= 0;
 const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
+
+const isText = key => key.indexOf('metadata.object.literal');
+const textTokenize = str => str.split(/\W+/).filter(token => token.length > 2);
 
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
@@ -36,7 +40,9 @@ const solrFriendly = (key, term, isFacet) => {
     and = andArr[0];
     boost = `^${andArr[1]}`;
   }
-  if (isNgram(key) && isFacet !== true) {
+  if (isText(key) && isFacet !== true) {
+    and = textTokenize(and);
+  } else if (isNgram(key) && isFacet !== true) {
     and = and.split(' ').map(t => (t.length < ngramMaxLimit ? encodeStr(t)
       : encodeStr(t.substr(0, ngramMaxLimit))))
       .map(t => (t.length < ngramMinLimit && !t.endsWith('*') ? `${t}*` : t));
