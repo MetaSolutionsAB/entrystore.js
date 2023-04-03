@@ -14,6 +14,8 @@ stepdefinitions:
         # We allow semantic versioning plus x.y-z (e.g. 4.10-dev which does not exactly conform to semver due to missing patch level)
         - echo $ESJS_VERSION | grep -P -q '^(0|[1-9]\d*)\.(0|[1-9]\d*)(\.*)(0*|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
         - if [ $BITBUCKET_BRANCH == "develop" ] && [[ $ESJS_VERSION != *-dev ]]; then echo "Development version must end with \"-dev\""; exit 1; fi
+        # needed with Node 18+ until we have upgraded to Webpack 5:
+        # - export NODE_OPTIONS="--openssl-legacy-provider" && echo $NODE_OPTIONS
         - yarn
         - yarn build
         - yarn jsdoc && ls -al out
@@ -26,11 +28,13 @@ stepdefinitions:
       script:
         - if [ $BITBUCKET_BRANCH == "develop" ]; then ESIMGVER="develop" ; else ESIMGVER="latest" ; fi
         - echo $ESIMGVER
+        - echo "127.0.0.1 entrystore.local" >> /etc/hosts && cat /etc/hosts
         - docker pull metasolutions/entrystore:$ESIMGVER
         - docker run --rm -v $BITBUCKET_CLONE_DIR/tests/entrystore.properties_test:/srv/entrystore/entrystore.properties:ro -p 127.0.0.1:8080:8080 metasolutions/entrystore:$ESIMGVER /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level info &
         - sleep 15
-        - curl -s http://localhost:8080/auth/user
+        - curl -s http://entrystore.local:8080/auth/user
         - sed 's/\/store//g' tests/config.js_example > tests/config.js && cat tests/config.js
+        - sed -i 's/localhost/entrystore.local/g' tests/config.js && cat tests/config.js
         - yarn test
       services:
         - docker
