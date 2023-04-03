@@ -19,8 +19,9 @@ const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexO
 const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf('metadata.predicate.date') >= 0;
 const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
 
-const isText = key => key.indexOf('metadata.object.literal');
-const textTokenize = str => str.split(/\W+/).filter(token => token.length > 2);
+const isText = key => key.indexOf('metadata.object.literal') >= 0
+  || key.indexOf('metadata.predicate.literal_t') >= 0;
+const textTokenize = str => str.split(/\W+/).filter(token => token.length > 2).map(encodeStr);
 
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.

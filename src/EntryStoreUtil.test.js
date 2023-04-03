@@ -1,6 +1,5 @@
 import EntryStore from './EntryStore';
 import EntryStoreUtil from './EntryStoreUtil';
-import types from './types';
 import config from '../tests/config';
 
 const { repository, adminUser, adminPassword } = config;
@@ -16,10 +15,7 @@ async function logInlogOut() {
 
 
 describe('User with an admin login', () => {
-
-  beforeAll(() => {
-    return logInlogOut();
-  });
+  beforeAll(() => logInlogOut());
 
   test('Load entries from EntryStore', async () => {
     const adminURI = es.getEntryURI('_principals', '_admin');
@@ -42,8 +38,8 @@ describe('User with an admin login', () => {
     if (c.get(usersURI)) {
       c.unCache(c.get(usersURI));
     }
-    esu.getEntryByResourceURI(adminsRURI);
-    const adminsPromise = c.getPromise(adminRURI);
+    esu.getEntryByResourceURI(adminsRURI, '_principals');
+    const adminsPromise = c.getPromise(adminsRURI);
 
     // Make sure the state is correct, i.e. four entries, one will be loaded in advance (admin),
     // one will be in the process of being loaded (admins) and two will remain to be loaded (guest and users).
@@ -75,7 +71,7 @@ describe('User with an admin login', () => {
     expect(c.getPromise(usersRURI)).toBeTruthy();
 
     // The admins entry has a new promise different from the previous request.
-    expect(c.getPromise(adminsRURI)).not.toBe(adminsPromise) // If fail: Got a new promise for request already in progress');
+    expect(c.getPromise(adminsRURI) === adminsPromise).toBeTruthy(); // If fail: Got a new promise for request already in progress');
 
     const usersPromise = c.getPromise(usersRURI);
     const results = await fourInOne;
