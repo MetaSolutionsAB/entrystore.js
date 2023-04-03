@@ -14,8 +14,8 @@
     }
   },
   "dependencies": {
-    "@entryscape/rdfjson": "^2.5.4",
-    "@xmldom/xmldom": "^0.8.2",
+    "@entryscape/rdfjson": "^2.6.0",
+    "@xmldom/xmldom": "^0.8.6",
     "blueimp-md5": "^2.10.0",
     "core-js": "^3.1.4",
     "moment": "^2.22.2",
