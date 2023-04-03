@@ -1,4 +1,4 @@
-entrystore.baseurl.folder=http://localhost:8080/
+entrystore.baseurl.folder=http://entrystore.local:8080/
 entrystore.repository.rewrite-basereference=false
 
 entrystore.data.folder=/tmp/entrystore-test-files/
