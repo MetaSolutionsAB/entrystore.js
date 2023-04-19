@@ -21,7 +21,7 @@ const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
 
 const isText = key => key.indexOf('metadata.object.literal') >= 0
   || key.indexOf('metadata.predicate.literal_t') >= 0;
-const textTokenize = str => str.split(/\W+/).filter(token => token.length > 2).map(encodeStr);
+const textTokenize = str => str.split(/[^_\p{L}\d]/u).filter(token => token.length > 2).map(encodeStr);
 
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
