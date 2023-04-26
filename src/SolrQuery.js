@@ -43,7 +43,7 @@ const solrFriendly = (key, term, isFacet) => {
     boost = `^${andArr[1]}`;
   }
   if (isText(key) && isFacet !== true) {
-    and = str.split(spaceTokenizerRegExp).map(encodeStr);
+    and = and.split(spaceTokenizerRegExp).map(encodeStr);
   } else if (isNgram(key) && isFacet !== true) {
     and = and.split(spaceTokenizerRegExp).map(t => (t.length < ngramMaxLimit ? encodeStr(t)
       : encodeStr(t.substr(0, ngramMaxLimit))))
