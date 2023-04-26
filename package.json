@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "commonjs",
-  "version": "4.11.4",
+  "version": "4.11.5",
   "main": "dist/entrystore.node.js",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
