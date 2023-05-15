@@ -22,7 +22,7 @@ const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
 const isText = key => key.indexOf('metadata.object.literal') >= 0
   || key.indexOf('metadata.predicate.literal_t') >= 0;
 
-const spaceTokenizerRegExp = /(?<!\\)\s/;
+const spaceTokenizerRegExp = /(?:\\\s|[^\s])+/g;
 
 /**
  * Empty spaces in search term should be interpreted as AND instead of the default OR.
@@ -43,22 +43,24 @@ const solrFriendly = (key, term, isFacet) => {
     boost = `^${andArr[1]}`;
   }
   if (isText(key) && isFacet !== true) {
-    and = and.split(spaceTokenizerRegExp).map(encodeStr);
+    and = and.match(spaceTokenizerRegExp).map(encodeStr);
   } else if (isNgram(key) && isFacet !== true) {
-    and = and.split(spaceTokenizerRegExp).map(t => (t.length < ngramMaxLimit ? encodeStr(t)
+    and = and.match(spaceTokenizerRegExp).map(t => (t.length < ngramMaxLimit ? encodeStr(t)
       : encodeStr(t.substr(0, ngramMaxLimit))))
       .map(t => (t.length < ngramMinLimit && !t.endsWith('*') ? `${t}*` : t));
   } else if (isDateKey(key) || isIntegerKey(key)) {
     and = Array.isArray(and) ? and : [and];
     and = and.map(v => v.replace(/\s+/g, '%20'));
   } else if (isExactMatch(key)) {
-    if (and.search(/(?<!\\)\s/) === -1) {
+    const containsNoSpace = and.search(/\s/) === -1;
+    const containsEscapedSpace = and.search(/\\\s/) !== -1;
+    if (containsNoSpace || containsEscapedSpace) {
       and = [encodeStr(and)];
     } else {
       and = [`%22${encodeStr(and)}%22`];
     }
   } else {
-    and = and.split(spaceTokenizerRegExp).map(t => encodeStr(t));
+    and = and.match(spaceTokenizerRegExp).map(t => encodeStr(t));
   }
   return and.length === 1 ? `${and[0]}${boost}` : `(${and.join(`${boost}+AND+`)}${boost})`;
 };
