@@ -39,6 +39,7 @@ export default class Rest {
   constructor() {
     this.timeout = 30000; // 30 seconds
     this.JSONP = true;
+    this.withCredentials = true;
     this.headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json; charset=UTF-8',
@@ -69,10 +70,15 @@ export default class Rest {
           }
         });
 
-        return superagent.post(uri)
+        const POSTRequest = superagent.post(uri)
           .accept(format)
-          .withCredentials()
           .send(stubForm);
+
+        if (this.withCredentials) {
+          POSTRequest.withCredentials();
+        }
+
+        return POSTRequest;
       };
     }
   }
@@ -92,6 +98,20 @@ export default class Rest {
    */
   enableJSONP() {
     this.JSONP = true;
+  }
+
+  /**
+   * Don't allow credentials, i.e. don't send cookies when doing requests.
+   */
+  disableCredentials() {
+    this.withCredentials = false;
+  }
+
+  /**
+   * Allow credentials, i.e. sending cookies, when doing requests.
+   */
+  enableCredentials() {
+    this.withCredentials = true;
   }
 
   /**
@@ -203,8 +223,10 @@ export default class Rest {
     const GETRequest = superagent.get(_uri)
       .timeout({
         response: this.timeout,
-      })
-      .withCredentials();
+      });
+    if (this.withCredentials) {
+      GETRequest.withCredentials();
+    }
 
     if (handleAs === 'xml') {
       GETRequest.parse['text/xml'] = (res, callback) => {
@@ -273,6 +295,10 @@ export default class Rest {
 
     const POSTRequest = superagent.post(uri);
 
+    if (this.withCredentials) {
+      POSTRequest.withCredentials();
+    }
+
     if (data) {
       POSTRequest.send(data)
       // serialize the object into a format that the backend is used to (no JSON strings)
@@ -281,8 +307,7 @@ export default class Rest {
           .join(''));
     }
 
-    POSTRequest.withCredentials()
-      .timeout({ response: this.timeout });
+    POSTRequest.timeout({ response: this.timeout });
 
     Object.entries(locHeaders).map(keyVal => POSTRequest.set(keyVal[0], keyVal[1]));
 
@@ -340,14 +365,17 @@ export default class Rest {
       locHeaders['Content-Type'] = 'application/json'; // @todo perhaps not needed, this is default
     }
 
-    const putRequest = superagent.put(uri)
+    const PUTRequest = superagent.put(uri)
       .send(data)
-      .withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map(keyVal => putRequest.set(keyVal[0], keyVal[1]));
+    if (this.withCredentials) {
+      PUTRequest.withCredentials();
+    }
 
-    return putRequest;
+    Object.entries(locHeaders).map(keyVal => PUTRequest.set(keyVal[0], keyVal[1]));
+
+    return PUTRequest;
   }
 
   /**
@@ -364,13 +392,17 @@ export default class Rest {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
     }
 
-    const deleteRequest = superagent.del(uri)
+    const DELETERequest = superagent.del(uri)
       .withCredentials()
       .timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map(keyVal => deleteRequest.set(keyVal[0], keyVal[1]));
+    if (this.withCredentials) {
+      DELETERequest.withCredentials();
+    }
 
-    return deleteRequest;
+    Object.entries(locHeaders).map(keyVal => DELETERequest.set(keyVal[0], keyVal[1]));
+
+    return DELETERequest;
   }
 
   /**
