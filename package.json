@@ -80,7 +80,7 @@
     "build:browser": "webpack --mode production --config webpack.browser.cjs",
     "build": "webpack --mode production --config webpack.config.cjs",
     "build:dev": "webpack --mode development",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "eslint": "eslint 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",
     "samples": "http-server -o",
