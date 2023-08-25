@@ -1,5 +1,5 @@
-import Resource from './Resource';
-import factory from './factory';
+import Resource from './Resource.js';
+import factory from './factory.js';
 
 /**
  * List is a container for other entries in the same context.

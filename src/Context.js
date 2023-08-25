@@ -1,9 +1,9 @@
-import GraphResource from './Graph';
-import Pipeline from './Pipeline';
-import PrototypeEntry from './PrototypeEntry';
-import Resource from './Resource';
-import StringResource from './String';
-import types from './types';
+import GraphResource from './Graph.js';
+import Pipeline from './Pipeline.js';
+import PrototypeEntry from './PrototypeEntry.js';
+import Resource from './Resource.js';
+import StringResource from './String.js';
+import types from './types.js';
 
 /**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
@@ -16,6 +16,7 @@ export default class Context extends Resource {
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
    */
+  // eslint-disable-next-line no-useless-constructor
   constructor(entryURI, resourceURI, entryStore) {
     super(entryURI, resourceURI, entryStore);
   }

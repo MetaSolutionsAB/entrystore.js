@@ -1,6 +1,6 @@
 import md5 from 'blueimp-md5';
 import { namespaces } from '@entryscape/rdfjson';
-import SearchList from './SearchList';
+import SearchList from './SearchList.js';
 
 const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:')
   .replace(/\(/g, '\\(').replace(/\)/g, '\\)'));

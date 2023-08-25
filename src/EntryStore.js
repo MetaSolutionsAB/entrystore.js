@@ -1,15 +1,13 @@
-import Auth from './Auth';
-import Cache from './Cache';
-import factory from './factory';
-import PrototypeEntry from './PrototypeEntry';
-import Resource from './Resource';
-import Rest from './Rest';
-import SolrQuery from './SolrQuery';
-import types from './types';
-import User from './User';
-import { isBrowser } from './utils';
-
-// const he = require('he'); // TODO @scazan: Remove when echoFile is changed by @Hannes
+import Auth from './Auth.js';
+import Cache from './Cache.js';
+import factory from './factory.js';
+import PrototypeEntry from './PrototypeEntry.js';
+import Resource from './Resource.js';
+import Rest from './Rest.js';
+import SolrQuery from './SolrQuery.js';
+import types from './types.js';
+import User from './User.js';
+import { isBrowser } from './utils.js';
 
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore

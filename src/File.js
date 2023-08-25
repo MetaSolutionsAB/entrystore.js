@@ -1,7 +1,7 @@
 import xmldom from '@xmldom/xmldom';
-import factory from './factory';
-import Resource from './Resource';
-import { isBrowser } from './utils';
+import factory from './factory.js';
+import Resource from './Resource.js';
+import { isBrowser } from './utils.js';
 
 /**
  * File resources are resources located in the Entrystore repository that have a graph type of

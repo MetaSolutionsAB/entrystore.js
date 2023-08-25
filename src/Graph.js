@@ -1,5 +1,5 @@
 import { Graph } from '@entryscape/rdfjson';
-import Resource from './Resource';
+import Resource from './Resource.js';
 
 /**
  * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.

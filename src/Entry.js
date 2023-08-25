@@ -1,9 +1,6 @@
 import { Graph } from '@entryscape/rdfjson';
-import factory from './factory';
-import types from './types';
-
-
-
+import factory from './factory.js';
+import types from './types.js';
 
 /**
  * Entries are at the center of this API. Entries holds together metadata, external metadata,

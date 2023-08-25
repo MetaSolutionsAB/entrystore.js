@@ -38,9 +38,9 @@ Entrystore.js library in our application, i.e.:
 Then, we need to initialize the EntryStore API using a repository URL:
 
     // Specify the repository URL.
-    var es = new EntryStore.EntryStore("http://localhost:8080/store");
+    var es = new ESJS.EntryStore("http://localhost:8080/store");
     // OR, rely on the defaults, it will initialize using the window.location.origin + "/store/".
-    var es = new EntryStore.EntryStore();
+    var es = new ESJS.EntryStore();
 
 Notice that when running in the browser, you cannot currently point to a repository residing on another domain as
 this will not work according to the cross-domain restriction of current browsers. (There are plans to fix this issue using
@@ -83,7 +83,7 @@ Here is the above example in a minimal HTML file.
         <script src="../dist/entrystore.js"></script>
         <script src="./config.js"></script>
         <script>
-          const es = new EntryStore.EntryStore(config.repository);
+          const es = new ESJS.EntryStore(config.repository);
           es.getAuth().login(config.username, config.password, 86400).then(() => {
             const entryURI = es.getEntryURI(config.contextId, config.entryId);
             es.getEntry(entryURI).then((entry) => {

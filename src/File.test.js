@@ -1,7 +1,7 @@
 import xmldom from '@xmldom/xmldom';
-import EntryStore from './EntryStore';
-import utils from './utils';
-import config from '../tests/config';
+import EntryStore from './EntryStore.js';
+import utils from './utils.js';
+import config from '../tests/config.js';
 
 
 const { repository, adminUser, adminPassword } = config;

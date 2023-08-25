@@ -1,16 +1,16 @@
 import { Graph } from '@entryscape/rdfjson';
-import Context from './Context';
-import Entry from './Entry';
-import EntryInfo from './EntryInfo';
-import FileResource from './File';
-import GraphResource from './Graph';
-import Group from './Group';
-import List from './List';
-import Pipeline from './Pipeline';
-import SearchList from './SearchList';
-import StringResource from './String';
-import types from './types';
-import User from './User';
+import Context from './Context.js';
+import Entry from './Entry.js';
+import EntryInfo from './EntryInfo.js';
+import FileResource from './File.js';
+import GraphResource from './Graph.js';
+import Group from './Group.js';
+import List from './List.js';
+import Pipeline from './Pipeline.js';
+import SearchList from './SearchList.js';
+import StringResource from './String.js';
+import types from './types.js';
+import User from './User.js';
 
 /**
  * This module contains utility methods that encapsulates EntryStores REST layer from the rest

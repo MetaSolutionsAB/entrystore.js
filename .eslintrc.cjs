@@ -2,6 +2,7 @@ module.exports = {
   "extends": "airbnb-base",
   "rules": {
     "import/no-amd": "off",
+    "import/extensions": "off",
     // TODO remove this. use requirejs rules instead
     "no-undef": "off",
     //  Maybe this is better : no-underscore-dangle: [2, { "allowAfterThis": true }]

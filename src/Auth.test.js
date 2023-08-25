@@ -1,14 +1,12 @@
-import EntryStore from './EntryStore';
-import config from '../tests/config';
+import EntryStore from './EntryStore.js';
+import config from '../tests/config.js';
 
 const { repository, nonAdminUser, nonAdminPassword } = config;
 const es = new EntryStore(repository);
 const auth = es.getAuth();
 const MAX_AGE = 86400;
 
-
 describe('Signing in and out using cookies', () => {
-
   test('Sign in with cookies', async () => {
     const data = await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
     expect(data.user).toBe(nonAdminUser);
@@ -22,15 +20,14 @@ describe('Signing in and out using cookies', () => {
 });
 
 describe('Authentication using a guest profile', () => {
-
   async function setUp() {
     await auth.logout();
-  };
+  }
 
   beforeEach(setUp);
 
 
-  test('Signing in', done => {
+  test('Signing in', (done) => {
     expect.assertions(2);
     const authCallback = (topic, data) => {
       expect(topic).toBe('login');
@@ -52,14 +49,13 @@ describe('Authentication using a guest profile', () => {
 });
 
 describe('Authentication using a user profile', () => {
-
   async function setUpNonAdmin() {
     await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
-  };
+  }
 
   beforeEach(setUpNonAdmin);
 
-  test('Signing out', done => {
+  test('Signing out', (done) => {
     expect.assertions(2);
     const authCallback = (topic, data) => {
       expect(topic).toBe('logout');

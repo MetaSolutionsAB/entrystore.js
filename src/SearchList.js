@@ -1,7 +1,7 @@
-import EntryStore from './EntryStore';
-import List from './List';
-import factory from './factory';
-import Entry from './Entry';
+import EntryStore from './EntryStore.js';
+import List from './List.js';
+import factory from './factory.js';
+import Entry from './Entry.js';
 
 /**
  * @exports store/SearchList
