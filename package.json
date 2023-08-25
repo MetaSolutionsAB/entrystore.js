@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.12.0",
+  "version": "4.12.1",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -80,7 +80,7 @@
     "build:browser": "webpack --mode production --config webpack.browser.cjs",
     "build": "webpack --mode production --config webpack.config.cjs",
     "build:dev": "webpack --mode development",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "eslint": "eslint 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",
     "samples": "http-server -o",
