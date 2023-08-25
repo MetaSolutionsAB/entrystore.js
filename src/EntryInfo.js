@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Graph } from '@entryscape/rdfjson';
-import factory from './factory';
-import terms from './terms';
+import factory from './factory.js';
+import terms from './terms.js';
 
 /**
  *

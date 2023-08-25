@@ -1,4 +1,4 @@
-import factory from './factory';
+import factory from './factory.js';
 /**
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.

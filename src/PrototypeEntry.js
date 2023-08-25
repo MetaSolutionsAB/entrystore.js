@@ -1,6 +1,6 @@
-import Entry from './Entry';
-import EntryInfo from './EntryInfo';
-import terms from './terms';
+import Entry from './Entry.js';
+import EntryInfo from './EntryInfo.js';
+import terms from './terms.js';
 
 const NEW_ID_PLACEHOLDER = '_newId';
 /**

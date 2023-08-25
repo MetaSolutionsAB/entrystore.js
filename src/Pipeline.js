@@ -1,5 +1,5 @@
-import GraphResource from './Graph';
-import terms from './terms';
+import GraphResource from './Graph.js';
+import terms from './terms.js';
 
 /**
  * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a

@@ -1,4 +1,4 @@
-import Resource from './Resource';
+import Resource from './Resource.js';
 
 /**
  * User instances are resources corresponding to users that can be authenticated to access

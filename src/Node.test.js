@@ -1,6 +1,6 @@
 import fs from 'fs';
-import EntryStore from './EntryStore';
-import config from '../tests/config';
+import EntryStore from './EntryStore.js';
+import config from '../tests/config.js';
 
 const { repository, adminUser, adminPassword } = config;
 let context;

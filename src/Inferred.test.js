@@ -1,6 +1,6 @@
-import EntryStore from './EntryStore';
-import terms from './terms';
-import config from '../tests/config';
+import EntryStore from './EntryStore.js';
+import terms from './terms.js';
+import config from '../tests/config.js';
 
 const es = new EntryStore(config.repository);
 let authAdminReady = false;

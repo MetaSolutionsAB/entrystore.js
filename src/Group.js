@@ -1,5 +1,5 @@
-import List from './List';
-import terms from './terms';
+import List from './List.js';
+import terms from './terms.js';
 
 /**
  * Group is a subclass of the List resource and contains a list of users.

@@ -1,8 +1,8 @@
-import EntryStore from './EntryStore';
-import EntryStoreUtil from './EntryStoreUtil';
-import Entry from './Entry';
-import types from './types';
-import config from '../tests/config';
+import EntryStore from './EntryStore.js';
+import EntryStoreUtil from './EntryStoreUtil.js';
+import Entry from './Entry.js';
+import types from './types.js';
+import config from '../tests/config.js';
 
 const { repository, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);

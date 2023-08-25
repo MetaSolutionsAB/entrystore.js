@@ -1,5 +1,5 @@
-import EntryStore from './EntryStore';
-import config from '../tests/config';
+import EntryStore from './EntryStore.js';
+import config from '../tests/config.js';
 
 const { repository, contextId, entryId, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);

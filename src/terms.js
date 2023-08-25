@@ -1,5 +1,5 @@
 import { namespaces } from '@entryscape/rdfjson';
-import types from './types';
+import types from './types.js';
 
 const inv = (obj) => {
   const iobj = {};
