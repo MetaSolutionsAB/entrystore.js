@@ -2,13 +2,12 @@ const webpack = require('webpack');
 const path = require('path');
 
 module.exports = {
-//  target: 'node',
+  target: 'node',
   mode: 'production',
   entry: './src/index.js',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'entrystore.node.cjs',
-//    library: 'EntryStore',
     libraryTarget: 'commonjs2',
   },
   plugins: [
@@ -41,7 +40,6 @@ module.exports = {
               '@babel/plugin-proposal-object-rest-spread',
               '@babel/plugin-proposal-class-properties',
               '@babel/plugin-syntax-dynamic-import',
-//              ['@babel/plugin-transform-modules-commonjs', { strictMode: false }],
             ],
           },
         }],
