@@ -187,6 +187,7 @@ export default class SolrQuery {
     this._or = new Set();
     this.facetpredicates = {};
     this.relatedFacetpredicates = {};
+    this.facetConfig = {};
   }
 
   /**
@@ -911,6 +912,30 @@ export default class SolrQuery {
   }
 
   /**
+   * The maximum amount of facet results to be report on. Default is 100, values up to 1000 is allowed.
+   * @param {integer} limit maximum number of facet results to return per facet.
+   */
+  facetLimit(limit) {
+    this.facetConfig.facetLimit = limit;
+  }
+
+  /**
+   * The minimum amount of facet results to be included in the response. Default is 1.
+   * @param {integer} limit minumum amount of facet results, facets with fewer results will be omitted in the response.
+   */
+  facetMinCount(limit) {
+    this.facetConfig.facetMinCount = limit;
+  }
+
+  /**
+   * If matches with no match against a facet should be reported as well.
+   * @param {boolean} include true if they should be reported.
+   */
+  facetMissing(include) {
+    this.facetConfig.facetMissing = include;
+  }
+
+  /**
    * Tell the query construction to make the fields added via the property methods
    * (uriProperty, literalProperty and integerProperty) to be disjunctive rather than
    * conjunctive. For example:
@@ -1067,6 +1092,15 @@ export default class SolrQuery {
     }
     if (this.facets) {
       trail += `&facetFields=${this.facets.join(',')}`;
+    }
+    if (this.facetConfig.facetLimit !== undefined) {
+      trail += `&facetLimit=${this.facetConfig.facetLimit}`;
+    }
+    if (this.facetConfig.facetMinCount !== undefined) {
+      trail += `&facetMinCount=${this.facetConfig.facetMinCount}`;
+    }
+    if (this.facetConfig.facetMissing === true) {
+      trail += `&facetMissing=true`;
     }
     return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(this._disjunctive ? '+OR' : '+AND+')}${trail}`;
   }
