@@ -1123,5 +1123,15 @@ export default class SolrQuery {
     return this.list().forEach(func);
   }
 
-
+  /**
+   * Executes the query with limit 0 and returns the number of matches for the current query.
+   *
+   * @returns {Promise<number>}
+   */
+  async size() {
+    this.limit(0);
+    const list = this.list();
+    await list.getEntries();
+    return list.getSize();
+  }
 }
