@@ -188,8 +188,11 @@ export default class User extends Resource {
     const es = this.getEntryStore();
     const entry = await this.getEntry();
     const oldCustomProperties = this._data.customProperties;
-    this._data.customProperties = customProperties;
-    const promise = this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ customProperties }));
+    // Make a copy of the custom properties to make sure we only send strings as values.
+    const cp = {};
+    Object.keys(customProperties).forEach(key => (cp[key] = `${customProperties[key]}`));
+    this._data.customProperties = cp;
+    const promise = this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ customProperties: cp }));
     es.handleAsync(promise, 'setUserCustomProperties');
     try {
       const response = await promise;
