@@ -311,14 +311,6 @@ export default class Entry {
   }
 
   /**
-   * a list of comments (i.e. their URIs) of this entry.
-   * @returns {string[]}
-   */
-  getComments() {
-    return this.getReferrers('http://ontologi.es/like#regarding');
-  }
-
-  /**
    * Is the resource of this entry of the GraphType list?
    * @returns {boolean}
    */
