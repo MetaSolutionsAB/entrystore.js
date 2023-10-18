@@ -528,57 +528,6 @@ export default class EntryStore {
   }
 
   /**
-   * Pushes a file to the server and gets the result back immediately.
-   * Since browser environments cannot access the local filesystem, the only way to get the
-   * contents of a file is to "upload" it and get the contents back from the server.
-   * EntryStore provides the "echo" resource to provide this workaround.
-   *
-   * In a browser environment a file is represented via an input element which references
-   * the file to be uploaded via its value attribute. E.g.:
-   *
-   *       <input type="file" name="uploadFile"/>
-   *
-   * During the uploading process the input tag will be moved temporarily in the DOM tree,
-   * it will be restored to its original position afterwards (both upon success and failure).
-   *
-   * @param {node} data - input element corresponding to the file to upload (echo).
-   * @returns {Promise}
-   * @deprecated files can be read in browsers so no need for echoFile
-   */
-  echoFile(data) {
-    // noinspection AmdModulesDependencies
-    if (!(data instanceof Node)) {
-      throw new Error('Argument needs to be an input element.');
-    }
-    if (data.name == null || data.name === '') {
-      throw new Error('Failure, cannot upload resource from input element unless a name' +
-        ' attribute is provided.');
-    }
-
-    // TODO EntryStore should return the actual response without HTML wrapping
-    return this.handleAsync(this.getREST().putFile(`${this.getBaseURI()}echo`, data, 'text')
-      .then((rawData) => {
-        const response = rawData.text;
-        if (response) {
-          const idx = response.indexOf('\n'); // this checks if
-          const status = parseInt(response.substr(0, idx).split(':')[1], 10);
-          if (status !== 200) {
-            const err = new Error(`HTTP status code: ${status}`);
-            err.status = status;
-            throw err;
-          }
-
-          const textAreaValue = response.substr(idx + 1).replace('</textarea>', ''); // TODO remove when EntryStore is fixed
-
-          return decodeURIComponent(textAreaValue);
-          // return he.decode(textAreaValue);
-        }
-
-        return response; // empty
-      }), 'echoFile');
-  }
-
-  /**
    * Performing searches against an EntryStore repository is achieved by creating a
    * {@link SearchList} which is similar to a regular {@link List}.
    * From this list it is possible to get paginated results in form of matching entries.
