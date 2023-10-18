@@ -1115,6 +1115,16 @@ export default class SolrQuery {
   }
 
   /**
+   * Finds a single entry for the current query (sets the limit to 1).
+   * @returns {Promise<Entry>}
+   */
+  async getEntry() {
+    this.limit(1);
+    const entries = await this.getEntries(0);
+    return entries[0];
+  }
+
+  /**
    * @param func
    * @return {promise}
    * @see {List.forEach}
