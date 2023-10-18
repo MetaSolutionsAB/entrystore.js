@@ -50,6 +50,7 @@ export default class FileResource extends Resource {
     es.handleAsync(promise, 'putFile');
     const response = await promise;
     entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+    entry.setRefreshNeeded();
     return response;
   }
 
@@ -67,6 +68,7 @@ export default class FileResource extends Resource {
     es.handleAsync(promise, 'putFile');
     const response = await promise;
     entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+    entry.setRefreshNeeded();
     return response;
   }
 
