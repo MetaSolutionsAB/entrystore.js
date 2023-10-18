@@ -84,13 +84,18 @@ export default class User extends Resource {
   /**
    * Set a new password for the user.
    *
-   * @param {string} password - a new password, should be at least 8 characters long.
+   * @param {string} newPassword - a new password, should be at least 8 characters long.
+   * @param {string|undefined} currentPassword - the current password, may be required depending on EntryStore configuration.
    * @returns {Promise}
    */
-  async setPassword(password) {
+  async setPassword(newPassword, currentPassword) {
     const es = this.getEntryStore();
     const entry = await this.getEntry();
-    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ password: newPassword }));
+    const obj = { password: newPassword };
+    if (currentPassword) {
+      obj.currentPassword = currentPassword;
+    }
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify(obj));
     es.handleAsync(promise, 'setUserPassword');
     const response = await promise;
     entry.getEntryInfo().setModificationDate(response.header['last-modified']);
