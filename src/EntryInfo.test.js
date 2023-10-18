@@ -59,7 +59,7 @@ describe('User with admin login', () => {
       },
     }));
     await entry.commitMetadata();
-    expect(ei.getModificationDate() > mo).toBeTruthy();
+    expect(ei.getModificationDate() >= mo).toBeTruthy();
   });
 
   test('Check user info of entry', async () => {

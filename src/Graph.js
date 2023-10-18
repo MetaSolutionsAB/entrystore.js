@@ -45,13 +45,21 @@ export default class GraphResource extends Resource {
   /**
    * Pushes the current graph back to repository.
    *
-   * @todo fix ifModifiedSince.
-   * @param {rdfjson/Graph} graph
-   * @returns {Promise}
+   * @param {boolean} ignoreIfUnmodifiedSinceCheck no if-unmodified header is sent if true, default is false.
+   * @returns {Promise<GraphResource>}
    */
-  commit() {
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      JSON.stringify(this._graph.exportRDFJSON())), 'commitGraph');
+  async commit(ignoreIfUnmodifiedSinceCheck = false) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
+    const entryInfo = entry.getEntryInfo();
+
+    const promise = es.getREST().put(this._resourceURI,
+      JSON.stringify(this._graph.exportRDFJSON()),
+      ignoreIfUnmodifiedSinceCheck ? undefined : entryInfo.getModificationDate());
+    es.handleAsync(promise, 'commitGraph');
+    const response = await promise;
+    entryInfo.setModificationDate(response.header['last-modified']);
+    return this;
   }
 
   /**

@@ -78,7 +78,6 @@ test('Remove member from list', async () => {
   expect(entries.indexOf(entry)).toBeGreaterThanOrEqual(0); // If fail: 'Entry not contained in list, list not refreshed.');
   await listResource.removeEntry(entry);
 
-  expect(entry.needRefresh()).toBeTruthy(); // If fail: 'Entry is removed from a list and should be in need of a refresh!');
   const entries2 = await listResource.getEntries();
   expect(entries2.indexOf(entry)).toBe(-1); // If fail: 'Entry not removed from list, either list not refreshed or entry not removed from list.');
 });

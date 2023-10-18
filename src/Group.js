@@ -30,23 +30,28 @@ export default class Group extends List {
    * Set a new name of the group, it will not succeed if it is already in use, for instance by
    * another user or group.
    * @param {string} name
-   * @returns {Promise}
+   * @returns {Promise<Group>}
    */
-  setName(name) {
+  async setName(name) {
+    const es = this._entry.getEntryStore();
+    const entry = await this.getEntry();
+    const entryInfo = entry.getEntryInfo();
+
     const oldName = this._name;
     this._name = name;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(
-      `${this.getEntryURI()}/name`, JSON.stringify({ name }))
-      .then((data) => {
-        const entry = this.getEntry(true);
-        if (entry) {
-          entry.getEntryInfo()._name = data;
-        }
-        return data;
-      }, (e) => {
-        this._name = oldName;
-        throw e;
-      }), 'setGroupName');
+    entryInfo._name = name;
+    try {
+      const promise = es.getREST().put(
+        `${this.getEntryURI()}/name`, JSON.stringify({ name }));
+      es.handleAsync(promise, 'setGroupName');
+      const response = await promise;
+      entryInfo.setModificationDate(response.header['last-modified']);
+    } catch(e) {
+      this._name = oldName;
+      entryInfo._name = oldName;
+      throw e;
+    }
+    return this;
   }
 
   /**
@@ -76,10 +81,11 @@ export default class Group extends List {
    * a hold of the entryinformation and call commit.
    * @returns {Promise.<EntryInfo>|undefined}
    */
-  setHomeContext(contextId, doNotPushToRepository) {
+  async setHomeContext(contextId, doNotPushToRepository) {
+    const entry = await this.getEntry();
     const es = this.getEntryStore();
     const newContextURI = es.getResourceURI('_contexts', contextId);
-    const entry = this.getEntry(true);
+
     const graph = entry.getEntryInfo().getGraph();
     graph.findAndRemove(entry.getResourceURI(), terms.homeContext);
     graph.add(entry.getResourceURI(), terms.homeContext, { type: 'uri', value: newContextURI });

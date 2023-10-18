@@ -443,7 +443,7 @@ export default class Rest {
 
           upload.end((err2, res) => {
             if (err2) return reject(err2);
-            return resolve(res.body);
+            return resolve(res);
           });
         });
       });

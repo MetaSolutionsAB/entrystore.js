@@ -148,7 +148,6 @@ export default class List extends Resource {
     const entries = await this.getAllEntryIds();
     entries.push(entry.getId());
     await this.setAllEntryIds(entries, 'addToList');
-    entry.setRefreshNeeded();
     return this.getEntry();
   }
 
@@ -165,7 +164,7 @@ export default class List extends Resource {
     const entries = await this.getAllEntryIds();
     entries.splice(entries.indexOf(entry.getId()), 1);
     await this.setAllEntryIds(entries, 'removeFromList');
-    entry.setRefreshNeeded();
+    return this.getEntry();
   }
 
   /**
@@ -198,16 +197,15 @@ export default class List extends Resource {
    * @param {string} callType
    * @returns {Promise.<Entry>}
    */
-  setAllEntryIds(entries, callType) {
-    return this._entryStore.handleAsync(
-      this._entryStore.getREST().put(this._resourceURI, JSON.stringify(entries))
-        .then(() => {
-          this.needRefresh();
-          return this._entryStore.getEntry(this.getEntryURI()).then((oentry) => {
-            oentry.setRefreshNeeded();
-            return oentry;
-          });
-        }), callType || 'setList');
+  async setAllEntryIds(entries, callType) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
+    const entryInfo = entry.getEntryInfo();
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify(entries));
+    es.handleAsync(promise, callType || 'setList');
+    const response = await promise;
+    entryInfo.setModificationDate(response.header['last-modified']);
+    return entry;
   }
 
   /**

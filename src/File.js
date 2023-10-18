@@ -32,7 +32,7 @@ export default class FileResource extends Resource {
    * @todo fix-if-modified-since
    * @returns {Promise}
    */
-  putFile(data, format) {
+  async putFile(data, format) {
     let url;
     // noinspection AmdModulesDependencies
     if (isBrowser() && data instanceof Node) {
@@ -45,10 +45,13 @@ export default class FileResource extends Resource {
       url = this.getResourceURI();
     }
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().putFile(url, data, format).then((res) => {
-      this.getEntry(true).setRefreshNeeded();
-      return res;
-    }), 'putFile');
+    const entry = await this.getEntry();
+    const promise = es.getREST().putFile(url, data, format);
+    es.handleAsync(promise, 'putFile');
+    const response = await promise;
+    entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+    entry.setRefreshNeeded();
+    return response;
   }
 
   /**
@@ -58,9 +61,15 @@ export default class FileResource extends Resource {
    * @param {string} format - the format of the data as a mimetype.
    * @returns {Promise}
    */
-  put(data, format = 'application/json') {
+  async put(data, format = 'application/json') {
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().put(this.getResourceURI(), data, null, format), 'putFile');
+    const entry = await this.getEntry();
+    const promise = es.getREST().put(this.getResourceURI(), data, null, format);
+    es.handleAsync(promise, 'putFile');
+    const response = await promise;
+    entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+    entry.setRefreshNeeded();
+    return response;
   }
 
   /**

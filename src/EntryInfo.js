@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Graph } from '@entryscape/rdfjson';
+import {Graph, namespaces} from '@entryscape/rdfjson';
 import factory from './factory.js';
 import terms from './terms.js';
 
@@ -67,28 +67,15 @@ export default class EntryInfo {
    * if information is stale, also it will not automatically refresh with the latest date
    * @returns {Promise.<EntryInfo>}
    */
-  commit(ignoreIfUnmodifiedSinceCheck = false) {
+  async commit(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this._entry.getEntryStore();
-    let mod;
-    if (ignoreIfUnmodifiedSinceCheck === true) {
-      mod = this.getModificationDate();
-    }
-    const p = es.getREST().put(this.getEntryURI(),
-      JSON.stringify(this._graph.exportRDFJSON()), mod)
-      .then(() => {
-        if (ignoreIfUnmodifiedSinceCheck !== true) {
-          this._entry.setRefreshNeeded(true);
-          return this._entry.refresh().then(() => this, () => {
-            // Failed refreshing, but succeeded at saving metadata,
-            // at least send out message that it needs to be refreshed.
-            es.getCache().message('refreshed', this);
-            return this;
-          });
-        }
-        return this;
-      });
-
-    return es.handleAsync(p, 'commitEntryInfo');
+    const promise = es.getREST().put(this.getEntryURI(),
+      JSON.stringify(this._graph.exportRDFJSON()),
+      ignoreIfUnmodifiedSinceCheck ? undefined : this.getModificationDate());
+    es.handleAsync(promise, 'commitEntryInfo');
+    const response = await promise;
+    this.setModificationDate(response.header['last-modified']);
+    return this;
   }
 
   /**
@@ -447,6 +434,28 @@ export default class EntryInfo {
       return moment(d).toDate();
     }
     return this.getCreationDate();
+  }
+
+  /**
+   * A method to be used internally / within the library after modifying operations return successfull with a new modified date.
+   * @param {string} date
+   * @protected
+   */
+  setModificationDate(date) {
+    const d = new Date(date);
+    // Add a second since the date provided (from http header 'last-modified') does not contain milliseconds.
+    d.setSeconds(d.getSeconds()+1);
+    const stmts = this._graph.find(this.getEntryURI(), 'http://purl.org/dc/terms/modified');
+    const newModificationDate = moment(d).toISOString();
+    if (stmts.length > 0) {
+      stmts[0].setValue(newModificationDate, true);
+    } else {
+      this._graph.create(this.getEntryURI(), 'http://purl.org/dc/terms/modified', {
+        type: 'literal',
+        value: newModificationDate,
+        datatype: namespaces.expand('xsd:dateTime')
+      }, true, true);
+    }
   }
 
   /**

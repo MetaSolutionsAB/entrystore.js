@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.12.1",
+  "version": "4.13.0",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -14,7 +14,7 @@
     }
   },
   "dependencies": {
-    "@entryscape/rdfjson": "2.7.2",
+    "@entryscape/rdfjson": "2.7.4",
     "@xmldom/xmldom": "^0.8.6",
     "blueimp-md5": "^2.10.0",
     "core-js": "^3.1.4",
