@@ -44,8 +44,14 @@ export default class StringResource extends Resource {
    * @returns {Promise}
    * @see String#setString
    */
-  commit() {
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, this._data), 'commitString');
+  async commit() {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
+    const promise = es.getREST().put(this._resourceURI, this._data);
+    es.handleAsync(promise, 'commitString');
+    const response = await promise;
+    entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+    return response;
   }
 
   getSource() {

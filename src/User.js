@@ -33,20 +33,22 @@ export default class User extends Resource {
    * @param {string} name
    * @returns {Promise}
    */
-  setName(name) {
+  async setName(name) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
     const oldName = this._data.name;
     this._data.name = name;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ name }))
-      .then((data) => {
-        const entry = this.getEntry(true);
-        if (entry) {
-          entry.getEntryInfo()._name = name;
-        }
-        return data;
-      }, (e) => {
-        this._data.name = oldName;
-        throw e;
-      }), 'setUserName');
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ name }));
+    es.handleAsync(promise, 'setUserName');
+    try {
+      const response = await promise;
+      entry.getEntryInfo()._name = name;
+      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      return response;
+    } catch (err) {
+      this._data.name = oldName;
+      throw e;
+    }
   }
 
   /**
@@ -62,14 +64,21 @@ export default class User extends Resource {
    * @param {string} language
    * @returns {Promise}
    */
-  setLanguage(language) {
+  async setLanguage(language) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
     const oldLang = this._data.language;
     this._data.language = language;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ language }))
-      .then(data => data, (e) => {
-        this._data.language = oldLang;
-        throw e;
-      }), 'setUserLanguage');
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ language }));
+    es.handleAsync(promise, 'setUserLanguage');
+    try {
+      const response = await promise;
+      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      return response;
+    } catch (err) {
+      this._data.language = oldLang;
+      throw e;
+    }
   }
 
   /**
@@ -78,9 +87,14 @@ export default class User extends Resource {
    * @param {string} password - a new password, should be at least 8 characters long.
    * @returns {Promise}
    */
-  setPassword(password) {
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      JSON.stringify({ password })), 'setUserPassword');
+  async setPassword(password) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ password: newPassword }));
+    es.handleAsync(promise, 'setUserPassword');
+    const response = await promise;
+    entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+    return response;
   }
 
   /**
@@ -97,24 +111,25 @@ export default class User extends Resource {
    * @param {boolean} disabled
    * @returns {Promise}
    */
-  setDisabled(disabled) {
+  async setDisabled(disabled) {
     if (disabled === this.isDisabled()) {
-      return Promise.resolve(true);
+      return true;
     }
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
     const oldDisabled = this._data.disabled === true;
     this._data.disabled = disabled;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      JSON.stringify({ disabled }))
-      .then((data) => {
-        const entry = this.getEntry(true);
-        if (entry) {
-          entry.getEntryInfo()._disabled = disabled;
-        }
-        return data;
-      }, (e) => {
-        this._data.disabled = oldDisabled;
-        throw e;
-      }), 'setUserDisabled');
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ disabled }))
+    es.handleAsync(promise, 'setUserDisabled');
+    try {
+      const response = await promise;
+      entry.getEntryInfo()._disabled = disabled;
+      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      return response;
+    } catch (err) {
+      this._data.disabled = oldDisabled;
+      throw e;
+    }
   }
 
   /**
@@ -132,15 +147,21 @@ export default class User extends Resource {
    * @param {string} contextId - a context id (not the full resource URI).
    * @returns {Promise}
    */
-  setHomeContext(contextId) {
+  async setHomeContext(contextId) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
     const oldHomeContext = this._data.homecontext;
     this._data.homecontext = contextId;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      JSON.stringify({ homecontext: contextId }))
-      .then(data => data, (e) => {
-        this._data.homecontext = oldHomeContext;
-        throw e;
-      }), 'setUserHomeContext');
+    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ homecontext: contextId }));
+    es.handleAsync(promise, 'setUserHomeContext');
+    try {
+      const response = await promise;
+      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      return response;
+    } catch (err) {
+      this._data.homecontext = oldHomeContext;
+      throw e;
+    }
   }
 
   /**
@@ -158,15 +179,21 @@ export default class User extends Resource {
    * @param {object} customProperties
    * @returns {Promise}
    */
-  setCustomProperties(customProperties) {
+  async setCustomProperties(customProperties) {
+    const es = this.getEntryStore();
+    const entry = await this.getEntry();
     const oldCustomProperties = this._data.customProperties;
     this._data.customProperties = customProperties;
-    return this._entryStore.handleAsync(this._entryStore.getREST().put(this._resourceURI,
-      JSON.stringify({ customProperties }))
-      .then(data => data, (e) => {
-        this._data.customProperties = oldCustomProperties;
-        throw e;
-      }), 'setUserCustomProperties');
+    const promise = this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ customProperties }));
+    es.handleAsync(promise, 'setUserCustomProperties');
+    try {
+      const response = await promise;
+      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      return response;
+    } catch (err) {
+      this._data.customProperties = oldCustomProperties;
+      throw e;
+    }
   }
 
   /**

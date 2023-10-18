@@ -127,23 +127,11 @@ export default class Entry {
     } else if (this._metadata == null) {
       return Promise.reject(`The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`);
     } else {
-      if (ignoreIfUnmodifiedSinceCheck) {
-        const promise = await es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()));
-        es.handleAsync(promise, 'commitMetadata');
-      } else {
-        const mod = this.getEntryInfo().getModificationDate();
-        const promise = es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()), mod);
-        es.handleAsync(promise, 'commitMetadata');
-        try {
-          await promise;
-          this.setRefreshNeeded(true);
-          await this.refresh();
-        } catch (err) {
-          // Failed refreshing, but succeeded at saving metadata,
-          // at least send out message that it needs to be refreshed.
-          this.getEntryStore().getCache().messageListeners('refreshed', this);
-        }
-      }
+      const promise = es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()),
+        ignoreIfUnmodifiedSinceCheck ? undefined : this.getEntryInfo().getModificationDate());
+      es.handleAsync(promise, 'commitMetadata');
+      const response = await promise;
+      this.getEntryInfo().setModificationDate(response.header['last-modified']);
     }
 
     return Promise.resolve(this);
@@ -234,22 +222,15 @@ export default class Entry {
    *
    * @return {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
-  commitCachedExternalMetadata() {
+  async commitCachedExternalMetadata(ignoreIfUnmodifiedSinceCheck) {
     const es = this.getEntryStore();
-    const mod = this.getEntryInfo().getModificationDate();
     const promise = es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
-      JSON.stringify(this._cachedExternalMetadata.exportRDFJSON()), mod)
-      .then(() => {
-        this.setRefreshNeeded(true);
-        return this.refresh().then(() => this, () => {
-          // Failed refreshing, but succeeded at saving metadata,
-          // at least send out message that it needs to be refreshed.
-          this.getEntryStore().getCache().message('refreshed', this);
-          return this;
-        });
-      });
-
-    return es.handleAsync(promise, 'commitCachedExternalMetadata');
+      JSON.stringify(this._cachedExternalMetadata.exportRDFJSON()),
+      ignoreIfUnmodifiedSinceCheck ? undefined : this.getEntryInfo().getModificationDate());
+    es.handleAsync(promise, 'commitCachedExternalMetadata');
+    const response = await promise;
+    this.getEntryInfo().setModificationDate(response.header['last-modified']);
+    return Promise.resolve(this);
   }
 
   /**
