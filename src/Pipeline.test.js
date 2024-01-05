@@ -1,36 +1,10 @@
-import EntryStore from './EntryStore.js';
-import config from '../tests/config.js';
+import init from '../tests/init.js';
 
-const { repository, adminUser, adminPassword } = config;
-const es = new EntryStore(repository);
-let context;
-const MAX_AGE = 86400;
-
-async function setUp() {
-  if (!context) {
-    const auth = es.getAuth();
-    await auth.logout();
-    await auth.login(adminUser, adminPassword, MAX_AGE);
-    const contextEntry = await es.newContext().commit();
-    context = contextEntry.getResource(true);
-  }
-};
-
-async function tearDown() {
-  const contextEntry = await context.getEntry();
-  await contextEntry.del(true);
-
-  const auth = es.getAuth();
-  await auth.logout();
-};
-
-
-beforeAll(setUp);
-afterAll(tearDown);
+const { context, list } = init(true);
 
 test('Create a pipeline', async () => {
   expect.assertions(2);
-  const protoPipeline = context.newPipeline();
+  const protoPipeline = context().newPipeline();
   const pipelineResource = protoPipeline.getResource();
   pipelineResource.addTransform(pipelineResource.transformTypes.TABULAR, { key1: 'value1' });
   const entry = await protoPipeline.commit();
@@ -43,7 +17,7 @@ test('Create a pipeline', async () => {
 
 test('Check pipeline API', () => {
   expect.assertions(5);
-  const pipeline = context.newPipeline().getResource();
+  const pipeline = context().newPipeline().getResource();
   expect(pipeline.getGraph().isEmpty()).toBeTruthy();
   const tr = pipeline.addTransform(pipeline.transformTypes.TABULAR, { key1: 'val1' });
   expect(pipeline.getGraph().isEmpty()).not.toBeTruthy(); // If fail: 'Error, transform not created in graph.');
@@ -54,7 +28,7 @@ test('Check pipeline API', () => {
 
 test('Set and update arguments of pipeline', async () => {
   expect.assertions(4);
-  const protoPipeline = context.newPipeline();
+  const protoPipeline = context().newPipeline();
   const pipelineResource = protoPipeline.getResource();
   const args = {
     validation: 'strict',
