@@ -28,8 +28,11 @@
  * Use the burst approach for webb applications when you know that the pattern for requests are intermittent
  * and you care about responsiveness. Use the naive approach in batch mode when you want to push as many requests
  * through as possible over a longer period of time.
+ *
+ * @exports store/RateLimit
  */
 export default class RateLimit {
+
   /**
    *
    * @param {Object} [options] an options object
@@ -89,11 +92,13 @@ export default class RateLimit {
   }
 
   /**
-   * The history is an array of buckets where requests have been made, buckets without requests
-   * amount
-   * time
-   * limitat
-   * @returns {[]}
+   * The history is an array of buckets where requests have been made,
+   * each past bucket is documented in the history with an object with attributes:
+   * * amount - amount of requests made in the bucket.
+   * * time - time the bucket started.
+   * * limitAt - time when the bucket switched over from burst to rate limitation mode, may not exist.
+   *
+   * @returns {Object[]}
    */
   history() {
     return this._history;
