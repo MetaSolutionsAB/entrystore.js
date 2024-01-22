@@ -161,7 +161,10 @@ export default class SearchList {
   _forceLoadEntries(page = 0) {
     const offset = page * this.getLimit();
     this._query.offset(offset);
-    return this._entryStore.handleAsync(this._entryStore.getREST().get(this._query.getQuery(this._entryStore))
+    // Only prevent cache if we have turned on prevent request caching and are making a public search query.
+    const preventCache = this._entryStore.getRequestCachePrevention() && this._query.params.get('public') === 'true';
+    return this._entryStore.handleAsync(this._entryStore.getREST().get(this._query.getQuery(this._entryStore),
+      undefined, undefined, undefined, preventCache)
       .then((data) => {
         this.setFacets(data.facetFields);
         return factory.extractSearchResults(data, this, this._entryStore);

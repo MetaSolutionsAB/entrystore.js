@@ -3,6 +3,7 @@ import superagent from 'superagent';
 import xmldom from '@xmldom/xmldom';
 import { isBrowser } from './utils.js';
 import jsonp from 'superagent-jsonp';
+import RateLimit from "./RateLimit.js";
 
 /**
  * Check if requests will be to the same domain, i.e. no CORS.
@@ -24,9 +25,10 @@ const sameOrigin = (url) => {
 };
 
 /**
+ * Last 7 digits of milliseconds since 1970 + random number.
  * @return {number}
  */
-const getPreventCacheNumber = () => parseInt((Math.random() * 10000).toString(), 10);
+const getPreventCacheNumber = () => new Date().getTime()%10000000*1000+Math.floor((Math.random() * 1000).toString());
 
 /**
  * This class encapsulates functionality for communicating with the repository via Ajax calls.
@@ -55,7 +57,7 @@ export default class Rest {
        * @param format
        * @return {undefined|*}
        */
-      rest.putFile = (uri, data, format = 'application/json') => {
+      rest._putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
           return undefined;
         }
@@ -81,6 +83,28 @@ export default class Rest {
         return POSTRequest;
       };
     }
+  }
+
+  /**
+   * Set up the rate limitation for read requests.
+   * The only required method of the instance is the 'enqueue' function, see it's signature in the default
+   * RateLimitation class.
+   * @param {Object} rateLimtationInstance
+   * @see RateLimit#enqueue
+   */
+  setRateLimitationForRead(rateLimtationInstance) {
+    this.readRateLimit = rateLimtationInstance;
+  }
+
+  /**
+   * Set up the rate limitation for write requests.
+   * The only required method of the instance is the 'enqueue' function, see it's signature in the default
+   * RateLimitation class.
+   * @param {Object} rateLimtationInstance
+   * @see RateLimit#enqueue
+   */
+  setRateLimitationForWrite(rateLimtationInstance) {
+    this.writeRateLimit = rateLimtationInstance;
   }
 
   /**
@@ -163,14 +187,26 @@ export default class Rest {
    * If a cross-domain call is made and we are in a browser environment a jsonp call is made.
    *
    * @param {string} uri - URI to a resource to fetch.
-   * @param {string|null} _format - the format to request as a mimetype.
+   * @param {string|null} format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
    * @param {stream} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
+   * @param {boolean} preventCache - if true an extra argument is added to the uri with a random number to prevent caching
    * @return {Promise} A thenable object
    * @async
    * @throws Error
    */
-  async get(uri, format = null, nonJSONP = false, writableStream) {
+  async get(uri, format = null, nonJSONP = false, writableStream, preventCache = false) {
+    if (this.readRateLimit) {
+      return this.readRateLimit.enqueue(this._get, this, [uri, format, nonJSONP, writableStream, preventCache]);
+    }
+    return this._get(uri, format, nonJSONP, writableStream, preventCache);
+  }
+
+  /**
+   * @private
+   * @see get
+   */
+  async _get(uri, format, nonJSONP, writableStream, preventCache) {
     let _format = format;
     const locHeaders = Object.assign({}, this.headers);
     locHeaders['X-Requested-With'] = null;
@@ -224,6 +260,9 @@ export default class Rest {
       .timeout({
         response: this.timeout,
       });
+    if (preventCache) {
+      GETRequest.query({ preventCache: getPreventCacheNumber() });
+    }
     if (this.withCredentials) {
       GETRequest.withCredentials();
     }
@@ -236,7 +275,6 @@ export default class Rest {
         if (isBrowser()) {
           return parser.parseFromString(res, 'application/xml');
         }
-        // @todo @valentino check if here it should be an else and callback outside that
 
         // Node handles the return as a callback
         res.text = parser.parseFromString(res.text, 'application/xml');
@@ -285,6 +323,17 @@ export default class Rest {
    * @return {Promise} A thenable object
    */
   post(uri, data, modDate, format) {
+    if (this.writeRateLimit) {
+      return this.writeRateLimit.enqueue(this._post, this, [uri, data, modDate, format]);
+    }
+    return this._post(uri, data, modDate, format);
+  }
+
+  /**
+   * @private
+   * @see post
+   */
+  _post(uri, data, modDate, format) {
     const locHeaders = Object.assign({}, this.headers);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
@@ -333,7 +382,7 @@ export default class Rest {
     if (!location && response.body) {
       const idx = uri.indexOf('?');
       if (idx !== -1) {
-        location = uri.substr(0, uri.indexOf('?'));
+        location = uri.substring(0, uri.indexOf('?'));
       } else {
         location = uri;
       }
@@ -355,6 +404,17 @@ export default class Rest {
    * @return {Promise} A thenable object
    */
   put(uri, data, modDate, format) {
+    if (this.writeRateLimit) {
+      return this.writeRateLimit.enqueue(this._put, this, [uri, data, modDate, format]);
+    }
+    return this._put(uri, data, modDate, format);
+  }
+
+  /**
+   * @private
+   * @see put
+   */
+  _put(uri, data, modDate, format) {
     const locHeaders = Object.assign({}, this.headers);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
@@ -386,6 +446,17 @@ export default class Rest {
    * @return {Promise} A thenable object
    */
   del(uri, modDate) {
+    if (this.writeRateLimit) {
+      return this.writeRateLimit.enqueue(this._del, this, [uri, modDate]);
+    }
+    return this._del(uri, modDate);
+  }
+
+  /**
+   * @private
+   * @see del
+   */
+  _del(uri, modDate) {
     const locHeaders = Object.assign({}, this.headers);
     delete locHeaders['Content-Type'];
     if (modDate) {
@@ -424,6 +495,17 @@ export default class Rest {
    * @return {Promise} A thenable object
    */
   putFile(uri, data, format) {
+    if (this.writeRateLimit) {
+      return this.writeRateLimit.enqueue(this._putFile, this, [uri, data, format]);
+    }
+    return this._putFile(uri, data, format);
+  }
+
+  /**
+   * @private
+   * @see putFile
+   */
+  _putFile(uri, data, format) {
     if (data && data.constructor && data.constructor.pipeline) {
       return new Promise((resolve, reject) => {
         const upload = superagent.put(uri)

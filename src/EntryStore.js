@@ -39,6 +39,7 @@ export default class EntryStore {
     }
     this._contexts = {};
     this._rest = new Rest();
+    this._requestCache = false;
   }
 
   /**
@@ -653,6 +654,24 @@ export default class EntryStore {
     return this._rest;
   }
 
+  /**
+   * Requests to EntryStore instances may be cached to increase performance, by setting the requestCachePrevention to
+   * true that cache is circumvented by appending unique parameters to the URI.
+   * By default the requestCachePrevention is disabled.
+   *
+   * @param {boolean} prevent pass true to enable the prevention.
+   */
+  setRequestCachePrevention(prevent) {
+    this._requestCache = prevent;
+  }
+
+  /**
+   * Weather the cache of requests made to EntryStore instances are circumvented by appending a random parameter.
+   * @return {boolean}
+   */
+  getRequestCachePrevention() {
+    return this._requestCache;
+  }
   //= =============Non-public methods==============
 
   /**

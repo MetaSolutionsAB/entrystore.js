@@ -23,4 +23,5 @@ export { default as String } from './String.js';
 export { default as User } from './User.js';
 export { default as terms } from './terms.js';
 export { default as utils } from './utils.js';
+export { default as RateLimit } from './RateLimit.js';
 export { namespaces } from '@entryscape/rdfjson';
