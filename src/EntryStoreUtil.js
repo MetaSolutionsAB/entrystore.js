@@ -32,6 +32,9 @@ export default class EntryStoreUtil {
     this._entrystore = entrystore;
     this._preloadIdx = new Map();
     this._publicRead = false;
+    this._debounceQueue = [];
+    this._debounceContext;
+    this._debounceAsyncCallType;
   }
 
   /**
@@ -121,7 +124,40 @@ export default class EntryStoreUtil {
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     return this.loadEntriesByResourceURIs([resourceURI], context, false, asyncCallType)
       .then(arr => arr[0]);
-/*    const cache = this._entrystore.getCache();
+  }
+
+  async _joinedDebouncedRequest() {
+    const debounceList = this._debounceQueue;
+    const entriesPromise = this.loadEntriesByResourceURIs(debounceList.map(args => args[0]),
+      this._debounceContext, true, this._debounceAsyncCallType);
+    this._debounceQueue = [];
+    this._debounceContext = undefined;
+    this._debounceAsyncCallType = undefined;
+    const entries = await entriesPromise;
+    for (let i = 0; i < debounceList.length; i++) {
+      if (entries[i]) {
+        debounceList[i][1](entries[i]);
+      } else {
+        debounceList[i][2](`Could not find entry with URI ${debounceList[i][0]}`);
+      }
+    }
+  }
+
+  /**
+   * Retrieves an entry for a resource URI in a similar manner as the method getEntryByResourceURI,
+   * but with the distinction that it delays the request for a few milliseconds to allow collecting
+   * multiple requests together into a single request.
+   *
+   * @param {string} resourceURI is the URI for the resource.
+   * @param {Context=} context only look for entries in this context, may be left out.
+   * @param {string} asyncCallType the callType used when making the search.
+   * @returns {Promise.<Entry>}
+   * @async
+   * @throws Error
+   */
+  async getEntryByResourceURIDebounce(resourceURI, context, asyncCallType) {
+    // Check first if the entry is already in the cache, then return it directly.
+    const cache = this._entrystore.getCache();
     const entriesSet = cache.getByResourceURI(resourceURI);
     if (entriesSet.size > 0) {
       if (context) {
@@ -134,15 +170,21 @@ export default class EntryStoreUtil {
         return Promise.resolve(entriesSet.values().next().value);
       }
     }
-    const query = this._entrystore.newSolrQuery().resource(resourceURI).limit(1);
-    if (context) {
-      query.context(context);
+    // If the request is different in the sense that it requires a different context or asyncCallType
+    // then we have to request entries in the debounce queue first and then add to the queue again with the new context or callType.
+    if (this._debounceQueue.length > 0 && (this._debounceContext !== context || this._debounceAsyncCallType !== asyncCallType)) {
+      clearTimeout(this._debounceTimeout);
+      this._joinedDebouncedRequest();
     }
-    const entryArr = await query.list(asyncCallType).getEntries(0);
-    if (entryArr.length > 0) {
-      return entryArr[0];
-    }
-    throw new Error(`No entries for resource with URI: ${resourceURI}`);*/
+    return new Promise((resolve, reject) => {
+      // Nothing in the debounce queue, start the timeout
+      if (this._debounceQueue.length === 0) {
+        this._debounceTimeout = setTimeout(this._joinedDebouncedRequest.bind(this), 20);
+      }
+      this._debounceQueue.push([resourceURI, resolve, reject]);
+      this._debounceContext = context;
+      this._debounceAsyncCallType = asyncCallType;
+    });
   }
 
   /**
@@ -269,7 +311,7 @@ export default class EntryStoreUtil {
     const cache = es.getCache();
     const id2Entry = {};
     const previouslyLoadingPromises = [];
-    const toLoad = [];
+    const toLoadSet = new Set();
     resourceURIs.forEach((uri) => {
       let entries = Array.from(cache.getByResourceURI(uri).values());
       if (context) {
@@ -288,13 +330,14 @@ export default class EntryStoreUtil {
             }
           }));
         } else {
-          toLoad.push(uri);
+          toLoadSet.add(uri);
         }
       }
     });
 
     const chunked = [];
     const chunkLimit = 20;
+    const toLoad = Array.from(toLoadSet);
     for (let i = 0; i < toLoad.length; i += chunkLimit) {
       chunked.push(toLoad.slice(i, i + chunkLimit));
     }

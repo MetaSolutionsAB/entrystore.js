@@ -82,4 +82,62 @@ describe('User with an admin login', () => {
     const users = await usersPromise;
     expect(users.getURI()).toBe(usersURI); // If fail: One of the entries own promise returned the wrong entry
   });
+
+  test('Load entry in debounce mode', async () => {
+    const adminsURI = es.getEntryURI('_principals', '_admins');
+    const adminsRURI = es.getResourceURI('_principals', '_admins');
+    const c = es.getCache();
+
+    if (c.get(adminsURI)) {
+      c.unCache(c.get(adminsURI));
+    }
+    const adminsPromiseDirect = esu.getEntryByResourceURIDebounce(adminsRURI, '_principals');
+    const adminsPromise = c.getPromise(adminsRURI);
+    expect(adminsPromise).not.toBeTruthy();
+    const admins = await adminsPromiseDirect;
+    expect(admins).toBeTruthy();
+  });
+  test('Load three entries in debounce mode and force a flush in between', async () => {
+    const adminURI = es.getEntryURI('_principals', '_admin');
+    const adminRURI = es.getResourceURI('_principals', '_admin');
+    const adminsURI = es.getEntryURI('_principals', '_admins');
+    const adminsRURI = es.getResourceURI('_principals', '_admins');
+    const guestURI = es.getEntryURI('_principals', '_guest');
+    const guestRURI = es.getResourceURI('_principals', '_guest');
+
+    // Make sure the three entries we are using for testing purposes are NOT in the cache.
+    const c = es.getCache();
+    if (c.get(adminURI)) {
+      c.unCache(c.get(adminURI));
+    }
+    if (c.get(adminsURI)) {
+      c.unCache(c.get(adminsURI));
+    }
+    if (c.get(guestURI)) {
+      c.unCache(c.get(guestURI));
+    }
+
+    // Request first entry, wait a bit, request next entry after some delay
+    const adminPromiseDirect = esu.getEntryByResourceURIDebounce(adminRURI, '_principals');
+    await new Promise(resolve => setTimeout(resolve, 5));
+    esu.getEntryByResourceURIDebounce(adminsRURI, '_principals');
+    // The two entries are not yet in the process of being loaded as they are loaded via debounce.
+    expect(c.getPromise(adminRURI)).not.toBeTruthy();
+    expect(c.getPromise(adminsRURI)).not.toBeTruthy();
+    // Request the third entry with another calltype to force the loading and start a new debounce queue.
+    const guestPromiseDirect = esu.getEntryByResourceURIDebounce(guestRURI, '_principals', 'newCallType');
+    // Two first entries (admin and admins) are now being loaded, last entry not yet (guest)
+    expect(c.getPromise(adminRURI)).toBeTruthy();
+    expect(c.getPromise(adminsRURI)).toBeTruthy();
+    expect(c.getPromise(guestRURI)).not.toBeTruthy();
+    await adminPromiseDirect;
+    // Two first entries are now loaded, last entry may be in process, but should not have arrived yet.
+    expect(c.get(adminURI)).toBeTruthy();
+    expect(c.get(adminsURI)).toBeTruthy();
+    expect(c.get(guestURI)).not.toBeTruthy();
+
+    await guestPromiseDirect;
+    // Last entry should now be loaded as well.
+    expect(c.get(guestURI)).toBeTruthy();
+  });
 });

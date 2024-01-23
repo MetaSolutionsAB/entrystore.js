@@ -1,39 +1,11 @@
 import xmldom from '@xmldom/xmldom';
-import EntryStore from './EntryStore.js';
 import utils from './utils.js';
-import config from '../tests/config.js';
+import init from '../tests/init.js';
 
-
-const { repository, adminUser, adminPassword } = config;
-let context;
-const MAX_AGE = 86400;
-
-
-async function setUp() {
-  if (!context) {
-    const es = new EntryStore(repository);
-    const auth = es.getAuth();
-    await auth.logout();
-    await auth.login(adminUser, adminPassword, MAX_AGE);
-    const contextEntry = await es.newContext().commit();
-    context = contextEntry.getResource(true);
-  }
-};
-
-async function tearDown() {
-  const contextEntry = await context.getEntry();
-  await contextEntry.del(true);
-  const es = new EntryStore(repository);
-  const auth = es.getAuth();
-
-};
-
-beforeAll(setUp);
-afterAll(tearDown);
-
+const { context } = init();
 
 test('Create entry with a JSON file', async () => {
-  const entry = await context.newEntry().commit();
+  const entry = await context().newEntry().commit();
   const r = entry.getResource(true);
   await r.putJSON({ a: 'v' });
   entry.setRefreshNeeded(true);
@@ -46,7 +18,7 @@ test('Create entry with a JSON file', async () => {
 
 
 test('Create entry with a text file', async () => {
-  const entry = await context.newEntry().commit();
+  const entry = await context().newEntry().commit();
   const resource = entry.getResource(true);
   await resource.putText('test');
   entry.setRefreshNeeded(true);
@@ -58,7 +30,7 @@ test('Create entry with a text file', async () => {
 });
 
 test('Create entry with a xml file', async () => {
-  const entry = await context.newEntry().commit();
+  const entry = await context().newEntry().commit();
 
   const r = entry.getResource(true);
   if (utils.isBrowser()) {
