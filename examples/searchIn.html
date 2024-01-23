@@ -1,0 +1,49 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link href="style.css" rel="stylesheet"/>
+    <script src="../dist/entrystore.js"></script>
+    <script src="init.js"></script>
+    <style>
+        label {
+            width: 200px;
+            height: 30px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+  <label>Search in property:</label><input id="property" type="text" name="search" value="dcterms:description"/><br>
+  <label>with value:</label><input id="value" type="text" name="search" value="Dingus"/><br>
+  <label>In related properties:</label><input id="related" type="checkbox" name="search"/><br>
+  <button id="search">Search now</button>
+  <hr>
+  <div id="_resultsNode"></div>
+  <script type="module">
+    const message = init('Search for entries via Solr');
+    const es = new ESJS.EntryStore(config.repository);
+    const search = () => {
+      const property = document.getElementById('property').value;
+      const searchTerm = document.getElementById('value').value;
+      const related = document.getElementById('related').checked;
+
+      const resEl = document.getElementById('_resultsNode');
+      resEl.innerHTML = '';
+
+      es.newSolrQuery()
+        .literalProperty(property, searchTerm, undefined, 'text', related)
+        .forEach((child) => {
+          const node = document.createElement('div');
+          node.innerHTML = ESJS.html.print(child);
+          resEl.appendChild(node);
+        });
+    };
+    document.getElementById('search').onclick = search;
+    document.addEventListener("keyup", function(event) {
+      if (event.key === 'Enter') {
+        search();
+      }
+    });
+  </script>
+</body>
+</html>

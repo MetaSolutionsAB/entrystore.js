@@ -1,5 +1,5 @@
 export default  {
-  repository: "http://localhost:8080/store/",
+  repository: 'http://entrystore.local:8080/',
   nonAdminUser: 'donald',
   nonAdminPassword: 'donalddonald',
   adminUser: 'admin',

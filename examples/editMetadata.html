@@ -1,0 +1,30 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link href="style.css" rel="stylesheet"/>
+    <script src="../dist/entrystore.js"></script>
+    <script src="init.js"></script>
+</head>
+<body>
+  <script type="module">
+    const message = init("Edit metadata for an entry");
+    const es = new ESJS.EntryStore(config.repository);
+    await es.getAuth().login(config.username, config.password, 86400);
+    const entryURI = es.getEntryURI(config.contextId, config.entryId);
+    try {
+      const entry = await es.getEntry(entryURI);
+      const md = entry.getMetadata();
+      const stmts = md.findAndRemove(null, "dcterms:title");
+      md.addL(entry.getResourceURI(), "dcterms:title", "New title at " + new Date(), "en");
+      try {
+        await entry.commitMetadata();
+        message("Success: changed metadata");
+      } catch (err) {
+        message("Failure saving metadata: " + err);
+      }
+    } catch (err) {
+      message("Failed loading entry: " + err);
+    }
+  </script>
+</body>
+</html>

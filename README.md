@@ -4,29 +4,34 @@ EntryStore.js is a JavaScript library that simplifies the communication with the
 
 # Installation
 
-Before you can use entrystore.js you need to make sure that you have all dependencies are available. Simply run:
+You can install EntryStore.js from npm:
 
-    $ cd path_to_entrystore.js
+    $ npm install @entryscape/entrystore-js
+
+Or download the latest stable version from: [http://entrystore.org/js/stable/](http://entrystore.org/js/stable/)
+
+Or use it directly from a CDN: [https://unpkg.com/@entryscape/entrystore-js](https://unpkg.com/@entryscape/entrystore-js)
+
+You can also check out the repository from: [https://bitbucket.org/metasolutions/entrystore.js/](https://bitbucket.org/metasolutions/entrystore.js/)
+
+Then run the following to get the build version in the dist folder:
+
     $ yarn
+    $ yarn build
 
-This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmjs.org/) and [yarn](https://yarnpkg.com) installed.
+(This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmjs.org/) and [yarn](https://yarnpkg.com) installed.)
 
-# Build
+EntryStore.js is available in the following variants:
 
-Run `$ yarn build`
+* dist/entrystore.js - browser version
+* dist/entrystore.node.cjs - Built Node.js version packaged for CommonJS
+* src/index.js - Single ES Module (of course you can also depend on individual files)
 
-The resulting build is located in `dist`. There will be two versions of the library, one for browser and one for node usage.
+# Getting started
 
-# Latest Build
+Below we go through three examples for how to use the library (the following section describes how to get more examples running locally).
 
-You can also load the latest stable build of EntryStore.js from:
-[http://entrystore.org/js/stable/](http://entrystore.org/js/stable/)
-
-# Getting started with the API
-
-Here are three examples for getting an idea of how to use the API.
-
-## Loading an entry - complete walk through
+## Loading and changing the metadata of an entry
 What follows is a complete example for loading an existing entry from an EntryStore repository. First we need to load the
 Entrystore.js library in our application, i.e.:
 
@@ -64,7 +69,8 @@ In this example we just fetch the metadata object of the entry and find the firs
 
     alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(entry.getResourceURI(), "dcterms:title"));
 
-We can also change that value as follows:
+## Changing the metadata of an entry
+Let's continue with the example above and change the title.
 
     var md = entry.getMetadata();
     var stmts = md.findAndRemove(entry.getResourceURI(), "dcterms:title");
@@ -81,7 +87,7 @@ Here is the above example in a minimal HTML file.
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <script src="../dist/entrystore.js"></script>
-        <script src="./config.js"></script>
+        <script src="./init.js"></script>
         <script>
           const es = new ESJS.EntryStore(config.repository);
           es.getAuth().login(config.username, config.password, 86400).then(() => {
@@ -103,8 +109,6 @@ Here is the above example in a minimal HTML file.
     </head>
     <body>
     </html>
-
-
 
 ## Creating an entry
 To create an entry we need to first authenticate and get a hold of the specific context we want to create the entry in:
@@ -131,43 +135,32 @@ Taken together the example, looks like (full code in trunk/samples/createEntry.h
        });
     });
 
-## More samples
-To check the suite of samples you can just run:
-    
-    $ yarn samples
-    
-your default web browser should open a new page where you can select the 'samples' directory.
-There should be a listing of the samples which you can run directly in the browser. 
+## Running examples
+For the provided examples to work properly you have to have an EntryStore instance running:
 
-NOTE! you need to have a `config.js` file in the samples folder for the samples to work correctly. 
-For more info check 'samples/config.js_example'.
+    $ yarn entrystore:examples
 
-## Modifying metadata
-//TODO
+To be able to run examples in a browser environment we need to avoid CORS issues by serving the examples from the same domain. The following command brings up both a webserver with the examples and a reverse proxy to the entrystore instance we just launched. 
+
+    $ yarn examples
+
+You should now be able to visit [http://127.0.0.1:8080/examples/](http://127.0.0.1:8080/examples/) in your favourite browser. You should get a listing of the examples to run.
 
 # Testing
 
-The tests are run against a running EntryStore instance; it is recommended to use a non-persisting EntryStore instance with memory store.
-The base URL of the instance is configured in a file `tests/config.js` that you have to provide,
-for instance by making a copy of `tests/config.js_example` and then adapt it.
+The tests have to run against a EntryStore instance. To bring one up an instance that is suitable for testing run:
+
+    $ yarn entrystore:tests
+
+When that is running, open another terminal and run:
+
+    $ yarn tests
 
 The tests are written according to the style of [Jest](https://jestjs.io/).
 
-Collecting code coverage can be done by setting the property of package.json "jest": "collectCoverage" to true. The coverage an then be found in the folder located at tests/coverage
-
-## Running tests 
-
-    $ yarn test
+## Test coverage
+Collecting test coverage can be done by setting the property of package.json "jest": "collectCoverage" to true. The coverage an then be found in the folder located at tests/coverage
 
 ## Developing new tests
 
 It is recommended to create a new module for each group of tests. Include it in the `src` folder, using the Jest naming convention of 'file.test.js' to make it part of the testsuite.
-
-# Command line
-
-This feature is not supported currently.
-
-### Generating Licenses
-If you would like to create a file listing all the licenses of dependencies run:
-```
-    $ yarn print-licenses
