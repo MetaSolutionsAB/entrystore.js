@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.14.0-dev",
+  "version": "4.14.0",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -44,8 +44,7 @@
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
-    "webpack-merge": "^5.9.0",
-    "http-server": "^14.1.1"
+    "webpack-merge": "^5.9.0"
   },
   "description": "A JS-library for working EntryStore",
   "licenses": [
@@ -72,7 +71,7 @@
     "src"
   ],
   "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
-  "homepage": "https://entrystore.org",
+  "homepage": "https://entrystore.org/javascript/",
   "scripts": {
     "build:node": "webpack --mode production --config webpack.node.cjs",
     "build:browser": "webpack --mode production --config webpack.browser.cjs",
