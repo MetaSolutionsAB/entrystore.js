@@ -33,7 +33,7 @@ stepdefinitions:
         - docker run --rm -v $BITBUCKET_CLONE_DIR/tests/entrystore.properties_pipelines:/srv/entrystore/entrystore.properties:ro -p 127.0.0.1:8080:8080 metasolutions/entrystore:$ESIMGVER /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level info &
         - sleep 15
         - curl -s http://entrystore.local:8080/auth/user
-        - cp tests/config.js_pipelines > tests/config.js && cat tests/config.js
+        - cp tests/config.js_pipelines tests/config.js && cat tests/config.js
         - yarn tests
       services:
         - docker
