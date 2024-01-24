@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.14.0",
+  "version": "4.14.1",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -20,7 +20,7 @@
     "core-js": "^3.1.4",
     "moment": "^2.22.2",
     "regenerator-runtime": "^0.13.3",
-    "superagent": "^8.1.2",
+    "superagent": "^6.1.0",
     "superagent-jsonp": "^0.2.1"
   },
   "devDependencies": {
@@ -66,8 +66,7 @@
     }
   ],
   "files": [
-    "dist/entrystore.js",
-    "dist/entrystore.node.js",
+    "dist",
     "src"
   ],
   "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
