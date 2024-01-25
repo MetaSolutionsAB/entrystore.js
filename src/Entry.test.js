@@ -45,6 +45,13 @@ describe('Work with entries', () => {
     expect(md.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe('Some title'); // If fail: 'Failed to create an entry with a title.');
   });
 
+  test('All metadata in one graph', async () => {
+    const prototypeEntry = context().newLinkRef("http://example.com", "http://example.com/metadata").addL('dcterms:title', 'Some title');
+    const cemd = prototypeEntry.getCachedExternalMetadata();
+    cemd.addL(prototypeEntry.getResourceURI(), 'dcterms:title', 'Another title');
+    const allMDGraph = prototypeEntry.getAllMetadata();
+    expect(allMDGraph.size()).toBe(2); // If fail: 'Failed to create an entry with a title.');
+  });
 
   test('Update the metadata of an entry', async () => {
     const entry = await context().newEntry().commit();

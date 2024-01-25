@@ -77,6 +77,27 @@ export default class Entry {
   }
 
   /**
+   * Provides all metadata, different behaviour depending on entry type:
+   * * local - local metadata, i.e. getMetadata()
+   * * link - local metadata, i.e. getMetadata()
+   * * reference - cached external metadata, i.e. getCachedExternalMetadata()
+   * * linkReference - new graph which is a combination of cached external metadata and local metadata
+   *
+   * @return {rdfjson/Graph}
+   */
+  getAllMetadata() {
+    if (this.isReference()) {
+      return this.getCachedExternalMetadata();
+    } else if (this.isLinkReference()) {
+      const graph = new Graph();
+      graph.addAll(this.getMetadata());
+      graph.addAll(this.getCachedExternalMetadata(), 'external');
+      return graph;
+    }
+    return this.getMetadata();
+  }
+
+  /**
    * Provides an RDF graph as an {@link rdfjson/Graph} instance.
    * @return {rdfjson/Graph} a RDF graph with metadata, typically containing statements about
    * the resourceURI. The returned graph may be empty but never null or undefined.
