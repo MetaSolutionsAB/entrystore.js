@@ -18,6 +18,9 @@ const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexO
 
 const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf('metadata.predicate.date') >= 0;
 const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
+const isRange = value => Array.isArray(value) ?
+  value.find(v => (v.match(/\[.+\sTO\s.+]/) !== null)) != null :
+  value.match(/\[.+\sTO\s.+]/) !== null;
 
 const isText = key => key.indexOf('metadata.object.literal') >= 0
   || key.indexOf('metadata.predicate.literal_t') >= 0;
@@ -48,7 +51,7 @@ const solrFriendly = (key, term, isFacet) => {
     and = and.match(spaceTokenizerRegExp).map(t => (t.length < ngramMaxLimit ? encodeStr(t)
       : encodeStr(t.substr(0, ngramMaxLimit))))
       .map(t => (t.length < ngramMinLimit && !t.endsWith('*') ? `${t}*` : t));
-  } else if (isDateKey(key) || isIntegerKey(key)) {
+  } else if (isDateKey(key) || isIntegerKey(key) || isRange(and)) {
     and = Array.isArray(and) ? and : [and];
     and = and.map(v => v.replace(/\s+/g, '%20'));
   } else if (isExactMatch(key)) {
@@ -66,7 +69,7 @@ const solrFriendly = (key, term, isFacet) => {
 };
 
 const toDateRange = (from, to) => `[${from ? from.toISOString() : '*'} TO ${to ? to.toISOString() : '*'}]`;
-const toIntegerRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
+const toRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
 
 /**
  *
@@ -685,7 +688,7 @@ export default class SolrQuery {
    * @param {string|array} object
    * @param {true|false|string} modifier
    * @param {text|string} [indexType=ngram] 'ngram' corresponds to partial string
-   * matching, string corresponds to exact string matching and text corresponds to word matching.
+   * matching, 'string' corresponds to exact string matching and 'text' corresponds to word matching.
    * @param {boolean} [related=false] will search in related properties if true, default is false
    * @return {SolrQuery}
    */
@@ -711,6 +714,20 @@ export default class SolrQuery {
       nodetype,
     });
     return this;
+  }
+
+  /**
+   * Utility function for creating a range for literalProperty.
+   *
+   * @param {string} predicate
+   * @param {string} from
+   * @param {string} to
+   * @param {true|false|string} modifier
+   * @param {boolean} [related=false] will search in related properties if true, default is false
+   * @return {SolrQuery}
+   */
+  literalPropertyRange(predicate, from, to, modifier, related = false) {
+    return this.literalProperty(predicate, toRange(from, to), modifier, 'string', related);
   }
 
   /**
@@ -746,7 +763,7 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   integerPropertyRange(predicate, from, to, modifier, related = false) {
-    return this.integerProperty(predicate, toIntegerRange(from, to), modifier, related);
+    return this.integerProperty(predicate, toRange(from, to), modifier, related);
   }
 
   /**
