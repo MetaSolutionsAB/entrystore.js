@@ -81,3 +81,13 @@ test('Fetch entry by graph type', async () => {
   const entry = await entrystoreutil().getEntryByGraphType(types.GT_USER);
   expect(entry.isUser()).toBeTruthy();
 });
+
+test('Range literal query', async () => {
+  const es = await entrystore();
+  const q1 = es.newSolrQuery().literalProperty('http://example.com/p', '[1 TO 2]', undefined, 'string');
+  expect(q1.getQuery()).toMatch('[1%20TO%202]');
+  const q2 = es.newSolrQuery().literalProperty('http://example.com/p', '[1.2 TO *]', undefined, 'string');
+  expect(q2.getQuery()).toMatch('[1.2%20TO%20*]');
+  const q3 = es.newSolrQuery().literalPropertyRange('http://example.com/p', '1', '2');
+  expect(q3.getQuery()).toMatch('[1%20TO%202]');
+});
