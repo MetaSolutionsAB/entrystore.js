@@ -76,6 +76,7 @@ export default class Cache {
     const entryRURI = entry.getResourceURI();
 
     this._cacheIdx.delete(entryURI);
+    this._cacheCtrl.delete(entryURI);
     const entriesSet = this._cacheIdxResource.get(entryRURI);
 
     if (entriesSet.size > 0) {

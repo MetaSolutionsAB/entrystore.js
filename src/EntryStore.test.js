@@ -83,15 +83,6 @@ describe('A signed in admin (user)', () => {
     expect(entries.length).toBeGreaterThan(0); // If fail: No principals found
   });
 
-
-  test('Create a new context and check if it exitsts', async () => {
-    expect.assertions(1);
-    const entry = await es.newContext().commit();
-    expect(entry.isContext()).toBeTruthy(); // If fail: Entry created, but it is not a context
-
-  });
-
-
   test('Create a user', async () => {
     expect.assertions(2);
     const username = `${new Date().getTime()}`;

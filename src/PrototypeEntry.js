@@ -2,7 +2,7 @@ import Entry from './Entry.js';
 import EntryInfo from './EntryInfo.js';
 import terms from './terms.js';
 
-const NEW_ID_PLACEHOLDER = '_newId';
+export const NEW_ID_PLACEHOLDER = '_newId';
 /**
  * A PrototypeEntry is used to create new entries by collecting information about the initial
  * state of the entry to send along to the repository upon creation.
@@ -82,7 +82,7 @@ export default class PrototypeEntry extends Entry {
    *
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
-  setExternalMetadataURI() {
+  setExternalMetadataURI(uri) {
     EntryInfo.prototype.setExternalMetadataURI.apply(this._entryInfo, arguments);
     return this;
   }
