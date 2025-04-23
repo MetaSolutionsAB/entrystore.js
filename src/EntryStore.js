@@ -2,6 +2,7 @@ import Auth from './Auth.js';
 import Cache from './Cache.js';
 import factory from './factory.js';
 import PrototypeEntry from './PrototypeEntry.js';
+import PrototypeContextEntry from './PrototypeContextEntry.js';
 import Resource from './Resource.js';
 import Rest from './Rest.js';
 import SolrQuery from './SolrQuery.js';
@@ -423,23 +424,15 @@ export default class EntryStore {
   }
 
   /**
-   * Provides a PrototypeEntry for creating a new context.
+   * Provides a PrototypeContextEntry for creating a new context.
    * @param {string=} contextName - optional name for the context, can be changed later,
    * must be unique in the _principals context
    * @param {string=} id - optional requested identifier (entryId) for the context,
    * cannot be changed later, must be unique in the _principals context
-   * @returns {PrototypeEntry}
+   * @returns {PrototypeContextEntry}
    */
   newContext(contextName, id) {
-    const _contexts = factory.getContext(this, `${this._baseURI}_contexts/entry/_contexts`);
-    const prototypeEntry = new PrototypeEntry(_contexts, id).setGraphType(types.GT_CONTEXT);
-    if (contextName != null) {
-      const ei = prototypeEntry.getEntryInfo();
-      const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
-      resource._update({ name: contextName });
-      prototypeEntry._resource = resource;
-    }
-    return prototypeEntry;
+    return new PrototypeContextEntry(contextName, id, this);
   }
 
   /**
