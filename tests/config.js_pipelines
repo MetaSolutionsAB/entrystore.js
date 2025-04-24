@@ -1,7 +1,7 @@
 export default  {
   repository: 'http://entrystore.local:8080/',
   nonAdminUser: 'donald',
-  nonAdminPassword: 'donalddonald',
+  nonAdminPassword: 'donaldDonald12',
   adminUser: 'admin',
   adminPassword: 'adminadmin',
   contextId: 1,
