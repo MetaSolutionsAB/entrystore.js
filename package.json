@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.15.0",
+  "version": "4.15.1",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -20,7 +20,7 @@
     "core-js": "^3.1.4",
     "moment": "^2.22.2",
     "regenerator-runtime": "^0.13.3",
-    "superagent": "^6.1.0",
+    "superagent": "^10.2.0",
     "superagent-jsonp": "^0.2.1"
   },
   "devDependencies": {
@@ -78,10 +78,10 @@
     "build:dev": "webpack --mode development",
     "eslint": "eslint -c .eslintrc.cjs 'src/**/*.js'",
     "jsdoc": "jsdoc src -r -c jsdocConf.json",
-    "entrystore:tests": "docker run --rm -v ./tests/entrystore.properties:/srv/entrystore/entrystore.properties:ro -p 8080:8080 metasolutions/entrystore:develop /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level debug",
+    "entrystore:tests": "docker run --platform linux/amd64 --rm -v ./tests/entrystore.properties:/srv/entrystore/entrystore.properties:ro -p 8080:8080 metasolutions/entrystore:latest /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level debug",
     "tests": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "entrystore:examples": "docker run --rm -v ./tests/entrystore.properties:/srv/entrystore/entrystore.properties:ro -p 8081:8080 metasolutions/entrystore:develop /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level debug",
-    "examples": "docker run -t -i --rm --add-host=host.docker.internal:host-gateway -v ./examples/apache.conf:/etc/apache2/sites-available/000-default.conf:ro -v ./examples/:/srv/examples/:ro -v ./dist/:/srv/dist/ -p 8080:80 metasolutions/apache2"
+    "entrystore:examples": "docker run --platform linux/amd64 --rm -v ./tests/entrystore.properties:/srv/entrystore/entrystore.properties:ro -p 8081:8080 metasolutions/entrystore:latest /srv/entrystore/bin/entrystore --config file:///srv/entrystore/entrystore.properties --port 8080 --log-level debug",
+    "examples": "docker run --platform linux/amd64 -t -i --rm --add-host=host.docker.internal:host-gateway -v ./examples/apache.conf:/etc/apache2/sites-available/000-default.conf:ro -v ./examples/:/srv/examples/:ro -v ./dist/:/srv/dist/ -p 8080:80 metasolutions/apache2"
   },
   "jest": {
     "verbose": true,
