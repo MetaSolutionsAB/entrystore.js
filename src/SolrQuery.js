@@ -2,28 +2,38 @@ import md5 from 'blueimp-md5';
 import { namespaces } from '@entryscape/rdfjson';
 import SearchList from './SearchList.js';
 
-const encodeStr = str => encodeURIComponent(str.replace(/:/g, '\\:')
-  .replace(/\(/g, '\\(').replace(/\)/g, '\\)'));
-const shorten = predicate => md5(namespaces.expand(predicate)).substr(0, 8);
+const encodeStr = (str) =>
+  encodeURIComponent(
+    str.replace(/:/g, '\\:').replace(/\(/g, '\\(').replace(/\)/g, '\\)')
+  );
+const shorten = (predicate) => md5(namespaces.expand(predicate)).substr(0, 8);
 const ngramMaxLimit = 15;
 const ngramMinLimit = 3;
-const isNgram = key => key.indexOf('title') === 0
-  || key.indexOf('description') === 0
-  || key.indexOf('tag.literal') === 0
-  || (key.indexOf('metadata.predicate.literal') === 0 &&
-    key.indexOf('metadata.predicate.literal_') !== 0)
-  || (key.indexOf('related.metadata.predicate.literal') === 0 &&
+const isNgram = (key) =>
+  key.indexOf('title') === 0 ||
+  key.indexOf('description') === 0 ||
+  key.indexOf('tag.literal') === 0 ||
+  (key.indexOf('metadata.predicate.literal') === 0 &&
+    key.indexOf('metadata.predicate.literal_') !== 0) ||
+  (key.indexOf('related.metadata.predicate.literal') === 0 &&
     key.indexOf('related.metadata.predicate.literal_') !== 0);
-const isExactMatch = key => key.indexOf('predicate.literal_s') > 0 || key.indexOf('predicate.literal') === -1;
+const isExactMatch = (key) =>
+  key.indexOf('predicate.literal_s') > 0 ||
+  key.indexOf('predicate.literal') === -1;
 
-const isDateKey = key => key === 'created' || key === 'modified' || key.indexOf('metadata.predicate.date') >= 0;
-const isIntegerKey = key => key.indexOf('metadata.predicate.integer') >= 0;
-const isRange = value => Array.isArray(value) ?
-  value.find(v => (v.match(/\[.+\sTO\s.+]/) !== null)) != null :
-  value.match(/\[.+\sTO\s.+]/) !== null;
+const isDateKey = (key) =>
+  key === 'created' ||
+  key === 'modified' ||
+  key.indexOf('metadata.predicate.date') >= 0;
+const isIntegerKey = (key) => key.indexOf('metadata.predicate.integer') >= 0;
+const isRange = (value) =>
+  Array.isArray(value)
+    ? value.find((v) => v.match(/\[.+\sTO\s.+]/) !== null) != null
+    : value.match(/\[.+\sTO\s.+]/) !== null;
 
-const isText = key => key.indexOf('metadata.object.literal') >= 0
-  || key.indexOf('metadata.predicate.literal_t') >= 0;
+const isText = (key) =>
+  key.indexOf('metadata.object.literal') >= 0 ||
+  key.indexOf('metadata.predicate.literal_t') >= 0;
 
 const spaceTokenizerRegExp = /(?:\\\s|[^\s])+/g;
 
@@ -48,12 +58,17 @@ const solrFriendly = (key, term, isFacet) => {
   if (isText(key) && isFacet !== true) {
     and = and.match(spaceTokenizerRegExp).map(encodeStr);
   } else if (isNgram(key) && isFacet !== true) {
-    and = and.match(spaceTokenizerRegExp).map(t => (t.length < ngramMaxLimit ? encodeStr(t)
-      : encodeStr(t.substr(0, ngramMaxLimit))))
-      .map(t => (t.length < ngramMinLimit && !t.endsWith('*') ? `${t}*` : t));
+    and = and
+      .match(spaceTokenizerRegExp)
+      .map((t) =>
+        t.length < ngramMaxLimit
+          ? encodeStr(t)
+          : encodeStr(t.substr(0, ngramMaxLimit))
+      )
+      .map((t) => (t.length < ngramMinLimit && !t.endsWith('*') ? `${t}*` : t));
   } else if (isDateKey(key) || isIntegerKey(key) || isRange(and)) {
     and = Array.isArray(and) ? and : [and];
-    and = and.map(v => v.replace(/\s+/g, '%20'));
+    and = and.map((v) => v.replace(/\s+/g, '%20'));
   } else if (isExactMatch(key)) {
     const containsNoSpace = and.search(/\s/) === -1;
     const containsEscapedSpace = and.search(/\\\s/) !== -1;
@@ -63,12 +78,15 @@ const solrFriendly = (key, term, isFacet) => {
       and = [`%22${encodeStr(and)}%22`];
     }
   } else {
-    and = and.match(spaceTokenizerRegExp).map(t => encodeStr(t));
+    and = and.match(spaceTokenizerRegExp).map((t) => encodeStr(t));
   }
-  return and.length === 1 ? `${and[0]}${boost}` : `(${and.join(`${boost}+AND+`)}${boost})`;
+  return and.length === 1
+    ? `${and[0]}${boost}`
+    : `(${and.join(`${boost}+AND+`)}${boost})`;
 };
 
-const toDateRange = (from, to) => `[${from ? from.toISOString() : '*'} TO ${to ? to.toISOString() : '*'}]`;
+const toDateRange = (from, to) =>
+  `[${from ? from.toISOString() : '*'} TO ${to ? to.toISOString() : '*'}]`;
 const toRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
 
 /**
@@ -83,7 +101,9 @@ const buildQuery = (struct, isAnd) => {
     let val = struct[key];
     const valueIsArray = Array.isArray(val);
     if (valueIsArray || typeof val === 'string') {
-      val = valueIsArray ? val.map(v => namespaces.expand(v)) : namespaces.expand(val);
+      val = valueIsArray
+        ? val.map((v) => namespaces.expand(v))
+        : namespaces.expand(val);
     }
     switch (key) {
       case 'not':
@@ -158,7 +178,6 @@ const buildQuery = (struct, isAnd) => {
  * @exports store/SolrQuery
  */
 export default class SolrQuery {
-
   /**
    * @param {EntryStore} entrystore
    */
@@ -378,7 +397,11 @@ export default class SolrQuery {
    */
   rdfType(rdfType, modifier = null) {
     if (Array.isArray(rdfType)) {
-      return this._q('rdfType', rdfType.map(t => namespaces.expand(t)), modifier);
+      return this._q(
+        'rdfType',
+        rdfType.map((t) => namespaces.expand(t)),
+        modifier
+      );
     }
     return this._q('rdfType', namespaces.expand(rdfType), modifier);
   }
@@ -403,6 +426,17 @@ export default class SolrQuery {
    */
   contributors(val, modifier = null) {
     return this._q('contributors', val, modifier);
+  }
+
+  /**
+   * Matches all project types expressed via their URIs.
+   *
+   * @param {string|array} val
+   * @param {true|false|string} modifier
+   * @return {SolrQuery}
+   */
+  projectType(val, modifier = null) {
+    return this._q('projectType', val, modifier);
   }
 
   /**
@@ -603,7 +637,7 @@ export default class SolrQuery {
     };
 
     if (Array.isArray(context)) {
-      const resourceURIArr = context.map(f).filter(v => v !== null);
+      const resourceURIArr = context.map(f).filter((v) => v !== null);
       if (resourceURIArr.length > 0) {
         this._q('context', resourceURIArr, modifier);
       }
@@ -666,8 +700,7 @@ export default class SolrQuery {
    * @deprecated
    */
   //eslint-disable-next-line
-  title_lang(title, language) {
-  }
+  title_lang(title, language) {}
 
   /**
    * If a title has a language set, a dynamic field is created with the pattern "title.en",
@@ -692,7 +725,13 @@ export default class SolrQuery {
    * @param {boolean} [related=false] will search in related properties if true, default is false
    * @return {SolrQuery}
    */
-  literalProperty(predicate, object, modifier, indexType = 'ngram', related = false) {
+  literalProperty(
+    predicate,
+    object,
+    modifier,
+    indexType = 'ngram',
+    related = false
+  ) {
     const key = shorten(predicate);
     let nodetype;
     switch (indexType) {
@@ -727,7 +766,13 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   literalPropertyRange(predicate, from, to, modifier, related = false) {
-    return this.literalProperty(predicate, toRange(from, to), modifier, 'string', related);
+    return this.literalProperty(
+      predicate,
+      toRange(from, to),
+      modifier,
+      'string',
+      related
+    );
   }
 
   /**
@@ -763,7 +808,12 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   integerPropertyRange(predicate, from, to, modifier, related = false) {
-    return this.integerProperty(predicate, toRange(from, to), modifier, related);
+    return this.integerProperty(
+      predicate,
+      toRange(from, to),
+      modifier,
+      related
+    );
   }
 
   /**
@@ -800,7 +850,12 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   datePropertyRange(predicate, from, to, modifier, related = false) {
-    return this.dateProperty(predicate, toDateRange(from, to), modifier, related);
+    return this.dateProperty(
+      predicate,
+      toDateRange(from, to),
+      modifier,
+      related
+    );
   }
 
   /**
@@ -818,8 +873,9 @@ export default class SolrQuery {
     (related ? this.relatedProperties : this.properties).push({
       md5: key,
       pred: predicate,
-      object: Array.isArray(object) ? object.map(o => namespaces.expand(o)) :
-        namespaces.expand(object),
+      object: Array.isArray(object)
+        ? object.map((o) => namespaces.expand(o))
+        : namespaces.expand(object),
       modifier,
       nodetype: 'uri',
     });
@@ -902,7 +958,13 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   literalFacet(predicate, related = false) {
-    this.facet(`${related ? 'related.' : ''}metadata.predicate.literal_s.${shorten(predicate)}`, predicate, related);
+    this.facet(
+      `${related ? 'related.' : ''}metadata.predicate.literal_s.${shorten(
+        predicate
+      )}`,
+      predicate,
+      related
+    );
     return this;
   }
 
@@ -913,7 +975,13 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   uriFacet(predicate, related = false) {
-    this.facet(`${related ? 'related.' : ''}metadata.predicate.uri.${shorten(predicate)}`, predicate, related);
+    this.facet(
+      `${related ? 'related.' : ''}metadata.predicate.uri.${shorten(
+        predicate
+      )}`,
+      predicate,
+      related
+    );
     return this;
   }
 
@@ -924,7 +992,13 @@ export default class SolrQuery {
    * @return {SolrQuery}
    */
   integerFacet(predicate, related = false) {
-    this.facet(`${related ? 'related.' : ''}metadata.predicate.integer.${shorten(predicate)}`, predicate, related);
+    this.facet(
+      `${related ? 'related.' : ''}metadata.predicate.integer.${shorten(
+        predicate
+      )}`,
+      predicate,
+      related
+    );
     return this;
   }
 
@@ -1005,13 +1079,17 @@ export default class SolrQuery {
   getQuery() {
     const and = [];
     if (this._title_lang != null) {
-      and.push(`title.${this._title_lang.lang}:${solrFriendly(this._title_lang.lang,
-        this._title_lang.value)}`);
+      and.push(
+        `title.${this._title_lang.lang}:${solrFriendly(
+          this._title_lang.lang,
+          this._title_lang.value
+        )}`
+      );
     }
 
     this.params.forEach((v, key) => {
       const modifier = this.modifiers.get(key);
-      if ((typeof v === 'string') && v !== '') {
+      if (typeof v === 'string' && v !== '') {
         if (modifier === true || modifier === 'not') {
           and.push(`NOT(${key}:${solrFriendly(key, v)})`);
         } else {
@@ -1020,7 +1098,7 @@ export default class SolrQuery {
       } else if (Array.isArray(v) && v.length > 0) {
         const or = [];
         v.forEach((ov) => {
-          if ((typeof ov === 'string')) {
+          if (typeof ov === 'string') {
             or.push(`${key}:${solrFriendly(key, ov)}`);
           }
         });
@@ -1040,10 +1118,22 @@ export default class SolrQuery {
         const obj = prop.object;
         const key = `related.metadata.predicate.${prop.nodetype}.${prop.md5}`;
         if (typeof obj === 'string') {
-          or.push(`${key}:${solrFriendly(key, obj, this.relatedFacetpredicates[prop.pred])}`);
+          or.push(
+            `${key}:${solrFriendly(
+              key,
+              obj,
+              this.relatedFacetpredicates[prop.pred]
+            )}`
+          );
         } else if (Array.isArray(obj) && obj.length > 0) {
           obj.forEach((o) => {
-            or.push(`${key}:${solrFriendly(key, o, this.relatedFacetpredicates[prop.pred])}`);
+            or.push(
+              `${key}:${solrFriendly(
+                key,
+                o,
+                this.relatedFacetpredicates[prop.pred]
+              )}`
+            );
           });
         }
       });
@@ -1055,10 +1145,14 @@ export default class SolrQuery {
         const obj = prop.object;
         const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
         if (typeof obj === 'string') {
-          or.push(`${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])}`);
+          or.push(
+            `${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])}`
+          );
         } else if (Array.isArray(obj) && obj.length > 0) {
           obj.forEach((o) => {
-            or.push(`${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`);
+            or.push(
+              `${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`
+            );
           });
         }
       });
@@ -1071,14 +1165,28 @@ export default class SolrQuery {
         const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
         if (typeof obj === 'string') {
           if (prop.modifier === true || prop.modifier === 'not') {
-            and.push(`NOT(${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])})`);
+            and.push(
+              `NOT(${key}:${solrFriendly(
+                key,
+                obj,
+                this.facetpredicates[prop.pred]
+              )})`
+            );
           } else {
-            and.push(`${key}:${solrFriendly(key, obj, this.facetpredicates[prop.pred])}`);
+            and.push(
+              `${key}:${solrFriendly(
+                key,
+                obj,
+                this.facetpredicates[prop.pred]
+              )}`
+            );
           }
         } else if (Array.isArray(obj) && obj.length > 0) {
           const or = [];
           obj.forEach((o) => {
-            or.push(`${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`);
+            or.push(
+              `${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`
+            );
           }, this);
           if (prop.modifier === true || prop.modifier === 'not') {
             and.push(`NOT(${or.join('+OR+')})`);
@@ -1119,7 +1227,9 @@ export default class SolrQuery {
     if (this.facetConfig.facetMissing === true) {
       trail += `&facetMissing=true`;
     }
-    return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(this._disjunctive ? '+OR' : '+AND+')}${trail}`;
+    return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(
+      this._disjunctive ? '+OR' : '+AND+'
+    )}${trail}`;
   }
 
   /**
