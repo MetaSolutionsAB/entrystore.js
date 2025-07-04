@@ -10,11 +10,11 @@ import PrototypeContext from "./PrototypeContext.js";
  */
 export default class PrototypeContextEntry extends PrototypeEntry {
   /**
-   * @param {string} id - identifier for the context entry
    * @param {string} contextName - name of the context entry
+   * @param {string} id - identifier for the context entry
    * @param {string} entrystore - entrystore instance
    */
-  constructor(id, contextName, entrystore) {
+  constructor(contextName, id, entrystore) {
     const contexts = factory.getContext(entrystore, `${entrystore.getBaseURI()}_contexts/entry/_contexts`);
     super(contexts, id)
     this.setGraphType(types.GT_CONTEXT);
