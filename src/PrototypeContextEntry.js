@@ -10,11 +10,11 @@ import PrototypeContext from "./PrototypeContext.js";
  */
 export default class PrototypeContextEntry extends PrototypeEntry {
   /**
-   * @param {string} id - identifier for the context entry
    * @param {string} contextName - name of the context entry
+   * @param {string} id - identifier for the context entry
    * @param {string} entrystore - entrystore instance
    */
-  constructor(id, contextName, entrystore) {
+  constructor(contextName, id, entrystore) {
     const contexts = factory.getContext(entrystore, `${entrystore.getBaseURI()}_contexts/entry/_contexts`);
     super(contexts, id)
     this.setGraphType(types.GT_CONTEXT);
@@ -46,6 +46,23 @@ export default class PrototypeContextEntry extends PrototypeEntry {
     this._resource.updateEntriesForCreatedContext(contextEntry.getResource(true));
     this._initialEntries = await this._resource.createInitialEntries();
     return contextEntry;
+  }
+
+  /**
+   * Use this method instead of commit if you want to create a group together with the context.
+   *
+   * @return {Promise<{contextEntry: Entry, groupEntry: Entry, initialEntries: Entry[]}>}
+   * @see EntryStore#createGroupAndContext
+   */
+  async createGroupAndContext() {
+    const entrystore = this._context.getEntryStore();
+    const groupEntry = await entrystore.createGroupAndContext(this._resource._name, this.specificId);
+    const homeContextId = groupEntry.getResource(true).getHomeContext();
+    const homeContext = entrystore.getContextById(homeContextId);
+    const contextEntry = await homeContext.getEntry();
+    this._resource.updateEntriesForCreatedContext(contextEntry.getResource(true));
+    this._initialEntries = await this._resource.createInitialEntries();
+    return {contextEntry, groupEntry, initialEntries: this._initialEntries};
   }
 
   /**
