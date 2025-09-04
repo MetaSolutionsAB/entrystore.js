@@ -57,7 +57,7 @@ describe('A signed in admin (user)', () => {
     expect.assertions(3);
     const name = 'groupandcontextname';
     const contextId = 'speicifcContextID';
-    const prototypeEntryContext = await es.newContext(contextId, name);
+    const prototypeEntryContext = await es.newContext(name, contextId);
     const { contextEntry, groupEntry } = await prototypeEntryContext.createGroupAndContext();
     expect(contextEntry.getId()).toBe(contextId);
     expect(contextEntry.getEntryInfo().getName()).toBe(name);
