@@ -441,10 +441,17 @@ export default class EntryStore {
    * @return {Promise.<Entry>}
    * @async
    */
-  async createGroupAndContext(name) {
+  async createGroupAndContext(name, contextId) {
     let uri = `${this._baseURI}_principals/groups`;
+    const args = [];
     if (name != null) {
-      uri += `?name=${encodeURIComponent(name)}`;
+      args.push(`name=${encodeURIComponent(name)}`);
+    }
+    if (contextId) {
+      args.push(`contextId=${contextId}`);
+    }
+    if (args.length > 0) {
+      uri += `?${args.join('&')}`;
     }
     const location = await this.handleAsync(this._rest.create(uri), 'createGroupAndContext');
     return this.getEntry(location);

@@ -49,6 +49,23 @@ export default class PrototypeContextEntry extends PrototypeEntry {
   }
 
   /**
+   * Use this method instead of commit if you want to create a group together with the context.
+   *
+   * @return {Promise<{contextEntry: Entry, groupEntry: Entry, initialEntries: Entry[]}>}
+   * @see EntryStore#createGroupAndContext
+   */
+  async createGroupAndContext() {
+    const entrystore = this._context.getEntryStore();
+    const groupEntry = await entrystore.createGroupAndContext(this._resource._name, this.specificId);
+    const homeContextId = groupEntry.getResource(true).getHomeContext();
+    const homeContext = entrystore.getContextById(homeContextId);
+    const contextEntry = await homeContext.getEntry();
+    this._resource.updateEntriesForCreatedContext(contextEntry.getResource(true));
+    this._initialEntries = await this._resource.createInitialEntries();
+    return {contextEntry, groupEntry, initialEntries: this._initialEntries};
+  }
+
+  /**
    * @return {Entry[]}
    */
   getInitialEntries() {
