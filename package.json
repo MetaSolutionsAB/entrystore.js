@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.17.0-dev",
+  "version": "4.16.1-dev",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -43,7 +43,7 @@
     "mocha": "^10.1.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1",
+    "webpack-dev-server": "^5.2.2",
     "webpack-merge": "^5.9.0"
   },
   "description": "A JS-library for working EntryStore",
