@@ -69,7 +69,10 @@
     "dist",
     "src"
   ],
-  "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://bitbucket.org/metasolutions/entrystore.js.git"
+  },
   "homepage": "https://entrystore.org/javascript/",
   "scripts": {
     "build:node": "webpack --mode production --config webpack.node.cjs",
