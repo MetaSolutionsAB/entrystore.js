@@ -329,18 +329,21 @@ export default class EntryStoreUtil {
    *
    * @param {Array<String>} resourceURIs array of resourceURIs to load.
    * @param {Context=} context only look for entries in this context, may be left out.
-   * @param {boolean} acceptMissing if true then the array returned may contain holes
+   * @param {boolean} acceptMissing if true then the array returned may contain holes.
+   * @param {SolrQuery=} baseQuery a base query to build the chunked queries from, may be left out.
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise<Entry[]>}
    */
-  async loadEntriesByResourceURIs(
+  async _loadEntriesByResourceURIs(
     resourceURIs,
     context,
     acceptMissing = false,
+    baseQuery,
     asyncCallType
   ) {
     const es = this._entrystore;
     const cache = es.getCache();
+    const query = baseQuery || es.newSolrQuery();
     const id2Entry = {};
     const previouslyLoadingPromises = [];
     const toLoadSet = new Set();
@@ -392,7 +395,6 @@ export default class EntryStoreUtil {
         cache.addPromise(ruri, p);
       });
       const loadEntries = new Set(chunk);
-      const query = es.newSolrQuery();
       if (this._publicRead) {
         query.publicRead(true);
       }
@@ -427,5 +429,47 @@ export default class EntryStoreUtil {
     return Promise.all(
       previouslyLoadingPromises.concat(chunkLoadingPromises)
     ).then(() => resourceURIs.map((ruri) => id2Entry[ruri] || null));
+  }
+
+  /**
+   * Loads entries by first checking if they are in the cache, second if there are ongoing loading attempts that
+   * can be waited on and lastly loads them itself by via a solr query. Note, if too many entries are asked for at
+   * once the solr query will be divided into smaller chunks.
+   *
+   * @param {Array<String>} resourceURIs array of resourceURIs to load.
+   * @param {Context=} context only look for entries in this context, may be left out.
+   * @param {boolean} acceptMissing if true then the array returned may contain holes.
+   * @param {string} asyncCallType the callType used when making the search.
+   * @returns {Promise<Entry[]>}
+   */
+  async loadEntriesByResourceURIs(
+    resourceURIs,
+    context,
+    acceptMissing = false,
+    asyncCallType
+  ) {
+    return this._loadEntriesByResourceURIs(resourceURIs, context, acceptMissing, undefined, asyncCallType);
+  }
+
+  /**
+   * Loads entries by first checking if they are in the cache, second if there are ongoing loading attempts that
+   * can be waited on and lastly loads them itself by via a solr query, built on the provided base query. Note,
+   * if too many entries are asked for at once the solr query will be divided into smaller chunks.
+   *
+   * @param {Array<String>} resourceURIs array of resourceURIs to load.
+   * @param {Context=} context only look for entries in this context, may be left out.
+   * @param {boolean} acceptMissing if true then the array returned may contain holes.
+   * @param {SolrQuery} query a base query to build the chunked queries from.
+   * @param {string} asyncCallType the callType used when making the search.
+   * @returns {Promise<Entry[]>}
+   */
+  async loadEntriesByResourceURIsWithQuery(
+    resourceURIs,
+    context,
+    acceptMissing = false,
+    query,
+    asyncCallTyp
+  ) {
+    return this._loadEntriesByResourceURIs(resourceURIs, context, acceptMissing, query, asyncCallType);
   }
 }
