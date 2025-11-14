@@ -32,5 +32,10 @@ export default (includeList) => {
     await auth.logout();
   });
 
-  return {context: () => context, entrystore: () => es, list: () => list, entrystoreutil: () => esu};
+  return {
+    context: () => context,
+    entrystore: () => es,
+    list: () => list,
+    entrystoreutil: () => esu,
+  };
 };

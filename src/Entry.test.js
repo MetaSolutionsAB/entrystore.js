@@ -17,7 +17,6 @@ describe('Work with entries', () => {
     expect(entry.getMetadata().isEmpty()).toBeTruthy(); // If fail: 'Could not refresh, unsaved changes in metadata graph remains.');
   });
 
-
   test('Create an entry', async () => {
     const entry = await context().newEntry().commit();
     expect(entry.getId()).not.toBeNull(); // If fail: Entry created but without id!');
@@ -32,7 +31,6 @@ describe('Work with entries', () => {
     await bananaEntry.del();
   });
 
-
   test('Create a named entry', async () => {
     const entry = await context().newNamedEntry().commit();
     expect(entry.getId()).not.toBeNull(); // If fail: 'Entry created but without id!');
@@ -40,33 +38,60 @@ describe('Work with entries', () => {
   });
 
   test('Create an entry with metadata', async () => {
-    const entry = await context().newEntry().addL('dcterms:title', 'Some title').commit();
+    const entry = await context()
+      .newEntry()
+      .addL('dcterms:title', 'Some title')
+      .commit();
     const md = entry.getMetadata();
-    expect(md.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe('Some title'); // If fail: 'Failed to create an entry with a title.');
+    expect(md.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe(
+      'Some title'
+    ); // If fail: 'Failed to create an entry with a title.');
   });
 
   test('All metadata in one graph', async () => {
-    const prototypeEntry = context().newLinkRef("http://example.com", "http://example.com/metadata").addL('dcterms:title', 'Some title');
+    const prototypeEntry = context()
+      .newLinkRef('http://example.com', 'http://example.com/metadata')
+      .addL('dcterms:title', 'Some title');
     const cemd = prototypeEntry.getCachedExternalMetadata();
-    cemd.addL(prototypeEntry.getResourceURI(), 'dcterms:title', 'Another title');
+    cemd.addL(
+      prototypeEntry.getResourceURI(),
+      'dcterms:title',
+      'Another title'
+    );
     const allMDGraph = prototypeEntry.getAllMetadata();
     expect(allMDGraph.size()).toBe(2); // If fail: 'Failed to create an entry with a title.');
   });
 
   test('Update the metadata of an entry', async () => {
     const entry = await context().newEntry().commit();
-    entry.getMetadata().add(entry.getResourceURI(), 'dcterms:title', {type: 'literal', value: 'Some title2'});
+    entry
+      .getMetadata()
+      .add(entry.getResourceURI(), 'dcterms:title', {
+        type: 'literal',
+        value: 'Some title2',
+      });
     await entry.commitMetadata();
     entry.getMetadata().findAndRemove();
-    expect(entry.getMetadata().findFirstValue(entry.getResourceURI(), 'dcterms:title') == null).toBeTruthy(); // If fail: 'Could not clear the RDF graph.');
+    expect(
+      entry
+        .getMetadata()
+        .findFirstValue(entry.getResourceURI(), 'dcterms:title') == null
+    ).toBeTruthy(); // If fail: 'Could not clear the RDF graph.');
     await entry.refresh(true, true);
-    expect(entry.getMetadata().findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe('Some title2'); // If fail: 'Failed to create and update the metadata with a new title.');
+    expect(
+      entry
+        .getMetadata()
+        .findFirstValue(entry.getResourceURI(), 'dcterms:title')
+    ).toBe('Some title2'); // If fail: 'Failed to create and update the metadata with a new title.');
   });
 
   test('Update the metadata of an entry using prototype', async () => {
     expect.assertions(1);
     const e1 = await context().newEntry().commit();
-    await context().newEntry(e1.getId()).addL('dcterms:title', 'Some title2').commitMetadata();
+    await context()
+      .newEntry(e1.getId())
+      .addL('dcterms:title', 'Some title2')
+      .commitMetadata();
     expect(1).toBe(1);
   });
 
@@ -90,15 +115,13 @@ describe('Work with entries', () => {
     const entry = await context().newRef(uri, uri).commit();
     expect(entry.isReference()).toBeTruthy(); // If fail: 'Failed to create a reference.'
     expect(entry.getResourceURI()).toBe(uri); // If fail: 'Failed to set resourceURI during creation step.');
-    expect(entry.getEntryInfo().getExternalMetadataURI()).toBe(uri) // If fail:  'Failed to set external metadatat URI during creation step.');
+    expect(entry.getEntryInfo().getExternalMetadataURI()).toBe(uri); // If fail:  'Failed to set external metadatat URI during creation step.');
   });
-
 
   test('Create a list entry', async () => {
     const entry = await context().newList().commit();
     expect(entry.isList()).toBeTruthy(); // If fail: 'Entry created, but it is not a list as expected.');
   });
-
 
   test('Create a graph entry', async () => {
     const g = new Graph();
@@ -162,8 +185,11 @@ describe('Work with entries', () => {
   test('Create an entry with cached external metadata', async () => {
     const uri = 'http://example.com/';
     const graph = new Graph();
-    graph.add(uri, 'dcterms:title', {value: 'Some title', type: 'literal'});
-    const entry = await context().newLinkRef(uri, uri).setCachedExternalMetadata(graph).commit();
+    graph.add(uri, 'dcterms:title', { value: 'Some title', type: 'literal' });
+    const entry = await context()
+      .newLinkRef(uri, uri)
+      .setCachedExternalMetadata(graph)
+      .commit();
     expect(!entry.getCachedExternalMetadata().isEmpty()).toBeTruthy(); // If fail: 'Failed to set cached external metadata in creation step.');
   });
 
@@ -173,7 +199,11 @@ describe('Work with entries', () => {
     const entry = await context().newRef(uri, uri).commit();
     const cachedExternalMetadata = entry.getCachedExternalMetadata();
     expect(cachedExternalMetadata.isEmpty()).toBeTruthy(); // If fail: 'New Link entry has non-empty cached external metadata, strange.');
-    cachedExternalMetadata.addL(entry.getResourceURI(), 'dcterms:title', 'A title');
+    cachedExternalMetadata.addL(
+      entry.getResourceURI(),
+      'dcterms:title',
+      'A title'
+    );
     await entry.commitCachedExternalMetadata();
     expect(!cachedExternalMetadata.isEmpty()).toBeTruthy(); // If fail: 'Failed to save cached external metadata.');
   });
@@ -193,7 +223,9 @@ describe('Work with entries', () => {
 
     expect('title' in titleProjection).toBeTruthy(); // if fail: 'Projection did not have a `title` property'
 
-    expect(titleProjection.title === 'title1' || titleProjection.title === 'title2').toBeTruthy(); // If fail: 'Projection with single value was not correct.'
+    expect(
+      titleProjection.title === 'title1' || titleProjection.title === 'title2'
+    ).toBeTruthy(); // If fail: 'Projection with single value was not correct.'
 
     titleProjection = entry.projection({
       '*titles': 'dcterms:title',
@@ -205,38 +237,36 @@ describe('Work with entries', () => {
   });
 });
 
-
-
 /**
  * @todo commented out since currently commitMetadata always refreshes the entry
  * So, there's no way to force this entry
  */
-  // async ifUnModifiedSinceCheck(test) {
-  //   let entry = null;
-  //   try {
-  //     entry = await context().newEntry().commit();
-  //   } catch (err) {
-  //     test.ok(false, `Could not create an Entry in context ${context().getId()}`);
-  //     test.done();
-  //     return;
-  //   }
-  //
-  //   const uri = entry.getResourceURI();
-  //   entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
-  //   await entry.commitMetadata();
-  //   test.ok(entry.getMetadata().find(null, 'dcterms:title').length === 1,
-  //     'More than one title added, should not happen.');
-  //
-  //   Manually set back the date of modification to force 412 status code.
-  // const eig = entry.getEntryInfo().getGraph();
-  // const stmt = eig.find(entry.getURI(), 'http://purl.org/dc/terms/modified')[0];
-  // stmt.setValue(moment(new Date('2000')).toISOString());
-  //
-  // entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
-  // try {
-  //   await entry.commitMetadata(true);
-  //   test.ok(false, 'No conflict although saving metadata twice in a row');
-  // } catch (err) {}
-  // test.done();
-  // finished = true;
-  // },
+// async ifUnModifiedSinceCheck(test) {
+//   let entry = null;
+//   try {
+//     entry = await context().newEntry().commit();
+//   } catch (err) {
+//     test.ok(false, `Could not create an Entry in context ${context().getId()}`);
+//     test.done();
+//     return;
+//   }
+//
+//   const uri = entry.getResourceURI();
+//   entry.getMetadata().addL(uri, 'dcterms:title', 'title1');
+//   await entry.commitMetadata();
+//   test.ok(entry.getMetadata().find(null, 'dcterms:title').length === 1,
+//     'More than one title added, should not happen.');
+//
+//   Manually set back the date of modification to force 412 status code.
+// const eig = entry.getEntryInfo().getGraph();
+// const stmt = eig.find(entry.getURI(), 'http://purl.org/dc/terms/modified')[0];
+// stmt.setValue(moment(new Date('2000')).toISOString());
+//
+// entry.getMetadata().addL(uri, 'dcterms:title', 'title2');
+// try {
+//   await entry.commitMetadata(true);
+//   test.ok(false, 'No conflict although saving metadata twice in a row');
+// } catch (err) {}
+// test.done();
+// finished = true;
+// },

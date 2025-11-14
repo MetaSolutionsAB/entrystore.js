@@ -38,12 +38,16 @@ export default class User extends Resource {
     const entry = await this.getEntry();
     const oldName = this._data.name;
     this._data.name = name;
-    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ name }));
+    const promise = es
+      .getREST()
+      .put(this._resourceURI, JSON.stringify({ name }));
     es.handleAsync(promise, 'setUserName');
     try {
       const response = await promise;
       entry.getEntryInfo()._name = name;
-      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      entry
+        .getEntryInfo()
+        .setModificationDate(response.header['last-modified']);
       return response;
     } catch (err) {
       this._data.name = oldName;
@@ -69,11 +73,15 @@ export default class User extends Resource {
     const entry = await this.getEntry();
     const oldLang = this._data.language;
     this._data.language = language;
-    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ language }));
+    const promise = es
+      .getREST()
+      .put(this._resourceURI, JSON.stringify({ language }));
     es.handleAsync(promise, 'setUserLanguage');
     try {
       const response = await promise;
-      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      entry
+        .getEntryInfo()
+        .setModificationDate(response.header['last-modified']);
       return response;
     } catch (err) {
       this._data.language = oldLang;
@@ -124,12 +132,16 @@ export default class User extends Resource {
     const entry = await this.getEntry();
     const oldDisabled = this._data.disabled === true;
     this._data.disabled = disabled;
-    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ disabled }))
+    const promise = es
+      .getREST()
+      .put(this._resourceURI, JSON.stringify({ disabled }));
     es.handleAsync(promise, 'setUserDisabled');
     try {
       const response = await promise;
       entry.getEntryInfo()._disabled = disabled;
-      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      entry
+        .getEntryInfo()
+        .setModificationDate(response.header['last-modified']);
       return response;
     } catch (err) {
       this._data.disabled = oldDisabled;
@@ -157,11 +169,15 @@ export default class User extends Resource {
     const entry = await this.getEntry();
     const oldHomeContext = this._data.homecontext;
     this._data.homecontext = contextId;
-    const promise = es.getREST().put(this._resourceURI, JSON.stringify({ homecontext: contextId }));
+    const promise = es
+      .getREST()
+      .put(this._resourceURI, JSON.stringify({ homecontext: contextId }));
     es.handleAsync(promise, 'setUserHomeContext');
     try {
       const response = await promise;
-      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      entry
+        .getEntryInfo()
+        .setModificationDate(response.header['last-modified']);
       return response;
     } catch (err) {
       this._data.homecontext = oldHomeContext;
@@ -190,13 +206,19 @@ export default class User extends Resource {
     const oldCustomProperties = this._data.customProperties;
     // Make a copy of the custom properties to make sure we only send strings as values.
     const cp = {};
-    Object.keys(customProperties).forEach(key => (cp[key] = `${customProperties[key]}`));
+    Object.keys(customProperties).forEach(
+      (key) => (cp[key] = `${customProperties[key]}`)
+    );
     this._data.customProperties = cp;
-    const promise = this._entryStore.getREST().put(this._resourceURI, JSON.stringify({ customProperties: cp }));
+    const promise = this._entryStore
+      .getREST()
+      .put(this._resourceURI, JSON.stringify({ customProperties: cp }));
     es.handleAsync(promise, 'setUserCustomProperties');
     try {
       const response = await promise;
-      entry.getEntryInfo().setModificationDate(response.header['last-modified']);
+      entry
+        .getEntryInfo()
+        .setModificationDate(response.header['last-modified']);
       return response;
     } catch (err) {
       this._data.customProperties = oldCustomProperties;

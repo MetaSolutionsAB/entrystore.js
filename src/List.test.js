@@ -8,8 +8,6 @@ test('Make sure list has two members', async () => {
   expect(entries.length).toBeGreaterThanOrEqual(2); // If fail: 'List have too few children');
 });
 
-
-
 test('Add a member to existing list', async () => {
   const entry = await context().newEntry().commit();
   const lres = list().getResource(true);

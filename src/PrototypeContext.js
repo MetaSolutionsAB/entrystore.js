@@ -1,4 +1,4 @@
-import { NEW_ID_PLACEHOLDER } from './PrototypeEntry.js'
+import { NEW_ID_PLACEHOLDER } from './PrototypeEntry.js';
 import Context from './Context.js';
 
 /**
@@ -73,7 +73,9 @@ export default class PrototypeContext extends Context {
   }
 
   newLinkRef(link, metadataLink, id) {
-    return this._register(super.newLinkRef(link, metadataLink, this._newId(id)));
+    return this._register(
+      super.newLinkRef(link, metadataLink, this._newId(id))
+    );
   }
 
   newRef(link, metadataLink, id) {
@@ -109,28 +111,29 @@ export default class PrototypeContext extends Context {
     const oldBase = `${es.getBaseURI()}${NEW_ID_PLACEHOLDER}/`;
     const newBase = `${es.getBaseURI()}${context.getId()}/`;
     const uri2uri = {};
-    Object.keys(this.id2pe).forEach(eid => {
+    Object.keys(this.id2pe).forEach((eid) => {
       uri2uri[`${oldBase}resource/${eid}`] = `${newBase}resource/${eid}`;
       uri2uri[`${oldBase}entry/${eid}`] = `${newBase}entry/${eid}`;
       uri2uri[`${oldBase}metadata/${eid}`] = `${newBase}metadata/${eid}`;
-      uri2uri[`${oldBase}cached-external-metadata/${eid}`] = `${newBase}cached-external-metadata/${eid}`;
+      uri2uri[`${oldBase}cached-external-metadata/${eid}`] =
+        `${newBase}cached-external-metadata/${eid}`;
     });
 
-    Object.keys(this.id2pe).forEach(eid => {
+    Object.keys(this.id2pe).forEach((eid) => {
       const pe = this.id2pe[eid];
-      pe._context = context;        // Move over the prototype entry to the newly created context
+      pe._context = context; // Move over the prototype entry to the newly created context
       const ei = pe.getEntryInfo();
       const eidGraph = ei.getGraph();
       const md = pe.getMetadata();
       const cemd = pe.getCachedExternalMetadata();
-      ei._entryURI = `${newBase}entry/${eid}`;       // Interal variable that needs to be updated
-      Object.keys(uri2uri).forEach((fromURI => {
+      ei._entryURI = `${newBase}entry/${eid}`; // Interal variable that needs to be updated
+      Object.keys(uri2uri).forEach((fromURI) => {
         const toURI = uri2uri[fromURI];
         md.replaceURI(fromURI, toURI);
         cemd.replaceURI(fromURI, toURI);
         eidGraph.replaceURI(fromURI, toURI);
-      }));
-    })
+      });
+    });
   }
 
   /**
@@ -140,7 +143,7 @@ export default class PrototypeContext extends Context {
    */
   async createInitialEntries() {
     const pes = Object.values(this.id2pe);
-    const proms = pes.map(pe => pe.delayedCommit());
+    const proms = pes.map((pe) => pe.delayedCommit());
     this._initialEntries = await Promise.all(proms);
     return this._initialEntries;
   }
@@ -151,4 +154,4 @@ export default class PrototypeContext extends Context {
   getInitialEntries() {
     return this._initialEntries;
   }
-};
+}

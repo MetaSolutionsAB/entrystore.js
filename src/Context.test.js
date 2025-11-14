@@ -23,15 +23,20 @@ describe('A signed in admin (user)', () => {
     expect.assertions(1);
     const entry = await es.newContext().commit();
     expect(entry.isContext()).toBeTruthy(); // If fail: Entry created, but it is not a context
-
   });
 
   test('Create a new context and entries within in one go', async () => {
     expect.assertions(3);
     const prototypeEntryContext = await es.newContext();
     const prototypeContext = prototypeEntryContext.getPrototypeContext();
-    const pe1 = prototypeContext.newEntry().addL('dcterms:title', 'entry 1').addL('dcterms:identifier', '1');
-    prototypeContext.newEntry().addL('dcterms:title', 'entry 2').add('dcterms:relation', pe1.getResourceURI());
+    const pe1 = prototypeContext
+      .newEntry()
+      .addL('dcterms:title', 'entry 1')
+      .addL('dcterms:identifier', '1');
+    prototypeContext
+      .newEntry()
+      .addL('dcterms:title', 'entry 2')
+      .add('dcterms:relation', pe1.getResourceURI());
     const contextEntry = await prototypeEntryContext.commit();
     const initialEntries = prototypeContext.getInitialEntries();
     expect(initialEntries.length).toBe(2);
@@ -42,13 +47,16 @@ describe('A signed in admin (user)', () => {
       second = initialEntries[2];
     }
     expect(first.getContext().getId()).toBe(contextEntry.getId());
-    expect(second.getMetadata().findFirstValue(null, 'dcterms:relation')).toBe(first.getResourceURI());
+    expect(second.getMetadata().findFirstValue(null, 'dcterms:relation')).toBe(
+      first.getResourceURI()
+    );
   });
 
   test('Create a group and context via prototype in one go', async () => {
     expect.assertions(2);
     const prototypeEntryContext = await es.newContext();
-    const { contextEntry, groupEntry } = await prototypeEntryContext.createGroupAndContext();
+    const { contextEntry, groupEntry } =
+      await prototypeEntryContext.createGroupAndContext();
     expect(contextEntry).toBeDefined();
     expect(groupEntry).toBeDefined();
   });
@@ -58,7 +66,8 @@ describe('A signed in admin (user)', () => {
     const name = 'groupandcontextname';
     const contextId = 'speicifcContextID';
     const prototypeEntryContext = await es.newContext(name, contextId);
-    const { contextEntry, groupEntry } = await prototypeEntryContext.createGroupAndContext();
+    const { contextEntry, groupEntry } =
+      await prototypeEntryContext.createGroupAndContext();
     expect(contextEntry.getId()).toBe(contextId);
     expect(contextEntry.getEntryInfo().getName()).toBe(name);
     expect(groupEntry.getEntryInfo().getName()).toBe(name);
@@ -68,9 +77,16 @@ describe('A signed in admin (user)', () => {
     expect.assertions(3);
     const prototypeEntryContext = await es.newContext();
     const prototypeContext = prototypeEntryContext.getPrototypeContext();
-    const pe1 = prototypeContext.newEntry().addL('dcterms:title', 'entry 1').addL('dcterms:identifier', '1');
-    prototypeContext.newEntry().addL('dcterms:title', 'entry 2').add('dcterms:relation', pe1.getResourceURI());
-    const { contextEntry, groupEntry, initialEntries } = await prototypeEntryContext.createGroupAndContext();
+    const pe1 = prototypeContext
+      .newEntry()
+      .addL('dcterms:title', 'entry 1')
+      .addL('dcterms:identifier', '1');
+    prototypeContext
+      .newEntry()
+      .addL('dcterms:title', 'entry 2')
+      .add('dcterms:relation', pe1.getResourceURI());
+    const { contextEntry, groupEntry, initialEntries } =
+      await prototypeEntryContext.createGroupAndContext();
     expect(initialEntries.length).toBe(2);
     let first = initialEntries[0];
     let second = initialEntries[1];
@@ -79,7 +95,8 @@ describe('A signed in admin (user)', () => {
       second = initialEntries[2];
     }
     expect(first.getContext().getId()).toBe(contextEntry.getId());
-    expect(second.getMetadata().findFirstValue(null, 'dcterms:relation')).toBe(first.getResourceURI());
+    expect(second.getMetadata().findFirstValue(null, 'dcterms:relation')).toBe(
+      first.getResourceURI()
+    );
   });
 });
-

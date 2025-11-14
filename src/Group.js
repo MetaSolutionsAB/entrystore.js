@@ -41,12 +41,13 @@ export default class Group extends List {
     this._name = name;
     entryInfo._name = name;
     try {
-      const promise = es.getREST().put(
-        `${this.getEntryURI()}/name`, JSON.stringify({ name }));
+      const promise = es
+        .getREST()
+        .put(`${this.getEntryURI()}/name`, JSON.stringify({ name }));
       es.handleAsync(promise, 'setGroupName');
       const response = await promise;
       entryInfo.setModificationDate(response.header['last-modified']);
-    } catch(e) {
+    } catch (e) {
       this._name = oldName;
       entryInfo._name = oldName;
       throw e;
@@ -62,8 +63,10 @@ export default class Group extends List {
   getHomeContext() {
     const es = this.getEntryStore();
     const entry = this.getEntry(true);
-    const contextResourceURI = entry.getEntryInfo().getGraph().findFirstValue(
-      entry.getResourceURI(), terms.homeContext);
+    const contextResourceURI = entry
+      .getEntryInfo()
+      .getGraph()
+      .findFirstValue(entry.getResourceURI(), terms.homeContext);
     if (contextResourceURI != null) {
       return es.getEntryId(contextResourceURI);
     }
@@ -88,7 +91,10 @@ export default class Group extends List {
 
     const graph = entry.getEntryInfo().getGraph();
     graph.findAndRemove(entry.getResourceURI(), terms.homeContext);
-    graph.add(entry.getResourceURI(), terms.homeContext, { type: 'uri', value: newContextURI });
+    graph.add(entry.getResourceURI(), terms.homeContext, {
+      type: 'uri',
+      value: newContextURI,
+    });
     if (doNotPushToRepository !== true) {
       return entry.getEntryInfo().commit();
     }

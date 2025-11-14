@@ -139,17 +139,32 @@ export default class Entry {
   async commitMetadata(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this.getEntryStore();
     if (this.isReference()) {
-      return Promise.reject(`Entry "${this.getURI()}" is a reference and have no local metadata that can be saved.`);
+      return Promise.reject(
+        `Entry "${this.getURI()}" is a reference and have no local metadata that can be saved.`
+      );
     } else if (!this.canWriteMetadata()) {
-      return Promise.reject(`You do not have sufficient access rights to save metadata on entry "${this.getURI()}".`);
+      return Promise.reject(
+        `You do not have sufficient access rights to save metadata on entry "${this.getURI()}".`
+      );
     } else if (this.needRefresh()) {
-      return Promise.reject(`The entry "${this.getURI()}" need to be refreshed before its local metadata can be saved.\n` +
-        'This message indicates that the client is written poorly, this case should have been taken into account.');
+      return Promise.reject(
+        `The entry "${this.getURI()}" need to be refreshed before its local metadata can be saved.\n` +
+          'This message indicates that the client is written poorly, this case should have been taken into account.'
+      );
     } else if (this._metadata == null) {
-      return Promise.reject(`The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`);
+      return Promise.reject(
+        `The entry "${this.getURI()}" should allow local metadata to be saved, but there is no local metadata.\nThis message is a bug in the storejs API.`
+      );
     } else {
-      const promise = es.getREST().put(this.getEntryInfo().getMetadataURI(), JSON.stringify(this._metadata.exportRDFJSON()),
-        ignoreIfUnmodifiedSinceCheck ? undefined : this.getEntryInfo().getModificationDate());
+      const promise = es
+        .getREST()
+        .put(
+          this.getEntryInfo().getMetadataURI(),
+          JSON.stringify(this._metadata.exportRDFJSON()),
+          ignoreIfUnmodifiedSinceCheck
+            ? undefined
+            : this.getEntryInfo().getModificationDate()
+        );
       es.handleAsync(promise, 'commitMetadata');
       const response = await promise;
       this.getEntryInfo().setModificationDate(response.header['last-modified']);
@@ -183,7 +198,12 @@ export default class Entry {
    * @returns {Entry}
    */
   addL(predicate, literal, language) {
-    this.getMetadata().addL(this.getResourceURI(), predicate, literal, language);
+    this.getMetadata().addL(
+      this.getResourceURI(),
+      predicate,
+      literal,
+      language
+    );
     return this;
   }
 
@@ -198,7 +218,12 @@ export default class Entry {
    * @returns {Entry}
    */
   addD(predicate, literal, datatype) {
-    this.getMetadata().addD(this.getResourceURI(), predicate, literal, datatype);
+    this.getMetadata().addD(
+      this.getResourceURI(),
+      predicate,
+      literal,
+      datatype
+    );
     return this;
   }
 
@@ -245,9 +270,15 @@ export default class Entry {
    */
   async commitCachedExternalMetadata(ignoreIfUnmodifiedSinceCheck) {
     const es = this.getEntryStore();
-    const promise = es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
-      JSON.stringify(this._cachedExternalMetadata.exportRDFJSON()),
-      ignoreIfUnmodifiedSinceCheck ? undefined : this.getEntryInfo().getModificationDate());
+    const promise = es
+      .getREST()
+      .put(
+        this.getEntryInfo().getCachedExternalMetadataURI(),
+        JSON.stringify(this._cachedExternalMetadata.exportRDFJSON()),
+        ignoreIfUnmodifiedSinceCheck
+          ? undefined
+          : this.getEntryInfo().getModificationDate()
+      );
     es.handleAsync(promise, 'commitCachedExternalMetadata');
     const response = await promise;
     this.getEntryInfo().setModificationDate(response.header['last-modified']);
@@ -286,10 +317,13 @@ export default class Entry {
       promise = Promise.resolve(this._resource);
     } else {
       const format = this.isString() ? 'text' : null;
-      promise = es.getREST().get(this.getResourceURI(), format).then((data) => {
-        factory.updateOrCreateResource(this, { resource: data }, true);
-        return this._resource;
-      });
+      promise = es
+        .getREST()
+        .get(this.getResourceURI(), format)
+        .then((data) => {
+          factory.updateOrCreateResource(this, { resource: data }, true);
+          return this._resource;
+        });
     }
     return es.handleAsync(promise, 'getResource');
   }
@@ -308,7 +342,9 @@ export default class Entry {
    * @returns {string[]}
    */
   getReferrers(prop) {
-    return this._relation.find(null, prop, null).map(stmt => stmt.getSubject());
+    return this._relation
+      .find(null, prop, null)
+      .map((stmt) => stmt.getSubject());
   }
 
   /**
@@ -316,9 +352,13 @@ export default class Entry {
    * @returns {string[]}
    */
   getParentLists() {
-    const listResourceURIArr = this.getReferrers('http://entrystore.org/terms/hasListMember');
-    return listResourceURIArr.map(resURI =>
-      factory.getEntryURIFromURI(this.getEntryStore(), resURI), this);
+    const listResourceURIArr = this.getReferrers(
+      'http://entrystore.org/terms/hasListMember'
+    );
+    return listResourceURIArr.map(
+      (resURI) => factory.getEntryURIFromURI(this.getEntryStore(), resURI),
+      this
+    );
   }
 
   /**
@@ -326,9 +366,13 @@ export default class Entry {
    * @returns {string[]}
    */
   getParentGroups() {
-    const groupResourceURIArr = this.getReferrers('http://entrystore.org/terms/hasGroupMember');
-    return groupResourceURIArr.map(resURI =>
-      factory.getEntryURIFromURI(this.getEntryStore(), resURI), this);
+    const groupResourceURIArr = this.getReferrers(
+      'http://entrystore.org/terms/hasGroupMember'
+    );
+    return groupResourceURIArr.map(
+      (resURI) => factory.getEntryURIFromURI(this.getEntryStore(), resURI),
+      this
+    );
   }
 
   /**
@@ -473,7 +517,9 @@ export default class Entry {
    */
   isLinkToEntry() {
     const base = this.getEntryStore().getBaseURI();
-    return this.isExternal() && this.getResourceURI().substr(0, base.length) === base;
+    return (
+      this.isExternal() && this.getResourceURI().substr(0, base.length) === base
+    );
   }
 
   /**
@@ -491,7 +537,10 @@ export default class Entry {
       const entryId = es.getEntryId(resourceURI);
       const contextId = es.getContextId(resourceURI);
       const entryURI = es.getEntryURI(contextId, entryId);
-      return es.handleAsync(this.getEntryStore().getEntry(entryURI), 'getLinkedEntry');
+      return es.handleAsync(
+        this.getEntryStore().getEntry(entryURI),
+        'getLinkedEntry'
+      );
     }
 
     return undefined;
@@ -502,7 +551,9 @@ export default class Entry {
    * @returns {boolean}
    */
   isInformationResource() {
-    return this.getEntryInfo().getResourceType() === types.RT_INFORMATIONRESOURCE;
+    return (
+      this.getEntryInfo().getResourceType() === types.RT_INFORMATIONRESOURCE
+    );
   }
 
   /**
@@ -526,8 +577,12 @@ export default class Entry {
    * @returns {boolean}
    */
   canReadResource() {
-    return this._rights.administer || this._rights.readresource
-      || this._rights.writeresource || false;
+    return (
+      this._rights.administer ||
+      this._rights.readresource ||
+      this._rights.writeresource ||
+      false
+    );
   }
 
   /**
@@ -543,8 +598,12 @@ export default class Entry {
    * @returns {boolean}
    */
   canReadMetadata() {
-    return this._rights.administer || this._rights.readmetadata
-      || this._rights.writemetadata || false;
+    return (
+      this._rights.administer ||
+      this._rights.readmetadata ||
+      this._rights.writemetadata ||
+      false
+    );
   }
 
   /**
@@ -566,17 +625,24 @@ export default class Entry {
    * which specifies the default access is not cached, otherwise a boolean is returned.
    */
   isPublic() {
-    const guestPrincipal = this.getEntryStore().getResourceURI('_principals', '_guest');
+    const guestPrincipal = this.getEntryStore().getResourceURI(
+      '_principals',
+      '_guest'
+    );
     let acl = this.getEntryInfo().getACL();
     if (acl.contextOverride) {
-      return ['rwrite', 'rread', 'mwrite', 'mread'].some(key => acl[key].indexOf(guestPrincipal) !== -1);
+      return ['rwrite', 'rread', 'mwrite', 'mread'].some(
+        (key) => acl[key].indexOf(guestPrincipal) !== -1
+      );
     }
     const ce = this.getContext().getEntry(true);
     if (ce == null) {
       return undefined;
     }
     acl = ce.getEntryInfo().getACL();
-    return ['rwrite', 'rread'].some(key => acl[key].indexOf(guestPrincipal) !== -1);
+    return ['rwrite', 'rread'].some(
+      (key) => acl[key].indexOf(guestPrincipal) !== -1
+    );
   }
 
   /**
@@ -660,11 +726,14 @@ export default class Entry {
     let p;
     if (force === true || es.getCache().needRefresh(this)) {
       const entryURI = this.getURI();
-      p = es.getREST().get(factory.getEntryLoadURI(entryURI)).then((data) => {
-        factory.update(this, data);
-        es.getCache().cache(this, silently);
-        return this;
-      });
+      p = es
+        .getREST()
+        .get(factory.getEntryLoadURI(entryURI))
+        .then((data) => {
+          factory.update(this, data);
+          es.getCache().cache(this, silently);
+          return this;
+        });
     } else {
       p = Promise.resolve(this);
     }
@@ -705,6 +774,10 @@ export default class Entry {
    *
    */
   projection(mappings = {}, multipleValueStyle = 'none') {
-    return this._metadata.projection(this.getResourceURI(), mappings, multipleValueStyle);
+    return this._metadata.projection(
+      this.getResourceURI(),
+      mappings,
+      multipleValueStyle
+    );
   }
-};
+}

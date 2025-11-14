@@ -68,7 +68,7 @@ et[`${ns}Local`] = types.ET_LOCAL;
 et[`${ns}Link`] = types.ET_LINK;
 et[`${ns}LinkReference`] = types.ET_LINKREF;
 et[`${ns}Reference`] = types.ET_REF;
-et.default = types.ET_LOCAL;   // The default option
+et.default = types.ET_LOCAL; // The default option
 terms.entryType = et;
 terms.invEntryType = inv(et);
 
@@ -92,7 +92,8 @@ terms.invGraphType = inv(gt);
 // ResourceType
 const rt = {};
 rt[`${ns}InformationResource`] = types.RT_INFORMATIONRESOURCE;
-rt[`${ns}ResolvableInformationResource`] = types.RT_RESOLVABLEINFORMATIONRESOURCE;
+rt[`${ns}ResolvableInformationResource`] =
+  types.RT_RESOLVABLEINFORMATIONRESOURCE;
 rt[`${ns}NamedResource`] = types.RT_NAMEDRESOURCE;
 rt[`${ns}Unknown`] = types.RT_UNKNOWN;
 rt.default = types.RT_INFORMATIONRESOURCE; // The default option

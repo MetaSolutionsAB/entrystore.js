@@ -34,7 +34,12 @@ export default class Context extends Resource {
    * @see EntryStore#getListEntries
    */
   listEntries(sort, limit, page) {
-    return this.getEntryStore().getListEntries(`${this._resourceURI}/entry/_all`, sort, limit, page);
+    return this.getEntryStore().getListEntries(
+      `${this._resourceURI}/entry/_all`,
+      sort,
+      limit,
+      page
+    );
   }
 
   /**
@@ -46,7 +51,10 @@ export default class Context extends Resource {
    * @see EntryStore#getEntry
    */
   getEntryById(entryId, optionalLoadParams = {}) {
-    return this.getEntryStore().getEntry(this.getEntryURIbyId(entryId), optionalLoadParams);
+    return this.getEntryStore().getEntry(
+      this.getEntryURIbyId(entryId),
+      optionalLoadParams
+    );
   }
 
   /**
@@ -98,7 +106,9 @@ export default class Context extends Resource {
    * @returns {PrototypeEntry}
    */
   newLink(link, id) {
-    return new PrototypeEntry(this, id).setResourceURI(link).setEntryType(types.ET_LINK);
+    return new PrototypeEntry(this, id)
+      .setResourceURI(link)
+      .setEntryType(types.ET_LINK);
   }
 
   /**
@@ -165,10 +175,16 @@ export default class Context extends Resource {
    * @returns {PrototypeEntry}
    */
   newGraph(graph = {}, id) {
-    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_GRAPH);
+    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(
+      types.GT_GRAPH
+    );
     const entryInfo = prototypeEntry.getEntryInfo();
-    prototypeEntry._resource = new GraphResource(entryInfo.getEntryURI(), entryInfo.getResourceURI(),
-      this.getEntryStore(), graph);
+    prototypeEntry._resource = new GraphResource(
+      entryInfo.getEntryURI(),
+      entryInfo.getResourceURI(),
+      this.getEntryStore(),
+      graph
+    );
 
     return prototypeEntry;
   }
@@ -185,10 +201,16 @@ export default class Context extends Resource {
    * @returns {PrototypeEntry}
    */
   newString(str, id) {
-    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_STRING);
+    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(
+      types.GT_STRING
+    );
     const entryInfo = prototypeEntry.getEntryInfo();
-    prototypeEntry._resource = new StringResource(entryInfo.getEntryURI(),
-      entryInfo.getResourceURI(), this.getEntryStore(), str);
+    prototypeEntry._resource = new StringResource(
+      entryInfo.getEntryURI(),
+      entryInfo.getResourceURI(),
+      this.getEntryStore(),
+      str
+    );
 
     return prototypeEntry;
   }
@@ -204,9 +226,16 @@ export default class Context extends Resource {
    * @returns {PrototypeEntry}
    */
   newPipeline(id) {
-    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(types.GT_PIPELINE);
+    const prototypeEntry = new PrototypeEntry(this, id).setGraphType(
+      types.GT_PIPELINE
+    );
     const entryInfo = prototypeEntry.getEntryInfo();
-    prototypeEntry._resource = new Pipeline(entryInfo.getEntryURI(), entryInfo.getResourceURI(), this.getEntryStore(), {});
+    prototypeEntry._resource = new Pipeline(
+      entryInfo.getEntryURI(),
+      entryInfo.getResourceURI(),
+      this.getEntryStore(),
+      {}
+    );
 
     return prototypeEntry;
   }
@@ -229,7 +258,9 @@ export default class Context extends Resource {
     const oldName = this._name;
     this._name = name;
     try {
-      const promise = this.getEntryStore().getREST().put(`${this.getEntryURI()}/name`, JSON.stringify({ name }));
+      const promise = this.getEntryStore()
+        .getREST()
+        .put(`${this.getEntryURI()}/name`, JSON.stringify({ name }));
       this.getEntryStore().handleAsync(promise, 'setContextName');
       await promise;
       const entry = this.getEntry(true);
@@ -266,4 +297,4 @@ export default class Context extends Resource {
   _update(data) {
     this._name = data.alias || data.name; // TODO, change to only name after clean-up
   }
-};
+}

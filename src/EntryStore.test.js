@@ -5,14 +5,13 @@ const { repository, contextId, entryId, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 const MAX_AGE = 86400;
 
-
 /*
-* Auxilary functions for setups
-*/
+ * Auxilary functions for setups
+ */
 
 async function logOut() {
-  await es.getAuth().logout()
-};
+  await es.getAuth().logout();
+}
 
 async function logInlogOut() {
   await es.getAuth().logout();
@@ -20,7 +19,6 @@ async function logInlogOut() {
 }
 
 describe('A signed out (admin) user', () => {
-
   beforeEach(() => {
     return logOut();
   });
@@ -29,9 +27,10 @@ describe('A signed out (admin) user', () => {
     expect(es.getBaseURI()).toBe(repository);
   });
 
-
   test('Fetching an entry', async () => {
-    const entry = await es.getEntry(`${repository}${contextId}/entry/${entryId}`);
+    const entry = await es.getEntry(
+      `${repository}${contextId}/entry/${entryId}`
+    );
     expect(entry).not.toBeNull();
   });
 
@@ -41,34 +40,30 @@ describe('A signed out (admin) user', () => {
   });
 });
 
-
-
-
 describe('A signed in admin (user)', () => {
-
-
   beforeEach(() => {
     return logInlogOut();
   });
 
-  test('Sign out then checking if listener caught the signout', done => {
+  test('Sign out then checking if listener caught the signout', (done) => {
     expect.assertions(2);
     const asyncListener = async (promise, callType) => {
       expect(callType).toBe('logout'); // If fail: Wrong calltype, should be 'logout'
-      promise.then((value) => {
-        expect(1).toBeTruthy();
-        done();
-      }, reason => {
-        expect(0).toBeTruthy();
-        done(reason);
-      });
-
+      promise.then(
+        (value) => {
+          expect(1).toBeTruthy();
+          done();
+        },
+        (reason) => {
+          expect(0).toBeTruthy();
+          done(reason);
+        }
+      );
     };
     es.addAsyncListener(asyncListener);
     es.getAuth().logout();
     es.removeAsyncListener(asyncListener);
   });
-
 
   test('Fetch context list', async () => {
     expect.assertions(1);
@@ -91,13 +86,11 @@ describe('A signed in admin (user)', () => {
     expect(entry.getResource(true).getName()).toBe(username); // If fail: User created, but username provided in creation step is missing.
   });
 
-
   test('Create a group', async () => {
     expect.assertions(1);
     const entry = await es.newGroup().commit();
     expect(entry.isGroup()).toBeTruthy(); // If fail: Entry created, but it is not a group!
   });
-
 
   // Bertrand Russel would be proud of this entry
   test('Check so that cache only has one request', async () => {
@@ -120,4 +113,3 @@ describe('A signed in admin (user)', () => {
     expect(cache.get(contextsEntryURI)).not.toBe(undefined); // If fail: 'Entry not in cache after being returned'
   });
 });
-

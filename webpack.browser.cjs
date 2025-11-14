@@ -15,7 +15,7 @@ module.exports = {
     new webpack.IgnorePlugin({
       resourceRegExp: /^\.\/locale$/,
       contextRegExp: /moment/,
-    })
+    }),
   ],
   context: __dirname, // string (absolute path!)
   module: {
@@ -23,27 +23,32 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: [{
-          loader: 'babel-loader',
-          options: {
-            presets: [[
-              '@babel/preset-env', {
-                shippedProposals: true,
-                useBuiltIns: 'usage',
-                corejs: 3,
-                targets: {
-                  ie: 11,
-                },
-              },
-            ]],
-            plugins: [
-              '@babel/plugin-proposal-object-rest-spread',
-              '@babel/plugin-proposal-class-properties',
-              '@babel/plugin-syntax-dynamic-import',
-            ],
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    shippedProposals: true,
+                    useBuiltIns: 'usage',
+                    corejs: 3,
+                    targets: {
+                      ie: 11,
+                    },
+                  },
+                ],
+              ],
+              plugins: [
+                '@babel/plugin-proposal-object-rest-spread',
+                '@babel/plugin-proposal-class-properties',
+                '@babel/plugin-syntax-dynamic-import',
+              ],
+            },
           },
-        }],
+        ],
       },
-    ]
+    ],
   },
 };

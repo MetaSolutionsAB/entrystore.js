@@ -26,7 +26,6 @@ describe('Authentication using a guest profile', () => {
 
   beforeEach(setUp);
 
-
   test('Signing in', (done) => {
     expect.assertions(2);
     const authCallback = (topic, data) => {
@@ -38,7 +37,6 @@ describe('Authentication using a guest profile', () => {
     auth.addAuthListener(authCallback);
     auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
   });
-
 
   test('Check user entry is guest', async () => {
     expect.assertions(1);

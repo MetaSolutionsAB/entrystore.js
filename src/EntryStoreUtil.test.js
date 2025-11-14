@@ -7,12 +7,10 @@ const es = new EntryStore(repository);
 const esu = new EntryStoreUtil(es);
 const MAX_AGE = 86400;
 
-
 async function logInlogOut() {
   await es.getAuth().logout();
   await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
 }
-
 
 describe('User with an admin login', () => {
   beforeAll(() => logInlogOut());
@@ -54,8 +52,10 @@ describe('User with an admin login', () => {
     expect(c.getPromise(guestURI)).not.toBeTruthy();
     expect(c.getPromise(usersURI)).not.toBeTruthy();
 
-    const fourInOne = esu.loadEntriesByResourceURIs([adminRURI, adminsRURI, guestRURI, usersRURI],
-      '_principals');
+    const fourInOne = esu.loadEntriesByResourceURIs(
+      [adminRURI, adminsRURI, guestRURI, usersRURI],
+      '_principals'
+    );
 
     // Make sure the state is correct, i.e. four entries, one is loaded in advance (admin),
     // and three are in the process of being loaded (admins, guest and users).
@@ -91,7 +91,10 @@ describe('User with an admin login', () => {
     if (c.get(adminsURI)) {
       c.unCache(c.get(adminsURI));
     }
-    const adminsPromiseDirect = esu.getEntryByResourceURIDebounce(adminsRURI, '_principals');
+    const adminsPromiseDirect = esu.getEntryByResourceURIDebounce(
+      adminsRURI,
+      '_principals'
+    );
     const adminsPromise = c.getPromise(adminsRURI);
     expect(adminsPromise).not.toBeTruthy();
     const admins = await adminsPromiseDirect;
@@ -118,14 +121,21 @@ describe('User with an admin login', () => {
     }
 
     // Request first entry, wait a bit, request next entry after some delay
-    const adminPromiseDirect = esu.getEntryByResourceURIDebounce(adminRURI, '_principals');
-    await new Promise(resolve => setTimeout(resolve, 5));
+    const adminPromiseDirect = esu.getEntryByResourceURIDebounce(
+      adminRURI,
+      '_principals'
+    );
+    await new Promise((resolve) => setTimeout(resolve, 5));
     esu.getEntryByResourceURIDebounce(adminsRURI, '_principals');
     // The two entries are not yet in the process of being loaded as they are loaded via debounce.
     expect(c.getPromise(adminRURI)).not.toBeTruthy();
     expect(c.getPromise(adminsRURI)).not.toBeTruthy();
     // Request the third entry with another calltype to force the loading and start a new debounce queue.
-    const guestPromiseDirect = esu.getEntryByResourceURIDebounce(guestRURI, '_principals', 'newCallType');
+    const guestPromiseDirect = esu.getEntryByResourceURIDebounce(
+      guestRURI,
+      '_principals',
+      'newCallType'
+    );
     // Two first entries (admin and admins) are now being loaded, last entry not yet (guest)
     expect(c.getPromise(adminRURI)).toBeTruthy();
     expect(c.getPromise(adminsRURI)).toBeTruthy();

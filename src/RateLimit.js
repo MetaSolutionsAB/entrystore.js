@@ -32,7 +32,6 @@
  * @exports store/RateLimit
  */
 export default class RateLimit {
-
   /**
    *
    * @param {Object} [options] an options object
@@ -46,7 +45,17 @@ export default class RateLimit {
    * @param {string} [options.mode=burst] - the rate limit approach taken, supports 'naive' and 'burst'
    * @param {boolean} [history=false] - weather the request history per bucket will be saved in an array
    */
-  constructor({ timePeriod = 3600, requestLimit = 4896, bucketCount = 12, mode = 'burst', minimumBurstPerBucket, rateLimitationSpeed} = {}, history = false) {
+  constructor(
+    {
+      timePeriod = 3600,
+      requestLimit = 4896,
+      bucketCount = 12,
+      mode = 'burst',
+      minimumBurstPerBucket,
+      rateLimitationSpeed,
+    } = {},
+    history = false
+  ) {
     this._timePeriod = timePeriod;
     this._requestLimit = requestLimit;
     this._bucketCount = bucketCount;
@@ -61,15 +70,23 @@ export default class RateLimit {
       this._buckets[i] = 0;
     }
     // By default rate is half the allowed requests per bucket
-    this._rate = Math.floor(rateLimitationSpeed !== undefined ? rateLimitationSpeed * timePeriod / bucketCount :
-      requestLimit / (this._bucketCount * 2));
+    this._rate = Math.floor(
+      rateLimitationSpeed !== undefined
+        ? (rateLimitationSpeed * timePeriod) / bucketCount
+        : requestLimit / (this._bucketCount * 2)
+    );
 
     // By default burst rate is a sixth of the default rate of the allowed requests per bucket
-    this._burst = Math.floor(minimumBurstPerBucket !== undefined ? minimumBurstPerBucket : requestLimit / (this._bucketCount * 12));
+    this._burst = Math.floor(
+      minimumBurstPerBucket !== undefined
+        ? minimumBurstPerBucket
+        : requestLimit / (this._bucketCount * 12)
+    );
 
     // waitTime is the time to wait between requests in limit mode expressed in milliseconds
-    this._waitTime = this._bucketMode ? timePeriod / bucketCount / this._rate * 1000 :
-      timePeriod * 1000 / requestLimit ;
+    this._waitTime = this._bucketMode
+      ? (timePeriod / bucketCount / this._rate) * 1000
+      : (timePeriod * 1000) / requestLimit;
 
     // Start time for last bucket.
     this._bucketStartTime = new Date().getTime();
@@ -121,8 +138,13 @@ export default class RateLimit {
   calculateBudget() {
     this._budget = this._requestLimit;
     for (let remainIdx = 1; remainIdx <= this._bucketCount; remainIdx++) {
-      let remaining = this._requestLimit - (this._rate + this._burst) * remainIdx;
-      for (let bucketIdx = remainIdx - 1; bucketIdx < this._bucketCount; bucketIdx++) {
+      let remaining =
+        this._requestLimit - (this._rate + this._burst) * remainIdx;
+      for (
+        let bucketIdx = remainIdx - 1;
+        bucketIdx < this._bucketCount;
+        bucketIdx++
+      ) {
         remaining -= this._buckets[bucketIdx];
       }
       if (remaining < this._budget) {
@@ -148,10 +170,13 @@ export default class RateLimit {
         if (this._buckets[a] > 0) {
           this._history.push({
             amount: this._buckets[a],
-            time: this._bucketStartTime.getTime() / 1000 + this._bucketTimeLength * a
+            time:
+              this._bucketStartTime.getTime() / 1000 +
+              this._bucketTimeLength * a,
           });
           if (this._lastLimitPoint) {
-            this._history[this._history.length - 1].limitAt = this._lastLimitPoint;
+            this._history[this._history.length - 1].limitAt =
+              this._lastLimitPoint;
           }
         }
       }
@@ -159,7 +184,7 @@ export default class RateLimit {
     delete this._lastLimitPoint;
     this._buckets.splice(0, amount);
     const from = amount > this._bucketCount ? 0 : this._bucketCount - amount;
-    for (let i = from ; i < this._bucketCount; i++) {
+    for (let i = from; i < this._bucketCount; i++) {
       this._buckets[i] = 0;
     }
   }
@@ -189,15 +214,14 @@ export default class RateLimit {
       if (isLimitedNow && !this._limit) {
         // Notify listeners that we are starting to do rate limitation
         this._lastLimitPoint = this._lastRequestTime;
-        this._listeners.forEach(listener => listener(true));
+        this._listeners.forEach((listener) => listener(true));
       } else if (!isLimitedNow && this._limit) {
         // Notify listeners that we stopped to do rate limitation
-        this._listeners.forEach(listener => listener(false));
+        this._listeners.forEach((listener) => listener(false));
       }
       this._limit = isLimitedNow;
     }
   }
-
 
   /**
    * Handles the queue of requests by either calling them or postponing via timeouts
@@ -206,7 +230,7 @@ export default class RateLimit {
    */
   process() {
     while (this._queue.length > 0 && !this.timeout) {
-      const {func, resolve, reject} = this._queue.shift();
+      const { func, resolve, reject } = this._queue.shift();
       if (this._limit) {
         this.timeout = setTimeout(() => {
           this.tick();
@@ -235,7 +259,7 @@ export default class RateLimit {
     if (this._limit) {
       const now = new Date().getTime();
       const diff = now - this._lastRequestTime;
-      if ( diff < this._waitTime) {
+      if (diff < this._waitTime) {
         return this._waitTime - diff;
       }
     }
@@ -255,7 +279,7 @@ export default class RateLimit {
   wait() {
     const waitTime = this._waitTime();
     if (waitTime > 0) {
-      return new Promise(resolve => setTimeout(resolve, waitTime));
+      return new Promise((resolve) => setTimeout(resolve, waitTime));
     }
     return Promise.resolve();
   }
@@ -271,7 +295,7 @@ export default class RateLimit {
   enqueue(fn, context, args = []) {
     const func = context || args ? fn.bind(context, ...args) : fn;
     return new Promise((resolve, reject) => {
-      this._queue.push({func, resolve, reject});
+      this._queue.push({ func, resolve, reject });
       this.process();
     });
   }
