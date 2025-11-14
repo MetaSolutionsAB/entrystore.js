@@ -5,6 +5,31 @@
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
+  "description": "A JavaScript library that simplifies the communication with the EntryStore REST API",
+  "licenses": [
+    {
+      "type": "LGPL-3.0-only",
+      "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
+    }
+  ],
+  "author": {
+    "name": "Matthias Palmér",
+    "email": "matthias@metasolutions.se",
+    "url": "https://entryscape.com/"
+  },
+  "contributors": [
+    {
+      "name": "Valentino Hudhra",
+      "email": "valentino@metasolutions.se",
+      "url": "http://valentinohudhra.com/"
+    }
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
+  "homepage": "https://entrystore.org/javascript/",
   "exports": {
     ".": {
       "module": "./src/index.js",
@@ -34,43 +59,18 @@
     "@babel/register": "^7.22.5",
     "babel-loader": "^9.1.3",
     "docdash": "^2.0.2",
+    "@entryscape/linting-config": "bitbucket:metasolutions/linting-config#main",
     "eslint": "^8.56.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.1",
     "jest": "^27.2.4",
     "jsdoc": "^4.0.2",
     "madge": "^4.0.2",
     "mocha": "^10.1.0",
+    "prettier": "^3.6.2",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.2.2",
     "webpack-merge": "^5.9.0"
   },
-  "description": "A JS-library for working EntryStore",
-  "licenses": [
-    {
-      "type": "LGPL-3.0-only",
-      "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
-    }
-  ],
-  "author": {
-    "name": "Matthias Palmér",
-    "email": "matthias@metasolutions.se",
-    "url": "https://entryscape.com/"
-  },
-  "contributors": [
-    {
-      "name": "Valentino Hudhra",
-      "email": "valentino@metasolutions.se",
-      "url": "http://valentinohudhra.com/"
-    }
-  ],
-  "files": [
-    "dist",
-    "src"
-  ],
-  "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
-  "homepage": "https://entrystore.org/javascript/",
   "scripts": {
     "build:node": "webpack --mode production --config webpack.node.cjs",
     "build:browser": "webpack --mode production --config webpack.browser.cjs",
@@ -95,5 +95,6 @@
     ],
     "coverageDirectory": "tests/coverage"
   },
+  "prettier": "@entryscape/linting-config/prettier",
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
 }
