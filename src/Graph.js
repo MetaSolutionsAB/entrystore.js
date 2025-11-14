@@ -53,9 +53,15 @@ export default class GraphResource extends Resource {
     const entry = await this.getEntry();
     const entryInfo = entry.getEntryInfo();
 
-    const promise = es.getREST().put(this._resourceURI,
-      JSON.stringify(this._graph.exportRDFJSON()),
-      ignoreIfUnmodifiedSinceCheck ? undefined : entryInfo.getModificationDate());
+    const promise = es
+      .getREST()
+      .put(
+        this._resourceURI,
+        JSON.stringify(this._graph.exportRDFJSON()),
+        ignoreIfUnmodifiedSinceCheck
+          ? undefined
+          : entryInfo.getModificationDate()
+      );
     es.handleAsync(promise, 'commitGraph');
     const response = await promise;
     entryInfo.setModificationDate(response.header['last-modified']);

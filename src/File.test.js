@@ -16,7 +16,6 @@ test('Create entry with a JSON file', async () => {
   expect(data.a).toBe('v'); // If fail: Json not set correctly.');
 });
 
-
 test('Create entry with a text file', async () => {
   const entry = await context().newEntry().commit();
   const resource = entry.getResource(true);
@@ -25,7 +24,7 @@ test('Create entry with a text file', async () => {
   await entry.refresh();
   expect(entry.getEntryInfo().getFormat()).toBe('text/plain'); // If fail: 'Mimetype is not text/plain as it should.');
   const data = await resource.getText();
-  expect(typeof data).toBe('string')
+  expect(typeof data).toBe('string');
   expect(data).toBe('test'); // If fail: Text not set correctly as resource.');
 });
 
@@ -37,7 +36,7 @@ test('Create entry with a xml file', async () => {
     const DOMParser = DOMParser;
   } else {
     const DOMParser = xmldom.DOMParser;
-  };
+  }
 
   const parser = new xmldom.DOMParser();
   let xml = parser.parseFromString('<book></book>', 'text/xml');

@@ -162,7 +162,11 @@ export default class EntryStore {
     if (credentials == null) {
       return this._auth.logout();
     }
-    return this._auth.login(credentials.user, credentials.password, credentials.maxAge);
+    return this._auth.login(
+      credentials.user,
+      credentials.password,
+      credentials.maxAge
+    );
   }
 
   /**
@@ -241,7 +245,9 @@ export default class EntryStore {
    * @see {@link Context#getEntryById} for loading entries relative to a context.
    */
   getEntry(entryURI, optionalLoadParams = {}) {
-    const forceLoad = optionalLoadParams ? optionalLoadParams.forceLoad === true : false;
+    const forceLoad = optionalLoadParams
+      ? optionalLoadParams.forceLoad === true
+      : false;
     const e = this._cache.get(entryURI);
     let asyncContext = 'getEntry';
     if (optionalLoadParams != null) {
@@ -253,8 +259,11 @@ export default class EntryStore {
       }
     }
     const checkResourceLoaded = (entry) => {
-      if (optionalLoadParams != null && optionalLoadParams.loadResource
-        && entry.getResource() == null) {
+      if (
+        optionalLoadParams != null &&
+        optionalLoadParams.loadResource &&
+        entry.getResource() == null
+      ) {
         return entry.getResource().then(() => entry);
       }
       return entry;
@@ -267,7 +276,10 @@ export default class EntryStore {
       }
 
       // Will only refresh if needed, a promise is returned in any case
-      return this.handleAsync(e.refresh().then(checkResourceLoaded), asyncContext);
+      return this.handleAsync(
+        e.refresh().then(checkResourceLoaded),
+        asyncContext
+      );
     }
 
     const entryPromise = this._cache.getPromise(entryURI);
@@ -276,13 +288,19 @@ export default class EntryStore {
     }
     const self = this;
     const entryLoadURI = factory.getEntryLoadURI(entryURI, optionalLoadParams);
-    const loadEntryPromise = this.handleAsync(this._rest.get(entryLoadURI).then((data) => {
-      // The entry, will always be there.
-      const entry = factory.updateOrCreate(entryURI, data, self);
-      return checkResourceLoaded(entry);
-    }, (err) => {
-      throw new Error(`Failed fetching entry. ${err}`);
-    }), asyncContext).finally(() => {
+    const loadEntryPromise = this.handleAsync(
+      this._rest.get(entryLoadURI).then(
+        (data) => {
+          // The entry, will always be there.
+          const entry = factory.updateOrCreate(entryURI, data, self);
+          return checkResourceLoaded(entry);
+        },
+        (err) => {
+          throw new Error(`Failed fetching entry. ${err}`);
+        }
+      ),
+      asyncContext
+    ).finally(() => {
       this._cache.removePromise(entryURI);
     });
     this._cache.addPromise(entryURI, loadEntryPromise);
@@ -318,7 +336,8 @@ export default class EntryStore {
           op.offset = factory.getDefaultLimit() * page;
         }
       }
-      this.getEntryStore().getEntry(entryURI, op)
+      this.getEntryStore()
+        .getEntry(entryURI, op)
         .then((entry) => {
           const list = entry.getResource(true);
           list.getEntries(page).then(resolve, reject);
@@ -349,7 +368,10 @@ export default class EntryStore {
    * @return {Context}
    */
   getContextById(contextId) {
-    return factory.getContext(this, `${this._baseURI}_contexts/entry/${contextId}`);
+    return factory.getContext(
+      this,
+      `${this._baseURI}_contexts/entry/${contextId}`
+    );
   }
 
   /**
@@ -377,7 +399,9 @@ export default class EntryStore {
    * @todo May include folders and other entries as well...
    */
   getPrincipalList() {
-    return this.newSolrQuery().graphType([types.GT_USER, types.GT_GROUP]).list();
+    return this.newSolrQuery()
+      .graphType([types.GT_USER, types.GT_GROUP])
+      .list();
   }
 
   /**
@@ -403,11 +427,17 @@ export default class EntryStore {
    * @see Context#newString
    */
   async createEntry(prototypeEntry) {
-    const postURI = factory.getEntryCreateURI(prototypeEntry, prototypeEntry.getParentList());
+    const postURI = factory.getEntryCreateURI(
+      prototypeEntry,
+      prototypeEntry.getParentList()
+    );
     const postParams = factory.getEntryCreatePostData(prototypeEntry);
     let entryURI;
     try {
-      entryURI = await this.handleAsync(this._rest.create(postURI, postParams), 'createEntry');
+      entryURI = await this.handleAsync(
+        this._rest.create(postURI, postParams),
+        'createEntry'
+      );
     } catch (err) {
       return Promise.reject(err);
     }
@@ -453,7 +483,10 @@ export default class EntryStore {
     if (args.length > 0) {
       uri += `?${args.join('&')}`;
     }
-    const location = await this.handleAsync(this._rest.create(uri), 'createGroupAndContext');
+    const location = await this.handleAsync(
+      this._rest.create(uri),
+      'createGroupAndContext'
+    );
     return this.getEntry(location);
   }
 
@@ -466,8 +499,13 @@ export default class EntryStore {
    * @returns {PrototypeEntry}
    */
   newUser(username, password, homeContext, id) {
-    const _principals = factory.getContext(this, `${this._baseURI}_contexts/entry/_principals`);
-    const prototypeEntry = new PrototypeEntry(_principals, id).setGraphType(types.GT_USER);
+    const _principals = factory.getContext(
+      this,
+      `${this._baseURI}_contexts/entry/_principals`
+    );
+    const prototypeEntry = new PrototypeEntry(_principals, id).setGraphType(
+      types.GT_USER
+    );
     const entryInfo = prototypeEntry.getEntryInfo();
     const data = {};
     if (username != null) {
@@ -479,7 +517,12 @@ export default class EntryStore {
     if (homeContext != null) {
       data.homecontext = homeContext;
     }
-    prototypeEntry._resource = new User(entryInfo.getEntryURI(), entryInfo.getResourceURI(), this, data);
+    prototypeEntry._resource = new User(
+      entryInfo.getEntryURI(),
+      entryInfo.getResourceURI(),
+      this,
+      data
+    );
     return prototypeEntry;
   }
 
@@ -491,11 +534,20 @@ export default class EntryStore {
    * @returns {PrototypeEntry}
    */
   newGroup(groupName, id) {
-    const _principals = factory.getContext(this, `${this._baseURI}_contexts/entry/_principals`);
-    const prototypeEntry = new PrototypeEntry(_principals, id).setGraphType(types.GT_GROUP);
+    const _principals = factory.getContext(
+      this,
+      `${this._baseURI}_contexts/entry/_principals`
+    );
+    const prototypeEntry = new PrototypeEntry(_principals, id).setGraphType(
+      types.GT_GROUP
+    );
     if (groupName != null) {
       const ei = prototypeEntry.getEntryInfo();
-      const resource = new Resource(ei.getEntryURI(), ei.getResourceURI(), this);
+      const resource = new Resource(
+        ei.getEntryURI(),
+        ei.getResourceURI(),
+        this
+      );
       resource._update({ name: groupName });
       prototypeEntry._resource = resource;
     }
@@ -525,7 +577,10 @@ export default class EntryStore {
    */
   loadViaProxy(uri, formatHint) {
     const url = factory.getProxyURI(this._baseURI, uri);
-    return this.handleAsync(this.getREST().get(url, formatHint, true), 'loadViaProxy');
+    return this.handleAsync(
+      this.getREST().get(url, formatHint, true),
+      'loadViaProxy'
+    );
   }
 
   /**
@@ -691,4 +746,4 @@ export default class EntryStore {
     const packageJSON = require('../package.json');
     return { version: packageJSON.version };
   }
-};
+}

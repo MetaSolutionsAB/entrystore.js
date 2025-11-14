@@ -5,15 +5,16 @@ import config from '../tests/config.js';
 const es = new EntryStore(config.repository);
 let authAdminReady = false;
 
-
 async function setUp() {
   if (!authAdminReady) {
-    es.getAuth().login('admin', 'adminadmin').then(() => {
-      authAdminReady = true;
-    });
+    es.getAuth()
+      .login('admin', 'adminadmin')
+      .then(() => {
+        authAdminReady = true;
+      });
   } else {
   }
-};
+}
 
 beforeAll(setUp);
 
@@ -51,4 +52,3 @@ test('inferredMetadata', () => {
       });
 });
 */
-

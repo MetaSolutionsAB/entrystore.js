@@ -20,46 +20,51 @@ const promiseUtil = {};
  * @param {function} func a function that is applied to each item and must return a promise
  * @returns {Promise}
  */
-promiseUtil.forEach = (items, func) => new Promise((resolve, reject) => {
-  let arr;
-  let cursor;
-  const onFailure = (err) => {
-    reject(err);
-  };
-  if (Array.isArray(items)) {
-    const results = [];
-    arr = items.slice();
-    cursor = (result) => {
-      results.push(result);
-      if (arr.length > 0) {
-        return promiseUtil.toPromise(func(arr.shift())).then(cursor, onFailure);
-      }
-      resolve(results);
-      return undefined;
+promiseUtil.forEach = (items, func) =>
+  new Promise((resolve, reject) => {
+    let arr;
+    let cursor;
+    const onFailure = (err) => {
+      reject(err);
     };
-    if (arr.length === 0) {
-      resolve(results);
-    } else {
-      promiseUtil.toPromise(func(arr.shift())).then(cursor, onFailure);
-    }
-  } else if (typeof items === 'object') {
-    arr = Object.keys(items);
-    let itemKey;
-    const onSuccess = (result) => {
-      items[itemKey] = result;
-      cursor();
-    };
-    cursor = () => {
-      if (arr.length > 0) {
-        itemKey = arr.shift();
-        promiseUtil.toPromise(func(items[itemKey])).then(onSuccess, onFailure);
+    if (Array.isArray(items)) {
+      const results = [];
+      arr = items.slice();
+      cursor = (result) => {
+        results.push(result);
+        if (arr.length > 0) {
+          return promiseUtil
+            .toPromise(func(arr.shift()))
+            .then(cursor, onFailure);
+        }
+        resolve(results);
+        return undefined;
+      };
+      if (arr.length === 0) {
+        resolve(results);
       } else {
-        resolve(items);
+        promiseUtil.toPromise(func(arr.shift())).then(cursor, onFailure);
       }
-    };
-    cursor();
-  }
-});
+    } else if (typeof items === 'object') {
+      arr = Object.keys(items);
+      let itemKey;
+      const onSuccess = (result) => {
+        items[itemKey] = result;
+        cursor();
+      };
+      cursor = () => {
+        if (arr.length > 0) {
+          itemKey = arr.shift();
+          promiseUtil
+            .toPromise(func(items[itemKey]))
+            .then(onSuccess, onFailure);
+        } else {
+          resolve(items);
+        }
+      };
+      cursor();
+    }
+  });
 
 /**
  * Makes sure a value is a promise, if needed wraps it as a promise.
@@ -69,7 +74,11 @@ promiseUtil.forEach = (items, func) => new Promise((resolve, reject) => {
  * @return {Promise}
  */
 promiseUtil.toPromise = (value) => {
-  if (typeof value === 'object' && value !== null && typeof value.then === 'function') {
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof value.then === 'function'
+  ) {
     return value;
   }
   if (value === false) {
@@ -87,7 +96,7 @@ promiseUtil.toPromise = (value) => {
  * @param millisecs
  * @returns {Promise<any>}
  */
-promiseUtil.delay = millisecs => new Promise(resolve => setTimeout(resolve, millisecs));
+promiseUtil.delay = (millisecs) =>
+  new Promise((resolve) => setTimeout(resolve, millisecs));
 
 export default promiseUtil;
-

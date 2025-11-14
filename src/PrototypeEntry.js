@@ -22,7 +22,11 @@ export default class PrototypeEntry extends Entry {
    */
   constructor(context, id = NEW_ID_PLACEHOLDER) {
     const cru = context.getResourceURI();
-    const entryInfo = new EntryInfo(`${cru}/entry/${id}`, null, context.getEntryStore());
+    const entryInfo = new EntryInfo(
+      `${cru}/entry/${id}`,
+      null,
+      context.getEntryStore()
+    );
     if (context.getId() === '_contexts') {
       entryInfo._resourceURI = context.getEntryStore().getBaseURI() + id;
     } else {
@@ -35,7 +39,8 @@ export default class PrototypeEntry extends Entry {
       return this;
     };
 
-    entryInfo.getResourceURI = () => this._resourceURI || entryInfo._resourceURI;
+    entryInfo.getResourceURI = () =>
+      this._resourceURI || entryInfo._resourceURI;
 
     super(context, entryInfo); // Call the super constructor.
     if (id !== NEW_ID_PLACEHOLDER) {
@@ -83,7 +88,10 @@ export default class PrototypeEntry extends Entry {
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setExternalMetadataURI(uri) {
-    EntryInfo.prototype.setExternalMetadataURI.apply(this._entryInfo, arguments);
+    EntryInfo.prototype.setExternalMetadataURI.apply(
+      this._entryInfo,
+      arguments
+    );
     return this;
   }
 
@@ -95,10 +103,12 @@ export default class PrototypeEntry extends Entry {
   setEntryType(et) {
     const uri = terms.invEntryType[et];
     if (uri) {
-      this._entryInfo.getGraph().create(this._entryInfo.getEntryURI(), terms.rdf.type, {
-        type: 'uri',
-        value: uri,
-      });
+      this._entryInfo
+        .getGraph()
+        .create(this._entryInfo.getEntryURI(), terms.rdf.type, {
+          type: 'uri',
+          value: uri,
+        });
     }
     return this;
   }
@@ -112,10 +122,12 @@ export default class PrototypeEntry extends Entry {
     this._gt = gt;
     const uri = terms.invGraphType[gt];
     if (uri) {
-      this._entryInfo.getGraph().create(this._entryInfo.getResourceURI(), terms.rdf.type, {
-        type: 'uri',
-        value: uri,
-      });
+      this._entryInfo
+        .getGraph()
+        .create(this._entryInfo.getResourceURI(), terms.rdf.type, {
+          type: 'uri',
+          value: uri,
+        });
     }
     return this;
   }
@@ -128,10 +140,12 @@ export default class PrototypeEntry extends Entry {
   setResourceType(rt) {
     const uri = terms.invResourceType[rt];
     if (uri) {
-      this._entryInfo.getGraph().create(this._entryInfo.getResourceURI(), terms.rdf.type, {
-        type: 'uri',
-        value: uri,
-      });
+      this._entryInfo
+        .getGraph()
+        .create(this._entryInfo.getResourceURI(), terms.rdf.type, {
+          type: 'uri',
+          value: uri,
+        });
     }
     return this;
   }
@@ -171,12 +185,21 @@ export default class PrototypeEntry extends Entry {
    */
   commitMetadata() {
     if (!this.specificId) {
-      throw new Error('The entryId must have been specified for allowing metadata to be saved.');
+      throw new Error(
+        'The entryId must have been specified for allowing metadata to be saved.'
+      );
     }
     const es = this.getEntryStore();
 
-    return es.handleAsync(es.getREST().put(this.getEntryInfo().getMetadataURI(),
-      JSON.stringify(this.getMetadata().exportRDFJSON())), 'commitMetadata');
+    return es.handleAsync(
+      es
+        .getREST()
+        .put(
+          this.getEntryInfo().getMetadataURI(),
+          JSON.stringify(this.getMetadata().exportRDFJSON())
+        ),
+      'commitMetadata'
+    );
   }
 
   /**
@@ -186,11 +209,20 @@ export default class PrototypeEntry extends Entry {
    */
   commitCachedExternalMetadata() {
     if (!this.specificId) {
-      throw new Error('The entryId must have been specified for allowing cached external metadata to be saved.');
+      throw new Error(
+        'The entryId must have been specified for allowing cached external metadata to be saved.'
+      );
     }
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().put(this.getEntryInfo().getCachedExternalMetadataURI(),
-      JSON.stringify(this._cachedExternalMetadata.exportRDFJSON())), 'commitCachedExternalMetadata');
+    return es.handleAsync(
+      es
+        .getREST()
+        .put(
+          this.getEntryInfo().getCachedExternalMetadataURI(),
+          JSON.stringify(this._cachedExternalMetadata.exportRDFJSON())
+        ),
+      'commitCachedExternalMetadata'
+    );
   }
 
   /**
@@ -210,4 +242,4 @@ export default class PrototypeEntry extends Entry {
   commit() {
     return this._context.getEntryStore().createEntry(this);
   }
-};
+}
