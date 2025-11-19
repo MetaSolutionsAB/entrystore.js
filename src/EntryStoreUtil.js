@@ -448,7 +448,13 @@ export default class EntryStoreUtil {
     acceptMissing = false,
     asyncCallType
   ) {
-    return this._loadEntriesByResourceURIs(resourceURIs, context, acceptMissing, undefined, asyncCallType);
+    return this._loadEntriesByResourceURIs(
+      resourceURIs,
+      context,
+      acceptMissing,
+      undefined,
+      asyncCallType
+    );
   }
 
   /**
@@ -468,8 +474,14 @@ export default class EntryStoreUtil {
     context,
     acceptMissing = false,
     query,
-    asyncCallTyp
+    asyncCallType
   ) {
-    return this._loadEntriesByResourceURIs(resourceURIs, context, acceptMissing, query, asyncCallType);
+    return this._loadEntriesByResourceURIs(
+      resourceURIs,
+      context,
+      acceptMissing,
+      query,
+      asyncCallType
+    );
   }
 }
