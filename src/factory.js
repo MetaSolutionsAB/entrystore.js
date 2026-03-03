@@ -618,14 +618,6 @@ const getProxyURI = (baseURI, uri, formatHint) => {
 };
 
 /**
- *
- * @param uri
- * @return {string}
- */
-const getPutFileURI = (uri) =>
-  `${uri + (uri.indexOf('?') < 0 ? '?' : '&')}method=put&textarea=true`;
-
-/**
  * @param sortObject
  */
 const setSort = (sortObject) => {
@@ -675,7 +667,6 @@ export default {
   getEntryCreatePostData,
   getMoveURI,
   getProxyURI,
-  getPutFileURI,
   setSort,
   getSort,
   getDefaultLimit,

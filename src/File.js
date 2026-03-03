@@ -1,5 +1,4 @@
 import xmldom from '@xmldom/xmldom';
-import factory from './factory.js';
 import Resource from './Resource.js';
 import { isBrowser } from './utils.js';
 
@@ -33,19 +32,17 @@ export default class FileResource extends Resource {
    * @returns {Promise}
    */
   async putFile(data, format) {
-    let url;
-    // noinspection AmdModulesDependencies
-    if (isBrowser() && data instanceof Node) {
-      if (data.name == null || data.name === '') {
-        throw new Error(
-          'Failure, cannot upload resource from input element unless a name' +
-            ' attribute is provided.'
-        );
-      }
-      url = factory.getPutFileURI(this.getResourceURI());
-    } else {
-      url = this.getResourceURI();
+    if (
+      isBrowser() &&
+      data instanceof Node &&
+      (data.name == null || data.name === '')
+    ) {
+      throw new Error(
+        'Failure, cannot upload resource from input element unless a name' +
+          ' attribute is provided.'
+      );
     }
+    const url = this.getResourceURI();
     const es = this.getEntryStore();
     const entry = await this.getEntry();
     const promise = es.getREST().putFile(url, data, format);

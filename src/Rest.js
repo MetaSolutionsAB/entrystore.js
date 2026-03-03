@@ -59,7 +59,7 @@ export default class Rest {
        * @param uri
        * @param {Object} data
        * @param format
-       * @return {undefined|*}
+       * @returns {undefined|*}
        */
       rest._putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
@@ -76,13 +76,13 @@ export default class Rest {
           }
         });
 
-        const POSTRequest = superagent.post(uri).accept(format).send(stubForm);
+        const PUTRequest = superagent.put(uri).accept(format).send(stubForm);
 
         if (this.withCredentials) {
-          POSTRequest.withCredentials();
+          PUTRequest.withCredentials();
         }
 
-        return POSTRequest;
+        return PUTRequest;
       };
     }
   }
@@ -553,7 +553,7 @@ export default class Rest {
    * in a nodejs setting.
    * @param {string} format the format to handle the response as, either text, xml, html or json
    * (json is default).
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   putFile(uri, data, format) {
     if (this.writeRateLimit) {
