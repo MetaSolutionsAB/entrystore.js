@@ -3,7 +3,6 @@ import superagent from 'superagent';
 import xmldom from '@xmldom/xmldom';
 import { isBrowser } from './utils.js';
 import jsonp from 'superagent-jsonp';
-import RateLimit from './RateLimit.js';
 
 /**
  * Check if requests will be to the same domain, i.e. no CORS.
@@ -28,7 +27,7 @@ const sameOrigin = (url) => {
 
 /**
  * Last 7 digits of milliseconds since 1970 + random number.
- * @return {number}
+ * @returns {number}
  */
 const getPreventCacheNumber = () =>
   (new Date().getTime() % 10000000) * 1000 +
@@ -59,7 +58,7 @@ export default class Rest {
        * @param uri
        * @param {Object} data
        * @param format
-       * @return {undefined|*}
+       * @returns {undefined|*}
        */
       rest._putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
@@ -76,13 +75,13 @@ export default class Rest {
           }
         });
 
-        const POSTRequest = superagent.post(uri).accept(format).send(stubForm);
+        const PUTRequest = superagent.put(uri).accept(format).send(stubForm);
 
         if (this.withCredentials) {
-          POSTRequest.withCredentials();
+          PUTRequest.withCredentials();
         }
 
-        return POSTRequest;
+        return PUTRequest;
       };
     }
   }
@@ -143,7 +142,7 @@ export default class Rest {
   /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    * @async
    */
   async auth(credentials) {
@@ -215,7 +214,7 @@ export default class Rest {
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
    * @param {stream} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
    * @param {boolean} preventCache - if true an extra argument is added to the uri with a random number to prevent caching
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    * @async
    * @throws Error
    */
@@ -361,7 +360,7 @@ export default class Rest {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   post(uri, data, modDate, format) {
     if (this.writeRateLimit) {
@@ -451,7 +450,7 @@ export default class Rest {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   put(uri, data, modDate, format) {
     if (this.writeRateLimit) {
@@ -501,7 +500,7 @@ export default class Rest {
    *
    * @param {String} uri of the resource that is to be deleted.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   del(uri, modDate) {
     if (this.writeRateLimit) {
@@ -539,21 +538,17 @@ export default class Rest {
 
   /**
    * Put a file to a URI.
-   * In a browser environment a file is represented via an input tag which references
-   * the file to be uploaded via its value attribute.
+   * In a browser environment a file is represented via an input tag; the files are uploaded
+   * via FormData using a PUT request.
    * In node environments the file is represented as a stream constructed via
    * fs.createReadStream('file.txt').
-   *
-   * _**Under the hood** the tag is moved into a form in an invisible iframe
-   * which then is submitted. If there is a response it is provided in a textarea which
-   * can be looked into since we are on the same domain._
    *
    * @param {string} uri the URI to which we will put the file.
    * @param {data} data - input tag or stream that may for instance correspond to a file
    * in a nodejs setting.
    * @param {string} format the format to handle the response as, either text, xml, html or json
    * (json is default).
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   putFile(uri, data, format) {
     if (this.writeRateLimit) {

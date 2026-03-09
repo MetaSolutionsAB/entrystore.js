@@ -235,7 +235,7 @@ const _updateEntry = (entry, data) => {
  *
  * @param entryStore
  * @param contextEntryURI
- * @return {Context}
+ * @returns {Context}
  */
 const getContext = (entryStore, contextEntryURI) => {
   const baseURI = entryStore.getBaseURI();
@@ -254,7 +254,7 @@ const getContext = (entryStore, contextEntryURI) => {
  *
  * @param entryStore
  * @param entryURI
- * @return {List}
+ * @returns {List}
  */
 const getList = (entryStore, entryURI) => {
   const cache = entryStore.getCache();
@@ -280,7 +280,7 @@ const getList = (entryStore, entryURI) => {
  * @param entryURI
  * @param data
  * @param entryStore
- * @return {Entry}
+ * @returns {Entry}
  */
 const updateOrCreate = (entryURI, data, entryStore) => {
   const cache = entryStore.getCache();
@@ -321,7 +321,7 @@ const update = (entry, data) => {
  *
  * @param entryStore
  * @param query
- * @return {SearchList}
+ * @returns {SearchList}
  */
 const createSearchList = (entryStore, query) =>
   new SearchList(entryStore, query);
@@ -331,7 +331,7 @@ const createSearchList = (entryStore, query) =>
  * @param data
  * @param list
  * @param entryStore
- * @return {Array.<Entry>}
+ * @returns {Array.<Entry>}
  */
 const extractSearchResults = (data, list, entryStore) => {
   // Update or create all entries received
@@ -354,7 +354,7 @@ const extractSearchResults = (data, list, entryStore) => {
 /**
  *
  * @param entryURI
- * @return {string}
+ * @returns {string}
  */
 const getCachedExternalMetadataURI = (entryURI) =>
   entryURI.replace('/entry/', '/cached-external-metadata/');
@@ -368,7 +368,7 @@ const getId = (uri) => uri.substr(uri.lastIndexOf('/') + 1);
  *
  * @param uri
  * @param base
- * @return {string|undefined}
+ * @returns {string|undefined}
  */
 const getEntryId = (uri, base) => {
   let _uri = uri;
@@ -392,7 +392,7 @@ const getEntryId = (uri, base) => {
  *
  * @param uri
  * @param base
- * @return {string|undefined}
+ * @returns {string|undefined}
  */
 const getContextId = (uri, base) => {
   let _uri = uri;
@@ -414,7 +414,7 @@ const getContextId = (uri, base) => {
  *
  * @param entryStore
  * @param uri
- * @return {string}
+ * @returns {string}
  */
 const getEntryURIFromURI = (entryStore, uri) => {
   const base = entryStore.getBaseURI();
@@ -426,7 +426,7 @@ const getEntryURIFromURI = (entryStore, uri) => {
  * @param entryStore
  * @param contextId
  * @param entryId
- * @return {string}
+ * @returns {string}
  */
 const getEntryURI = (entryStore, contextId, entryId) =>
   `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
@@ -435,7 +435,7 @@ const getEntryURI = (entryStore, contextId, entryId) =>
  *
  * @param entryStore
  * @param uri
- * @return {string}
+ * @returns {string}
  */
 const getMetadataURIFromURI = (entryStore, uri) => {
   const base = entryStore.getBaseURI();
@@ -447,7 +447,7 @@ const getMetadataURIFromURI = (entryStore, uri) => {
  * @param entryStore
  * @param contextId
  * @param entryId
- * @return {string}
+ * @returns {string}
  */
 const getMetadataURI = (entryStore, contextId, entryId) =>
   `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
@@ -456,7 +456,7 @@ const getMetadataURI = (entryStore, contextId, entryId) =>
  *
  * @param entryStore
  * @param contextId
- * @return {string}
+ * @returns {string}
  */
 const getResourceBase = (entryStore, contextId) =>
   `${entryStore.getBaseURI() + contextId}/resource/`;
@@ -466,7 +466,7 @@ const getResourceBase = (entryStore, contextId) =>
  * @param entryStore
  * @param contextId
  * @param entryId
- * @return {string}
+ * @returns {string}
  */
 const getResourceURI = (entryStore, contextId, entryId) => {
   if (contextId === '_contexts') {
@@ -479,7 +479,7 @@ const getResourceURI = (entryStore, contextId, entryId) => {
  *
  * @param data
  * @param context
- * @return {string}
+ * @returns {string}
  */
 const getURIFromCreated = (data, context) =>
   `${context.getResourceURI()}/entry/${data.entryId}`;
@@ -488,7 +488,7 @@ const getURIFromCreated = (data, context) =>
  *
  * @param entryURI
  * @param params
- * @return {string}
+ * @returns {string}
  */
 const getEntryLoadURI = (entryURI, params) => {
   const _params = params || {};
@@ -519,7 +519,7 @@ const getEntryLoadURI = (entryURI, params) => {
  *
  * @param prototypeEntry
  * @param parentListEntry
- * @return {string}
+ * @returns {string}
  */
 const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
   let uri = `${prototypeEntry.getContext().getResourceURI()}?`;
@@ -559,7 +559,7 @@ const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
 /**
  *
  * @param prototypeEntry
- * @return {string}
+ * @returns {string}
  */
 const getEntryCreatePostData = (prototypeEntry) => {
   const postData = {};
@@ -594,7 +594,7 @@ const getEntryCreatePostData = (prototypeEntry) => {
  * @param fromListEntry
  * @param toListEntry
  * @param baseURI
- * @return {string}
+ * @returns {string}
  */
 const getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
   const entryURI = entry.getURI().substr(baseURI.length); // Only send something like 3/entry/2
@@ -607,7 +607,7 @@ const getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
  * @param baseURI
  * @param uri
  * @param formatHint
- * @return {string}
+ * @returns {string}
  */
 const getProxyURI = (baseURI, uri, formatHint) => {
   let url = `${baseURI}proxy?url=${encodeURIComponent(uri)}`;
@@ -618,14 +618,6 @@ const getProxyURI = (baseURI, uri, formatHint) => {
 };
 
 /**
- *
- * @param uri
- * @return {string}
- */
-const getPutFileURI = (uri) =>
-  `${uri + (uri.indexOf('?') < 0 ? '?' : '&')}method=put&textarea=true`;
-
-/**
  * @param sortObject
  */
 const setSort = (sortObject) => {
@@ -633,13 +625,13 @@ const setSort = (sortObject) => {
 };
 
 /**
- * @return {{sortBy: string, prio: string}}
+ * @returns {{sortBy: string, prio: string}}
  */
 const getSort = () => sortObj;
 
 /**
  *
- * @return {number}
+ * @returns {number}
  */
 const getDefaultLimit = () => defaultLimit;
 
@@ -675,7 +667,6 @@ export default {
   getEntryCreatePostData,
   getMoveURI,
   getProxyURI,
-  getPutFileURI,
   setSort,
   getSort,
   getDefaultLimit,
