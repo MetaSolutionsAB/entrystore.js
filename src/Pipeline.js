@@ -30,7 +30,10 @@ export default class Pipeline extends GraphResource {
    * entries for every execution or undefined if no destination has been specified.
    */
   getDestination() {
-    return this._graph.findFirstValue(null, terms.pipeline.transformDestination);
+    return this._graph.findFirstValue(
+      null,
+      terms.pipeline.transformDestination
+    );
   }
 
   /**
@@ -40,9 +43,15 @@ export default class Pipeline extends GraphResource {
    */
   setDestination(entryOrEntryURI) {
     this._graph.findAndRemove(null, terms.pipeline.transformDestination);
-    const uri = typeof entryOrEntryURI === 'object' && entryOrEntryURI.getURI ?
-      entryOrEntryURI.getURI() : entryOrEntryURI;
-    this._graph.add(this._resourceURI, terms.pipeline.transformDestination, uri);
+    const uri =
+      typeof entryOrEntryURI === 'object' && entryOrEntryURI.getURI
+        ? entryOrEntryURI.getURI()
+        : entryOrEntryURI;
+    this._graph.add(
+      this._resourceURI,
+      terms.pipeline.transformDestination,
+      uri
+    );
   }
 
   /**
@@ -65,7 +74,10 @@ export default class Pipeline extends GraphResource {
    * @returns {boolean} true if destination should be detected.
    */
   getDetectDestination() {
-    const val = this._graph.findFirstValue(null, terms.pipeline.transformDetectDestination);
+    const val = this._graph.findFirstValue(
+      null,
+      terms.pipeline.transformDetectDestination
+    );
     if (typeof val !== 'undefined') {
       return val.toLowerCase().indexOf('true') === 0;
     }
@@ -80,9 +92,15 @@ export default class Pipeline extends GraphResource {
   setDetectDestination(detect) {
     this._graph.findAndRemove(null, terms.pipeline.transformDetectDestination);
     if (detect === true) {
-      this._graph.add(this._resourceURI, terms.pipeline.transformDetectDestination, {
-        type: 'literal', value: 'true', datatype: terms.xsd.boolean,
-      });
+      this._graph.add(
+        this._resourceURI,
+        terms.pipeline.transformDetectDestination,
+        {
+          type: 'literal',
+          value: 'true',
+          datatype: terms.xsd.boolean,
+        }
+      );
     }
   }
 
@@ -98,11 +116,26 @@ export default class Pipeline extends GraphResource {
 
     // introduce new arguments (key value pair)
     Object.keys(args).forEach((key) => {
-      const newArgumentStmt = this._graph.add(this._resourceURI, terms.config.argument);
-      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentKey, key);
-      this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentValue, args[key]);
+      const newArgumentStmt = this._graph.add(
+        this._resourceURI,
+        terms.config.argument
+      );
+      this._graph.addL(
+        newArgumentStmt.getValue(),
+        terms.config.argumentKey,
+        key
+      );
+      this._graph.addL(
+        newArgumentStmt.getValue(),
+        terms.config.argumentValue,
+        args[key]
+      );
       if (argumentType) {
-        this._graph.addL(newArgumentStmt.getValue(), terms.config.argumentType, argumentType);
+        this._graph.addL(
+          newArgumentStmt.getValue(),
+          terms.config.argumentType,
+          argumentType
+        );
       }
     });
   }
@@ -131,8 +164,13 @@ export default class Pipeline extends GraphResource {
       return stmts;
     }
 
-    return stmts.filter(stmt =>
-      this._graph.findFirstValue(stmt.getValue(), terms.config.argumentType) === argumentType);
+    return stmts.filter(
+      (stmt) =>
+        this._graph.findFirstValue(
+          stmt.getValue(),
+          terms.config.argumentType
+        ) === argumentType
+    );
   }
 
   /**
@@ -146,9 +184,15 @@ export default class Pipeline extends GraphResource {
     const stmts = this.getPipelineArgumentStatements(argumentType);
     const args = {};
     stmts.forEach((stmt) => {
-      const key = this._graph.findFirstValue(stmt.getValue(), terms.config.argumentKey);
+      const key = this._graph.findFirstValue(
+        stmt.getValue(),
+        terms.config.argumentKey
+      );
       if (key) {
-        args[key] = this._graph.findFirstValue(stmt.getValue(), terms.config.argumentValue);
+        args[key] = this._graph.findFirstValue(
+          stmt.getValue(),
+          terms.config.argumentValue
+        );
       }
     });
 
@@ -161,7 +205,7 @@ export default class Pipeline extends GraphResource {
    */
   getTransforms() {
     const stmts = this._graph.find(null, terms.pipeline.transform);
-    const arr = stmts.map(stmt => stmt.getValue());
+    const arr = stmts.map((stmt) => stmt.getValue());
     const self = this;
     arr.sort((tr1, tr2) => {
       const pr1 = self.getPriority(tr1);
@@ -200,8 +244,10 @@ export default class Pipeline extends GraphResource {
    */
   addTransform(type, args) {
     const transforms = this.getTransforms();
-    const priority = transforms.length > 0 ?
-      this.getPriority(transforms[transforms.length - 1]) : 0;
+    const priority =
+      transforms.length > 0
+        ? this.getPriority(transforms[transforms.length - 1])
+        : 0;
     const stmt = this._graph.add(this._resourceURI, terms.pipeline.transform);
     const id = stmt.getValue();
     this.setTransformType(id, type);
@@ -221,7 +267,10 @@ export default class Pipeline extends GraphResource {
   removeTransform(transformId) {
     this.setTransformArguments(transformId, {});
     this._graph.findAndRemove(transformId);
-    this._graph.findAndRemove(null, null, { type: 'bnode', value: transformId });
+    this._graph.findAndRemove(null, null, {
+      type: 'bnode',
+      value: transformId,
+    });
   }
 
   /**
@@ -233,9 +282,14 @@ export default class Pipeline extends GraphResource {
    */
   setOrderOfTransforms(transforms) {
     for (let i = 0; i < transforms.length; i++) {
-      this._graph.findAndRemove(transforms[i], terms.pipeline.transformPriority);
+      this._graph.findAndRemove(
+        transforms[i],
+        terms.pipeline.transformPriority
+      );
       this._graph.add(transforms[i], terms.pipeline.transformPriority, {
-        type: 'literal', value: `${i}`, datatype: terms.xsd.integer,
+        type: 'literal',
+        value: `${i}`,
+        datatype: terms.xsd.integer,
       });
     }
   }
@@ -246,7 +300,10 @@ export default class Pipeline extends GraphResource {
    * @returns {number} the priority as a float.
    */
   getPriority(transformId) {
-    let prio = this._graph.findFirstValue(transformId, terms.pipeline.transformPriority);
+    let prio = this._graph.findFirstValue(
+      transformId,
+      terms.pipeline.transformPriority
+    );
     if (typeof prio === 'string') {
       prio = parseFloat(prio);
       if (!isNaN(prio)) {
@@ -266,7 +323,9 @@ export default class Pipeline extends GraphResource {
   setPriority(transformId, prio) {
     this._graph.findAndRemove(transformId, terms.pipeline.transformPriority);
     this._graph.add(transformId, terms.pipeline.transformPriority, {
-      type: 'literal', value: `${prio}`, datatype: terms.xsd.integer,
+      type: 'literal',
+      value: `${prio}`,
+      datatype: terms.xsd.integer,
     });
   }
 
@@ -276,7 +335,10 @@ export default class Pipeline extends GraphResource {
    * @returns {String} one of the values specified in {@link Pipeline#transformTypes}.
    */
   getTransformType(transformId) {
-    return this._graph.findFirstValue(transformId, terms.pipeline.transformType);
+    return this._graph.findFirstValue(
+      transformId,
+      terms.pipeline.transformType
+    );
   }
 
   /**
@@ -299,12 +361,19 @@ export default class Pipeline extends GraphResource {
    */
   getTransformArguments(transformId) {
     let args;
-    const stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
+    const stmts = this._graph.find(
+      transformId,
+      terms.pipeline.transformArgument
+    );
     stmts.forEach((stmt) => {
-      const key = this._graph.findFirstValue(stmt.getValue(),
-        terms.pipeline.transformArgumentKey);
-      const value = this._graph.findFirstValue(stmt.getValue(),
-        terms.pipeline.transformArgumentValue);
+      const key = this._graph.findFirstValue(
+        stmt.getValue(),
+        terms.pipeline.transformArgumentKey
+      );
+      const value = this._graph.findFirstValue(
+        stmt.getValue(),
+        terms.pipeline.transformArgumentValue
+      );
       args = args || {};
       args[key] = value;
     }, this);
@@ -320,10 +389,16 @@ export default class Pipeline extends GraphResource {
   getTransformArgumentsKeys(transformId = null) {
     const args = [];
     if (transformId) {
-      const stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
+      const stmts = this._graph.find(
+        transformId,
+        terms.pipeline.transformArgument
+      );
       stmts.forEach((stmt) => {
-        const keys = this._graph.find(stmt.getValue(), terms.pipeline.transformArgumentKey);
-        args.push(keys.map(key => key.getValue()));
+        const keys = this._graph.find(
+          stmt.getValue(),
+          terms.pipeline.transformArgumentKey
+        );
+        args.push(keys.map((key) => key.getValue()));
       }, this);
     }
     return args;
@@ -336,16 +411,36 @@ export default class Pipeline extends GraphResource {
    * @param {Object} args the arguments for the transform as an object hash with property value pairs.
    */
   setTransformArguments(transformId, args) {
-    const stmts = this._graph.find(transformId, terms.pipeline.transformArgument);
+    const stmts = this._graph.find(
+      transformId,
+      terms.pipeline.transformArgument
+    );
     stmts.forEach((stmt) => {
-      this._graph.findAndRemove(stmt.getValue(), terms.pipeline.transformArgumentKey);
-      this._graph.findAndRemove(stmt.getValue(), terms.pipeline.transformArgumentValue);
+      this._graph.findAndRemove(
+        stmt.getValue(),
+        terms.pipeline.transformArgumentKey
+      );
+      this._graph.findAndRemove(
+        stmt.getValue(),
+        terms.pipeline.transformArgumentValue
+      );
       this._graph.remove(stmt);
     }, this);
     Object.keys(args).forEach((key) => {
-      const newArg = this._graph.add(transformId, terms.pipeline.transformArgument);
-      this._graph.addL(newArg.getValue(), terms.pipeline.transformArgumentKey, key);
-      this._graph.addL(newArg.getValue(), terms.pipeline.transformArgumentValue, args[key]);
+      const newArg = this._graph.add(
+        transformId,
+        terms.pipeline.transformArgument
+      );
+      this._graph.addL(
+        newArg.getValue(),
+        terms.pipeline.transformArgumentKey,
+        key
+      );
+      this._graph.addL(
+        newArg.getValue(),
+        terms.pipeline.transformArgumentValue,
+        args[key]
+      );
     });
   }
 
@@ -412,10 +507,17 @@ export default class Pipeline extends GraphResource {
       _params.source = sourceEntry.getURI();
       executeURI = `${sourceEntry.getContext().getResourceURI()}/execute`;
     }
-    return es.handleAsync(es.getREST().post(executeURI, JSON.stringify(_params)), 'execute')
-      .then(response => response.body.result, err => {
-        throw err
-      });
+    return es
+      .handleAsync(
+        es.getREST().post(executeURI, JSON.stringify(_params)),
+        'execute'
+      )
+      .then(
+        (response) => response.body.result,
+        (err) => {
+          throw err;
+        }
+      );
   }
 }
 /**
@@ -431,4 +533,3 @@ Pipeline.prototype.transformTypes = {
   VALIDATE: 'validate',
   MERGE: 'merge',
 };
-

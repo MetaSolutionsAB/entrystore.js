@@ -1,15 +1,14 @@
-import { Graph } from '@entryscape/rdfjson'
+import { Graph } from '@entryscape/rdfjson';
 import config from '../tests/config.js';
 import init from '../tests/init.js';
 
 const { context, entrystore } = init();
 
 const now = new Date();
-const yesterday = (new Date()).setDate(now.getDate() - 1);
-const tomorrow = (new Date()).setDate(now.getDate() + 1);
+const yesterday = new Date().setDate(now.getDate() - 1);
+const tomorrow = new Date().setDate(now.getDate() + 1);
 
 describe('User with admin login', () => {
-
   test('Check date info of an entry', async () => {
     const entry = await context().newEntry().commit();
     const ei = entry.getEntryInfo();
@@ -18,16 +17,19 @@ describe('User with admin login', () => {
     const mo = ei.getModificationDate();
     expect(mo > yesterday && mo < tomorrow).toBeTruthy();
 
-
     expect(mo >= cr).toBeTruthy();
-    entry.setMetadata(new Graph({
-      'http://example.com': {
-        'http://purl.org/dc/terms/title': [{
-          value: 'A title',
-          type: 'literal',
-        }],
-      },
-    }));
+    entry.setMetadata(
+      new Graph({
+        'http://example.com': {
+          'http://purl.org/dc/terms/title': [
+            {
+              value: 'A title',
+              type: 'literal',
+            },
+          ],
+        },
+      })
+    );
     await entry.commitMetadata();
     expect(ei.getModificationDate() >= mo).toBeTruthy();
   });
@@ -51,7 +53,9 @@ describe('User with admin login', () => {
     const entry = await context().newEntry().commit();
     const ei = entry.getEntryInfo();
     expect(ei.hasACL()).not.toBeTruthy(); // if fail: 'ACL present on created entry when no ACL was provided.');
-    const aclInfo = { admin: [entrystore().getEntryURI('_principals', 'admin')] };
+    const aclInfo = {
+      admin: [entrystore().getEntryURI('_principals', 'admin')],
+    };
     ei.setACL(aclInfo);
     expect(ei.hasACL()).toBeTruthy(); // if fail: 'No ACL present although it was just set.');
     await ei.commit();
@@ -81,7 +85,6 @@ describe('User with admin login', () => {
     ei.setResourceURI(uri); // Resetting old uri, local change that should be reset after save.
   });
 
-
   test('Change external metadata uri of an entry', async () => {
     const res = 'http://slashdot.org';
     const mduri = 'http://example.com';
@@ -91,19 +94,22 @@ describe('User with admin login', () => {
     ei.setExternalMetadataURI(mduri2);
     expect(ei.getExternalMetadataURI()).toBe(mduri2); // If fail: 'Failed to set new external metadata URI');
     await ei.commit();
-    expect(ei.getExternalMetadataURI()).toBe(mduri2) // If fail: 'Failed to save new URI, local change remains.');
+    expect(ei.getExternalMetadataURI()).toBe(mduri2); // If fail: 'Failed to save new URI, local change remains.');
     ei.setExternalMetadataURI(mduri); // Resetting old uri, local change that should be reset after save.
   });
 
   if (config.provenance) {
     test('Fetch metadata revisions', async () => {
-      const entry = await context().newEntry().addL('dcterms:title', 'First').commit();
+      const entry = await context()
+        .newEntry()
+        .addL('dcterms:title', 'First')
+        .commit();
       expect(entry.getEntryInfo().getMetadataRevisions().length).toBe(1);
       entry.addL('dcterms:description', 'Second');
 
       await entry.commitMetadata();
       entry.setRefreshNeeded();
-      await entry.refresh()
+      await entry.refresh();
 
       const ei = entry.getEntryInfo();
       const revs = ei.getMetadataRevisions();
@@ -111,13 +117,18 @@ describe('User with admin login', () => {
       const graph = await ei.getMetadataRevisionGraph(revs[1].uri);
 
       // graph.findFirstValue(null, 'dcterms:description') returns undefined - is that what we want?
-      expect(graph.findFirstValue(null, 'dcterms:description') == null).toBeTruthy();
+      expect(
+        graph.findFirstValue(null, 'dcterms:description') == null
+      ).toBeTruthy();
 
-
-      expect(entry.getMetadata().findFirstValue(null, 'dcterms:description')).not.toBeNull();
+      expect(
+        entry.getMetadata().findFirstValue(null, 'dcterms:description')
+      ).not.toBeNull();
 
       // Should not be able to load non-existing versions:
-      await expect(ei.getMetadataRevisionGraph(`${ei.getMetadataURI()}?rev=3`)).rejects.toThrow();
+      await expect(
+        ei.getMetadataRevisionGraph(`${ei.getMetadataURI()}?rev=3`)
+      ).rejects.toThrow();
     });
   }
 });

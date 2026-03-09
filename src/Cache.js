@@ -41,7 +41,7 @@ export default class Cache {
    * All listeners will be notified unless silently is specified.
    *
    * @param {Entry} entry
-   * @param {Boolean=} silently - listeners will be notified unless true is specified.
+   * @param {boolean=} silently - listeners will be notified unless true is specified.
    */
   cache(entry, silently) {
     const entryURI = entry.getURI();
@@ -50,7 +50,9 @@ export default class Cache {
     this._cacheIdx.set(entryURI, entry);
 
     const entryRURI = entry.getResourceURI();
-    const entriesSet = this._cacheIdxResource.has(entryRURI) ? this._cacheIdxResource.get(entryRURI) : new Set();
+    const entriesSet = this._cacheIdxResource.has(entryRURI)
+      ? this._cacheIdxResource.get(entryRURI)
+      : new Set();
 
     if (!entriesSet.has(entry)) {
       entriesSet.add(entry);
@@ -93,7 +95,7 @@ export default class Cache {
    * silently is set to true.
    *
    * @param {Entry} entry
-   * @param {Boolean=} silently
+   * @param {boolean=} silently
    */
   setRefreshNeeded(entry, silently) {
     const entryURI = entry.getURI();
@@ -123,7 +125,7 @@ export default class Cache {
   /**
    * Retrieve the entry from it's URI.
    *
-   * @param {String} entryURI
+   * @param {string} entryURI
    * @returns {Entry|undefined}
    */
   get(entryURI) {
@@ -136,7 +138,7 @@ export default class Cache {
    * as resource this method returns an array. However, in many situations
    * there will be zero or one entry per uri.
    *
-   * @param {String} uri
+   * @param {string} uri
    * @returns {Set<Entry>} always returns a set, may be empty though.
    */
   getByResourceURI(uri) {
@@ -146,7 +148,7 @@ export default class Cache {
   /**
    * Retrieve a load promise.
    *
-   * @param {String} loadID
+   * @param {string} loadID
    * @returns {Promise|undefined}
    */
   getPromise(loadID) {
@@ -156,7 +158,7 @@ export default class Cache {
   /**
    * Store the promise for loading something.
    *
-   * @param {String} loadID
+   * @param {string} loadID
    * @param {Promise} loadPromise
    */
   addPromise(loadID, loadPromise) {
@@ -167,7 +169,7 @@ export default class Cache {
   /**
    * Remove the promise responsible for loading something.
    *
-   * @param {String} loadID
+   * @param {string} loadID
    */
   removePromise(loadID) {
     delete this._cacheLoadPromise[loadID];
@@ -215,7 +217,7 @@ export default class Cache {
    * needRefresh - the specified entry need to be refreshed.
    * refreshed - the specified entry have been refreshed.
    *
-   * @param {String} topic
+   * @param {string} topic
    * @param {Entry=} affectedEntry
    */
   messageListeners(topic, affectedEntry) {

@@ -3,7 +3,6 @@ import superagent from 'superagent';
 import xmldom from '@xmldom/xmldom';
 import { isBrowser } from './utils.js';
 import jsonp from 'superagent-jsonp';
-import RateLimit from "./RateLimit.js";
 
 /**
  * Check if requests will be to the same domain, i.e. no CORS.
@@ -18,17 +17,21 @@ const sameOrigin = (url) => {
   a1.href = url;
   a2.href = window.location.href;
 
-  return a1.hostname === a2.hostname
-    && a1.port === a2.port
-    && a1.protocol === a2.protocol
-    && a2.protocol !== 'file:';
+  return (
+    a1.hostname === a2.hostname &&
+    a1.port === a2.port &&
+    a1.protocol === a2.protocol &&
+    a2.protocol !== 'file:'
+  );
 };
 
 /**
  * Last 7 digits of milliseconds since 1970 + random number.
- * @return {number}
+ * @returns {number}
  */
-const getPreventCacheNumber = () => new Date().getTime()%10000000*1000+Math.floor((Math.random() * 1000).toString());
+const getPreventCacheNumber = () =>
+  (new Date().getTime() % 10000000) * 1000 +
+  Math.floor((Math.random() * 1000).toString());
 
 /**
  * This class encapsulates functionality for communicating with the repository via Ajax calls.
@@ -55,7 +58,7 @@ export default class Rest {
        * @param uri
        * @param {Object} data
        * @param format
-       * @return {undefined|*}
+       * @returns {undefined|*}
        */
       rest._putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
@@ -72,15 +75,13 @@ export default class Rest {
           }
         });
 
-        const POSTRequest = superagent.post(uri)
-          .accept(format)
-          .send(stubForm);
+        const PUTRequest = superagent.put(uri).accept(format).send(stubForm);
 
         if (this.withCredentials) {
-          POSTRequest.withCredentials();
+          PUTRequest.withCredentials();
         }
 
-        return POSTRequest;
+        return PUTRequest;
       };
     }
   }
@@ -141,20 +142,29 @@ export default class Rest {
   /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    * @async
    */
   async auth(credentials) {
-    const { user, password, base, maxAge = 604800, logout = false } = credentials;
+    const {
+      user,
+      password,
+      base,
+      maxAge = 604800,
+      logout = false,
+    } = credentials;
     delete this.headers.cookie;
 
     if (logout) {
-      const logoutRequestResult = superagent.get(`${base}auth/logout`)
+      const logoutRequestResult = superagent
+        .get(`${base}auth/logout`)
         .accept('application/json')
         .withCredentials()
         .timeout({ response: this.timeout });
 
-      Object.entries(this.headers).map(keyVal => logoutRequestResult.set(keyVal[0], keyVal[1]));
+      Object.entries(this.headers).map((keyVal) =>
+        logoutRequestResult.set(keyVal[0], keyVal[1])
+      );
 
       return logoutRequestResult;
     }
@@ -166,10 +176,23 @@ export default class Rest {
     };
 
     if (isBrowser()) {
-      return this.post(`${base}auth/cookie`, data, null, 'application/x-www-form-urlencoded');
+      return this.post(
+        `${base}auth/cookie`,
+        data,
+        null,
+        'application/x-www-form-urlencoded'
+      );
     }
-    const queryStringData = Object.entries(data).reduce((accum, prop) => `${accum}${prop.join('=')}&`, '');
-    const authCookieResponse = await this.post(`${base}auth/cookie`, queryStringData, null, 'application/x-www-form-urlencoded');
+    const queryStringData = Object.entries(data).reduce(
+      (accum, prop) => `${accum}${prop.join('=')}&`,
+      ''
+    );
+    const authCookieResponse = await this.post(
+      `${base}auth/cookie`,
+      queryStringData,
+      null,
+      'application/x-www-form-urlencoded'
+    );
     const cookies = authCookieResponse.headers['set-cookie'];
 
     for (const cookie of cookies) {
@@ -191,13 +214,25 @@ export default class Rest {
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
    * @param {stream} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
    * @param {boolean} preventCache - if true an extra argument is added to the uri with a random number to prevent caching
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    * @async
    * @throws Error
    */
-  async get(uri, format = null, nonJSONP = false, writableStream, preventCache = false) {
+  async get(
+    uri,
+    format = null,
+    nonJSONP = false,
+    writableStream,
+    preventCache = false
+  ) {
     if (this.readRateLimit) {
-      return this.readRateLimit.enqueue(this._get, this, [uri, format, nonJSONP, writableStream, preventCache]);
+      return this.readRateLimit.enqueue(this._get, this, [
+        uri,
+        format,
+        nonJSONP,
+        writableStream,
+        preventCache,
+      ]);
     }
     return this._get(uri, format, nonJSONP, writableStream, preventCache);
   }
@@ -243,23 +278,23 @@ export default class Rest {
           _uri += `${_uri.includes('?') ? '&' : '?'}format=application/json`;
         }
 
-        superagent.get(_uri)
+        superagent
+          .get(_uri)
           .use(
             jsonp({
               timeout: 1000000,
               // @scazan: superagent-jsonp's random number generator is weak, so we create our own
               callbackName: `cb${md5(_uri).slice(0, 7)}${getPreventCacheNumber()}`,
-            }),
+            })
           ) // Need this timeout to prevent a superagentCallback*** not defined issue with superagent-jsonp: https://github.com/lamp/superagent-jsonp/issues/31
           .then((data) => {
             resolve(data.body);
           }, reject);
       });
     }
-    const GETRequest = superagent.get(_uri)
-      .timeout({
-        response: this.timeout,
-      });
+    const GETRequest = superagent.get(_uri).timeout({
+      response: this.timeout,
+    });
     if (preventCache) {
       GETRequest.query({ preventCache: getPreventCacheNumber() });
     }
@@ -284,7 +319,9 @@ export default class Rest {
       };
     }
 
-    Object.entries(locHeaders).map(keyVal => GETRequest.set(keyVal[0], keyVal[1]));
+    Object.entries(locHeaders).map((keyVal) =>
+      GETRequest.set(keyVal[0], keyVal[1])
+    );
 
     if (writableStream) {
       return new Promise((succ, err) => {
@@ -303,8 +340,11 @@ export default class Rest {
     if (response.statusCode === 200) {
       if (handleAs === 'text' || handleAs === 'xml') {
         // eslint-disable-next-line no-nested-ternary
-        return response.text !== undefined ? response.text
-          : (response.body instanceof Buffer ? response.toString() : undefined);
+        return response.text !== undefined
+          ? response.text
+          : response.body instanceof Buffer
+            ? response.toString()
+            : undefined;
       }
       return response.body;
     }
@@ -320,11 +360,16 @@ export default class Rest {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   post(uri, data, modDate, format) {
     if (this.writeRateLimit) {
-      return this.writeRateLimit.enqueue(this._post, this, [uri, data, modDate, format]);
+      return this.writeRateLimit.enqueue(this._post, this, [
+        uri,
+        data,
+        modDate,
+        format,
+      ]);
     }
     return this._post(uri, data, modDate, format);
   }
@@ -337,7 +382,7 @@ export default class Rest {
     const locHeaders = Object.assign({}, this.headers);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
-    }// multipart/form-data
+    } // multipart/form-data
     if (format) {
       locHeaders['Content-Type'] = format;
     }
@@ -350,15 +395,19 @@ export default class Rest {
 
     if (data) {
       POSTRequest.send(data)
-      // serialize the object into a format that the backend is used to (no JSON strings)
-        .serialize(obj => Object.entries(obj)
-          .map(keyVal => `${keyVal[0]}=${keyVal[1]}&`)
-          .join(''));
+        // serialize the object into a format that the backend is used to (no JSON strings)
+        .serialize((obj) =>
+          Object.entries(obj)
+            .map((keyVal) => `${keyVal[0]}=${keyVal[1]}&`)
+            .join('')
+        );
     }
 
     POSTRequest.timeout({ response: this.timeout });
 
-    Object.entries(locHeaders).map(keyVal => POSTRequest.set(keyVal[0], keyVal[1]));
+    Object.entries(locHeaders).map((keyVal) =>
+      POSTRequest.set(keyVal[0], keyVal[1])
+    );
 
     return POSTRequest;
   }
@@ -401,11 +450,16 @@ export default class Rest {
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
    * multipart/form-data.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   put(uri, data, modDate, format) {
     if (this.writeRateLimit) {
-      return this.writeRateLimit.enqueue(this._put, this, [uri, data, modDate, format]);
+      return this.writeRateLimit.enqueue(this._put, this, [
+        uri,
+        data,
+        modDate,
+        format,
+      ]);
     }
     return this._put(uri, data, modDate, format);
   }
@@ -425,7 +479,8 @@ export default class Rest {
       locHeaders['Content-Type'] = 'application/json'; // @todo perhaps not needed, this is default
     }
 
-    const PUTRequest = superagent.put(uri)
+    const PUTRequest = superagent
+      .put(uri)
       .send(data)
       .timeout({ response: this.timeout });
 
@@ -433,7 +488,9 @@ export default class Rest {
       PUTRequest.withCredentials();
     }
 
-    Object.entries(locHeaders).map(keyVal => PUTRequest.set(keyVal[0], keyVal[1]));
+    Object.entries(locHeaders).map((keyVal) =>
+      PUTRequest.set(keyVal[0], keyVal[1])
+    );
 
     return PUTRequest;
   }
@@ -443,7 +500,7 @@ export default class Rest {
    *
    * @param {String} uri of the resource that is to be deleted.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   del(uri, modDate) {
     if (this.writeRateLimit) {
@@ -463,7 +520,8 @@ export default class Rest {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
     }
 
-    const DELETERequest = superagent.del(uri)
+    const DELETERequest = superagent
+      .del(uri)
       .withCredentials()
       .timeout({ response: this.timeout });
 
@@ -471,32 +529,34 @@ export default class Rest {
       DELETERequest.withCredentials();
     }
 
-    Object.entries(locHeaders).map(keyVal => DELETERequest.set(keyVal[0], keyVal[1]));
+    Object.entries(locHeaders).map((keyVal) =>
+      DELETERequest.set(keyVal[0], keyVal[1])
+    );
 
     return DELETERequest;
   }
 
   /**
    * Put a file to a URI.
-   * In a browser environment a file is represented via an input tag which references
-   * the file to be uploaded via its value attribute.
+   * In a browser environment a file is represented via an input tag; the files are uploaded
+   * via FormData using a PUT request.
    * In node environments the file is represented as a stream constructed via
    * fs.createReadStream('file.txt').
-   *
-   * _**Under the hood** the tag is moved into a form in an invisible iframe
-   * which then is submitted. If there is a response it is provided in a textarea which
-   * can be looked into since we are on the same domain._
    *
    * @param {string} uri the URI to which we will put the file.
    * @param {data} data - input tag or stream that may for instance correspond to a file
    * in a nodejs setting.
    * @param {string} format the format to handle the response as, either text, xml, html or json
    * (json is default).
-   * @return {Promise} A thenable object
+   * @returns {Promise} A thenable object
    */
   putFile(uri, data, format) {
     if (this.writeRateLimit) {
-      return this.writeRateLimit.enqueue(this._putFile, this, [uri, data, format]);
+      return this.writeRateLimit.enqueue(this._putFile, this, [
+        uri,
+        data,
+        format,
+      ]);
     }
     return this._putFile(uri, data, format);
   }
@@ -508,13 +568,14 @@ export default class Rest {
   _putFile(uri, data, format) {
     if (data && data.constructor && data.constructor.pipeline) {
       return new Promise((resolve, reject) => {
-        const upload = superagent.put(uri)
-          .timeout({ response: this.timeout });
+        const upload = superagent.put(uri).timeout({ response: this.timeout });
         const locHeaders = Object.assign({}, this.headers);
         if (format) {
           locHeaders['Content-Type'] = format;
         }
-        Object.entries(locHeaders).map(keyVal => upload.set(keyVal[0], keyVal[1]));
+        Object.entries(locHeaders).map((keyVal) =>
+          upload.set(keyVal[0], keyVal[1])
+        );
 
         const req = upload.request();
         data.constructor.pipeline(data, req, (err) => {
@@ -530,6 +591,8 @@ export default class Rest {
         });
       });
     }
-    return Promise.reject(new Error('Data parameter must be a readable stream'));
+    return Promise.reject(
+      new Error('Data parameter must be a readable stream')
+    );
   }
 }

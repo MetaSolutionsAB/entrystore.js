@@ -10,9 +10,11 @@ const getContextURI = (es, c) => {
   }
 };
 
-const contextEquals = (es, c1, c2) => getContextURI(es, c1) === getContextURI(es, c2);
+const contextEquals = (es, c1, c2) =>
+  getContextURI(es, c1) === getContextURI(es, c2);
 
-const promiseInScope = (es, promise, c2) => getContextURI(es, promise.__context) === getContextURI(es, c2);
+const promiseInScope = (es, promise, c2) =>
+  getContextURI(es, promise.__context) === getContextURI(es, c2);
 const markPromise = (es, promise, context) => {
   const curi = getContextURI(es, context);
   if (curi) {
@@ -79,7 +81,10 @@ export default class EntryStoreUtil {
       this._preloadIdx.set(ofType, preloadForType);
     }
 
-    const searchObj = this._entrystore.newSolrQuery().resourceType(ofType).limit(100);
+    const searchObj = this._entrystore
+      .newSolrQuery()
+      .resourceType(ofType)
+      .limit(100);
     if (this._publicRead) {
       searchObj.publicRead(true);
     }
@@ -122,14 +127,22 @@ export default class EntryStoreUtil {
    * @throws Error
    */
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
-    return this.loadEntriesByResourceURIs([resourceURI], context, false, asyncCallType)
-      .then(arr => arr[0]);
+    return this.loadEntriesByResourceURIs(
+      [resourceURI],
+      context,
+      false,
+      asyncCallType
+    ).then((arr) => arr[0]);
   }
 
   async _joinedDebouncedRequest() {
     const debounceList = this._debounceQueue;
-    const entriesPromise = this.loadEntriesByResourceURIs(debounceList.map(args => args[0]),
-      this._debounceContext, true, this._debounceAsyncCallType);
+    const entriesPromise = this.loadEntriesByResourceURIs(
+      debounceList.map((args) => args[0]),
+      this._debounceContext,
+      true,
+      this._debounceAsyncCallType
+    );
     this._debounceQueue = [];
     this._debounceContext = undefined;
     this._debounceAsyncCallType = undefined;
@@ -138,7 +151,9 @@ export default class EntryStoreUtil {
       if (entries[i]) {
         debounceList[i][1](entries[i]);
       } else {
-        debounceList[i][2](`Could not find entry with URI ${debounceList[i][0]}`);
+        debounceList[i][2](
+          `Could not find entry with URI ${debounceList[i][0]}`
+        );
       }
     }
   }
@@ -161,7 +176,8 @@ export default class EntryStoreUtil {
     const entriesSet = cache.getByResourceURI(resourceURI);
     if (entriesSet.size > 0) {
       if (context) {
-        for (const entry of entriesSet) { // eslint-disable-line
+        for (const entry of entriesSet) {
+          // eslint-disable-line
           if (entry.getContext().getId() === context.getId()) {
             return Promise.resolve(entry);
           }
@@ -172,14 +188,21 @@ export default class EntryStoreUtil {
     }
     // If the request is different in the sense that it requires a different context or asyncCallType
     // then we have to request entries in the debounce queue first and then add to the queue again with the new context or callType.
-    if (this._debounceQueue.length > 0 && (this._debounceContext !== context || this._debounceAsyncCallType !== asyncCallType)) {
+    if (
+      this._debounceQueue.length > 0 &&
+      (this._debounceContext !== context ||
+        this._debounceAsyncCallType !== asyncCallType)
+    ) {
       clearTimeout(this._debounceTimeout);
       this._joinedDebouncedRequest();
     }
     return new Promise((resolve, reject) => {
       // Nothing in the debounce queue, start the timeout
       if (this._debounceQueue.length === 0) {
-        this._debounceTimeout = setTimeout(this._joinedDebouncedRequest.bind(this), 20);
+        this._debounceTimeout = setTimeout(
+          this._joinedDebouncedRequest.bind(this),
+          20
+        );
       }
       this._debounceQueue.push([resourceURI, resolve, reject]);
       this._debounceContext = context;
@@ -251,7 +274,9 @@ export default class EntryStoreUtil {
     if (entryArr.length > 0) {
       return entryArr[0];
     }
-    throw new Error(`No entries in ${context ? 'context' : 'repository'} context with graphType ${graphType}`);
+    throw new Error(
+      `No entries in ${context ? 'context' : 'repository'} context with graphType ${graphType}`
+    );
   }
 
   /**
@@ -279,7 +304,9 @@ export default class EntryStoreUtil {
           await rest.del(uri);
           deleted.push(uri);
         } catch (err) {
-          console.log(`Could not remove entry with uri: ${uri} continuing anyway.`);
+          console.log(
+            `Could not remove entry with uri: ${uri} continuing anyway.`
+          );
         }
         await deleteNext();
       }
@@ -306,7 +333,12 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise<Entry[]>}
    */
-  async loadEntriesByResourceURIs(resourceURIs, context, acceptMissing = false, asyncCallType) {
+  async loadEntriesByResourceURIs(
+    resourceURIs,
+    context,
+    acceptMissing = false,
+    asyncCallType
+  ) {
     const es = this._entrystore;
     const cache = es.getCache();
     const id2Entry = {};
@@ -315,20 +347,27 @@ export default class EntryStoreUtil {
     resourceURIs.forEach((uri) => {
       let entries = Array.from(cache.getByResourceURI(uri).values());
       if (context) {
-        entries = entries.filter(e => e.getContext().getResourceURI() === getContextURI(es, context));
+        entries = entries.filter(
+          (e) => e.getContext().getResourceURI() === getContextURI(es, context)
+        );
       }
       if (entries.length > 0) {
         id2Entry[uri] = entries[0];
       } else {
         const loadpromise = cache.getPromise(uri);
         if (loadpromise && promiseInScope(es, loadpromise, context)) {
-          previouslyLoadingPromises.push(loadpromise.then((entry) => {
-            id2Entry[uri] = entry;
-          }, (e) => {
-            if (!acceptMissing) {
-              throw e;
-            }
-          }));
+          previouslyLoadingPromises.push(
+            loadpromise.then(
+              (entry) => {
+                id2Entry[uri] = entry;
+              },
+              (e) => {
+                if (!acceptMissing) {
+                  throw e;
+                }
+              }
+            )
+          );
         } else {
           toLoadSet.add(uri);
         }
@@ -357,28 +396,36 @@ export default class EntryStoreUtil {
       if (this._publicRead) {
         query.publicRead(true);
       }
-      return query.resource(chunk).context(context).list(asyncCallType).forEach((entry) => {
-        const ruri = entry.getResourceURI();
-        if (loadEntries.has(ruri)) {
-          loadEntries.delete(ruri);
-          uri2resolve[ruri](entry);
-          id2Entry[ruri] = entry;
-          cache.removePromise(ruri);
-        }
-        return loadEntries.size !== 0;
-      }).then(() => {
-        if (loadEntries.size > 0) {
-          loadEntries.forEach((ruri) => {
-            uri2reject[ruri](new Error(`No resource found for ${ruri}`));
+      return query
+        .resource(chunk)
+        .context(context)
+        .list(asyncCallType)
+        .forEach((entry) => {
+          const ruri = entry.getResourceURI();
+          if (loadEntries.has(ruri)) {
+            loadEntries.delete(ruri);
+            uri2resolve[ruri](entry);
+            id2Entry[ruri] = entry;
             cache.removePromise(ruri);
-          });
-          if (!acceptMissing) {
-            throw new Error(`The following resources could not be found ${Array.from(loadEntries).join(', ')}`);
           }
-        }
-      });
+          return loadEntries.size !== 0;
+        })
+        .then(() => {
+          if (loadEntries.size > 0) {
+            loadEntries.forEach((ruri) => {
+              uri2reject[ruri](new Error(`No resource found for ${ruri}`));
+              cache.removePromise(ruri);
+            });
+            if (!acceptMissing) {
+              throw new Error(
+                `The following resources could not be found ${Array.from(loadEntries).join(', ')}`
+              );
+            }
+          }
+        });
     });
-    return Promise.all(previouslyLoadingPromises.concat(chunkLoadingPromises))
-      .then(() => resourceURIs.map(ruri => id2Entry[ruri] || null));
+    return Promise.all(
+      previouslyLoadingPromises.concat(chunkLoadingPromises)
+    ).then(() => resourceURIs.map((ruri) => id2Entry[ruri] || null));
   }
 }

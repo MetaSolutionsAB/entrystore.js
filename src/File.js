@@ -1,5 +1,4 @@
 import xmldom from '@xmldom/xmldom';
-import factory from './factory.js';
 import Resource from './Resource.js';
 import { isBrowser } from './utils.js';
 
@@ -33,17 +32,17 @@ export default class FileResource extends Resource {
    * @returns {Promise}
    */
   async putFile(data, format) {
-    let url;
-    // noinspection AmdModulesDependencies
-    if (isBrowser() && data instanceof Node) {
-      if (data.name == null || data.name === '') {
-        throw new Error('Failure, cannot upload resource from input element unless a name' +
-          ' attribute is provided.');
-      }
-      url = factory.getPutFileURI(this.getResourceURI());
-    } else {
-      url = this.getResourceURI();
+    if (
+      isBrowser() &&
+      data instanceof Node &&
+      (data.name == null || data.name === '')
+    ) {
+      throw new Error(
+        'Failure, cannot upload resource from input element unless a name' +
+          ' attribute is provided.'
+      );
     }
+    const url = this.getResourceURI();
     const es = this.getEntryStore();
     const entry = await this.getEntry();
     const promise = es.getREST().putFile(url, data, format);
@@ -102,12 +101,14 @@ export default class FileResource extends Resource {
    */
   putXML(xml) {
     let _xml = xml;
-    const XMLSerializer = isBrowser() ? window.XMLSerializer : xmldom.XMLSerializer;
+    const XMLSerializer = isBrowser()
+      ? window.XMLSerializer
+      : xmldom.XMLSerializer;
 
     if (!isBrowser() || _xml instanceof Document) {
       try {
         // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
-        _xml = (new XMLSerializer()).serializeToString(_xml);
+        _xml = new XMLSerializer().serializeToString(_xml);
       } catch (e) {
         try {
           // Internet Explorer.
@@ -116,7 +117,7 @@ export default class FileResource extends Resource {
           throw new Error('Xmlserializer not supported');
         }
       }
-    } else if ((typeof _xml) !== "string") {
+    } else if (typeof _xml !== 'string') {
       throw new Error('Unsupported format of parameter xml to method putAsXML');
     }
     return this.put(_xml, 'text/xml');
@@ -131,7 +132,12 @@ export default class FileResource extends Resource {
   get(writableStream) {
     const format = this.getEntry(true).getEntryInfo().getFormat();
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().get(this.getResourceURI(), format, undefined, writableStream), 'getFile');
+    return es.handleAsync(
+      es
+        .getREST()
+        .get(this.getResourceURI(), format, undefined, writableStream),
+      'getFile'
+    );
   }
 
   /**
@@ -140,7 +146,12 @@ export default class FileResource extends Resource {
    */
   getText() {
     const es = this.getEntryStore();
-    return es.handleAsync(this.getEntryStore().getREST().get(this.getResourceURI(), 'text/plain', true), 'getFile');
+    return es.handleAsync(
+      this.getEntryStore()
+        .getREST()
+        .get(this.getResourceURI(), 'text/plain', true),
+      'getFile'
+    );
   }
 
   /**
@@ -149,7 +160,10 @@ export default class FileResource extends Resource {
    */
   getJSON() {
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().get(this.getResourceURI(), 'application/json'), 'getFile');
+    return es.handleAsync(
+      es.getREST().get(this.getResourceURI(), 'application/json'),
+      'getFile'
+    );
   }
 
   /**
@@ -158,6 +172,9 @@ export default class FileResource extends Resource {
    */
   getXML() {
     const es = this.getEntryStore();
-    return es.handleAsync(es.getREST().get(this.getResourceURI(), 'text/xml'), 'getFile');
+    return es.handleAsync(
+      es.getREST().get(this.getResourceURI(), 'text/xml'),
+      'getFile'
+    );
   }
 }

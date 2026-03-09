@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {Graph, namespaces} from '@entryscape/rdfjson';
+import { Graph, namespaces } from '@entryscape/rdfjson';
 import factory from './factory.js';
 import terms from './terms.js';
 
@@ -34,7 +34,8 @@ export default class EntryInfo {
    * @param {EntryStore} entryStore
    */
   constructor(entryURI, graph, entryStore) {
-    this._entryURI = entryURI || graph.find(null, terms.resource)[0].getSubject();
+    this._entryURI =
+      entryURI || graph.find(null, terms.resource)[0].getSubject();
     this._graph = graph || new Graph();
     this._entryStore = entryStore;
   }
@@ -69,9 +70,13 @@ export default class EntryInfo {
    */
   async commit(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this._entry.getEntryStore();
-    const promise = es.getREST().put(this.getEntryURI(),
-      JSON.stringify(this._graph.exportRDFJSON()),
-      ignoreIfUnmodifiedSinceCheck ? undefined : this.getModificationDate());
+    const promise = es
+      .getREST()
+      .put(
+        this.getEntryURI(),
+        JSON.stringify(this._graph.exportRDFJSON()),
+        ignoreIfUnmodifiedSinceCheck ? undefined : this.getModificationDate()
+      );
     es.handleAsync(promise, 'commitEntryInfo');
     const response = await promise;
     this.setModificationDate(response.header['last-modified']);
@@ -138,7 +143,10 @@ export default class EntryInfo {
    */
   setExternalMetadataURI(uri) {
     this._graph.findAndRemove(this._entryURI, terms.externalMetadata);
-    this._graph.create(this._entryURI, terms.externalMetadata, { type: 'uri', value: uri });
+    this._graph.create(this._entryURI, terms.externalMetadata, {
+      type: 'uri',
+      value: uri,
+    });
   }
 
   /**
@@ -161,7 +169,10 @@ export default class EntryInfo {
   setResourceURI(uri) {
     const oldResourceURI = this.getResourceURI();
     this._graph.findAndRemove(this._entryURI, terms.resource);
-    this._graph.create(this._entryURI, terms.resource, { type: 'uri', value: uri });
+    this._graph.create(this._entryURI, terms.resource, {
+      type: 'uri',
+      value: uri,
+    });
     if (oldResourceURI) {
       const stmts = this._graph.find(oldResourceURI);
       for (let i = 0; i < stmts.length; i++) {
@@ -178,7 +189,6 @@ export default class EntryInfo {
     const et = this._graph.findFirstValue(this._entryURI, terms.rdf.type);
     return terms.entryType[et || 'default'];
   }
-
 
   /**
    * the resource type of the entry, e.g. "Information", "Resolvable" etc.
@@ -229,7 +239,7 @@ export default class EntryInfo {
         return factory.getEntryId(stmt.getValue());
       }
       return stmt.getValue();
-    };  // Statement > object value.
+    }; // Statement > object value.
     const ru = this.getResourceURI();
     const mu = this.getMetadataURI();
     const acl = {
@@ -239,8 +249,12 @@ export default class EntryInfo {
       mread: this._graph.find(mu, terms.acl.read).map(f),
       mwrite: this._graph.find(mu, terms.acl.write).map(f),
     };
-    acl.contextOverride = acl.admin.length !== 0 || acl.rread.length !== 0
-      || acl.rwrite.length !== 0 || acl.mread.length !== 0 || acl.mwrite.length !== 0;
+    acl.contextOverride =
+      acl.admin.length !== 0 ||
+      acl.rread.length !== 0 ||
+      acl.rwrite.length !== 0 ||
+      acl.mread.length !== 0 ||
+      acl.mwrite.length !== 0;
     return acl;
   }
 
@@ -280,7 +294,10 @@ export default class EntryInfo {
     const _acl = acl || {};
     const ru = this.getResourceURI();
     const mu = this.getMetadataURI();
-    const base = factory.getResourceBase(this._entry.getEntryStore(), '_principals');
+    const base = factory.getResourceBase(
+      this._entry.getEntryStore(),
+      '_principals'
+    );
     f(this._entryURI, terms.acl.write, _acl.admin, base);
     f(ru, terms.acl.read, _acl.rread, base);
     f(ru, terms.acl.write, _acl.rwrite, base);
@@ -326,8 +343,12 @@ export default class EntryInfo {
       revs.push({
         uri,
         rev: uri.substr(mdURI.length + 5),
-        time: moment(this._graph.findFirstValue(uri, 'prov:generatedAtTime')).toDate(),
-        by: es.getEntryURIFromURI(this._graph.findFirstValue(uri, 'prov:wasAttributedTo')),
+        time: moment(
+          this._graph.findFirstValue(uri, 'prov:generatedAtTime')
+        ).toDate(),
+        by: es.getEntryURIFromURI(
+          this._graph.findFirstValue(uri, 'prov:wasAttributedTo')
+        ),
       });
       uri = this._graph.findFirstValue(uri, 'prov:wasRevisionOf');
     }
@@ -357,7 +378,10 @@ export default class EntryInfo {
    * typically set when uploading a file.
    */
   getLabel() {
-    return this._graph.findFirstValue(this.getResourceURI(), 'http://www.w3.org/2000/01/rdf-schema#label');
+    return this._graph.findFirstValue(
+      this.getResourceURI(),
+      'http://www.w3.org/2000/01/rdf-schema#label'
+    );
   }
 
   /**
@@ -368,12 +392,19 @@ export default class EntryInfo {
    * @param {string} label - a new label for the resource.
    */
   setLabel(label) {
-    this._graph.findAndRemove(this.getResourceURI(), 'http://www.w3.org/2000/01/rdf-schema#label');
+    this._graph.findAndRemove(
+      this.getResourceURI(),
+      'http://www.w3.org/2000/01/rdf-schema#label'
+    );
     if (label != null && label !== '') {
-      this._graph.add(this.getResourceURI(), 'http://www.w3.org/2000/01/rdf-schema#label', {
-        type: 'literal',
-        value: label,
-      });
+      this._graph.add(
+        this.getResourceURI(),
+        'http://www.w3.org/2000/01/rdf-schema#label',
+        {
+          type: 'literal',
+          value: label,
+        }
+      );
     }
   }
 
@@ -381,7 +412,10 @@ export default class EntryInfo {
    * @returns {string} the format of the resource of this entry.
    */
   getFormat() {
-    return this._graph.findFirstValue(this.getResourceURI(), 'http://purl.org/dc/terms/format');
+    return this._graph.findFirstValue(
+      this.getResourceURI(),
+      'http://purl.org/dc/terms/format'
+    );
   }
 
   /**
@@ -391,9 +425,16 @@ export default class EntryInfo {
    * @param {string} format - a format in the form application/json or text/plain.
    */
   setFormat(format) {
-    this._graph.findAndRemove(this.getResourceURI(), 'http://purl.org/dc/terms/format');
+    this._graph.findAndRemove(
+      this.getResourceURI(),
+      'http://purl.org/dc/terms/format'
+    );
     if (format != null && format !== '') {
-      this._graph.addL(this.getResourceURI(), 'http://purl.org/dc/terms/format', format);
+      this._graph.addL(
+        this.getResourceURI(),
+        'http://purl.org/dc/terms/format',
+        format
+      );
     }
   }
 
@@ -401,7 +442,10 @@ export default class EntryInfo {
    * @returns {string} the status of this entry, always a URI.
    */
   getStatus() {
-    return this._graph.findFirstValue(this.getEntryURI(), terms.status.property);
+    return this._graph.findFirstValue(
+      this.getEntryURI(),
+      terms.status.property
+    );
   }
 
   /**
@@ -420,7 +464,10 @@ export default class EntryInfo {
    * @returns {Date} the date when the entry was created.
    */
   getCreationDate() {
-    const d = this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/created');
+    const d = this._graph.findFirstValue(
+      this.getEntryURI(),
+      'http://purl.org/dc/terms/created'
+    );
     return moment(d).toDate(); // Must always exist.
   }
 
@@ -429,7 +476,10 @@ export default class EntryInfo {
    * local changes are not reflected).
    */
   getModificationDate() {
-    const d = this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/modified');
+    const d = this._graph.findFirstValue(
+      this.getEntryURI(),
+      'http://purl.org/dc/terms/modified'
+    );
     if (d != null) {
       return moment(d).toDate();
     }
@@ -444,17 +494,26 @@ export default class EntryInfo {
   setModificationDate(date) {
     const d = new Date(date);
     // Add a second since the date provided (from http header 'last-modified') does not contain milliseconds.
-    d.setSeconds(d.getSeconds()+1);
-    const stmts = this._graph.find(this.getEntryURI(), 'http://purl.org/dc/terms/modified');
+    d.setSeconds(d.getSeconds() + 1);
+    const stmts = this._graph.find(
+      this.getEntryURI(),
+      'http://purl.org/dc/terms/modified'
+    );
     const newModificationDate = moment(d).toISOString();
     if (stmts.length > 0) {
       stmts[0].setValue(newModificationDate, true);
     } else {
-      this._graph.create(this.getEntryURI(), 'http://purl.org/dc/terms/modified', {
-        type: 'literal',
-        value: newModificationDate,
-        datatype: namespaces.expand('xsd:dateTime')
-      }, true, true);
+      this._graph.create(
+        this.getEntryURI(),
+        'http://purl.org/dc/terms/modified',
+        {
+          type: 'literal',
+          value: newModificationDate,
+          datatype: namespaces.expand('xsd:dateTime'),
+        },
+        true,
+        true
+      );
     }
   }
 
@@ -462,14 +521,20 @@ export default class EntryInfo {
    * @returns {String} a URI to creator, the user Entry resource URI is used, e.g. "http://somerepo/_principals/resource/4", never null.
    */
   getCreator() {
-    return this._graph.findFirstValue(this.getEntryURI(), 'http://purl.org/dc/terms/creator');
+    return this._graph.findFirstValue(
+      this.getEntryURI(),
+      'http://purl.org/dc/terms/creator'
+    );
   }
 
   /**
    * @returns {number|undefined}
    */
   getSize() {
-    const extent = this._graph.findFirstValue(this.getResourceURI(), 'http://purl.org/dc/terms/extent');
+    const extent = this._graph.findFirstValue(
+      this.getResourceURI(),
+      'http://purl.org/dc/terms/extent'
+    );
     if (parseInt(extent, 10) === parseInt(extent, 10)) {
       return parseInt(extent, 10);
     }
@@ -481,6 +546,8 @@ export default class EntryInfo {
    * e.g. ["http://somerepo/_principals/resource/4"], never null although the array might be empty.
    */
   getContributors() {
-    return this._graph.find(this.getEntryURI(), 'http://purl.org/dc/terms/contributor').map(stmt => stmt.getValue());
+    return this._graph
+      .find(this.getEntryURI(), 'http://purl.org/dc/terms/contributor')
+      .map((stmt) => stmt.getValue());
   }
-};
+}

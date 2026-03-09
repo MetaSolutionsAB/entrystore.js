@@ -6,7 +6,7 @@ EntryStore.js is a JavaScript library that simplifies the communication with the
 
 You can install EntryStore.js from npm:
 
-    $ npm install @entryscape/entrystore-js
+    $ pnpm install @entryscape/entrystore-js
 
 Or download the latest stable version from: [http://entrystore.org/js/stable/](http://entrystore.org/js/stable/)
 
@@ -16,29 +16,29 @@ You can also check out the repository from: [https://bitbucket.org/metasolutions
 
 Then run the following to get the build version in the dist folder:
 
-    $ yarn
-    $ yarn build
+    $ pnpm install
+    $ pnpm build
 
-(This requires that you have [nodejs](http://nodejs.org/), [npm](https://www.npmjs.org/) and [yarn](https://yarnpkg.com) installed.)
+(This requires that you have [nodejs](http://nodejs.org/) and [pnpm](https://pnpm.io/) installed.)
 
 EntryStore.js is available in the following variants:
 
-* dist/entrystore.js - browser version
-* dist/entrystore.node.cjs - Built Node.js version packaged for CommonJS
-* src/index.js - Single ES Module (of course you can also depend on individual files)
+- dist/entrystore.js - browser version
+- dist/entrystore.node.cjs - Built Node.js version packaged for CommonJS
+- src/index.js - Single ES Module (of course you can also depend on individual files)
 
 # Getting started
 
 Below we go through three examples for how to use the library (the following section describes how to get more examples running locally).
 
 ## Loading and changing the metadata of an entry
+
 What follows is a complete example for loading an existing entry from an EntryStore repository. First we need to load the
 Entrystore.js library in our application, i.e.:
 
       <script src="../dist/entrystore.js"></script>
       // or
       <script src="https://unpkg.com/@entryscape/entrystore-js"></script>
- 
 
 Then, we need to initialize the EntryStore API using a repository URL:
 
@@ -70,6 +70,7 @@ In this example we just fetch the metadata object of the entry and find the firs
     alert("Loaded entry with title: "+entry.getMetadata().findFirstValue(entry.getResourceURI(), "dcterms:title"));
 
 ## Changing the metadata of an entry
+
 Let's continue with the example above and change the title.
 
     var md = entry.getMetadata();
@@ -82,7 +83,7 @@ Let's continue with the example above and change the title.
     });
 
 Here is the above example in a minimal HTML file.
-    
+
     <html>
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -111,6 +112,7 @@ Here is the above example in a minimal HTML file.
     </html>
 
 ## Creating an entry
+
 To create an entry we need to first authenticate and get a hold of the specific context we want to create the entry in:
 
     es.getAuth().login("donald", "donalddonald").then(function() {
@@ -136,13 +138,14 @@ Taken together the example, looks like (full code in trunk/samples/createEntry.h
     });
 
 ## Running examples
+
 For the provided examples to work properly you have to have an EntryStore instance running:
 
-    $ yarn entrystore:examples
+    $ pnpm entrystore:examples
 
-To be able to run examples in a browser environment we need to avoid CORS issues by serving the examples from the same domain. The following command brings up both a webserver with the examples and a reverse proxy to the entrystore instance we just launched. 
+To be able to run examples in a browser environment we need to avoid CORS issues by serving the examples from the same domain. The following command brings up both a webserver with the examples and a reverse proxy to the entrystore instance we just launched.
 
-    $ yarn examples
+    $ pnpm examples
 
 You should now be able to visit [http://127.0.0.1:8080/examples/](http://127.0.0.1:8080/examples/) in your favourite browser. You should get a listing of the examples to run.
 
@@ -150,15 +153,16 @@ You should now be able to visit [http://127.0.0.1:8080/examples/](http://127.0.0
 
 The tests have to run against a EntryStore instance. To bring one up an instance that is suitable for testing run:
 
-    $ yarn entrystore:tests
+    $ pnpm entrystore:tests
 
 When that is running, open another terminal and run:
 
-    $ yarn tests
+    $ pnpm tests
 
 The tests are written according to the style of [Jest](https://jestjs.io/).
 
 ## Test coverage
+
 Collecting test coverage can be done by setting the property of package.json "jest": "collectCoverage" to true. The coverage an then be found in the folder located at tests/coverage
 
 ## Developing new tests

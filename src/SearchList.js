@@ -132,12 +132,17 @@ export default class SearchList {
     }
     const limit = this.getLimit();
 
-    if (this._sortedChildren.length === limit && this._sortedChildren.length < this._size) {
+    if (
+      this._sortedChildren.length === limit &&
+      this._sortedChildren.length < this._size
+    ) {
       const nextPageToLoad = this._sortedChildren.length / limit;
       try {
         await this.getEntries(nextPageToLoad);
       } catch (err) {
-        console.warn(`Failed to load search list's next page ${nextPageToLoad}`);
+        console.warn(
+          `Failed to load search list's next page ${nextPageToLoad}`
+        );
         console.error(err);
       }
     }
@@ -162,13 +167,25 @@ export default class SearchList {
     const offset = page * this.getLimit();
     this._query.offset(offset);
     // Only prevent cache if we have turned on prevent request caching and are making a public search query.
-    const preventCache = this._entryStore.getRequestCachePrevention() && this._query.params.get('public') === 'true';
-    return this._entryStore.handleAsync(this._entryStore.getREST().get(this._query.getQuery(this._entryStore),
-      undefined, undefined, undefined, preventCache)
-      .then((data) => {
-        this.setFacets(data.facetFields);
-        return factory.extractSearchResults(data, this, this._entryStore);
-      }), this._callType);
+    const preventCache =
+      this._entryStore.getRequestCachePrevention() &&
+      this._query.params.get('public') === 'true';
+    return this._entryStore.handleAsync(
+      this._entryStore
+        .getREST()
+        .get(
+          this._query.getQuery(this._entryStore),
+          undefined,
+          undefined,
+          undefined,
+          preventCache
+        )
+        .then((data) => {
+          this.setFacets(data.facetFields);
+          return factory.extractSearchResults(data, this, this._entryStore);
+        }),
+      this._callType
+    );
   }
 }
 
@@ -200,11 +217,11 @@ SearchList.prototype.getEntries = List.prototype.getEntries;
 SearchList.prototype.forEach = List.prototype.forEach;
 
 /**
-   * Loops through with forEach and accumulates the entries in a single array.
-   * Note! this might be memory intensive for large lists
-   * @see forEach
-   * @returns {Promise.<Entry[]>}
-   */
+ * Loops through with forEach and accumulates the entries in a single array.
+ * Note! this might be memory intensive for large lists
+ * @see forEach
+ * @returns {Promise.<Entry[]>}
+ */
 SearchList.prototype.getAllEntries = List.prototype.getAllEntries;
 SearchList.prototype._getEntries = List.prototype._getEntries;
 SearchList.prototype._update = List.prototype._update;

@@ -1,6 +1,5 @@
 import Cache from './Cache.js';
 
-
 const cachedentry = {
   getURI() {
     return 'http://example.com/1/entry/1';
@@ -9,7 +8,6 @@ const cachedentry = {
     return 'http://example.com/1/resource/1';
   },
 };
-
 
 test('Initialize cache', () => {
   const cache = new Cache();
@@ -31,5 +29,3 @@ test('Invalidate cache', () => {
   });
   cache.allNeedRefresh();
 });
-
-

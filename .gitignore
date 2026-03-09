@@ -6,6 +6,7 @@
 out/
 package-lock.json
 .idea
+.DS_Store
 *~
 *.vim
 *.ackrc

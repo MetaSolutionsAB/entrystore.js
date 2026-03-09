@@ -39,13 +39,18 @@ let defaultLimit = 50;
  */
 const getContextForEntry = (entryURI, entryStore) => {
   const baseURI = entryStore.getBaseURI();
-  const contextId = entryURI.substr(baseURI.length, entryURI.indexOf('/', baseURI.length)
-    - baseURI.length);
+  const contextId = entryURI.substr(
+    baseURI.length,
+    entryURI.indexOf('/', baseURI.length) - baseURI.length
+  );
   const contexts = entryStore.getCachedContextsIdx();
   let context = contexts[contextId];
   if (!context) {
-    context = new Context(`${baseURI}_contexts/entry/${contextId}`, baseURI
-      + contextId, entryStore);
+    context = new Context(
+      `${baseURI}_contexts/entry/${contextId}`,
+      baseURI + contextId,
+      entryStore
+    );
     contexts[contextId] = context;
   }
   return context;
@@ -77,7 +82,8 @@ const fixNameAndDisabled = (resObj, data) => {
       if (resObj instanceof User) {
         resObj._data = resObj._data || {};
         resObj._data.name = resource.name;
-      } else { // Context and Group
+      } else {
+        // Context and Group
         resObj._name = resource.name;
       }
     }
@@ -105,13 +111,18 @@ const _updateOrCreateResource = (entry, data, force) => {
   const cruri = entry.getContext().getResourceURI();
   const es = entry.getEntryStore();
   const ei = entry.getEntryInfo();
-  if (!resource && ei.getEntryType() === types.ET_LOCAL
-    && ei.getResourceType() === types.RT_INFORMATIONRESOURCE) {
+  if (
+    !resource &&
+    ei.getEntryType() === types.ET_LOCAL &&
+    ei.getResourceType() === types.RT_INFORMATIONRESOURCE
+  ) {
     switch (entry.getEntryInfo().getGraphType()) {
       case types.GT_CONTEXT: // Synchronous resource, asynchronous methods.
         // Dummy URL to find the right context.
-        resource = getContextForEntry(`${es.getBaseURI() + entry.getId()}/`,
-          entry.getEntryStore());
+        resource = getContextForEntry(
+          `${es.getBaseURI() + entry.getId()}/`,
+          entry.getEntryStore()
+        );
         resource._update(_data);
         break;
       case types.GT_LIST: // Synchronous resource, asynchronous methods.
@@ -122,8 +133,12 @@ const _updateOrCreateResource = (entry, data, force) => {
           resource = new List(uri, ruri, es);
         }
         if (_data.resource && _data.resource.children) {
-          resource._update(_data.resource, _data.resource.children.map(child =>
-            updateOrCreate(`${cruri}/entry/${child.entryId}`, child, es)));
+          resource._update(
+            _data.resource,
+            _data.resource.children.map((child) =>
+              updateOrCreate(`${cruri}/entry/${child.entryId}`, child, es)
+            )
+          );
         }
         break;
       case types.GT_USER: // Asynchronous resource, synchronous getters.
@@ -165,9 +180,16 @@ const _updateOrCreateResource = (entry, data, force) => {
   if (resource._update) {
     if (entry.isList() || entry.isGroup()) {
       if (_data.resource && _data.resource.children) {
-        resource._update(_data.resource, _data.resource.children.map(child =>
-          updateOrCreate(`${cruri}/entry/${child.entryId}`,
-            child, entry.getEntryStore())));
+        resource._update(
+          _data.resource,
+          _data.resource.children.map((child) =>
+            updateOrCreate(
+              `${cruri}/entry/${child.entryId}`,
+              child,
+              entry.getEntryStore()
+            )
+          )
+        );
       }
     } else {
       resource._update(_data.resource);
@@ -184,9 +206,13 @@ const _updateOrCreateResource = (entry, data, force) => {
  */
 const _updateEntry = (entry, data) => {
   entry._metadata = data.metadata ? new Graph(data.metadata) : null;
-  entry._cachedExternalMetadata = data['cached-external-metadata'] ? new Graph(data['cached-external-metadata']) : null;
+  entry._cachedExternalMetadata = data['cached-external-metadata']
+    ? new Graph(data['cached-external-metadata'])
+    : null;
   entry._inferredMetadata = data.inferred ? new Graph(data.inferred) : null;
-  entry._extractedMetadata = data['extracted-metadata'] ? new Graph(data['extracted-metadata']) : null;
+  entry._extractedMetadata = data['extracted-metadata']
+    ? new Graph(data['extracted-metadata'])
+    : null;
   entry._relation = data.relations ? new Graph(data.relations) : new Graph();
   entry._rights = transformRights(data.rights);
   // Sometimes we get the name that is really part of the resource without getting the full
@@ -209,7 +235,7 @@ const _updateEntry = (entry, data) => {
  *
  * @param entryStore
  * @param contextEntryURI
- * @return {Context}
+ * @returns {Context}
  */
 const getContext = (entryStore, contextEntryURI) => {
   const baseURI = entryStore.getBaseURI();
@@ -228,12 +254,13 @@ const getContext = (entryStore, contextEntryURI) => {
  *
  * @param entryStore
  * @param entryURI
- * @return {List}
+ * @returns {List}
  */
 const getList = (entryStore, entryURI) => {
   const cache = entryStore.getCache();
   let entry = cache.get(entryURI);
-  if (!entry) {  // If no entry is in cache, create an empty entry
+  if (!entry) {
+    // If no entry is in cache, create an empty entry
     // Assuming there is an info object... TODO check so not info_stub remains in rest layer.
     const entryInfo = new EntryInfo(entryURI, new Graph(), entryStore);
     const context = getContextForEntry(entryURI, entryStore);
@@ -241,7 +268,7 @@ const getList = (entryStore, entryURI) => {
     const resourceURI = entryURI.replace('/entry/', '/resource/');
     entry._resource = new List(entryURI, resourceURI, entryStore);
     cache.cache(entry, true); // Add to cache silently
-    entry.setRefreshNeeded(true);  // Make sure it needs to be updated before accessed
+    entry.setRefreshNeeded(true); // Make sure it needs to be updated before accessed
   }
   // Returning only the list which has no reference to the entry isolates the entry from
   // being accessed before refreshed.
@@ -253,7 +280,7 @@ const getList = (entryStore, entryURI) => {
  * @param entryURI
  * @param data
  * @param entryStore
- * @return {Entry}
+ * @returns {Entry}
  */
 const updateOrCreate = (entryURI, data, entryStore) => {
   const cache = entryStore.getCache();
@@ -294,16 +321,17 @@ const update = (entry, data) => {
  *
  * @param entryStore
  * @param query
- * @return {SearchList}
+ * @returns {SearchList}
  */
-const createSearchList = (entryStore, query) => new SearchList(entryStore, query);
+const createSearchList = (entryStore, query) =>
+  new SearchList(entryStore, query);
 
 /**
  *
  * @param data
  * @param list
  * @param entryStore
- * @return {Array.<Entry>}
+ * @returns {Array.<Entry>}
  */
 const extractSearchResults = (data, list, entryStore) => {
   // Update or create all entries received
@@ -312,8 +340,13 @@ const extractSearchResults = (data, list, entryStore) => {
   // TODO change rest api so size is inside of resource.
   data.resource.size = data.resource.size || data.results;
   const baseURI = entryStore.getBaseURI();
-  const entries = data.resource.children.map(child => updateOrCreate(
-    `${baseURI + child.contextId}/entry/${child.entryId}`, child, entryStore));
+  const entries = data.resource.children.map((child) =>
+    updateOrCreate(
+      `${baseURI + child.contextId}/entry/${child.entryId}`,
+      child,
+      entryStore
+    )
+  );
   list._update(data.resource, entries);
   return entries;
 };
@@ -321,27 +354,30 @@ const extractSearchResults = (data, list, entryStore) => {
 /**
  *
  * @param entryURI
- * @return {string}
+ * @returns {string}
  */
-const getCachedExternalMetadataURI = entryURI => entryURI.replace('/entry/', '/cached-external-metadata/');
+const getCachedExternalMetadataURI = (entryURI) =>
+  entryURI.replace('/entry/', '/cached-external-metadata/');
 
 /**
  * @deprecated in favor of {@link factory#getEntryId}
  */
-const getId = uri => uri.substr(uri.lastIndexOf('/') + 1);
+const getId = (uri) => uri.substr(uri.lastIndexOf('/') + 1);
 
 /**
  *
  * @param uri
  * @param base
- * @return {string|undefined}
+ * @returns {string|undefined}
  */
 const getEntryId = (uri, base) => {
   let _uri = uri;
   if (base) {
     _uri = _uri.substr(base.length - 1); // include the / before.
   }
-  const res = _uri.match(/\/([^/]+)\/(entry|resource|metadata|relation)\/([^?/]+)(\?.*)?$/);
+  const res = _uri.match(
+    /\/([^/]+)\/(entry|resource|metadata|relation)\/([^?/]+)(\?.*)?$/
+  );
   if (res) {
     return res[3];
   } else if (_uri.lastIndexOf('/') === 0) {
@@ -356,14 +392,16 @@ const getEntryId = (uri, base) => {
  *
  * @param uri
  * @param base
- * @return {string|undefined}
+ * @returns {string|undefined}
  */
 const getContextId = (uri, base) => {
   let _uri = uri;
   if (base) {
     _uri = _uri.substr(base.length - 1); // include the / before.
   }
-  const res = _uri.match(/\/([^/]+)\/(entry|resource|metadata|relation)\/([^?/]+)(\?.*)?$/);
+  const res = _uri.match(
+    /\/([^/]+)\/(entry|resource|metadata|relation)\/([^?/]+)(\?.*)?$/
+  );
   if (res) {
     return res[1];
   } else if (_uri.indexOf('/') === -1 || !base) {
@@ -376,7 +414,7 @@ const getContextId = (uri, base) => {
  *
  * @param entryStore
  * @param uri
- * @return {string}
+ * @returns {string}
  */
 const getEntryURIFromURI = (entryStore, uri) => {
   const base = entryStore.getBaseURI();
@@ -388,15 +426,16 @@ const getEntryURIFromURI = (entryStore, uri) => {
  * @param entryStore
  * @param contextId
  * @param entryId
- * @return {string}
+ * @returns {string}
  */
-const getEntryURI = (entryStore, contextId, entryId) => `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
+const getEntryURI = (entryStore, contextId, entryId) =>
+  `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
 
 /**
  *
  * @param entryStore
  * @param uri
- * @return {string}
+ * @returns {string}
  */
 const getMetadataURIFromURI = (entryStore, uri) => {
   const base = entryStore.getBaseURI();
@@ -408,7 +447,7 @@ const getMetadataURIFromURI = (entryStore, uri) => {
  * @param entryStore
  * @param contextId
  * @param entryId
- * @return {string}
+ * @returns {string}
  */
 const getMetadataURI = (entryStore, contextId, entryId) =>
   `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
@@ -417,7 +456,7 @@ const getMetadataURI = (entryStore, contextId, entryId) =>
  *
  * @param entryStore
  * @param contextId
- * @return {string}
+ * @returns {string}
  */
 const getResourceBase = (entryStore, contextId) =>
   `${entryStore.getBaseURI() + contextId}/resource/`;
@@ -427,7 +466,7 @@ const getResourceBase = (entryStore, contextId) =>
  * @param entryStore
  * @param contextId
  * @param entryId
- * @return {string}
+ * @returns {string}
  */
 const getResourceURI = (entryStore, contextId, entryId) => {
   if (contextId === '_contexts') {
@@ -440,7 +479,7 @@ const getResourceURI = (entryStore, contextId, entryId) => {
  *
  * @param data
  * @param context
- * @return {string}
+ * @returns {string}
  */
 const getURIFromCreated = (data, context) =>
   `${context.getResourceURI()}/entry/${data.entryId}`;
@@ -449,7 +488,7 @@ const getURIFromCreated = (data, context) =>
  *
  * @param entryURI
  * @param params
- * @return {string}
+ * @returns {string}
  */
 const getEntryLoadURI = (entryURI, params) => {
   const _params = params || {};
@@ -459,7 +498,10 @@ const getEntryLoadURI = (entryURI, params) => {
   } else {
     strL = `&limit=${defaultLimit}`;
   }
-  const strO = _params.offset == null || _params.offset === 0 ? '' : `&offset=${_params.offset}`;
+  const strO =
+    _params.offset == null || _params.offset === 0
+      ? ''
+      : `&offset=${_params.offset}`;
   const sort = _params.sort == null ? sortObj : _params.sort;
   let strSort = '';
   let strDesc = '';
@@ -477,7 +519,7 @@ const getEntryLoadURI = (entryURI, params) => {
  *
  * @param prototypeEntry
  * @param parentListEntry
- * @return {string}
+ * @returns {string}
  */
 const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
   let uri = `${prototypeEntry.getContext().getResourceURI()}?`;
@@ -489,11 +531,13 @@ const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
     if (prototypeEntry.isLink()) {
       uri = `${uri}resource=${encodeURIComponent(prototypeEntry.getResourceURI())}&`;
     }
-    if (prototypeEntry.isReference() || prototypeEntry.isLinkReference()) { // external metadata
+    if (prototypeEntry.isReference() || prototypeEntry.isLinkReference()) {
+      // external metadata
       uri = `${uri}resource=${encodeURIComponent(prototypeEntry.getResourceURI())}&`;
       uri = `${uri}cached-external-metadata=${encodeURIComponent(ei.getExternalMetadataURI())}&`;
     }
-    if (ei.getEntryType() !== types.ET_LOCAL) { // local, link, linkreference, reference
+    if (ei.getEntryType() !== types.ET_LOCAL) {
+      // local, link, linkreference, reference
       uri = `${uri}entrytype=${ei.getEntryType().toLowerCase()}&`;
     }
     // informationresource, namedresource
@@ -515,7 +559,7 @@ const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
 /**
  *
  * @param prototypeEntry
- * @return {string}
+ * @returns {string}
  */
 const getEntryCreatePostData = (prototypeEntry) => {
   const postData = {};
@@ -537,7 +581,8 @@ const getEntryCreatePostData = (prototypeEntry) => {
   }
   const cachedExternalMetadata = prototypeEntry.getCachedExternalMetadata();
   if (cachedExternalMetadata != null && !cachedExternalMetadata.isEmpty()) {
-    postData['cached-external-metadata'] = cachedExternalMetadata.exportRDFJSON();
+    postData['cached-external-metadata'] =
+      cachedExternalMetadata.exportRDFJSON();
     empty = false;
   }
   return empty ? '' : JSON.stringify(postData);
@@ -549,7 +594,7 @@ const getEntryCreatePostData = (prototypeEntry) => {
  * @param fromListEntry
  * @param toListEntry
  * @param baseURI
- * @return {string}
+ * @returns {string}
  */
 const getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
   const entryURI = entry.getURI().substr(baseURI.length); // Only send something like 3/entry/2
@@ -562,7 +607,7 @@ const getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
  * @param baseURI
  * @param uri
  * @param formatHint
- * @return {string}
+ * @returns {string}
  */
 const getProxyURI = (baseURI, uri, formatHint) => {
   let url = `${baseURI}proxy?url=${encodeURIComponent(uri)}`;
@@ -573,14 +618,6 @@ const getProxyURI = (baseURI, uri, formatHint) => {
 };
 
 /**
- *
- * @param uri
- * @return {string}
- */
-const getPutFileURI = uri =>
-  `${uri + (uri.indexOf('?') < 0 ? '?' : '&')}method=put&textarea=true`;
-
-/**
  * @param sortObject
  */
 const setSort = (sortObject) => {
@@ -588,13 +625,13 @@ const setSort = (sortObject) => {
 };
 
 /**
- * @return {{sortBy: string, prio: string}}
+ * @returns {{sortBy: string, prio: string}}
  */
 const getSort = () => sortObj;
 
 /**
  *
- * @return {number}
+ * @returns {number}
  */
 const getDefaultLimit = () => defaultLimit;
 
@@ -630,7 +667,6 @@ export default {
   getEntryCreatePostData,
   getMoveURI,
   getProxyURI,
-  getPutFileURI,
   setSort,
   getSort,
   getDefaultLimit,
