@@ -156,17 +156,28 @@ export default class Rest {
     delete this.headers.cookie;
 
     if (logout) {
-      const logoutRequestResult = superagent
-        .get(`${base}auth/logout`)
-        .accept('application/json')
-        .withCredentials()
-        .timeout({ response: this.timeout });
+      const logoutRequest = (method) => {
+        const request = superagent[method](`${base}auth/logout`)
+          .accept('application/json')
+          .withCredentials()
+          .timeout({ response: this.timeout });
 
-      Object.entries(this.headers).map((keyVal) =>
-        logoutRequestResult.set(keyVal[0], keyVal[1])
-      );
+        Object.entries(this.headers).map((keyVal) =>
+          request.set(keyVal[0], keyVal[1])
+        );
 
-      return logoutRequestResult;
+        return request;
+      };
+
+      try {
+        return await logoutRequest('post');
+      } catch (err) {
+        // Old backends only serve logout via GET.
+        if (err.status === 405 || err.status === 404) {
+          return logoutRequest('get');
+        }
+        throw err;
+      }
     }
 
     const data = {
