@@ -157,6 +157,23 @@ export default class EntryInfo {
   }
 
   /**
+   * The URI of the merged metadata, i.e. the server side counterpart of
+   * {@link Entry#getAllMetadata}. Available for all entry types, the content depends on type:
+   * * local - local metadata
+   * * link - local metadata
+   * * reference - cached external metadata
+   * * linkReference - combination of local and cached external metadata (statements are not
+   *   marked as external, unlike in getAllMetadata)
+   *
+   * The merged metadata is read-only.
+   *
+   * @returns {String}
+   */
+  getMergedMetadataURI() {
+    return factory.getMergedMetadataURI(this._entryURI);
+  }
+
+  /**
    * @returns {String}
    */
   getResourceURI() {
