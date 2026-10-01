@@ -8,6 +8,13 @@ const now = new Date();
 const yesterday = new Date().setDate(now.getDate() - 1);
 const tomorrow = new Date().setDate(now.getDate() + 1);
 
+const loadMergedMetadata = async (entry) =>
+  new Graph(
+    await entrystore()
+      .getREST()
+      .get(entry.getEntryInfo().getMergedMetadataURI())
+  );
+
 describe('User with admin login', () => {
   test('Check date info of an entry', async () => {
     const entry = await context().newEntry().commit();
@@ -96,6 +103,55 @@ describe('User with admin login', () => {
     await ei.commit();
     expect(ei.getExternalMetadataURI()).toBe(mduri2); // If fail: 'Failed to save new URI, local change remains.');
     ei.setExternalMetadataURI(mduri); // Resetting old uri, local change that should be reset after save.
+  });
+
+  test('Merged metadata uri of an entry', async () => {
+    const entry = await context().newEntry().commit();
+    expect(entry.getEntryInfo().getMergedMetadataURI()).toBe(
+      `${entrystore().getBaseURI()}${entry.getContext().getId()}/merged-metadata/${entry.getId()}`
+    );
+  });
+
+  test('Load merged metadata of a local entry', async () => {
+    const entry = await context()
+      .newEntry()
+      .addL('dcterms:title', 'Local title')
+      .commit();
+    const graph = await loadMergedMetadata(entry);
+    expect(graph.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe(
+      'Local title'
+    );
+  });
+
+  test('Load merged metadata of a link reference entry', async () => {
+    const prototypeEntry = context()
+      .newLinkRef('http://example.com', 'http://example.com/metadata')
+      .addL('dcterms:title', 'Local title');
+    prototypeEntry
+      .getCachedExternalMetadata()
+      .addL(prototypeEntry.getResourceURI(), 'dcterms:title', 'External title');
+    const entry = await prototypeEntry.commit();
+    const titles = (await loadMergedMetadata(entry))
+      .find(entry.getResourceURI(), 'dcterms:title')
+      .map((stmt) => stmt.getValue());
+    expect(titles).toEqual(
+      expect.arrayContaining(['Local title', 'External title'])
+    );
+  });
+
+  test('Load merged metadata of a reference entry', async () => {
+    const prototypeEntry = context().newRef(
+      'http://example.com',
+      'http://example.com/metadata'
+    );
+    prototypeEntry
+      .getCachedExternalMetadata()
+      .addL(prototypeEntry.getResourceURI(), 'dcterms:title', 'External title');
+    const entry = await prototypeEntry.commit();
+    const graph = await loadMergedMetadata(entry);
+    expect(graph.findFirstValue(entry.getResourceURI(), 'dcterms:title')).toBe(
+      'External title'
+    );
   });
 
   if (config.provenance) {

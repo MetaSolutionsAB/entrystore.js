@@ -360,6 +360,14 @@ const getCachedExternalMetadataURI = (entryURI) =>
   entryURI.replace('/entry/', '/cached-external-metadata/');
 
 /**
+ *
+ * @param entryURI
+ * @returns {string}
+ */
+const getMergedMetadataURI = (entryURI) =>
+  entryURI.replace('/entry/', '/merged-metadata/');
+
+/**
  * @deprecated in favor of {@link factory#getEntryId}
  */
 const getId = (uri) => uri.substr(uri.lastIndexOf('/') + 1);
@@ -652,6 +660,7 @@ export default {
   createSearchList,
   extractSearchResults,
   getCachedExternalMetadataURI,
+  getMergedMetadataURI,
   getId,
   getEntryId,
   getContextId,
