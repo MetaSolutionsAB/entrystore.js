@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.17.0-dev",
+  "version": "4.18.0",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -28,7 +28,10 @@
     "dist",
     "src"
   ],
-  "repository": "https://bitbucket.org/metasolutions/entrystore.js.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://bitbucket.org/metasolutions/entrystore.js.git"
+  },
   "homepage": "https://entrystore.org/javascript/",
   "exports": {
     ".": {
