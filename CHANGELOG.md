@@ -5,6 +5,12 @@ All notable changes to the entrystore.js project will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.18.0](https://bitbucket.org/metasolutions/entrystore.js/branches/compare/4.18.0%0D4.17.0) - 2026-10-02
+
+### Added
+
+- [ESJS-65](https://metasolutions.atlassian.net/browse/ESJS-65) Added `EntryInfo.getMergedMetadataURI()` pointing to the merged metadata (local and/or cached external metadata)
+
 ## [4.17.0](https://bitbucket.org/metasolutions/entrystore.js/branches/compare/4.17.0%0D4.16.2) - 2026-09-03
 
 ### Changed
