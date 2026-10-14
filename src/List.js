@@ -274,7 +274,7 @@ export default class List extends Resource {
       forceLoad: true,
       offset,
       limit,
-      sort: this._sort,
+      sort: this._sortParams,
       asyncContext: 'loadListEntries',
     }).then(() => this._getEntries(page, false));
   }

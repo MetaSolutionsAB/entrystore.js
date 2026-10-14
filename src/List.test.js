@@ -25,6 +25,31 @@ test('Add member to list on creation', async () => {
   expect(entries.indexOf(entry)).toBeGreaterThanOrEqual(0); // If fail: 'Entry not contained in list, list not refreshed or entry not added to list.');
 });
 
+test('loads every page in the order set with setSort', async () => {
+  const listEntry = await context().newList().commit();
+  for (const title of ['A', 'B', 'C', 'D']) {
+    await context()
+      .newEntry()
+      .addL('dcterms:title', title)
+      .setParentList(listEntry)
+      .commit();
+  }
+  const listResource = listEntry
+    .getResource(true)
+    .setLimit(2)
+    .setSort({ sortBy: 'title', descending: true });
+  const getTitles = (entries) =>
+    entries.map((entry) =>
+      entry.getMetadata().findFirstValue(null, 'dcterms:title')
+    );
+
+  const firstPage = await listResource.getEntries(0);
+  const secondPage = await listResource.getEntries(1);
+
+  expect(getTitles(firstPage)).toEqual(['D', 'C']);
+  expect(getTitles(secondPage)).toEqual(['B', 'A']);
+});
+
 test('Remove member from list', async () => {
   const entry = await context().newEntry().setParentList(list()).commit();
   const listResource = list().getResource(true);
