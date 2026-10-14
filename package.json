@@ -6,12 +6,7 @@
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
   "description": "A JavaScript library that simplifies the communication with the EntryStore REST API",
-  "licenses": [
-    {
-      "type": "LGPL-3.0-only",
-      "url": "https://www.gnu.org/licenses/lgpl-3.0.en.html"
-    }
-  ],
+  "license": "LGPL-3.0-only",
   "author": {
     "name": "Matthias Palmér",
     "email": "matthias@metasolutions.se",
