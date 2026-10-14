@@ -1079,12 +1079,8 @@ export default class SolrQuery {
   getQuery() {
     const and = [];
     if (this._title_lang != null) {
-      and.push(
-        `title.${this._title_lang.lang}:${solrFriendly(
-          this._title_lang.lang,
-          this._title_lang.value
-        )}`
-      );
+      const key = `title.${this._title_lang.language}`;
+      and.push(`${key}:${solrFriendly(key, this._title_lang.value)}`);
     }
 
     this.params.forEach((v, key) => {
