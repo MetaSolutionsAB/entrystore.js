@@ -33,7 +33,7 @@ export default class Group extends List {
    * @returns {Promise<Group>}
    */
   async setName(name) {
-    const es = this._entry.getEntryStore();
+    const es = this.getEntryStore();
     const entry = await this.getEntry();
     const entryInfo = entry.getEntryInfo();
 
