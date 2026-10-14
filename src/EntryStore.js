@@ -10,6 +10,14 @@ import types from './types.js';
 import User from './User.js';
 import { isBrowser } from './utils.js';
 
+// EntryStore 5.x has no extended status path; it reads the extended status and its
+// statistics from query flags on the plain status path instead.
+const LEGACY_STATUS_INCLUDE_PARAMS = {
+  countStats: 'includeStats',
+  relationStats: 'includeRelationStats',
+  relationVerboseStats: 'includeRelationStats=verbose',
+};
+
 /**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
  * repository.
@@ -681,13 +689,34 @@ export default class EntryStore {
   }
 
   /**
-   *  To get status resource
+   * Fetches the extended status of the repository, which requires admin rights. Servers
+   * without the extended status path (EntryStore 5.x) are asked the 5.x way instead; they
+   * report the count statistics as `stats` rather than `countStats`.
    *
-   * @returns {Promise}
+   * @param {object} [options]
+   * @param {Array<string>} [options.include] - statistics to include: 'countStats',
+   * 'relationStats' and/or 'relationVerboseStats'.
+   * @returns {Promise<object>}
    */
-  getStatus() {
-    const uri = `${this._baseURI}management/status?extended`;
-    return this.handleAsync(this.getREST().get(uri));
+  getStatus({ include = [] } = {}) {
+    const statusURI = `${this._baseURI}management/status`;
+    const rest = this.getREST();
+    const includeParams = include.map((value) => `include=${value}`).join('&');
+    const legacyParams = [
+      'extended',
+      ...include.map((value) => LEGACY_STATUS_INCLUDE_PARAMS[value]),
+    ]
+      .filter(Boolean)
+      .join('&');
+
+    // The fallback stays inside one promise, so async listeners never see the 404.
+    const promise = rest
+      .get(`${statusURI}/extended${includeParams ? `?${includeParams}` : ''}`)
+      .catch((error) => {
+        if (error.status !== 404) throw error;
+        return rest.get(`${statusURI}?${legacyParams}`);
+      });
+    return this.handleAsync(promise);
   }
 
   /**

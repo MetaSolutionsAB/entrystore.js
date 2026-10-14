@@ -93,6 +93,14 @@ describe('A signed in admin (user)', () => {
   });
 
   // Bertrand Russel would be proud of this entry
+  test('fetches the extended status with the requested count statistics', async () => {
+    const status = await es.getStatus({ include: ['countStats'] });
+
+    expect(status).toHaveProperty('baseURI');
+    // EntryStore 5.x reports the count statistics as stats, 6.x as countStats
+    expect(status.countStats ?? status.stats).toEqual(expect.any(Object));
+  });
+
   test('Check so that cache only has one request', async () => {
     expect.assertions(7);
     const contextsEntryURI = es.getEntryURI('_contexts', '_contexts');
