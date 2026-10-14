@@ -28,6 +28,18 @@ test('Create entry with a text file', async () => {
   expect(data).toBe('test'); // If fail: Text not set correctly as resource.');
 });
 
+test('returns the contents of a file whose content type is not read as text', async () => {
+  const entry = await context().newEntry().commit();
+  const resource = entry.getResource(true);
+  const rdfXml =
+    '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>';
+  await resource.put(rdfXml, 'application/rdf+xml');
+  entry.setRefreshNeeded(true);
+  await entry.refresh();
+
+  expect(await resource.get()).toBe(rdfXml);
+});
+
 test('Create entry with a xml file', async () => {
   const entry = await context().newEntry().commit();
 
