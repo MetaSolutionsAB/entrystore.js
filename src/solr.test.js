@@ -153,3 +153,11 @@ test('Range literal query', async () => {
     .literalPropertyRange('http://example.com/p', '1', '2');
   expect(q3.getQuery()).toMatch('[1%20TO%202]');
 });
+
+test('searches the title in the given language', () => {
+  const query = entrystore()
+    .newSolrQuery()
+    .titleWithLanguage('banana split', 'en');
+
+  expect(query.getQuery()).toContain('query=title.en:(banana+AND+split)');
+});
