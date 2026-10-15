@@ -354,7 +354,7 @@ export default class Rest {
         return response.text !== undefined
           ? response.text
           : response.body instanceof Buffer
-            ? response.toString()
+            ? response.body.toString()
             : undefined;
       }
       return response.body;
