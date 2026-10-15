@@ -13,6 +13,10 @@ import types from './types.js';
 import User from './User.js';
 
 /**
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * This module contains utility methods that encapsulates EntryStores REST layer from the rest
  * of the code. It is intended to be used internally by the EntryStore.js API,
  * not by application developers.

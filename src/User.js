@@ -1,6 +1,10 @@
 import Resource from './Resource.js';
 
 /**
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * User instances are resources corresponding to users that can be authenticated to access
  * the EntryStore repository. The user resource URI can be referred to from access control lists.
  *

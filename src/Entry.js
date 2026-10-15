@@ -3,6 +3,13 @@ import factory from './factory.js';
 import types from './types.js';
 
 /**
+ * @import Context from './Context.js'
+ * @import EntryInfo from './EntryInfo.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import Resource from './Resource.js'
+ */
+
+/**
  * Entries are at the center of this API. Entries holds together metadata, external metadata,
  * resources, access control, and provenance. Hence, entries appear in the majority of methods,
  * either directly or in callbacks via promises. Each entry has a simple identifier within a
@@ -86,7 +93,7 @@ export default class Entry {
    * reference - cached external metadata, i.e. getCachedExternalMetadata()
    * linkReference - new graph which is a combination of cached external metadata and local metadata
    *
-   * @returns {rdfjson/Graph}
+   * @returns {Graph}
    */
   getAllMetadata() {
     if (this.isReference()) {
@@ -103,7 +110,7 @@ export default class Entry {
   /**
    * Provides an RDF graph as an {@link rdfjson/Graph} instance.
    *
-   * @returns {rdfjson/Graph} a RDF graph with metadata, typically containing statements about
+   * @returns {Graph} a RDF graph with metadata, typically containing statements about
    * the resourceURI. The returned graph may be empty but never null or undefined.
    */
   getMetadata() {
@@ -123,7 +130,7 @@ export default class Entry {
    * entry have been refreshed with new information and you want to commit the merged results.
    * In these cases you need to discard the current metadata graph with help of this method.
    *
-   * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current
+   * @param {Graph} graph is an RDF graph with metadata, if it is not provided the current
    * metadata graph is saved (there is currently no check whether it has been modified or not).
    * @returns Entry - to allow chaining with other methods, e.g. with commitMetadata.
    */
@@ -236,7 +243,7 @@ export default class Entry {
    * Cached external metadata can only be provided for entries with entry type
    * reference or link reference.
    *
-   * @returns {rdfjson/Graph} - a RDF graph with cached external metadata, typically containing
+   * @returns {Graph} - a RDF graph with cached external metadata, typically containing
    * statements about the resourceURI. The returned graph may be empty but never null
    * or undefined.
    */
@@ -256,7 +263,7 @@ export default class Entry {
    * Sets a new cached external metadata graph for this entry without pushing
    * it to the repository.
    *
-   * @param {rdfjson/Graph} graph is an RDF graph with metadata.
+   * @param {Graph} graph is an RDF graph with metadata.
    * @returns Entry - to allow chaining with other methods,
    * e.g. with commitCachedExternalMetadata.
    */
@@ -292,7 +299,7 @@ export default class Entry {
 
   /**
    * @todo remains to be supported in repository
-   * @returns {rdfjson/Graph}
+   * @returns {Graph}
    */
   getExtractedMetadata() {
     if (this._extractedMetadata == null) {
@@ -334,7 +341,7 @@ export default class Entry {
   }
 
   /**
-   * @returns {rdfjson/Graph}
+   * @returns {Graph}
    */
   getReferrersGraph() {
     return this._relation;

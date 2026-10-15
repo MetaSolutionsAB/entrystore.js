@@ -1,6 +1,12 @@
 import { print } from '@entryscape/rdfjson';
 
 /**
+ * @import { Graph } from '@entryscape/rdfjson'
+ * @import Entry from './Entry.js'
+ * @import EntryInfo from './EntryInfo.js'
+ */
+
+/**
  * A module that contain utility methods for generating html for entries.
  *
  * @exports store/html
@@ -53,7 +59,7 @@ const indenter = function (indent) {
 /**
  * Prints one level of triples from a subject where URIs are namespaced.
  *
- * @param {rdfjson/Graph} graph the graph containing the metadata
+ * @param {Graph} graph the graph containing the metadata
  * @param {string} subject URI to a resource to start from
  * @returns {string} string with the triples rendered as HTML.
  */

@@ -11,6 +11,14 @@ import User from './User.js';
 import { isBrowser } from './utils.js';
 
 /**
+ * @import Context from './Context.js'
+ * @import Entry from './Entry.js'
+ * @import EntryInfo from './EntryInfo.js'
+ * @import List from './List.js'
+ * @import SearchList from './SearchList.js'
+ */
+
+/**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
  * repository.
  *
@@ -320,7 +328,7 @@ export default class EntryStore {
    * {@see EntryStore#getEntry getEntry} method.
    * @param {object} limit - same limit as provided in the optionalLoadParams to
    * {@see EntryStore#getEntry getEntry} method.
-   * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify which
+   * @param {number} page - unless limit is set to -1 (no pagination) we need to specify which
    * page to load, first page is 0.
    * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.
    */

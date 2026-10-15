@@ -4,6 +4,11 @@ import factory from './factory.js';
 import terms from './terms.js';
 
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  *
  * @param entry
  * @param vocab
@@ -30,7 +35,7 @@ export default class EntryInfo {
   /**
    * @param {string} entryURI must be provided unless the graph contains a statement with
    * the store:resource property which allows us to infer the entryURI.
-   * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
+   * @param {Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
    * statements
    * @param {EntryStore} entryStore
    */
@@ -49,14 +54,14 @@ export default class EntryInfo {
   }
 
   /**
-   * @param {rdfjson/Graph} graph
+   * @param {Graph} graph
    */
   setGraph(graph) {
     this._graph = graph;
   }
 
   /**
-   * @returns {rdfjson/Graph}
+   * @returns {Graph}
    */
   getGraph() {
     return this._graph;
@@ -386,7 +391,7 @@ export default class EntryInfo {
    * Retrieves the metadata graph of a certain revision from its graph.
    *
    * @param revisionURI
-   * @returns {Promise.<rdfjson/Graph>}
+   * @returns {Promise.<Graph>}
    */
   async getMetadataRevisionGraph(revisionURI) {
     const data = await this._entryStore.getREST().get(revisionURI);

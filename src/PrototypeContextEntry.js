@@ -4,6 +4,10 @@ import types from './types.js';
 import PrototypeContext from './PrototypeContext.js';
 
 /**
+ * @import Entry from './Entry.js'
+ */
+
+/**
  * A PrototypeContextEntry is a special case of a PrototypeEntry.
  *
  * @exports store/PrototypeEntry

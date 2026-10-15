@@ -4,6 +4,11 @@ import terms from './terms.js';
 
 export const NEW_ID_PLACEHOLDER = '_newId';
 /**
+ * @import Context from './Context.js'
+ * @import Resource from './Resource.js'
+ */
+
+/**
  * A PrototypeEntry is used to create new entries by collecting information about the initial
  * state of the entry to send along to the repository upon creation.
  *

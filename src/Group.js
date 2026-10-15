@@ -2,6 +2,11 @@ import List from './List.js';
 import terms from './terms.js';
 
 /**
+ * @import EntryInfo from './EntryInfo.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * Group is a subclass of the List resource and contains a list of users.
  * The group resource URI can be referred to from access control lists.
  *

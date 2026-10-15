@@ -2,6 +2,11 @@ import Resource from './Resource.js';
 import factory from './factory.js';
 
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * List is a container for other entries in the same context.
  * A single entry may appear in multiple lists (multiple parent lists) unless if it is
  * a list itself. To avoid circular references list entries are only allowed to appear
@@ -30,7 +35,7 @@ export default class List extends Resource {
   /**
    * Set the max amount of entries to include in each page during pagination.
    *
-   * @param {integer} limit
+   * @param {number} limit
    * @returns {List} allows chaining of set-operations.
    */
   setLimit(limit) {
@@ -41,7 +46,7 @@ export default class List extends Resource {
   /**
    * Get the max amount of entries to include in each page during pagination.
    *
-   * @returns {integer}
+   * @returns {number}
    */
   getLimit() {
     return this._limit || factory.getDefaultLimit();

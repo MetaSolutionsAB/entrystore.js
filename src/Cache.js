@@ -1,4 +1,8 @@
 /**
+ * @import Entry from './Entry.js'
+ */
+
+/**
  * Caches loaded entries and keeps track of which entries that need to be updated (refreshed).
  * The cache also provides a listener functionality that allows you to be notified of
  * when entries are updated.

@@ -1,4 +1,15 @@
 import factory from './factory.js';
+
+/**
+ * @import Context from './Context.js'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import GraphResource from './Graph.js'
+ * @import Group from './Group.js'
+ * @import List from './List.js'
+ * @import User from './User.js'
+ */
+
 /**
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.
@@ -6,7 +17,7 @@ import factory from './factory.js';
  * @exports store/Resource
  * @see subclass {@link Context}
  * @see subclass {@link List}
- * @see subclass {@link Graph}
+ * @see subclass {@link GraphResource Graph}
  * @see subclass {@link String}
  * @see subclass {@link File}
  * @see subclass {@link User}

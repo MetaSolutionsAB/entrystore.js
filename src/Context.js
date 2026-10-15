@@ -6,6 +6,13 @@ import StringResource from './String.js';
 import types from './types.js';
 
 /**
+ * @import { Graph } from '@entryscape/rdfjson'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import List from './List.js'
+ */
+
+/**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
  *
  * @exports store/Context
@@ -16,7 +23,6 @@ export default class Context extends Resource {
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
    */
-  // eslint-disable-next-line no-useless-constructor
   constructor(entryURI, resourceURI, entryStore) {
     super(entryURI, resourceURI, entryStore);
   }
@@ -28,7 +34,7 @@ export default class Context extends Resource {
    * @link EntryStore#getEntry getEntry method.
    * @param {object} limit - same limit as provided in the optionalLoadParams to
    * {@see EntryStore#getEntry getEntry} method.
-   * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify
+   * @param {number} page - unless limit is set to -1 (no pagination) we need to specify
    * which page to load, first page is 0.
    * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.
    * @see EntryStore#getListEntries
@@ -164,12 +170,12 @@ export default class Context extends Resource {
   }
 
   /**
-   * Factory method to create a PrototypeEntry whose resource is a {@link Graph Graph}
+   * Factory method to create a PrototypeEntry whose resource is a {@link GraphResource Graph}
    * and has the current context as container.
    * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
-   * @param {rdfjson/Graph|{}} graph - graph to store as a resource.
+   * @param {Graph|object} graph - graph to store as a resource.
    * @param {string=} id - id for the entry, fails upon commit if an entry exists already
    * with this id.
    * @returns {PrototypeEntry}

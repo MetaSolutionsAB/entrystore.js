@@ -140,6 +140,13 @@ const buildQuery = (struct, isAnd) => {
 };
 
 /**
+ * @import Context from './Context.js'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import types from './types.js'
+ */
+
+/**
  * The SolrQuery class provides a way to create a query by chaining method calls according to
  * the builder pattern. For example:
  *
@@ -721,7 +728,7 @@ export default class SolrQuery {
    * @param {string} predicate
    * @param {string | Array} object
    * @param {true|false|string} modifier
-   * @param {text|string} [indexType=ngram] 'ngram' corresponds to partial string
+   * @param {'ngram'|'string'|'text'} [indexType=ngram] 'ngram' corresponds to partial string
    * matching, 'string' corresponds to exact string matching and 'text' corresponds to word matching.
    * @param {boolean} [related=false] will search in related properties if true, default is false
    * @returns {SolrQuery}
@@ -1066,7 +1073,7 @@ export default class SolrQuery {
   /**
    * The maximum amount of facet results to be report on. Default is 100, values up to 1000 is allowed.
    *
-   * @param {integer} limit maximum number of facet results to return per facet.
+   * @param {number} limit maximum number of facet results to return per facet.
    */
   facetLimit(limit) {
     this.facetConfig.facetLimit = limit;
@@ -1075,7 +1082,7 @@ export default class SolrQuery {
   /**
    * The minimum amount of facet results to be included in the response. Default is 1.
    *
-   * @param {integer} limit minumum amount of facet results, facets with fewer results will be omitted in the response.
+   * @param {number} limit minumum amount of facet results, facets with fewer results will be omitted in the response.
    */
   facetMinCount(limit) {
     this.facetConfig.facetMinCount = limit;
@@ -1315,7 +1322,7 @@ export default class SolrQuery {
 
   /**
    * @param func
-   * @returns {promise}
+   * @returns {Promise}
    * @see {List.forEach}
    */
   forEach(func) {

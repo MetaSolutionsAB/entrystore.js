@@ -1,4 +1,10 @@
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryInfo from './EntryInfo.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * EntryStore is the main class that is used to connect to a running server-side
  * EntryStore repository.
  *

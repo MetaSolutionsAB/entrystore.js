@@ -226,7 +226,7 @@ export default class Rest {
    * @param {string} uri - URI to a resource to fetch.
    * @param {string|null} format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
-   * @param {stream} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
+   * @param {object} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
    * @param {boolean} preventCache - if true an extra argument is added to the uri with a random number to prevent caching
    * @returns {Promise} A thenable object
    * @async
@@ -353,7 +353,6 @@ export default class Rest {
     const response = await GETRequest;
     if (response.statusCode === 200) {
       if (handleAs === 'text' || handleAs === 'xml') {
-        // eslint-disable-next-line no-nested-ternary
         return response.text !== undefined
           ? response.text
           : response.body instanceof Buffer

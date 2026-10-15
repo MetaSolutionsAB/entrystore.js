@@ -26,7 +26,7 @@ export default class FileResource extends Resource {
    * In a nodejs environments the file is leveraged as a stream, i.e.:
    * res.putFile(fs.createReadStream('file.txt'));
    *
-   * @param {node|fileHandle} data - input tag or file handle that corresponds to a file.
+   * @param {Node|object} data - input tag or file handle that corresponds to a file.
    * @param {string} format - indicates the mimetype of the data
    * @todo fix-if-modified-since
    * @returns {Promise}

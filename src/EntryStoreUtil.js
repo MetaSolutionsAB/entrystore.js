@@ -20,6 +20,13 @@ const markPromise = (es, promise, context) => {
 };
 
 /**
+ * @import Context from './Context.js'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import SearchList from './SearchList.js'
+ */
+
+/**
  * EntryStoreUtil provides utility functionality for working with entries.
  *
  * @exports store/EntryStoreUtil
@@ -176,7 +183,6 @@ export default class EntryStoreUtil {
     if (entriesSet.size > 0) {
       if (context) {
         for (const entry of entriesSet) {
-          // eslint-disable-line
           if (entry.getContext().getId() === context.getId()) {
             return Promise.resolve(entry);
           }

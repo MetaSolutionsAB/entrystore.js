@@ -199,7 +199,7 @@ SearchList.prototype.getSize = List.prototype.getSize;
  * Retrieves an array of entries contained in this list according to the current page and
  * pagination settings.
  *
- * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
+ * @param {number} page - the page to request an array of entries for, first page is numbered 0.
  * @returns {Promise.<Entry[]>} the promise will return an entry-array.
  * @function
  */

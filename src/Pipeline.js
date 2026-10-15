@@ -2,6 +2,12 @@ import GraphResource from './Graph.js';
 import terms from './terms.js';
 
 /**
+ * @import { Graph, Statement } from '@entryscape/rdfjson'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * Pipeline is a Graph that contains an ordered list of transforms, each transform is of a
  * specific type and takes a set of arguments.
  *
@@ -12,7 +18,7 @@ export default class Pipeline extends GraphResource {
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
-   * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
+   * @param {Graph | object} data - is an RDF graph of some sort
    */
   constructor(entryURI, resourceURI, entryStore, data) {
     super(entryURI, resourceURI, entryStore, data); // Call the super constructor.
@@ -157,7 +163,7 @@ export default class Pipeline extends GraphResource {
    * Get arguments marked with a specific type or all otherwise
    *
    * @param argumentType
-   * @returns {Array.<rdfjson/Statement>}
+   * @returns {Array.<Statement>}
    */
   getPipelineArgumentStatements(argumentType) {
     const stmts = this._graph.find(this._resourceURI, terms.config.argument);
@@ -498,7 +504,7 @@ export default class Pipeline extends GraphResource {
    * @param {object} params additional parameters used in the execution of the pipeline, e.g.
    * action (with value create, replace or append) and datasetURL pointing to the existing
    * dataset in rowstore.
-   * @returns {entryURIArrayPromise} an array of entry URIs that where created/modified by
+   * @returns {Promise<string[]>} an array of entry URIs that where created/modified by
    * this execution.
    */
   execute(sourceEntry, params) {
