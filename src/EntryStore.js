@@ -11,6 +11,25 @@ import User from './User.js';
 import { isBrowser } from './utils.js';
 
 /**
+ * EntryStore 5.x has no extended status path; it reads the extended status and its
+ * statistics from query flags on the plain status path instead. Only one
+ * includeRelationStats flag is sent, since 5.x keeps the last one.
+ *
+ * @param {Array<string>} include
+ * @returns {string}
+ */
+const getLegacyStatusParams = (include) => {
+  const params = ['extended'];
+  if (include.includes('countStats')) params.push('includeStats');
+  if (include.includes('relationVerboseStats')) {
+    params.push('includeRelationStats=verbose');
+  } else if (include.includes('relationStats')) {
+    params.push('includeRelationStats');
+  }
+  return params.join('&');
+};
+
+/**
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
  * repository.
  * @exports store/EntryStore
@@ -681,13 +700,33 @@ export default class EntryStore {
   }
 
   /**
-   *  To get status resource
+   * Fetches the extended status of the repository, which requires admin rights. The server
+   * version, read from the public basic status, decides how: EntryStore 6 and later have a
+   * separate extended status path, while 5.x is asked with query flags and reports the
+   * count statistics as `stats` rather than `countStats`.
    *
-   * @returns {Promise}
+   * @param {object} [options]
+   * @param {Array<string>} [options.include] - statistics to include: 'countStats',
+   * 'relationStats' and/or 'relationVerboseStats'.
+   * @returns {Promise<object>}
    */
-  getStatus() {
-    const uri = `${this._baseURI}management/status?extended`;
-    return this.handleAsync(this.getREST().get(uri));
+  getStatus({ include = [] } = {}) {
+    const statusURI = `${this._baseURI}management/status`;
+    const rest = this.getREST();
+
+    const loadStatus = async () => {
+      const { version } = await rest.get(statusURI);
+      if (parseInt(version, 10) < 6) {
+        return rest.get(`${statusURI}?${getLegacyStatusParams(include)}`);
+      }
+      const includeParams = include
+        .map((value) => `include=${value}`)
+        .join('&');
+      return rest.get(
+        `${statusURI}/extended${includeParams ? `?${includeParams}` : ''}`
+      );
+    };
+    return this.handleAsync(loadStatus());
   }
 
   /**
