@@ -458,7 +458,7 @@ const getMetadataURIFromURI = (entryStore, uri) => {
  * @returns {string}
  */
 const getMetadataURI = (entryStore, contextId, entryId) =>
-  `${entryStore.getBaseURI()}${contextId}/entry/${entryId}`;
+  `${entryStore.getBaseURI()}${contextId}/metadata/${entryId}`;
 
 /**
  *

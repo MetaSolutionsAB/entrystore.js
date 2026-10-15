@@ -607,10 +607,10 @@ export default class EntryStore {
   }
 
   /**
-   * Constructs an metadata URI from the id for the context and the specific entry.
+   * Constructs a metadata URI from the id for the context and the specific entry.
    * @param {string} contextId - an identifier for the context the entry belongs to
    * @param {string} entryId - an identifier for the entry
-   * @returns {String} - an entry URI
+   * @returns {String} - a metadata URI
    */
   getMetadataURI(contextId, entryId) {
     return factory.getMetadataURI(this, contextId, entryId);

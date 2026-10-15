@@ -18,6 +18,14 @@ async function logInlogOut() {
   await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
 }
 
+describe('URI construction', () => {
+  test('builds the metadata URI of an entry from its context and entry id', () => {
+    expect(es.getMetadataURI(contextId, entryId)).toBe(
+      `${repository}${contextId}/metadata/${entryId}`
+    );
+  });
+});
+
 describe('A signed out (admin) user', () => {
   beforeEach(() => {
     return logOut();
