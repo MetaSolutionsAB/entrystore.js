@@ -911,10 +911,66 @@ export default class SolrQuery {
    * If no sort is explicitly given the default sort string used is "score+asc".
    * @param sort {String} a list of fields together with '+asc' or '+desc', first field has the
    * highest priority when sorting.
+   * Replaces any sort set earlier, including sorts added with the property sort methods
+   * such as {@link SolrQuery#literalPropertySort}.
    * @return {SolrQuery}
    */
   sort(sort) {
     this._sort = sort;
+    return this;
+  }
+
+  /**
+   * Adds a sort on the string value of the given predicate. Sorts are applied in the order
+   * they are added, after any sort given with {@link SolrQuery#sort}.
+   *
+   * @param {string} predicate - the predicate, e.g. "schema:name"
+   * @param {'asc'|'desc'} [order='asc']
+   * @param {boolean} [related=false] sort on the related properties if true
+   * @returns {SolrQuery}
+   */
+  literalPropertySort(predicate, order = 'asc', related = false) {
+    return this._addPropertySort('literal_s', predicate, order, related);
+  }
+
+  /**
+   * Adds a sort on the integer value of the given predicate. Sorts are applied in the order
+   * they are added, after any sort given with {@link SolrQuery#sort}.
+   *
+   * @param {string} predicate - the predicate, e.g. "dcterms:created"
+   * @param {'asc'|'desc'} [order='asc']
+   * @param {boolean} [related=false] sort on the related properties if true
+   * @returns {SolrQuery}
+   */
+  integerPropertySort(predicate, order = 'asc', related = false) {
+    return this._addPropertySort('integer', predicate, order, related);
+  }
+
+  /**
+   * Adds a sort on the date value of the given predicate. Sorts are applied in the order
+   * they are added, after any sort given with {@link SolrQuery#sort}.
+   *
+   * @param {string} predicate - the predicate, e.g. "dcterms:issued"
+   * @param {'asc'|'desc'} [order='asc']
+   * @param {boolean} [related=false] sort on the related properties if true
+   * @returns {SolrQuery}
+   */
+  datePropertySort(predicate, order = 'asc', related = false) {
+    return this._addPropertySort('date', predicate, order, related);
+  }
+
+  /**
+   * @private
+   * @param {string} nodetype
+   * @param {string} predicate
+   * @param {'asc'|'desc'} order
+   * @param {boolean} related
+   * @returns {SolrQuery}
+   */
+  _addPropertySort(nodetype, predicate, order, related) {
+    const field = `${related ? 'related.' : ''}metadata.predicate.${nodetype}.${shorten(predicate)}`;
+    const clause = `${field}+${order}`;
+    this._sort = this._sort ? `${this._sort},${clause}` : clause;
     return this;
   }
 
