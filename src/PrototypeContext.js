@@ -32,7 +32,7 @@ export default class PrototypeContext extends Context {
    * Currently the identifiers are created in numerical order.
    *
    * @param id
-   * @return {string}
+   * @returns {string}
    * @private
    */
   _newId(id) {
@@ -49,8 +49,9 @@ export default class PrototypeContext extends Context {
 
   /**
    * Utility method to simplify overriding of the superclass "new" methods.
+   *
    * @param {PrototypeEntry} pe
-   * @return {PrototypeEntry}
+   * @returns {PrototypeEntry}
    * @private
    */
   _register(pe) {
@@ -106,7 +107,6 @@ export default class PrototypeContext extends Context {
    */
   updateEntriesForCreatedContext(context) {
     const es = this.getEntryStore();
-    const cru = context.getResourceURI();
 
     const oldBase = `${es.getBaseURI()}${NEW_ID_PLACEHOLDER}/`;
     const newBase = `${es.getBaseURI()}${context.getId()}/`;
@@ -139,7 +139,7 @@ export default class PrototypeContext extends Context {
   /**
    * Creates all the initial prototype entries in the context.
    *
-   * @return {Promise<Entry[]>}
+   * @returns {Promise<Entry[]>}
    */
   async createInitialEntries() {
     const pes = Object.values(this.id2pe);
@@ -149,7 +149,7 @@ export default class PrototypeContext extends Context {
   }
 
   /**
-   * @return {Entry[]}
+   * @returns {Entry[]}
    */
   getInitialEntries() {
     return this._initialEntries;

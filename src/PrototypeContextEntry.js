@@ -36,7 +36,7 @@ export default class PrototypeContextEntry extends PrototypeEntry {
   /**
    * Same as getResource(true) but clarify that what is returned is a PrototypeContext.
    *
-   * @return {PrototypeContext}
+   * @returns {PrototypeContext}
    */
   getPrototypeContext() {
     return this._resource;
@@ -60,7 +60,7 @@ export default class PrototypeContextEntry extends PrototypeEntry {
   /**
    * Use this method instead of commit if you want to create a group together with the context.
    *
-   * @return {Promise<{contextEntry: Entry, groupEntry: Entry, initialEntries: Entry[]}>}
+   * @returns {Promise<{contextEntry: Entry, groupEntry: Entry, initialEntries: Entry[]}>}
    * @see EntryStore#createGroupAndContext
    */
   async createGroupAndContext() {
@@ -80,7 +80,7 @@ export default class PrototypeContextEntry extends PrototypeEntry {
   }
 
   /**
-   * @return {Entry[]}
+   * @returns {Entry[]}
    */
   getInitialEntries() {
     return this.getPrototypeContext().getInitialEntries();

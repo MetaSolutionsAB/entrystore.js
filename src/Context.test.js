@@ -1,7 +1,7 @@
 import EntryStore from './EntryStore.js';
 import config from '../tests/config.js';
 
-const { repository, contextId, entryId, adminUser, adminPassword } = config;
+const { repository, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 const MAX_AGE = 86400;
 
@@ -85,7 +85,7 @@ describe('A signed in admin (user)', () => {
       .newEntry()
       .addL('dcterms:title', 'entry 2')
       .add('dcterms:relation', pe1.getResourceURI());
-    const { contextEntry, groupEntry, initialEntries } =
+    const { contextEntry, initialEntries } =
       await prototypeEntryContext.createGroupAndContext();
     expect(initialEntries.length).toBe(2);
     let first = initialEntries[0];

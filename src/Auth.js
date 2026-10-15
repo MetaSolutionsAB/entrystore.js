@@ -21,7 +21,7 @@ export default class Auth {
 
   /**
    *
-   * @param {String} topic
+   * @param {string} topic
    * @param obj
    */
   messageListeners(topic, obj) {
@@ -30,6 +30,7 @@ export default class Auth {
 
   /**
    * Adds an authentication listener, it will be notified of login and logout events.
+   *
    * @param {Function} listener
    */
   addAuthListener(listener) {
@@ -42,6 +43,7 @@ export default class Auth {
 
   /**
    * Removes an authentication listener
+   *
    * @param {Function} listener
    */
   removeAuthListener(listener) {

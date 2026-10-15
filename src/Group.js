@@ -20,6 +20,7 @@ export default class Group extends List {
   /**
    * Get the name of the group, this is a a unique name (username) in the current
    * repository's _principals context.
+   *
    * @returns {string}
    */
   getName() {
@@ -29,6 +30,7 @@ export default class Group extends List {
   /**
    * Set a new name of the group, it will not succeed if it is already in use, for instance by
    * another user or group.
+   *
    * @param {string} name
    * @returns {Promise<Group>}
    */
@@ -104,6 +106,7 @@ export default class Group extends List {
   /**
    *
    * Data contains allUnsorted array, size, and children.
+   *
    * @param data
    * @param children
    * @private

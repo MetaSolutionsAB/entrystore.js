@@ -12,6 +12,7 @@ const html = {};
 
 /**
  * Generates a table with columns subject, predicate, and object.
+ *
  * @param {Entry} entry to expose metadata for
  * @returns {string} rendered html as a string
  */
@@ -77,6 +78,7 @@ html.metadataIndent = function (graph, subject) {
 
 /**
  * Prints the three types of the entry, i.e. entry, resource and graphtype.
+ *
  * @param {EntryInfo} entryInfo
  * @returns {string}
  */

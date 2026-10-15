@@ -50,6 +50,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Direct access method for the resource instance for prorotypeEntries.
+   *
    * @returns {Resource}
    */
   getResource() {
@@ -88,10 +89,7 @@ export default class PrototypeEntry extends Entry {
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setExternalMetadataURI(uri) {
-    EntryInfo.prototype.setExternalMetadataURI.apply(
-      this._entryInfo,
-      arguments
-    );
+    EntryInfo.prototype.setExternalMetadataURI.call(this._entryInfo, uri);
     return this;
   }
 
@@ -164,6 +162,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Get the parent list (as an entry) for this PrototypeEntry.
+   *
    * @returns {Entry}
    */
   getParentList() {
@@ -172,6 +171,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Get the suggested entry id for this PrototypeEntry
+   *
    * @returns {string}
    */
   getSpecificId() {
@@ -181,6 +181,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Allowed as a way to save metadata for an
    * entry that is assumed to exist with a given entry id.
+   *
    * @override
    */
   commitMetadata() {
@@ -205,6 +206,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Allowed as a way to save cached external metadata for an entry that is assumed to
    * exist with a given entry id.
+   *
    * @override
    */
   commitCachedExternalMetadata() {

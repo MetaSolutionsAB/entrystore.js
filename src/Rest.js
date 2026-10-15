@@ -1,8 +1,8 @@
 import md5 from 'blueimp-md5';
 import superagent from 'superagent';
 import xmldom from '@xmldom/xmldom';
-import { isBrowser } from './utils.js';
 import jsonp from 'superagent-jsonp';
+import { isBrowser } from './utils.js';
 
 /**
  * Check if requests will be to the same domain, i.e. no CORS.
@@ -27,6 +27,7 @@ const sameOrigin = (url) => {
 
 /**
  * Last 7 digits of milliseconds since 1970 + random number.
+ *
  * @returns {number}
  */
 const getPreventCacheNumber = () =>
@@ -56,7 +57,7 @@ export default class Rest {
       /**
        *
        * @param uri
-       * @param {Object} data
+       * @param {object} data
        * @param format
        * @returns {undefined|*}
        */
@@ -90,7 +91,8 @@ export default class Rest {
    * Set up the rate limitation for read requests.
    * The only required method of the instance is the 'enqueue' function, see it's signature in the default
    * RateLimitation class.
-   * @param {Object} rateLimtationInstance
+   *
+   * @param {object} rateLimtationInstance
    * @see RateLimit#enqueue
    */
   setRateLimitationForRead(rateLimtationInstance) {
@@ -101,7 +103,8 @@ export default class Rest {
    * Set up the rate limitation for write requests.
    * The only required method of the instance is the 'enqueue' function, see it's signature in the default
    * RateLimitation class.
-   * @param {Object} rateLimtationInstance
+   *
+   * @param {object} rateLimtationInstance
    * @see RateLimit#enqueue
    */
   setRateLimitationForWrite(rateLimtationInstance) {
@@ -365,8 +368,8 @@ export default class Rest {
   /**
    * Posts data to the provided URI.
    *
-   * @param {String} uri - an URI to post to.
-   * @param {String|Object} data - the data to post. If an object the data is sent as form data.
+   * @param {string} uri - an URI to post to.
+   * @param {string | object} data - the data to post. If an object the data is sent as form data.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
@@ -429,9 +432,9 @@ export default class Rest {
    * resource.
    *
    * @param {string} uri - factory resource, may include parameters.
-   * @param {string|Object} data - the data that is to be posted as a string,
+   * @param {string | object} data - the data that is to be posted as a string,
    * if an object is provided it will be serialized as json.
-   * @returns {Promise.<String>}
+   * @returns {Promise.<string>}
    */
   async create(uri, data) {
     const response = await this.post(uri, data);
@@ -456,7 +459,7 @@ export default class Rest {
    * Replaces a resource with a new representation.
    *
    * @param {string} uri the address to put to.
-   * @param {string|Object} data - the data to put. If an object the data is sent as form data.
+   * @param {string | object} data - the data to put. If an object the data is sent as form data.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
@@ -509,7 +512,7 @@ export default class Rest {
   /**
    * Deletes a resource.
    *
-   * @param {String} uri of the resource that is to be deleted.
+   * @param {string} uri of the resource that is to be deleted.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
    * @returns {Promise} A thenable object
    */

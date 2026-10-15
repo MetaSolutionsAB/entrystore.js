@@ -308,7 +308,7 @@ const updateOrCreateResource = _updateOrCreateResource;
 /**
  *
  * @param {Entry} entry
- * @param {Object} data
+ * @param {object} data
  */
 const update = (entry, data) => {
   entry.getEntryInfo().setGraph(new Graph(data.info));

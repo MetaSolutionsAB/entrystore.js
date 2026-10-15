@@ -26,7 +26,7 @@ export default class Pipeline extends GraphResource {
    * instead. Some transform types does not respect the destination, e.g. currently ROWSTORE
    * which always creates a new entry containing the results.
    *
-   * @returns {String|undefined} an entry URI where the result should go, empty string for new
+   * @returns {string | undefined} an entry URI where the result should go, empty string for new
    * entries for every execution or undefined if no destination has been specified.
    */
   getDestination() {
@@ -38,7 +38,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    * @see Pipeline#getDestination
-   * @param {String} entryOrEntryURI entry URI, empty string for new entries every time,
+   * @param {string} entryOrEntryURI entry URI, empty string for new entries every time,
    * use undefined to remove destination setting altogether.
    */
   setDestination(entryOrEntryURI) {
@@ -69,7 +69,6 @@ export default class Pipeline extends GraphResource {
    * The referenceResourceId only indicates that another entry (via its resource id) should be
    * referenced from
    * the graph (which might be inside an entry indicated by mergeResourceId).
-   *
    *
    * @returns {boolean} true if destination should be detected.
    */
@@ -142,6 +141,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    * Remove all argument statements
+   *
    * @param argumentType
    */
   removePipelineArguments(argumentType) {
@@ -155,8 +155,9 @@ export default class Pipeline extends GraphResource {
 
   /**
    * Get arguments marked with a specific type or all otherwise
+   *
    * @param argumentType
-   * @return {Array.<rdfjson/Statement>}
+   * @returns {Array.<rdfjson/Statement>}
    */
   getPipelineArgumentStatements(argumentType) {
     const stmts = this._graph.find(this._resourceURI, terms.config.argument);
@@ -177,7 +178,7 @@ export default class Pipeline extends GraphResource {
    * Get the pipeline generic arguments
    *
    * @param argumentType
-   * @return {Object} there's a one to one mapping between object <key, values> and argument <key, value>
+   * @returns {object} there's a one to one mapping between object <key, values> and argument <key, value>
    * @todo make Map?
    */
   getPipelineArguments(argumentType) {
@@ -200,7 +201,7 @@ export default class Pipeline extends GraphResource {
   }
 
   /**
-   * @returns {String[]} of transform ids, typically blank node ids, hence, they are not
+   * @returns {string[]} of transform ids, typically blank node ids, hence, they are not
    * preserved between saves / loads so take care.
    */
   getTransforms() {
@@ -237,9 +238,9 @@ export default class Pipeline extends GraphResource {
   /**
    * Adds a new transform.
    *
-   * @param {String} type one of the [getTransforms]{@link Pipeline#getTransforms}.
-   * @param {Object} args a hash of key value pairs for this transform.
-   * @returns {String} the newly transforms id (for this session, may change after save / load
+   * @param {string} type one of the [getTransforms]{@link Pipeline#getTransforms}.
+   * @param {object} args a hash of key value pairs for this transform.
+   * @returns {string} the newly transforms id (for this session, may change after save / load
    * so take care).
    */
   addTransform(type, args) {
@@ -260,7 +261,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Removes a transform.
    *
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   * @param {string} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link Pipeline#getTransforms}.
    * @see Pipeline#getTransforms
    */
@@ -295,7 +296,7 @@ export default class Pipeline extends GraphResource {
   }
 
   /**
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   * @param {string} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link Pipeline#getTransforms}.
    * @returns {number} the priority as a float.
    */
@@ -315,7 +316,8 @@ export default class Pipeline extends GraphResource {
 
   /**
    * It is recommended to use setOrderOfTransforms instead.
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   *
+   * @param {string} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link Pipeline#getTransforms}.
    * @param {number} prio the priority as a float.
    * @see Pipeline#setOrderOfTransforms
@@ -330,9 +332,9 @@ export default class Pipeline extends GraphResource {
   }
 
   /**
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   * @param {string} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link Pipeline#getTransforms}.
-   * @returns {String} one of the values specified in {@link Pipeline#transformTypes}.
+   * @returns {string} one of the values specified in {@link Pipeline#transformTypes}.
    */
   getTransformType(transformId) {
     return this._graph.findFirstValue(
@@ -343,9 +345,9 @@ export default class Pipeline extends GraphResource {
 
   /**
    *
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   * @param {string} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link Pipeline#getTransforms}.
-   * @param {String} transformType one of the options in {@link Pipeline#transformTypes}.
+   * @param {string} transformType one of the options in {@link Pipeline#transformTypes}.
    */
   setTransformType(transformId, transformType) {
     this._graph.findAndRemove(transformId, terms.pipeline.transformType);
@@ -353,10 +355,10 @@ export default class Pipeline extends GraphResource {
   }
 
   /**
-   * @param {String} transformId the blank node of a specific transform as retrieved
+   * @param {string} transformId the blank node of a specific transform as retrieved
    * by [getTransforms]{@link Pipeline#getTransforms}.  If no id is provided
    * arguments from all transforms will be returned in a single merged object.
-   * @returns {Object|undefined} the arguments for a transform (or all transforms) as an object
+   * @returns {object | undefined} the arguments for a transform (or all transforms) as an object
    * hash with property value pairs.
    */
   getTransformArguments(transformId) {
@@ -382,7 +384,7 @@ export default class Pipeline extends GraphResource {
   }
 
   /**
-   * @param {String} transformId the blank node of a specific transform as retrieved
+   * @param {string} transformId the blank node of a specific transform as retrieved
    * by [getTransforms]{@link Pipeline#getTransforms}.
    * @returns {Array} of arguments' keys
    */
@@ -406,9 +408,10 @@ export default class Pipeline extends GraphResource {
 
   /**
    * Replaces the current arguments with those provided.
-   * @param {String} transformId the blank node of a specific transform as retrieved by
+   *
+   * @param {string} transformId the blank node of a specific transform as retrieved by
    * [getTransforms]{@link Pipeline#getTransforms}.
-   * @param {Object} args the arguments for the transform as an object hash with property value pairs.
+   * @param {object} args the arguments for the transform as an object hash with property value pairs.
    */
   setTransformArguments(transformId, args) {
     const stmts = this._graph.find(
@@ -446,6 +449,7 @@ export default class Pipeline extends GraphResource {
 
   /**
    * Retrieves a transform argument value for a specific transform type and property (key).
+   *
    * @param {string} transformType
    * @param {string} property
    * @returns {*|undefined}
@@ -465,6 +469,7 @@ export default class Pipeline extends GraphResource {
    * Sets or updates an individual property (key-value pair in arguments) of a transform.
    * The transform is identified either explicitly by an id or via a transformType (assumed
    * unique).
+   *
    * @param {string} transformIdOrType corresponds to the transform to change the property for
    * @param {string} key
    * @param {string} value

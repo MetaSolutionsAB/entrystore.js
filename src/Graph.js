@@ -71,7 +71,7 @@ export default class GraphResource extends Resource {
   /**
    * Provides a JSON representation of the graph as rdf/json.
    *
-   * @returns {Object}
+   * @returns {object}
    */
   getSource() {
     return this._graph.exportRDFJSON();

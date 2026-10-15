@@ -45,7 +45,8 @@ export default class Entry {
 
   /**
    * Convenience method, same as calling entry.getEntryInfo().getEntryURI()
-   * @return {string} the entry uri.
+   *
+   * @returns {string} the entry uri.
    * @see EntryInfo#getEntryURI
    */
   getURI() {
@@ -54,6 +55,7 @@ export default class Entry {
 
   /**
    * Convenience method, same as calling entry.getEntryInfo().getId()
+   *
    * @returns {string} the id of the entry
    * @see EntryInfo#getId
    */
@@ -63,6 +65,7 @@ export default class Entry {
 
   /**
    * Convenience method, same as calling entry.getEntryInfo().getResourceURI()
+   *
    * @returns {string} a URI to the resource of this entry.
    */
   getResourceURI() {
@@ -78,12 +81,12 @@ export default class Entry {
 
   /**
    * Provides all metadata, different behaviour depending on entry type:
-   * * local - local metadata, i.e. getMetadata()
-   * * link - local metadata, i.e. getMetadata()
-   * * reference - cached external metadata, i.e. getCachedExternalMetadata()
-   * * linkReference - new graph which is a combination of cached external metadata and local metadata
+   * local - local metadata, i.e. getMetadata()
+   * link - local metadata, i.e. getMetadata()
+   * reference - cached external metadata, i.e. getCachedExternalMetadata()
+   * linkReference - new graph which is a combination of cached external metadata and local metadata
    *
-   * @return {rdfjson/Graph}
+   * @returns {rdfjson/Graph}
    */
   getAllMetadata() {
     if (this.isReference()) {
@@ -99,7 +102,8 @@ export default class Entry {
 
   /**
    * Provides an RDF graph as an {@link rdfjson/Graph} instance.
-   * @return {rdfjson/Graph} a RDF graph with metadata, typically containing statements about
+   *
+   * @returns {rdfjson/Graph} a RDF graph with metadata, typically containing statements about
    * the resourceURI. The returned graph may be empty but never null or undefined.
    */
   getMetadata() {
@@ -121,7 +125,7 @@ export default class Entry {
    *
    * @param {rdfjson/Graph} graph is an RDF graph with metadata, if it is not provided the current
    * metadata graph is saved (there is currently no check whether it has been modified or not).
-   * @return Entry - to allow chaining with other methods, e.g. with commitMetadata.
+   * @returns Entry - to allow chaining with other methods, e.g. with commitMetadata.
    */
   setMetadata(graph) {
     this._metadata = graph;
@@ -132,9 +136,10 @@ export default class Entry {
    * Will push the metadata for this entry to the repository.
    * If metadata has been set for an entry with EntryType 'reference'
    * the entry type will change to 'linkreference' upon a successful commit.
+   *
    * @params {boolean} [ignoreIfUnmodifiedSinceCheck=false] if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
-   * @return {Promise.<Entry>} a promise that on success will contain the current updated entry.
+   * @returns {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
   async commitMetadata(ignoreIfUnmodifiedSinceCheck = false) {
     const es = this.getEntryStore();
@@ -231,7 +236,7 @@ export default class Entry {
    * Cached external metadata can only be provided for entries with entry type
    * reference or link reference.
    *
-   * @return {rdfjson/Graph} - a RDF graph with cached external metadata, typically containing
+   * @returns {rdfjson/Graph} - a RDF graph with cached external metadata, typically containing
    * statements about the resourceURI. The returned graph may be empty but never null
    * or undefined.
    */
@@ -252,7 +257,7 @@ export default class Entry {
    * it to the repository.
    *
    * @param {rdfjson/Graph} graph is an RDF graph with metadata.
-   * @return Entry - to allow chaining with other methods,
+   * @returns Entry - to allow chaining with other methods,
    * e.g. with commitCachedExternalMetadata.
    */
   setCachedExternalMetadata(graph) {
@@ -266,7 +271,7 @@ export default class Entry {
   /**
    * Pushes the current cached external metadata graph for this entry to the repository.
    *
-   * @return {Promise.<Entry>} a promise that on success will contain the current updated entry.
+   * @returns {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
   async commitCachedExternalMetadata(ignoreIfUnmodifiedSinceCheck) {
     const es = this.getEntryStore();
@@ -349,6 +354,7 @@ export default class Entry {
 
   /**
    * a list of entry URIs corresponding to list entries where this entry is contained.
+   *
    * @returns {string[]}
    */
   getParentLists() {
@@ -363,6 +369,7 @@ export default class Entry {
 
   /**
    * a list of entry URIs corresponding to groups where this user entry is member.
+   *
    * @returns {string[]}
    */
   getParentGroups() {
@@ -377,6 +384,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType list?
+   *
    * @returns {boolean}
    */
   isList() {
@@ -385,6 +393,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the Graphtype resultlist?
+   *
    * @returns {boolean}
    */
   isResultList() {
@@ -393,6 +402,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType context?
+   *
    * @returns {boolean}
    */
   isContext() {
@@ -401,6 +411,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType systemcontext?
+   *
    * @returns {boolean}
    */
   isSystemContext() {
@@ -409,6 +420,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType user?
+   *
    * @returns {boolean}
    */
   isUser() {
@@ -417,6 +429,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType group?
+   *
    * @returns {boolean}
    */
   isGroup() {
@@ -425,6 +438,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType graph?
+   *
    * @returns {boolean}
    */
   isGraph() {
@@ -433,6 +447,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType pipeline?
+   *
    * @returns {boolean}
    */
   isPipeline() {
@@ -441,6 +456,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType pipelineresult?
+   *
    * @returns {boolean}
    */
   isPipelineResult() {
@@ -449,6 +465,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType string?
+   *
    * @returns {boolean}
    */
   isString() {
@@ -457,6 +474,7 @@ export default class Entry {
 
   /**
    * Is the resource of this entry of the GraphType none?
+   *
    * @returns {boolean}
    */
   isNone() {
@@ -465,6 +483,7 @@ export default class Entry {
 
   /**
    * Is this entry of the EntryType link?
+   *
    * @returns {boolean}
    */
   isLink() {
@@ -473,6 +492,7 @@ export default class Entry {
 
   /**
    * Is this entry of the EntryType reference?
+   *
    * @returns {boolean}
    */
   isReference() {
@@ -481,6 +501,7 @@ export default class Entry {
 
   /**
    * Is this entry of the EntryType linkreference?
+   *
    * @returns {boolean}
    */
   isLinkReference() {
@@ -548,6 +569,7 @@ export default class Entry {
 
   /**
    * Is the entry an information resource?
+   *
    * @returns {boolean}
    */
   isInformationResource() {
@@ -558,6 +580,7 @@ export default class Entry {
 
   /**
    * Is the entry a named resource?
+   *
    * @returns {boolean}
    */
   isNamedResource() {
@@ -566,6 +589,7 @@ export default class Entry {
 
   /**
    * Is the current user an owner of this entry?
+   *
    * @returns {boolean}
    */
   canAdministerEntry() {
@@ -574,6 +598,7 @@ export default class Entry {
 
   /**
    * Is the current user authorized to read the resource of this entry?
+   *
    * @returns {boolean}
    */
   canReadResource() {
@@ -587,6 +612,7 @@ export default class Entry {
 
   /**
    * Is the current user authorized to write the resource of this entry?
+   *
    * @returns {boolean}
    */
   canWriteResource() {
@@ -595,6 +621,7 @@ export default class Entry {
 
   /**
    * Is the current user authorized to read the metadata of this entry?
+   *
    * @returns {boolean}
    */
   canReadMetadata() {
@@ -608,6 +635,7 @@ export default class Entry {
 
   /**
    * Is the current user authorized to write the metadata of this entry?
+   *
    * @returns {boolean}
    */
   canWriteMetadata() {
@@ -679,9 +707,10 @@ export default class Entry {
 
   /**
    * Deletes this entry without any option to recover it.
+   *
    * @param {boolean} recursive if true and the entry is a list it will delete the entire tree of
    * lists and all entries that is only contained in the current list or any of its child lists.
-   * @return {Promise} which on success indicates that the deletion has succeeded.
+   * @returns {Promise} which on success indicates that the deletion has succeeded.
    */
   async del(recursive = false) {
     const es = this.getEntryStore();
@@ -706,7 +735,7 @@ export default class Entry {
   /**
    * Tells whether an entry needs to be refreshed.
    *
-   * @return {boolean} true if the entry need to be refreshed before used.
+   * @returns {boolean} true if the entry need to be refreshed before used.
    * @see Entry#refresh.
    */
   needRefresh() {
@@ -715,6 +744,7 @@ export default class Entry {
 
   /**
    * Refreshes an entry if needed, that is, if it has been marked as invalid.
+   *
    * @param {boolean=} silently the cache will send out a refresh message for this entry
    * if a refresh was needed AND if the value of silently is false or undefined. If force is true
    * it will send out a refresh message anyhow.
@@ -752,11 +782,11 @@ export default class Entry {
    * (type, language, datatype) a "*" prepended version of each attribute can be provided that
    * contains a list of matching Statements if so indicated by the multipleValueStyle parameter.
    *
-   * @param {Object} mappings the mapping configuration
-   * @param {String} multipleValueStyle if provided an array is provided for that property
+   * @param {object} mappings the mapping configuration
+   * @param {string} multipleValueStyle if provided an array is provided for that property
    * prefixed with "*", the array should be indicated to be either
    * "statements", "values" or "objects".
-   * @returns {Object}
+   * @returns {object}
    * @see rdfjson/Graph
    * @example
    * var proj = entry.projection({
@@ -771,7 +801,6 @@ export default class Entry {
    * // To get hold of additional information available in the statement,
    * // for instance the language of a literal:
    * console.log(proj["*title"][0].getLanguage())
-   *
    */
   projection(mappings = {}, multipleValueStyle = 'none') {
     return this._metadata.projection(

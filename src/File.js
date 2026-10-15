@@ -84,7 +84,7 @@ export default class FileResource extends Resource {
   /**
    * Pushes JSON content to the server for this resource.
    *
-   * @param {Object} obj - to be stored as a json object, format will be set to application/json.
+   * @param {object} obj - to be stored as a json object, format will be set to application/json.
    * @returns {Promise}
    */
   putJSON(obj) {
@@ -109,11 +109,11 @@ export default class FileResource extends Resource {
       try {
         // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
         _xml = new XMLSerializer().serializeToString(_xml);
-      } catch (e) {
+      } catch {
         try {
           // Internet Explorer.
           _xml = _xml.xml;
-        } catch (ee) {
+        } catch {
           throw new Error('Xmlserializer not supported');
         }
       }
@@ -141,7 +141,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {Promise.<String>} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise.<string>} ignores what is specified in the mimetype and returns the resource
    * as a string in the promise.
    */
   getText() {
@@ -155,7 +155,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {Promise.<Object>} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise.<object>} ignores what is specified in the mimetype and returns the resource
    * as a javascript object in the promise.
    */
   getJSON() {

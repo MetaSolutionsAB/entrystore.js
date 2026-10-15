@@ -71,6 +71,7 @@ export default class Cache {
 
   /**
    * Removes a single entry from the cache.
+   *
    * @param {Entry} entry the entry to remove.
    */
   unCache(entry) {
@@ -113,7 +114,7 @@ export default class Cache {
    * A convenience method for caching multiple entries.
    *
    * @param {Entry[]} entryArr
-   * @param {Boolean=} silently
+   * @param {boolean=} silently
    * @see Cache#cache
    */
   cacheAll(entryArr, silently) {

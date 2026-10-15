@@ -1,5 +1,4 @@
 import EntryStore from './EntryStore.js';
-import terms from './terms.js';
 import config from '../tests/config.js';
 
 const es = new EntryStore(config.repository);
@@ -12,7 +11,6 @@ async function setUp() {
       .then(() => {
         authAdminReady = true;
       });
-  } else {
   }
 }
 

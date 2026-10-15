@@ -20,6 +20,7 @@ export default class List extends Resource {
     this._cache = entryStore.getCache();
     /**
      * Array of entry URIs
+     *
      * @type {Array.<string>}
      * @private
      */
@@ -49,7 +50,7 @@ export default class List extends Resource {
   /**
    * Sets the sort order when loading entries contained in this list.
    *
-   * @param {Object} sortParams - same object structure as the sort parameter in
+   * @param {object} sortParams - same object structure as the sort parameter in
    * optionalLoadParameters in {@link EntryStore#getEntry} method.
    * @returns {List} allows chaining of set-operations.
    */
@@ -62,6 +63,7 @@ export default class List extends Resource {
   /**
    * Retrieves an array of entries contained in this list according to the current page and
    * pagination settings.
+   *
    * @param {number} page - the page to request an array of entries for,
    * first page is numbered 0.
    * @returns {Promise.<Entry[]>} the promise will return an entry-array.
@@ -80,7 +82,7 @@ export default class List extends Resource {
    * the function is not called for consecutive entries.
    *
    * @param {Function} func
-   * @return {Promise} called with two parameters, the first a boolean saying if all entries
+   * @returns {Promise} called with two parameters, the first a boolean saying if all entries
    * where passed, the second an index telling how many entries iterated over.
    */
   forEach(func) {
@@ -124,13 +126,14 @@ export default class List extends Resource {
   /**
    * Loops through with forEach and accumulates the entries in a single array.
    * Note! this might be memory intensive for large lists
+   *
    * @see forEach
    * @returns {Promise.<Entry[]>}
    * @todo add tests
    */
   async getAllEntries() {
     const entries = [];
-    await this.forEach(entry => entries.push(entry));
+    await this.forEach((entry) => entries.push(entry));
 
     return entries;
   }
@@ -201,7 +204,9 @@ export default class List extends Resource {
     const es = this.getEntryStore();
     const entry = await this.getEntry();
     const entryInfo = entry.getEntryInfo();
-    const promise = es.getREST().put(this._resourceURI, JSON.stringify(entries));
+    const promise = es
+      .getREST()
+      .put(this._resourceURI, JSON.stringify(entries));
     es.handleAsync(promise, callType || 'setList');
     const response = await promise;
     entryInfo.setModificationDate(response.header['last-modified']);
@@ -227,7 +232,7 @@ export default class List extends Resource {
    *
    * @param page
    * @param careAboutFresh
-   * @return {null|Array}
+   * @returns {null|Array}
    * @private
    */
   _getEntries(page = 0, careAboutFresh = false) {
@@ -264,21 +269,22 @@ export default class List extends Resource {
   /**
    *
    * @param page
-   * @return {*|Promise<Array | never>}
+   * @returns {*|Promise<Array | never>}
    * @private
    */
   _forceLoadEntries(page = 0) {
     const limit = this.getLimit();
     const offset = page * limit;
-    return this._entryStore.getEntry(this._entryURI, {
-      forceLoad: true,
-      offset,
-      limit,
-      sort: this._sortParams,
-      asyncContext: 'loadListEntries',
-    }).then(() => this._getEntries(page, false));
+    return this._entryStore
+      .getEntry(this._entryURI, {
+        forceLoad: true,
+        offset,
+        limit,
+        sort: this._sortParams,
+        asyncContext: 'loadListEntries',
+      })
+      .then(() => this._getEntries(page, false));
   }
-
 
   /**
    * Data contains allUnsorted array, size, and children.
@@ -293,6 +299,7 @@ export default class List extends Resource {
       this._sortedChildren[offset + i] = children[i].getURI();
     }
     this._size = data.size || children.length;
-    this._unsortedChildren = data.allUnsorted || children.map(entry => entry.getId());
+    this._unsortedChildren =
+      data.allUnsorted || children.map((entry) => entry.getId());
   }
-};
+}

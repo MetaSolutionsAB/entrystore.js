@@ -24,9 +24,9 @@ export default class Context extends Resource {
   /**
    * Retrieves a list of entries in the context.
    *
-   * @param {Object} sort - same sort object as provided in the optionalLoadParams to
+   * @param {object} sort - same sort object as provided in the optionalLoadParams to
    * @link EntryStore#getEntry getEntry method.
-   * @param {Object} limit - same limit as provided in the optionalLoadParams to
+   * @param {object} limit - same limit as provided in the optionalLoadParams to
    * {@see EntryStore#getEntry getEntry} method.
    * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify
    * which page to load, first page is 0.
@@ -196,7 +196,7 @@ export default class Context extends Resource {
    * it (returns a promise).
    *
    * @param {string=} str an optional string for the String Resource.
-   * @param {String} id an optional id for the entry, fails upon commit if an entry exists
+   * @param {string} id an optional id for the entry, fails upon commit if an entry exists
    * already with this id.
    * @returns {PrototypeEntry}
    */
@@ -221,7 +221,7 @@ export default class Context extends Resource {
    * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
-   * @param {String} id an optional id for the entry, fails upon commit if an entry exists
+   * @param {string} id an optional id for the entry, fails upon commit if an entry exists
    * already with this id.
    * @returns {PrototypeEntry}
    */
@@ -251,6 +251,7 @@ export default class Context extends Resource {
 
   /**
    * Change of context name, succeeds if name is not in use already by another context.
+   *
    * @param {string} name
    * @returns {Promise.<string>}
    */

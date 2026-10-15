@@ -10,7 +10,7 @@ const types = {
    * It can be an uploaded file, a list, a group, a user etc. The nature of the resource
    * is determined by the graphtype.
    *
-   * @const
+   * @constant
    * @see Entry#isLocal
    */
   ET_LOCAL: 'Local',
@@ -20,7 +20,7 @@ const types = {
    * entry only provides a link to the resource.
    * The metadata is still maintained in the repository though.
    *
-   * @const
+   * @constant
    * @see Entry#isLink
    */
   ET_LINK: 'Link',
@@ -29,6 +29,7 @@ const types = {
    * Similar to link, only the metadata is also external to the repository.
    * In many cases it is possible to access a locally cached version of the external
    * metadata though.
+   *
    * @see Entry#getCachedExternalMetadata
    * @see Entry#isReference
    */
@@ -36,6 +37,7 @@ const types = {
 
   /**
    * Similar to link and reference, only there is both local metadata and external metadata.
+   *
    * @see Entry#isLinkReference
    */
   ET_LINKREF: 'LinkReference',
@@ -44,6 +46,7 @@ const types = {
    * No graph type specified means that no knowledge of the resources character is known.
    * Hence, no special treatment of the resource is expected.
    * This is common when handling regular files, web resources or abstract entities.
+   *
    * @see Entry#isNone
    */
   GT_NONE: 'None',
@@ -58,6 +61,7 @@ const types = {
 
   /**
    * The resource is one of the special context of this repository, e.g. _contexts or _principals.
+   *
    * @see Entry#isSystemContext
    */
   GT_SYSTEMCONTEXT: 'Systemcontext',
@@ -94,6 +98,7 @@ const types = {
 
   /**
    * The resource is a RDF graph.
+   *
    * @see Entry#isGraph
    * @see Graph
    */
@@ -101,6 +106,7 @@ const types = {
 
   /**
    * The resource is a string.
+   *
    * @see Entry#isString
    * @see String
    */
@@ -108,6 +114,7 @@ const types = {
 
   /**
    * The resource is a pipeline, e.g. an entry that can somehow be executed on the server side.
+   *
    * @see Entry#isPipeline
    * @see Pipeline
    */
@@ -116,6 +123,7 @@ const types = {
   /**
    * The resource is a pipelineresult, e.g. the result of the execution of a pipeline
    * on the server side.
+   *
    * @see Entry#isPipelineResult
    * @see Pipeline
    */
@@ -130,6 +138,7 @@ const types = {
 
   /**
    * The resource is resolvable to another address.
+   *
    * @todo the API has little support for this type currently.
    */
   RT_RESOLVABLEINFORMATIONRESOURCE: 'Resolvable',
