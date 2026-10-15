@@ -51,7 +51,7 @@ export default class User extends Resource {
       return response;
     } catch (err) {
       this._data.name = oldName;
-      throw e;
+      throw err;
     }
   }
 
@@ -85,7 +85,7 @@ export default class User extends Resource {
       return response;
     } catch (err) {
       this._data.language = oldLang;
-      throw e;
+      throw err;
     }
   }
 
@@ -145,7 +145,7 @@ export default class User extends Resource {
       return response;
     } catch (err) {
       this._data.disabled = oldDisabled;
-      throw e;
+      throw err;
     }
   }
 
@@ -181,7 +181,7 @@ export default class User extends Resource {
       return response;
     } catch (err) {
       this._data.homecontext = oldHomeContext;
-      throw e;
+      throw err;
     }
   }
 
@@ -222,7 +222,7 @@ export default class User extends Resource {
       return response;
     } catch (err) {
       this._data.customProperties = oldCustomProperties;
-      throw e;
+      throw err;
     }
   }
 
