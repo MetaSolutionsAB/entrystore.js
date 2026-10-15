@@ -89,6 +89,32 @@ test('Search for specific literal property', async () => {
   expect(entries.length).toBeGreaterThan(0); // If fail: 'Cannot find title Donald via property search.');
 });
 
+describe('property sorts', () => {
+  test.each([
+    ['literalPropertySort', 'literal_s'],
+    ['integerPropertySort', 'integer'],
+    ['datePropertySort', 'date'],
+  ])('%s sorts on the %s field of the predicate', (method, nodetype) => {
+    const query = entrystore().newSolrQuery()[method]('dcterms:created');
+
+    expect(query.getQuery()).toContain(
+      `&sort=metadata.predicate.${nodetype}.f31288f4+asc`
+    );
+  });
+
+  test('adds sorts in call order after the sort string', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .sort('title.en+asc')
+      .integerPropertySort('dcterms:created', 'desc')
+      .literalPropertySort('schema:name', 'asc', true);
+
+    expect(query.getQuery()).toContain(
+      '&sort=title.en+asc,metadata.predicate.integer.f31288f4+desc,related.metadata.predicate.literal_s.fc0d21c7+asc'
+    );
+  });
+});
+
 test('Find two users by utilizing forEach functionality', async () => {
   let callbackCount = 0;
   let endReached = false;
