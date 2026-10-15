@@ -58,7 +58,7 @@
     "@entryscape/linting-config": "bitbucket:metasolutions/linting-config#main",
     "babel-loader": "^9.2.1",
     "docdash": "^2.0.2",
-    "eslint": "^8.57.1",
+    "eslint": "^9.39.5",
     "jest": "^27.5.1",
     "jsdoc": "^4.0.5",
     "madge": "^4.0.2",
