@@ -126,6 +126,18 @@ test('Fetch entry by graph type', async () => {
   expect(entry.isUser()).toBeTruthy();
 });
 
+test('joins top-level clauses with OR in a disjunctive query', () => {
+  const query = entrystore()
+    .newSolrQuery()
+    .disjunctive()
+    .title('banana')
+    .description('tomato');
+
+  expect(query.getQuery()).toContain(
+    'query=title:banana+OR+description:tomato'
+  );
+});
+
 test('Range literal query', async () => {
   const es = await entrystore();
   const q1 = es

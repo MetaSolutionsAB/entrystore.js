@@ -1228,7 +1228,7 @@ export default class SolrQuery {
       trail += `&facetMissing=true`;
     }
     return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(
-      this._disjunctive ? '+OR' : '+AND+'
+      this._disjunctive ? '+OR+' : '+AND+'
     )}${trail}`;
   }
 
