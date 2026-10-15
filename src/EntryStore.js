@@ -10,12 +10,23 @@ import types from './types.js';
 import User from './User.js';
 import { isBrowser } from './utils.js';
 
-// EntryStore 5.x has no extended status path; it reads the extended status and its
-// statistics from query flags on the plain status path instead.
-const LEGACY_STATUS_INCLUDE_PARAMS = {
-  countStats: 'includeStats',
-  relationStats: 'includeRelationStats',
-  relationVerboseStats: 'includeRelationStats=verbose',
+/**
+ * EntryStore 5.x has no extended status path; it reads the extended status and its
+ * statistics from query flags on the plain status path instead. Only one
+ * includeRelationStats flag is sent, since 5.x keeps the last one.
+ *
+ * @param {Array<string>} include
+ * @returns {string}
+ */
+const getLegacyStatusParams = (include) => {
+  const params = ['extended'];
+  if (include.includes('countStats')) params.push('includeStats');
+  if (include.includes('relationVerboseStats')) {
+    params.push('includeRelationStats=verbose');
+  } else if (include.includes('relationStats')) {
+    params.push('includeRelationStats');
+  }
+  return params.join('&');
 };
 
 /**
@@ -689,9 +700,10 @@ export default class EntryStore {
   }
 
   /**
-   * Fetches the extended status of the repository, which requires admin rights. Servers
-   * without the extended status path (EntryStore 5.x) are asked the 5.x way instead; they
-   * report the count statistics as `stats` rather than `countStats`.
+   * Fetches the extended status of the repository, which requires admin rights. The server
+   * version, read from the public basic status, decides how: EntryStore 6 and later have a
+   * separate extended status path, while 5.x is asked with query flags and reports the
+   * count statistics as `stats` rather than `countStats`.
    *
    * @param {object} [options]
    * @param {Array<string>} [options.include] - statistics to include: 'countStats',
@@ -701,22 +713,20 @@ export default class EntryStore {
   getStatus({ include = [] } = {}) {
     const statusURI = `${this._baseURI}management/status`;
     const rest = this.getREST();
-    const includeParams = include.map((value) => `include=${value}`).join('&');
-    const legacyParams = [
-      'extended',
-      ...include.map((value) => LEGACY_STATUS_INCLUDE_PARAMS[value]),
-    ]
-      .filter(Boolean)
-      .join('&');
 
-    // The fallback stays inside one promise, so async listeners never see the 404.
-    const promise = rest
-      .get(`${statusURI}/extended${includeParams ? `?${includeParams}` : ''}`)
-      .catch((error) => {
-        if (error.status !== 404) throw error;
-        return rest.get(`${statusURI}?${legacyParams}`);
-      });
-    return this.handleAsync(promise);
+    const loadStatus = async () => {
+      const { version } = await rest.get(statusURI);
+      if (parseInt(version, 10) < 6) {
+        return rest.get(`${statusURI}?${getLegacyStatusParams(include)}`);
+      }
+      const includeParams = include
+        .map((value) => `include=${value}`)
+        .join('&');
+      return rest.get(
+        `${statusURI}/extended${includeParams ? `?${includeParams}` : ''}`
+      );
+    };
+    return this.handleAsync(loadStatus());
   }
 
   /**

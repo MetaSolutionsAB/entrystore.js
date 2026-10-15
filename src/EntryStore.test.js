@@ -101,6 +101,16 @@ describe('A signed in admin (user)', () => {
     expect(status.countStats ?? status.stats).toEqual(expect.any(Object));
   });
 
+  test('includes the verbose relation statistics whatever the order of the options', async () => {
+    const status = await es.getStatus({
+      include: ['relationVerboseStats', 'relationStats'],
+    });
+
+    expect(status.relationStats).toHaveProperty(
+      'activeRelationsWithNonExistingTarget'
+    );
+  });
+
   test('Check so that cache only has one request', async () => {
     expect.assertions(7);
     const contextsEntryURI = es.getEntryURI('_contexts', '_contexts');
