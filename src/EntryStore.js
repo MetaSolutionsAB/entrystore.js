@@ -325,9 +325,9 @@ export default class EntryStore {
    *
    * @param {string} entryURI - URI of the list entry to load entries from.
    * @param {object} sort - same sort object as provided in the optionalLoadParams to
-   * {@see EntryStore#getEntry getEntry} method.
+   * {@link EntryStore#getEntry getEntry} method.
    * @param {object} limit - same limit as provided in the optionalLoadParams to
-   * {@see EntryStore#getEntry getEntry} method.
+   * {@link EntryStore#getEntry getEntry} method.
    * @param {number} page - unless limit is set to -1 (no pagination) we need to specify which
    * page to load, first page is 0.
    * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.

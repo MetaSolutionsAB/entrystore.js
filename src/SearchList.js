@@ -94,7 +94,7 @@ export default class SearchList {
   /**
    *
    * Add an entry to the current search (result) list.
-   * Utilizes the this._sortedChildren of the {@see List} for the actual entries in memory.
+   * Utilizes the this._sortedChildren of the {@link List} for the actual entries in memory.
    *
    * @param {Entry} entry
    * @param {boolean} [first=true] add on top of the list
@@ -120,7 +120,7 @@ export default class SearchList {
    * Remove an entry from the current search (result) list.
    * This can cause a request for the next page load in order to maintain a consistent number
    * of entries in memory (or rather in a front-end view)
-   * Utilizes the this._sortedChildren of the {@see List} for the actual entries in memory.
+   * Utilizes the this._sortedChildren of the {@link List} for the actual entries in memory.
    *
    * @param {Entry} entry
    * @returns {Promise<SearchList>}

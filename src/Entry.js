@@ -22,7 +22,7 @@ import types from './types.js';
  * The same is true for the majority of the get methods,
  * only those that have corresponding set methods are really unique for this class.
  *
- * @link EntryInfo
+ * @see EntryInfo
  * @exports store/Entry
  */
 export default class Entry {
@@ -132,7 +132,7 @@ export default class Entry {
    *
    * @param {Graph} graph is an RDF graph with metadata, if it is not provided the current
    * metadata graph is saved (there is currently no check whether it has been modified or not).
-   * @returns Entry - to allow chaining with other methods, e.g. with commitMetadata.
+   * @returns {Entry} - to allow chaining with other methods, e.g. with commitMetadata.
    */
   setMetadata(graph) {
     this._metadata = graph;
@@ -144,7 +144,7 @@ export default class Entry {
    * If metadata has been set for an entry with EntryType 'reference'
    * the entry type will change to 'linkreference' upon a successful commit.
    *
-   * @params {boolean} [ignoreIfUnmodifiedSinceCheck=false] if explicitly set to true no check is done
+   * @param {boolean} [ignoreIfUnmodifiedSinceCheck=false] if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
    * @returns {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
@@ -264,7 +264,7 @@ export default class Entry {
    * it to the repository.
    *
    * @param {Graph} graph is an RDF graph with metadata.
-   * @returns Entry - to allow chaining with other methods,
+   * @returns {Entry} - to allow chaining with other methods,
    * e.g. with commitCachedExternalMetadata.
    */
   setCachedExternalMetadata(graph) {

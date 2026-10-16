@@ -230,7 +230,7 @@ export default class Rest {
    * @param {boolean} preventCache - if true an extra argument is added to the uri with a random number to prevent caching
    * @returns {Promise} A thenable object
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async get(
     uri,

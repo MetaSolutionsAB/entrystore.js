@@ -31,9 +31,9 @@ export default class Context extends Resource {
    * Retrieves a list of entries in the context.
    *
    * @param {object} sort - same sort object as provided in the optionalLoadParams to
-   * @link EntryStore#getEntry getEntry method.
+   * {@link EntryStore#getEntry getEntry} method.
    * @param {object} limit - same limit as provided in the optionalLoadParams to
-   * {@see EntryStore#getEntry getEntry} method.
+   * {@link EntryStore#getEntry getEntry} method.
    * @param {number} page - unless limit is set to -1 (no pagination) we need to specify
    * which page to load, first page is 0.
    * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.
@@ -52,7 +52,7 @@ export default class Context extends Resource {
    * Convenience method, to retrieve an entry from this context.
    *
    * @param {string} entryId
-   * @param {object} optionalLoadParams same parameter as in {@see EntryStore#getEntry}
+   * @param {object} optionalLoadParams same parameter as in {@link EntryStore#getEntry}
    * @returns {Promise.<Entry>}
    * @see EntryStore#getEntry
    */

@@ -130,7 +130,7 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     return this.loadEntriesByResourceURIs(
@@ -174,7 +174,7 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByResourceURIDebounce(resourceURI, context, asyncCallType) {
     // Check first if the entry is already in the cache, then return it directly.
@@ -237,7 +237,7 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByType(typeURI, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
@@ -260,12 +260,12 @@ export default class EntryStoreUtil {
    * You may restrict to a specific context.
    *
    * @param {string} graphType is the graph type for the entry to match, e.g. use
-   * {@see types#GT_USER}.
+   * {@link types#GT_USER}.
    * @param {Context} context restrict to finding the entry in this context
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByGraphType(graphType, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);

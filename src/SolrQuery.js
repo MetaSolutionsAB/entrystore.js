@@ -812,6 +812,7 @@ export default class SolrQuery {
    * @param {string} predicate
    * @param {string|number} from - if undefined no lower bound will be created, corresponds to *
    * @param {string|number} to - if undefined no upper bound will be created, corresponds to *
+   * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
    * @returns {SolrQuery}
    */

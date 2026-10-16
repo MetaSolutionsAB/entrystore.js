@@ -71,7 +71,7 @@ export default class EntryInfo {
    * Pushes the entry information to the repository, e.g. posts to
    * basepath/{contextId}/entry/{entryId}
    *
-   * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+   * @param {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
    * @returns {Promise.<EntryInfo>}
    */
