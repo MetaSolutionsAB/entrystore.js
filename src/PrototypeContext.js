@@ -36,7 +36,7 @@ export default class PrototypeContext extends Context {
    * Creates an identifier if no explicit identifier is provided.
    * Currently the identifiers are created in numerical order.
    *
-   * @param id
+   * @param {string} id
    * @returns {string}
    * @private
    */

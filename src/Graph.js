@@ -83,7 +83,7 @@ export default class GraphResource extends Resource {
 
   /**
    *
-   * @param data
+   * @param {object} data
    * @private
    */
   _update(data) {

@@ -56,6 +56,7 @@ export default class Resource {
    * > resource is that such an approach, depending on the use-case, may lead to dramatic
    * > increases in the amount of requests to the repository._
    *
+   * @param {boolean} [direct=false]
    * @returns {Promise.<Entry>|Entry} if direct=true an Entry is returned (or undefined if not
    * in cache, only happens sometimes for Contexts) otherwise a promise is returned that on
    * success provides the entry for this resource.

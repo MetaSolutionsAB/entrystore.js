@@ -235,8 +235,8 @@ export default class List extends Resource {
 
   /**
    *
-   * @param page
-   * @param careAboutFresh
+   * @param {number} page
+   * @param {boolean} careAboutFresh
    * @returns {null|Array}
    * @private
    */
@@ -273,7 +273,7 @@ export default class List extends Resource {
 
   /**
    *
-   * @param page
+   * @param {number} page
    * @returns {*|Promise<Array | never>}
    * @private
    */
@@ -294,8 +294,8 @@ export default class List extends Resource {
   /**
    * Data contains allUnsorted array, size, and children.
    *
-   * @param data
-   * @param children
+   * @param {object} data
+   * @param {Entry[]} children
    * @private
    */
   _update(data, children) {

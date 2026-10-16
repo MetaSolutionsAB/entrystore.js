@@ -28,7 +28,7 @@ export default class Auth {
   /**
    *
    * @param {string} topic
-   * @param obj
+   * @param {object} obj
    */
   messageListeners(topic, obj) {
     this._listeners.forEach((func) => func(topic, obj));
@@ -107,9 +107,9 @@ export default class Auth {
    * Authenticate using credentials containing a user, a password and an optional maxAge
    * given in seconds.
    *
-   * @param user
-   * @param password
-   * @param maxAge
+   * @param {string} user
+   * @param {string} password
+   * @param {number} maxAge
    * @returns {Promise}
    */
   async login(user, password, maxAge) {

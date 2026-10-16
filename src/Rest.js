@@ -8,7 +8,7 @@ import { isBrowser } from './utils.js';
  * Check if requests will be to the same domain, i.e. no CORS.
  * Must be used in a browser environment.
  *
- * @param url
+ * @param {string} url
  * @returns {boolean}
  */
 const sameOrigin = (url) => {
@@ -56,9 +56,9 @@ export default class Rest {
     if (isBrowser()) {
       /**
        *
-       * @param uri
+       * @param {string} uri
        * @param {object} data
-       * @param format
+       * @param {string} format
        * @returns {undefined|*}
        */
       rest._putFile = (uri, data, format = 'application/json') => {
@@ -252,6 +252,11 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {string|null} format
+   * @param {boolean} nonJSONP
+   * @param {object} writableStream
+   * @param {boolean} preventCache
    * @private
    * @see get
    */
@@ -388,6 +393,10 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {string | object} data
+   * @param {Date=} modDate
+   * @param {string=} format
    * @private
    * @see post
    */
@@ -478,6 +487,10 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {string | object} data
+   * @param {Date=} modDate
+   * @param {string=} format
    * @private
    * @see put
    */
@@ -523,6 +536,8 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {Date=} modDate
    * @private
    * @see del
    */
@@ -557,7 +572,7 @@ export default class Rest {
    * fs.createReadStream('file.txt').
    *
    * @param {string} uri the URI to which we will put the file.
-   * @param {data} data - input tag or stream that may for instance correspond to a file
+   * @param {Node|object} data - input tag or stream that may for instance correspond to a file
    * in a nodejs setting.
    * @param {string} format the format to handle the response as, either text, xml, html or json
    * (json is default).
@@ -575,6 +590,9 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {Node|object} data
+   * @param {string} format
    * @private
    * @see putFile
    */

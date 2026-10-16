@@ -113,8 +113,8 @@ export default class Pipeline extends GraphResource {
    * Generic <key, value, type> arguments to be saved in the pipeline resource
    * Removes existing arguments by argumentType
    *
-   * @param args
-   * @param argumentType
+   * @param {object} args
+   * @param {string} argumentType
    */
   setPipelineArguments(args, argumentType) {
     this.removePipelineArguments(argumentType);
@@ -148,7 +148,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Remove all argument statements
    *
-   * @param argumentType
+   * @param {string} argumentType
    */
   removePipelineArguments(argumentType) {
     const stmts = this.getPipelineArgumentStatements(argumentType);
@@ -162,7 +162,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Get arguments marked with a specific type or all otherwise
    *
-   * @param argumentType
+   * @param {string} argumentType
    * @returns {Array.<Statement>}
    */
   getPipelineArgumentStatements(argumentType) {
@@ -183,7 +183,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Get the pipeline generic arguments
    *
-   * @param argumentType
+   * @param {string} argumentType
    * @returns {object} there's a one to one mapping between object <key, values> and argument <key, value>
    * @todo make Map?
    */
@@ -225,7 +225,7 @@ export default class Pipeline extends GraphResource {
   /**
    * Finds a transform with the given type and returns its id.
    *
-   * @param transformType the transform type to look for
+   * @param {string} transformType the transform type to look for
    * @returns {string|undefined} transform id, undefined if no transform was found for the given type
    */
   getTransformForType(transformType) {

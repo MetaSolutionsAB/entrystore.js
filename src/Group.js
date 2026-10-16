@@ -2,6 +2,7 @@ import List from './List.js';
 import terms from './terms.js';
 
 /**
+ * @import Entry from './Entry.js'
  * @import EntryInfo from './EntryInfo.js'
  * @import EntryStore from './EntryStore.js'
  */
@@ -112,8 +113,8 @@ export default class Group extends List {
    *
    * Data contains allUnsorted array, size, and children.
    *
-   * @param data
-   * @param children
+   * @param {object} data
+   * @param {Entry[]} children
    * @private
    */
   _update(data, children) {

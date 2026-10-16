@@ -278,6 +278,8 @@ export default class Entry {
   /**
    * Pushes the current cached external metadata graph for this entry to the repository.
    *
+   * @param {boolean} [ignoreIfUnmodifiedSinceCheck=false] if explicitly set to true no check is done
+   * if information is stale, also it will not automatically refresh with the latest date
    * @returns {Promise.<Entry>} a promise that on success will contain the current updated entry.
    */
   async commitCachedExternalMetadata(ignoreIfUnmodifiedSinceCheck) {
@@ -317,6 +319,7 @@ export default class Entry {
    * For all other resources it will work if the resource, e.g. a Graph,
    * a String etc. is already loaded. If it is not loaded null will be returned.
    *
+   * @param {boolean} [direct=false]
    * @returns {Resource | Promise.<Resource>}
    */
   getResource(direct = false) {
@@ -692,6 +695,7 @@ export default class Entry {
    *    })
    * }
    *
+   * @param {Entry} userEntry
    * @returns {boolean|undefined} undefined if the contexts entry which
    * specifies the default access is not cached, otherwise a boolean is returned.
    */

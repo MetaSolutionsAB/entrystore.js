@@ -482,7 +482,8 @@ export default class EntryStore {
 
   /**
    *
-   * @param name
+   * @param {string} name
+   * @param {string} contextId
    * @returns {Promise.<Entry>}
    * @async
    */
@@ -616,6 +617,7 @@ export default class EntryStore {
   }
 
   /**
+   * @param {object} query
    * @deprecated use {@link #newSolrQuery} instead.
    */
   createSearchList(query) {

@@ -42,9 +42,9 @@ const spaceTokenizerRegExp = /(?:\\\s|[^\s])+/g;
  * In addition, fields indexed as text_ngram will have to be shortened to the ngram max limit
  * as they will not match otherwise.
  *
- * @param key
- * @param term
- * @param isFacet
+ * @param {string} key
+ * @param {string} term
+ * @param {boolean} isFacet
  * @returns {*}
  */
 const solrFriendly = (key, term, isFacet) => {
@@ -91,8 +91,8 @@ const toRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
 
 /**
  *
- * @param struct
- * @param isAnd
+ * @param {object} struct
+ * @param {boolean} isAnd
  * @returns {string}
  */
 const buildQuery = (struct, isAnd) => {
@@ -221,9 +221,9 @@ export default class SolrQuery {
 
   /**
    *
-   * @param key
-   * @param val
-   * @param modifier
+   * @param {string} key
+   * @param {string | Array} val
+   * @param {true|false|string} modifier
    * @returns {SolrQuery}
    * @private
    */
@@ -704,6 +704,8 @@ export default class SolrQuery {
   }
 
   /**
+   * @param {string} title
+   * @param {string} language
    * @deprecated
    */
   //eslint-disable-next-line
@@ -713,8 +715,8 @@ export default class SolrQuery {
    * If a title has a language set, a dynamic field is created with the pattern "title.en",
    * without multi value support. This is used in the context of sorting.
    *
-   * @param title {String} the title to search for
-   * @param language {String} the language of the title for instance "en".
+   * @param {string} title the title to search for
+   * @param {string} language the language of the title for instance "en".
    * @returns {SolrQuery}
    */
   titleWithLanguage(title, language) {
@@ -919,7 +921,7 @@ export default class SolrQuery {
    * but allows sorting after e.g. title.en.
    * If no sort is explicitly given the default sort string used is "score+asc".
    *
-   * @param sort {String} a list of fields together with '+asc' or '+desc', first field has the
+   * @param {string} sort a list of fields together with '+asc' or '+desc', first field has the
    * highest priority when sorting.
    * Replaces any sort set earlier, including sorts added with the property sort methods
    * such as {@link SolrQuery#literalPropertySort}.
@@ -1136,7 +1138,7 @@ export default class SolrQuery {
   /**
    * Construct a SearchList fro this SolrQuery.
    *
-   * @param asyncCallType
+   * @param {string} asyncCallType
    * @returns {SearchList}
    */
   list(asyncCallType) {
@@ -1302,7 +1304,7 @@ export default class SolrQuery {
   }
 
   /**
-   * @param page
+   * @param {number} page
    * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
    * @see {List.getEntries}
    */
@@ -1322,7 +1324,7 @@ export default class SolrQuery {
   }
 
   /**
-   * @param func
+   * @param {Function} func
    * @returns {Promise}
    * @see {List.forEach}
    */

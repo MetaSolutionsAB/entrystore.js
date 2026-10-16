@@ -94,7 +94,7 @@ promiseUtil.toPromise = (value) => {
  *  promiseUtil.delay(1000),
  * ]);
  *
- * @param millisecs
+ * @param {number} millisecs
  * @returns {Promise<any>}
  */
 promiseUtil.delay = (millisecs) =>

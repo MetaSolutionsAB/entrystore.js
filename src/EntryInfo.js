@@ -10,8 +10,8 @@ import terms from './terms.js';
 
 /**
  *
- * @param entry
- * @param vocab
+ * @param {EntryInfo} entry
+ * @param {object} vocab
  * @returns {*}
  */
 const getResourceTypeHelper = (entry, vocab) => {
@@ -390,7 +390,7 @@ export default class EntryInfo {
   /**
    * Retrieves the metadata graph of a certain revision from its graph.
    *
-   * @param revisionURI
+   * @param {string} revisionURI
    * @returns {Promise.<Graph>}
    */
   async getMetadataRevisionGraph(revisionURI) {

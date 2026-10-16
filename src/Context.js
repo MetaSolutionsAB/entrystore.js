@@ -298,7 +298,7 @@ export default class Context extends Resource {
 
   /**
    *
-   * @param data
+   * @param {object} data
    * @private
    */
   _update(data) {

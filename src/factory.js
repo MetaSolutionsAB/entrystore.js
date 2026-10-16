@@ -14,6 +14,8 @@ import User from './User.js';
 
 /**
  * @import EntryStore from './EntryStore.js'
+ * @import PrototypeEntry from './PrototypeEntry.js'
+ * @import Resource from './Resource.js'
  */
 
 /**
@@ -37,8 +39,8 @@ let defaultLimit = 50;
 
 /**
  *
- * @param entryURI
- * @param entryStore
+ * @param {string} entryURI
+ * @param {EntryStore} entryStore
  * @returns {*}
  */
 const getContextForEntry = (entryURI, entryStore) => {
@@ -62,7 +64,7 @@ const getContextForEntry = (entryURI, entryStore) => {
 
 /**
  *
- * @param rights
+ * @param {string[]} rights
  */
 const transformRights = (rights) => {
   const o = {};
@@ -75,8 +77,8 @@ const transformRights = (rights) => {
 
 /**
  *
- * @param resObj
- * @param data
+ * @param {Resource} resObj
+ * @param {object} data
  */
 const fixNameAndDisabled = (resObj, data) => {
   const { resource } = data;
@@ -102,9 +104,9 @@ const fixNameAndDisabled = (resObj, data) => {
 
 /**
  *
- * @param entry
- * @param data
- * @param force
+ * @param {Entry} entry
+ * @param {object} data
+ * @param {boolean} force
  * @private
  */
 const _updateOrCreateResource = (entry, data, force) => {
@@ -203,8 +205,8 @@ const _updateOrCreateResource = (entry, data, force) => {
 
 /**
  *
- * @param entry
- * @param data
+ * @param {Entry} entry
+ * @param {object} data
  * @returns {*}
  * @private
  */
@@ -237,8 +239,8 @@ const _updateEntry = (entry, data) => {
 
 /**
  *
- * @param entryStore
- * @param contextEntryURI
+ * @param {EntryStore} entryStore
+ * @param {string} contextEntryURI
  * @returns {Context}
  */
 const getContext = (entryStore, contextEntryURI) => {
@@ -256,8 +258,8 @@ const getContext = (entryStore, contextEntryURI) => {
 
 /**
  *
- * @param entryStore
- * @param entryURI
+ * @param {EntryStore} entryStore
+ * @param {string} entryURI
  * @returns {List}
  */
 const getList = (entryStore, entryURI) => {
@@ -281,9 +283,9 @@ const getList = (entryStore, entryURI) => {
 
 /**
  *
- * @param entryURI
- * @param data
- * @param entryStore
+ * @param {string} entryURI
+ * @param {object} data
+ * @param {EntryStore} entryStore
  * @returns {Entry}
  */
 const updateOrCreate = (entryURI, data, entryStore) => {
@@ -323,8 +325,8 @@ const update = (entry, data) => {
 
 /**
  *
- * @param entryStore
- * @param query
+ * @param {EntryStore} entryStore
+ * @param {object} query
  * @returns {SearchList}
  */
 const createSearchList = (entryStore, query) =>
@@ -332,9 +334,9 @@ const createSearchList = (entryStore, query) =>
 
 /**
  *
- * @param data
- * @param list
- * @param entryStore
+ * @param {object} data
+ * @param {SearchList} list
+ * @param {EntryStore} entryStore
  * @returns {Array.<Entry>}
  */
 const extractSearchResults = (data, list, entryStore) => {
@@ -357,7 +359,7 @@ const extractSearchResults = (data, list, entryStore) => {
 
 /**
  *
- * @param entryURI
+ * @param {string} entryURI
  * @returns {string}
  */
 const getCachedExternalMetadataURI = (entryURI) =>
@@ -365,21 +367,22 @@ const getCachedExternalMetadataURI = (entryURI) =>
 
 /**
  *
- * @param entryURI
+ * @param {string} entryURI
  * @returns {string}
  */
 const getMergedMetadataURI = (entryURI) =>
   entryURI.replace('/entry/', '/merged-metadata/');
 
 /**
+ * @param {string} uri
  * @deprecated in favor of {@link factory#getEntryId}
  */
 const getId = (uri) => uri.substr(uri.lastIndexOf('/') + 1);
 
 /**
  *
- * @param uri
- * @param base
+ * @param {string} uri
+ * @param {string} base
  * @returns {string|undefined}
  */
 const getEntryId = (uri, base) => {
@@ -402,8 +405,8 @@ const getEntryId = (uri, base) => {
 
 /**
  *
- * @param uri
- * @param base
+ * @param {string} uri
+ * @param {string} base
  * @returns {string|undefined}
  */
 const getContextId = (uri, base) => {
@@ -424,8 +427,8 @@ const getContextId = (uri, base) => {
 
 /**
  *
- * @param entryStore
- * @param uri
+ * @param {EntryStore} entryStore
+ * @param {string} uri
  * @returns {string}
  */
 const getEntryURIFromURI = (entryStore, uri) => {
@@ -435,9 +438,9 @@ const getEntryURIFromURI = (entryStore, uri) => {
 
 /**
  *
- * @param entryStore
- * @param contextId
- * @param entryId
+ * @param {EntryStore} entryStore
+ * @param {string} contextId
+ * @param {string} entryId
  * @returns {string}
  */
 const getEntryURI = (entryStore, contextId, entryId) =>
@@ -445,8 +448,8 @@ const getEntryURI = (entryStore, contextId, entryId) =>
 
 /**
  *
- * @param entryStore
- * @param uri
+ * @param {EntryStore} entryStore
+ * @param {string} uri
  * @returns {string}
  */
 const getMetadataURIFromURI = (entryStore, uri) => {
@@ -456,9 +459,9 @@ const getMetadataURIFromURI = (entryStore, uri) => {
 
 /**
  *
- * @param entryStore
- * @param contextId
- * @param entryId
+ * @param {EntryStore} entryStore
+ * @param {string} contextId
+ * @param {string} entryId
  * @returns {string}
  */
 const getMetadataURI = (entryStore, contextId, entryId) =>
@@ -466,8 +469,8 @@ const getMetadataURI = (entryStore, contextId, entryId) =>
 
 /**
  *
- * @param entryStore
- * @param contextId
+ * @param {EntryStore} entryStore
+ * @param {string} contextId
  * @returns {string}
  */
 const getResourceBase = (entryStore, contextId) =>
@@ -475,9 +478,9 @@ const getResourceBase = (entryStore, contextId) =>
 
 /**
  *
- * @param entryStore
- * @param contextId
- * @param entryId
+ * @param {EntryStore} entryStore
+ * @param {string} contextId
+ * @param {string} entryId
  * @returns {string}
  */
 const getResourceURI = (entryStore, contextId, entryId) => {
@@ -489,8 +492,8 @@ const getResourceURI = (entryStore, contextId, entryId) => {
 
 /**
  *
- * @param data
- * @param context
+ * @param {object} data
+ * @param {Context} context
  * @returns {string}
  */
 const getURIFromCreated = (data, context) =>
@@ -498,8 +501,8 @@ const getURIFromCreated = (data, context) =>
 
 /**
  *
- * @param entryURI
- * @param params
+ * @param {string} entryURI
+ * @param {object} params
  * @returns {string}
  */
 const getEntryLoadURI = (entryURI, params) => {
@@ -529,8 +532,8 @@ const getEntryLoadURI = (entryURI, params) => {
 
 /**
  *
- * @param prototypeEntry
- * @param parentListEntry
+ * @param {PrototypeEntry} prototypeEntry
+ * @param {Entry} parentListEntry
  * @returns {string}
  */
 const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
@@ -570,7 +573,7 @@ const getEntryCreateURI = (prototypeEntry, parentListEntry) => {
 
 /**
  *
- * @param prototypeEntry
+ * @param {PrototypeEntry} prototypeEntry
  * @returns {string}
  */
 const getEntryCreatePostData = (prototypeEntry) => {
@@ -602,10 +605,10 @@ const getEntryCreatePostData = (prototypeEntry) => {
 
 /**
  *
- * @param entry
- * @param fromListEntry
- * @param toListEntry
- * @param baseURI
+ * @param {Entry} entry
+ * @param {Entry} fromListEntry
+ * @param {Entry} toListEntry
+ * @param {string} baseURI
  * @returns {string}
  */
 const getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
@@ -616,9 +619,9 @@ const getMoveURI = (entry, fromListEntry, toListEntry, baseURI) => {
 
 /**
  *
- * @param baseURI
- * @param uri
- * @param formatHint
+ * @param {string} baseURI
+ * @param {string} uri
+ * @param {string} formatHint
  * @returns {string}
  */
 const getProxyURI = (baseURI, uri, formatHint) => {
@@ -630,7 +633,7 @@ const getProxyURI = (baseURI, uri, formatHint) => {
 };
 
 /**
- * @param sortObject
+ * @param {object} sortObject
  */
 const setSort = (sortObject) => {
   sortObj = sortObject;
@@ -649,7 +652,7 @@ const getDefaultLimit = () => defaultLimit;
 
 /**
  *
- * @param limit
+ * @param {number} limit
  */
 const setDefaultLimit = (limit) => {
   defaultLimit = limit;

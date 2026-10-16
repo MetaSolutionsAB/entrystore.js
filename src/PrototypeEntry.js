@@ -79,6 +79,7 @@ export default class PrototypeEntry extends Entry {
    * {@link EntryInfo} on this class
    * and makes it chainable.
    *
+   * @param {string} uri
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setResourceURI(uri) {
@@ -91,6 +92,7 @@ export default class PrototypeEntry extends Entry {
    * from {@link EntryInfo} on this class
    * and makes it chainable.
    *
+   * @param {string} uri
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setExternalMetadataURI(uri) {
@@ -101,6 +103,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the EntryType (which is not allowed on existing entries).
    *
+   * @param {string} et
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setEntryType(et) {
@@ -119,6 +122,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the GraphType (which is not allowed on existing entries).
    *
+   * @param {string} gt
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setGraphType(gt) {
@@ -138,6 +142,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the ResourceType (which is not allowed on existing entries).
    *
+   * @param {string} rt
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setResourceType(rt) {

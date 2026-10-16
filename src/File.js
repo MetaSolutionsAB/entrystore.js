@@ -127,7 +127,7 @@ export default class FileResource extends Resource {
    * @returns {Promise} which format the resource is returned in the promise (string, json or
    * xml) depends on what is specified in the mimetype. Xml is only returned in a browser
    * environment, if not in a browser a string is returned.
-   * @param writableStream a writable stream, e.g. in nodejs it can be created via fs.createWriteStream('./output');
+   * @param {object} writableStream a writable stream, e.g. in nodejs it can be created via fs.createWriteStream('./output');
    */
   get(writableStream) {
     const format = this.getEntry(true).getEntryInfo().getFormat();
