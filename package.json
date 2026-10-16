@@ -55,7 +55,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
     "@babel/register": "^7.29.7",
-    "@entryscape/linting-config": "bitbucket:metasolutions/linting-config#main",
+    "@entryscape/linting-config": "^1.2.0",
     "babel-loader": "^9.2.1",
     "docdash": "^2.0.2",
     "eslint": "^9.39.5",
