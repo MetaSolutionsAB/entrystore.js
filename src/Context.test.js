@@ -63,8 +63,10 @@ describe('A signed in admin (user)', () => {
 
   test('Create a group and context via prototype with given name and context id in one go', async () => {
     expect.assertions(3);
-    const name = 'groupandcontextname';
-    const contextId = 'speicifcContextID';
+    // Unique per run, since the repository keeps contexts and groups between runs
+    const suffix = new Date().getTime();
+    const name = `groupandcontextname${suffix}`;
+    const contextId = `specificContextID${suffix}`;
     const prototypeEntryContext = await es.newContext(name, contextId);
     const { contextEntry, groupEntry } =
       await prototypeEntryContext.createGroupAndContext();
