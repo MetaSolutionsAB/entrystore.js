@@ -143,6 +143,7 @@ const _updateOrCreateResource = (entry, data, force) => {
           resource._update(
             _data.resource,
             _data.resource.children.map((child) =>
+              // eslint-disable-next-line no-use-before-define -- mutual recursion, defined below
               updateOrCreate(`${cruri}/entry/${child.entryId}`, child, es)
             )
           );
@@ -190,6 +191,7 @@ const _updateOrCreateResource = (entry, data, force) => {
         resource._update(
           _data.resource,
           _data.resource.children.map((child) =>
+            // eslint-disable-next-line no-use-before-define -- mutual recursion, defined below
             updateOrCreate(
               `${cruri}/entry/${child.entryId}`,
               child,
