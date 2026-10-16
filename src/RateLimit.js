@@ -29,7 +29,7 @@
  * and you care about responsiveness. Use the naive approach in batch mode when you want to push as many requests
  * through as possible over a longer period of time.
  *
- * @exports store/RateLimit
+ * @exports module:store/RateLimit
  */
 export default class RateLimit {
   /**

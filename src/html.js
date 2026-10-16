@@ -9,7 +9,7 @@ import { print } from '@entryscape/rdfjson';
 /**
  * A module that contain utility methods for generating html for entries.
  *
- * @exports store/html
+ * @exports module:store/html
  * @namespace
  */
 const html = {};

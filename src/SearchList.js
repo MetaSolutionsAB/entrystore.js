@@ -4,7 +4,7 @@ import factory from './factory.js';
 import Entry from './Entry.js';
 
 /**
- * @exports store/SearchList
+ * @exports module:store/SearchList
  */
 export default class SearchList {
   /**

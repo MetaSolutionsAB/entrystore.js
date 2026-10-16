@@ -15,7 +15,7 @@ import types from './types.js';
 /**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
  *
- * @exports store/Context
+ * @exports module:store/Context
  */
 export default class Context extends Resource {
   /**

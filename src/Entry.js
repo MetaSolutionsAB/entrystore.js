@@ -23,7 +23,7 @@ import types from './types.js';
  * only those that have corresponding set methods are really unique for this class.
  *
  * @see EntryInfo
- * @exports store/Entry
+ * @exports module:store/Entry
  */
 export default class Entry {
   /**

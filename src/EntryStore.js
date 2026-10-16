@@ -22,7 +22,7 @@ import { isBrowser } from './utils.js';
  * EntryStore is the main class that is used to connect to a running server-side EntryStore
  * repository.
  *
- * @exports store/EntryStore
+ * @exports module:store/EntryStore
  */
 export default class EntryStore {
   /**

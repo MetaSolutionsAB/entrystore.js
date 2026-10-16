@@ -182,7 +182,7 @@ const buildQuery = (struct, isAnd) => {
  * query as a string that is used by EntryStore API behind the scenes, you can safely ignore
  * this method.
  *
- * @exports store/SolrQuery
+ * @exports module:store/SolrQuery
  */
 export default class SolrQuery {
   /**

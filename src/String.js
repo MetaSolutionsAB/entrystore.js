@@ -7,7 +7,7 @@ import Resource from './Resource.js';
 /**
  * String is a resource for handling simple strings of data.
  *
- * @exports store/String
+ * @exports module:store/String
  */
 export default class StringResource extends Resource {
   /**

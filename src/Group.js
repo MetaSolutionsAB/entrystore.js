@@ -11,7 +11,7 @@ import terms from './terms.js';
  * Group is a subclass of the List resource and contains a list of users.
  * The group resource URI can be referred to from access control lists.
  *
- * @exports store/Group
+ * @exports module:store/Group
  */
 export default class Group extends List {
   /**

@@ -14,7 +14,7 @@ import factory from './factory.js';
  * This is the base class for resources contained by entries, do not use directly,
  * instead use a subclass.
  *
- * @exports store/Resource
+ * @exports module:store/Resource
  * @see subclass {@link Context}
  * @see subclass {@link List}
  * @see subclass {@link GraphResource Graph}

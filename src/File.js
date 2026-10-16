@@ -6,7 +6,7 @@ import { isBrowser } from './utils.js';
  * File resources are resources located in the Entrystore repository that have a graph type of
  * none, e.g. none of the special cases for which there are special treatment in EntryStore.
  *
- * @exports store/File
+ * @exports module:store/File
  */
 export default class FileResource extends Resource {
   constructor(...args) {

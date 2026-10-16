@@ -18,7 +18,7 @@ import Context from './Context.js';
  *  2. to rewrite all references between the entries after the context has been created with the right context id
  *  3. allow access to the initial entries after context creation
  *
- * @exports store/PrototypeContext
+ * @exports module:store/PrototypeContext
  */
 export default class PrototypeContext extends Context {
   /**

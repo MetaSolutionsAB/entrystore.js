@@ -39,7 +39,7 @@ const getPreventCacheNumber = () =>
  * Authentication is done via cookies and accept headers are in general set to
  * application/json behind the scenes.
  *
- * @exports store/Rest
+ * @exports module:store/Rest
  */
 export default class Rest {
   constructor() {

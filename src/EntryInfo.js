@@ -29,7 +29,7 @@ const getResourceTypeHelper = (entry, vocab) => {
 /**
  * EntryInfo is a class that contains all the administrative information of an entry.
  *
- * @exports store/EntryInfo
+ * @exports module:store/EntryInfo
  */
 export default class EntryInfo {
   /**

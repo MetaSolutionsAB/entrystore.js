@@ -29,7 +29,7 @@ const markPromise = (es, promise, context) => {
 /**
  * EntryStoreUtil provides utility functionality for working with entries.
  *
- * @exports store/EntryStoreUtil
+ * @exports module:store/EntryStoreUtil
  */
 export default class EntryStoreUtil {
   /**

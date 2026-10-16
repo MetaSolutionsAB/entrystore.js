@@ -7,7 +7,7 @@
  * The cache also provides a listener functionality that allows you to be notified of
  * when entries are updated.
  *
- * @exports store/Cache
+ * @exports module:store/Cache
  */
 export default class Cache {
   constructor() {

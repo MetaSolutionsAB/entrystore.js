@@ -12,7 +12,7 @@ import factory from './factory.js';
  * a list itself. To avoid circular references list entries are only allowed to appear
  * in one parent list.
  *
- * @exports store/List
+ * @exports module:store/List
  */
 export default class List extends Resource {
   /**

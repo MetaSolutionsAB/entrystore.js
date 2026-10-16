@@ -10,7 +10,7 @@ import PrototypeContext from './PrototypeContext.js';
 /**
  * A PrototypeContextEntry is a special case of a PrototypeEntry.
  *
- * @exports store/PrototypeEntry
+ * @exports module:store/PrototypeEntry
  */
 export default class PrototypeContextEntry extends PrototypeEntry {
   /**

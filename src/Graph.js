@@ -8,7 +8,7 @@ import Resource from './Resource.js';
 /**
  * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
  *
- * @exports store/Graph
+ * @exports module:store/Graph
  */
 export default class GraphResource extends Resource {
   /**
