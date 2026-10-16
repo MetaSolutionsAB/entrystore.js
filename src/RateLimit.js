@@ -289,7 +289,7 @@ export default class RateLimit {
   /**
    * Enqueue a request in the form of an asynchronous function, i.e. it has to return a promise.
    *
-   * @param {function} fn the function to add to the queue
+   * @param {Function} fn the function to add to the queue
    * @param {object} [context] a context object that will become the "this" of the function, optional.
    * @param {Array} [args] an array of arguments, optional.
    * @returns {Promise} a new potentially delayed promise with the same resolve and reject values.
@@ -321,7 +321,7 @@ export default class RateLimit {
   /**
    * Listener that will be notified if rate limitation is turned on (true is sent) or off (false is sent).
    *
-   * @param {function} listener
+   * @param {Function} listener
    */
   addListener(listener) {
     this._listeners.push(listener);
@@ -330,7 +330,7 @@ export default class RateLimit {
   /**
    * Remove the provided rate limitation listener.
    *
-   * @param {function} listener
+   * @param {Function} listener
    */
   removeListener(listener) {
     this._listeners.splice(this._listeners.indexOf(listener), 1);

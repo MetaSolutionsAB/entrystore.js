@@ -7,10 +7,4 @@ export default [
       'import/extensions': ['error', 'always', { ignorePackages: true }],
     },
   },
-  {
-    files: ['src/**/*.test.js'],
-    rules: {
-      'jsdoc/require-jsdoc': 'off',
-    },
-  },
 ];

@@ -17,7 +17,7 @@ const promiseUtil = {};
  * (The function is applied to the value of each key in the items object.)
  *
  * @param {Array | object} items
- * @param {function} func a function that is applied to each item and must return a promise
+ * @param {Function} func a function that is applied to each item and must return a promise
  * @returns {Promise}
  */
 promiseUtil.forEach = (items, func) =>
