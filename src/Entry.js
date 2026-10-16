@@ -761,6 +761,7 @@ export default class Entry {
    * it will send out a refresh message anyhow.
    * @param {boolean=} [force=false] If true the entry will be refreshed independent if it was marked in need
    * of a refresh or not.
+   * @returns {Promise.<Entry>}
    */
   refresh(silently = true, force = false) {
     const es = this.getEntryStore();

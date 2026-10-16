@@ -41,7 +41,7 @@ let defaultLimit = 50;
  *
  * @param {string} entryURI
  * @param {EntryStore} entryStore
- * @returns {*}
+ * @returns {Context}
  */
 const getContextForEntry = (entryURI, entryStore) => {
   const baseURI = entryStore.getBaseURI();
@@ -65,6 +65,7 @@ const getContextForEntry = (entryURI, entryStore) => {
 /**
  *
  * @param {string[]} rights
+ * @returns {object}
  */
 const transformRights = (rights) => {
   const o = {};
@@ -207,7 +208,7 @@ const _updateOrCreateResource = (entry, data, force) => {
  *
  * @param {Entry} entry
  * @param {object} data
- * @returns {*}
+ * @returns {Entry}
  * @private
  */
 const _updateEntry = (entry, data) => {
@@ -375,6 +376,7 @@ const getMergedMetadataURI = (entryURI) =>
 
 /**
  * @param {string} uri
+ * @returns {string}
  * @deprecated in favor of {@link factory#getEntryId}
  */
 const getId = (uri) => uri.substr(uri.lastIndexOf('/') + 1);

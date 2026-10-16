@@ -12,7 +12,7 @@ import terms from './terms.js';
  *
  * @param {EntryInfo} entry
  * @param {object} vocab
- * @returns {*}
+ * @returns {string}
  */
 const getResourceTypeHelper = (entry, vocab) => {
   const stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);

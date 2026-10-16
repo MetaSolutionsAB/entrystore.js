@@ -167,6 +167,7 @@ export default class EntryStore {
    * in seconds.
    *
    * @param {{user, password, maxAge}} credentials as a parameter object
+   * @returns {Promise}
    * @deprecated use corresponding method on auth object instead.
    */
   auth(credentials) {
@@ -618,6 +619,7 @@ export default class EntryStore {
 
   /**
    * @param {object} query
+   * @returns {SearchList}
    * @deprecated use {@link #newSolrQuery} instead.
    */
   createSearchList(query) {
@@ -763,6 +765,7 @@ export default class EntryStore {
    *
    * @todo Needs support from EntryStore REST API
    * @todo Document promise
+   * @returns {{version: string}}
    */
   static info() {
     const packageJSON = require('../package.json');

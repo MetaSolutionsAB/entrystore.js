@@ -95,7 +95,7 @@ promiseUtil.toPromise = (value) => {
  * ]);
  *
  * @param {number} millisecs
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 promiseUtil.delay = (millisecs) =>
   new Promise((resolve) => setTimeout(resolve, millisecs));

@@ -274,7 +274,7 @@ export default class List extends Resource {
   /**
    *
    * @param {number} page
-   * @returns {*|Promise<Array | never>}
+   * @returns {Promise<Entry[]|null>}
    * @private
    */
   _forceLoadEntries(page = 0) {

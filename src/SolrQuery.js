@@ -45,7 +45,7 @@ const spaceTokenizerRegExp = /(?:\\\s|[^\s])+/g;
  * @param {string} key
  * @param {string} term
  * @param {boolean} isFacet
- * @returns {*}
+ * @returns {string}
  */
 const solrFriendly = (key, term, isFacet) => {
   let and = term.trim().replace(/\s\s+/g, ' ');
@@ -194,12 +194,12 @@ export default class SolrQuery {
     this.relatedProperties = [];
     /**
      *
-     * @type {Map<string, *>}
+     * @type {Map<string, string | Array>}
      */
     this.params = new Map();
     /**
      *
-     * @type {Map<string, any>}
+     * @type {Map<string, boolean | string>}
      */
     this.modifiers = new Map();
     /**

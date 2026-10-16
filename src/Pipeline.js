@@ -458,7 +458,7 @@ export default class Pipeline extends GraphResource {
    *
    * @param {string} transformType
    * @param {string} property
-   * @returns {*|undefined}
+   * @returns {string|undefined}
    */
   getTransformProperty(transformType, property) {
     const tid = this.getTransformForType(transformType);

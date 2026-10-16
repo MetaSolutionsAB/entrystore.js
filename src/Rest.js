@@ -59,7 +59,7 @@ export default class Rest {
        * @param {string} uri
        * @param {object} data
        * @param {string} format
-       * @returns {undefined|*}
+       * @returns {Promise|undefined}
        */
       rest._putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
@@ -257,6 +257,7 @@ export default class Rest {
    * @param {boolean} nonJSONP
    * @param {object} writableStream
    * @param {boolean} preventCache
+   * @returns {Promise}
    * @private
    * @see get
    */
@@ -397,6 +398,7 @@ export default class Rest {
    * @param {string | object} data
    * @param {Date=} modDate
    * @param {string=} format
+   * @returns {Promise}
    * @private
    * @see post
    */
@@ -491,6 +493,7 @@ export default class Rest {
    * @param {string | object} data
    * @param {Date=} modDate
    * @param {string=} format
+   * @returns {Promise}
    * @private
    * @see put
    */
@@ -538,6 +541,7 @@ export default class Rest {
   /**
    * @param {string} uri
    * @param {Date=} modDate
+   * @returns {Promise}
    * @private
    * @see del
    */
@@ -593,6 +597,7 @@ export default class Rest {
    * @param {string} uri
    * @param {Node|object} data
    * @param {string} format
+   * @returns {Promise}
    * @private
    * @see putFile
    */
