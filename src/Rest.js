@@ -1,14 +1,14 @@
 import md5 from 'blueimp-md5';
 import superagent from 'superagent';
 import xmldom from '@xmldom/xmldom';
-import { isBrowser } from './utils.js';
 import jsonp from 'superagent-jsonp';
+import { isBrowser } from './utils.js';
 
 /**
  * Check if requests will be to the same domain, i.e. no CORS.
  * Must be used in a browser environment.
  *
- * @param url
+ * @param {string} url
  * @returns {boolean}
  */
 const sameOrigin = (url) => {
@@ -27,6 +27,7 @@ const sameOrigin = (url) => {
 
 /**
  * Last 7 digits of milliseconds since 1970 + random number.
+ *
  * @returns {number}
  */
 const getPreventCacheNumber = () =>
@@ -38,7 +39,7 @@ const getPreventCacheNumber = () =>
  * Authentication is done via cookies and accept headers are in general set to
  * application/json behind the scenes.
  *
- * @exports store/Rest
+ * @exports module:store/Rest
  */
 export default class Rest {
   constructor() {
@@ -55,10 +56,10 @@ export default class Rest {
     if (isBrowser()) {
       /**
        *
-       * @param uri
-       * @param {Object} data
-       * @param format
-       * @returns {undefined|*}
+       * @param {string} uri
+       * @param {object} data
+       * @param {string} format
+       * @returns {Promise|undefined}
        */
       rest._putFile = (uri, data, format = 'application/json') => {
         if (!data.value) {
@@ -90,7 +91,8 @@ export default class Rest {
    * Set up the rate limitation for read requests.
    * The only required method of the instance is the 'enqueue' function, see it's signature in the default
    * RateLimitation class.
-   * @param {Object} rateLimtationInstance
+   *
+   * @param {object} rateLimtationInstance
    * @see RateLimit#enqueue
    */
   setRateLimitationForRead(rateLimtationInstance) {
@@ -101,7 +103,8 @@ export default class Rest {
    * Set up the rate limitation for write requests.
    * The only required method of the instance is the 'enqueue' function, see it's signature in the default
    * RateLimitation class.
-   * @param {Object} rateLimtationInstance
+   *
+   * @param {object} rateLimtationInstance
    * @see RateLimit#enqueue
    */
   setRateLimitationForWrite(rateLimtationInstance) {
@@ -223,11 +226,11 @@ export default class Rest {
    * @param {string} uri - URI to a resource to fetch.
    * @param {string|null} format - the format to request as a mimetype.
    * @param {boolean} nonJSONP - stop JSONP handling (default false)
-   * @param {stream} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
+   * @param {object} writableStream - a writable stream to be used in nodejs e.g. for piping data directly to a file
    * @param {boolean} preventCache - if true an extra argument is added to the uri with a random number to prevent caching
    * @returns {Promise} A thenable object
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async get(
     uri,
@@ -249,6 +252,12 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {string|null} format
+   * @param {boolean} nonJSONP
+   * @param {object} writableStream
+   * @param {boolean} preventCache
+   * @returns {Promise}
    * @private
    * @see get
    */
@@ -350,7 +359,6 @@ export default class Rest {
     const response = await GETRequest;
     if (response.statusCode === 200) {
       if (handleAs === 'text' || handleAs === 'xml') {
-        // eslint-disable-next-line no-nested-ternary
         return response.text !== undefined
           ? response.text
           : response.body instanceof Buffer
@@ -365,8 +373,8 @@ export default class Rest {
   /**
    * Posts data to the provided URI.
    *
-   * @param {String} uri - an URI to post to.
-   * @param {String|Object} data - the data to post. If an object the data is sent as form data.
+   * @param {string} uri - an URI to post to.
+   * @param {string | object} data - the data to post. If an object the data is sent as form data.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
@@ -386,6 +394,11 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {string | object} data
+   * @param {Date=} modDate
+   * @param {string=} format
+   * @returns {Promise}
    * @private
    * @see post
    */
@@ -429,9 +442,9 @@ export default class Rest {
    * resource.
    *
    * @param {string} uri - factory resource, may include parameters.
-   * @param {string|Object} data - the data that is to be posted as a string,
+   * @param {string | object} data - the data that is to be posted as a string,
    * if an object is provided it will be serialized as json.
-   * @returns {Promise.<String>}
+   * @returns {Promise.<string>}
    */
   async create(uri, data) {
     const response = await this.post(uri, data);
@@ -456,7 +469,7 @@ export default class Rest {
    * Replaces a resource with a new representation.
    *
    * @param {string} uri the address to put to.
-   * @param {string|Object} data - the data to put. If an object the data is sent as form data.
+   * @param {string | object} data - the data to put. If an object the data is sent as form data.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
    * @param {string=} format - indicates the content-type of the data, default is
    * application/json, except if the data is an object in which case the default is
@@ -476,6 +489,11 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {string | object} data
+   * @param {Date=} modDate
+   * @param {string=} format
+   * @returns {Promise}
    * @private
    * @see put
    */
@@ -509,7 +527,7 @@ export default class Rest {
   /**
    * Deletes a resource.
    *
-   * @param {String} uri of the resource that is to be deleted.
+   * @param {string} uri of the resource that is to be deleted.
    * @param {Date=} modDate a date to use for the HTTP if-unmodified-since header.
    * @returns {Promise} A thenable object
    */
@@ -521,6 +539,9 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {Date=} modDate
+   * @returns {Promise}
    * @private
    * @see del
    */
@@ -555,7 +576,7 @@ export default class Rest {
    * fs.createReadStream('file.txt').
    *
    * @param {string} uri the URI to which we will put the file.
-   * @param {data} data - input tag or stream that may for instance correspond to a file
+   * @param {Node|object} data - input tag or stream that may for instance correspond to a file
    * in a nodejs setting.
    * @param {string} format the format to handle the response as, either text, xml, html or json
    * (json is default).
@@ -573,6 +594,10 @@ export default class Rest {
   }
 
   /**
+   * @param {string} uri
+   * @param {Node|object} data
+   * @param {string} format
+   * @returns {Promise}
    * @private
    * @see putFile
    */

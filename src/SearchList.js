@@ -4,12 +4,12 @@ import factory from './factory.js';
 import Entry from './Entry.js';
 
 /**
- * @exports store/SearchList
+ * @exports module:store/SearchList
  */
 export default class SearchList {
   /**
    * @param {EntryStore} entryStore
-   * @param {Object} query
+   * @param {object} query
    * @param {string} callType parameter provided to asyncListeners on query execution,
    * assumed to be 'search' if left out
    */
@@ -22,7 +22,8 @@ export default class SearchList {
 
   /**
    * the query instance, e.g. an instance of SolrQuery, associated with this SearchList.
-   * @returns {Object}
+   *
+   * @returns {object}
    */
   getQuery() {
     return this._query;
@@ -65,7 +66,7 @@ export default class SearchList {
    *   ]
    * }
    *
-   * @return {Array} never null or undefined, may be an array of length 0 though.
+   * @returns {Array} never null or undefined, may be an array of length 0 though.
    */
   getFacets() {
     return this.facets;
@@ -93,18 +94,16 @@ export default class SearchList {
   /**
    *
    * Add an entry to the current search (result) list.
-   * Utilizes the this._sortedChildren of the {@see List} for the actual entries in memory.
+   * Utilizes the this._sortedChildren of the {@link List} for the actual entries in memory.
    *
    * @param {Entry} entry
    * @param {boolean} [first=true] add on top of the list
-   * @return {SearchList}
+   * @returns {SearchList}
    */
   addEntry(entry, first = true) {
     if (entry && !(entry instanceof Entry)) {
       return this;
     }
-
-    const limit = this.getLimit();
 
     if (first) {
       this._sortedChildren.unshift(entry.getURI());
@@ -121,10 +120,10 @@ export default class SearchList {
    * Remove an entry from the current search (result) list.
    * This can cause a request for the next page load in order to maintain a consistent number
    * of entries in memory (or rather in a front-end view)
-   * Utilizes the this._sortedChildren of the {@see List} for the actual entries in memory.
+   * Utilizes the this._sortedChildren of the {@link List} for the actual entries in memory.
    *
    * @param {Entry} entry
-   * @return {Promise<SearchList>}
+   * @returns {Promise<SearchList>}
    */
   async removeEntry(entry) {
     if (!entry || (entry && !(entry instanceof Entry))) {
@@ -160,7 +159,7 @@ export default class SearchList {
   /**
    *
    * @param {number} [page=0]
-   * @return {Promise}
+   * @returns {Promise}
    * @private
    */
   _forceLoadEntries(page = 0) {
@@ -200,9 +199,9 @@ SearchList.prototype.getSize = List.prototype.getSize;
  * Retrieves an array of entries contained in this list according to the current page and
  * pagination settings.
  *
- * @param {integer} page - the page to request an array of entries for, first page is numbered 0.
+ * @param {number} page - the page to request an array of entries for, first page is numbered 0.
  * @returns {Promise.<Entry[]>} the promise will return an entry-array.
- * @method
+ * @function
  */
 SearchList.prototype.getEntries = List.prototype.getEntries;
 
@@ -219,6 +218,7 @@ SearchList.prototype.forEach = List.prototype.forEach;
 /**
  * Loops through with forEach and accumulates the entries in a single array.
  * Note! this might be memory intensive for large lists
+ *
  * @see forEach
  * @returns {Promise.<Entry[]>}
  */

@@ -6,9 +6,16 @@ import StringResource from './String.js';
 import types from './types.js';
 
 /**
+ * @import { Graph } from '@entryscape/rdfjson'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import List from './List.js'
+ */
+
+/**
  * Methods for interacting with the EntryStore repository scoped to a specific context.
  *
- * @exports store/Context
+ * @exports module:store/Context
  */
 export default class Context extends Resource {
   /**
@@ -16,7 +23,6 @@ export default class Context extends Resource {
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
    */
-  // eslint-disable-next-line no-useless-constructor
   constructor(entryURI, resourceURI, entryStore) {
     super(entryURI, resourceURI, entryStore);
   }
@@ -24,11 +30,11 @@ export default class Context extends Resource {
   /**
    * Retrieves a list of entries in the context.
    *
-   * @param {Object} sort - same sort object as provided in the optionalLoadParams to
-   * @link EntryStore#getEntry getEntry method.
-   * @param {Object} limit - same limit as provided in the optionalLoadParams to
-   * {@see EntryStore#getEntry getEntry} method.
-   * @param {integer} page - unless limit is set to -1 (no pagination) we need to specify
+   * @param {object} sort - same sort object as provided in the optionalLoadParams to
+   * {@link EntryStore#getEntry getEntry} method.
+   * @param {object} limit - same limit as provided in the optionalLoadParams to
+   * {@link EntryStore#getEntry getEntry} method.
+   * @param {number} page - unless limit is set to -1 (no pagination) we need to specify
    * which page to load, first page is 0.
    * @returns {Promise.<Entry[]>} upon success the promise returns an array of entries.
    * @see EntryStore#getListEntries
@@ -46,7 +52,7 @@ export default class Context extends Resource {
    * Convenience method, to retrieve an entry from this context.
    *
    * @param {string} entryId
-   * @param {object} optionalLoadParams same parameter as in {@see EntryStore#getEntry}
+   * @param {object} optionalLoadParams same parameter as in {@link EntryStore#getEntry}
    * @returns {Promise.<Entry>}
    * @see EntryStore#getEntry
    */
@@ -164,12 +170,12 @@ export default class Context extends Resource {
   }
 
   /**
-   * Factory method to create a PrototypeEntry whose resource is a {@link Graph Graph}
+   * Factory method to create a PrototypeEntry whose resource is a {@link GraphResource Graph}
    * and has the current context as container.
    * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
-   * @param {rdfjson/Graph|{}} graph - graph to store as a resource.
+   * @param {Graph|object} graph - graph to store as a resource.
    * @param {string=} id - id for the entry, fails upon commit if an entry exists already
    * with this id.
    * @returns {PrototypeEntry}
@@ -196,7 +202,7 @@ export default class Context extends Resource {
    * it (returns a promise).
    *
    * @param {string=} str an optional string for the String Resource.
-   * @param {String} id an optional id for the entry, fails upon commit if an entry exists
+   * @param {string} id an optional id for the entry, fails upon commit if an entry exists
    * already with this id.
    * @returns {PrototypeEntry}
    */
@@ -221,7 +227,7 @@ export default class Context extends Resource {
    * Call {@link PrototypeEntry#commit commit} on the PrototypeEntry to actually create it
    * (returns a promise).
    *
-   * @param {String} id an optional id for the entry, fails upon commit if an entry exists
+   * @param {string} id an optional id for the entry, fails upon commit if an entry exists
    * already with this id.
    * @returns {PrototypeEntry}
    */
@@ -251,6 +257,7 @@ export default class Context extends Resource {
 
   /**
    * Change of context name, succeeds if name is not in use already by another context.
+   *
    * @param {string} name
    * @returns {Promise.<string>}
    */
@@ -291,7 +298,7 @@ export default class Context extends Resource {
 
   /**
    *
-   * @param data
+   * @param {object} data
    * @private
    */
   _update(data) {

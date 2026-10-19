@@ -29,12 +29,12 @@
  * and you care about responsiveness. Use the naive approach in batch mode when you want to push as many requests
  * through as possible over a longer period of time.
  *
- * @exports store/RateLimit
+ * @exports module:store/RateLimit
  */
 export default class RateLimit {
   /**
    *
-   * @param {Object} [options] an options object
+   * @param {object} [options] an options object
    * @param {number} [options.timePeriod=3600] - the time period to check, expressed in seconds
    * @param {number} [options.requestLimit=3600] - the amount of allowed requests per time period
    * @param {number} [options.bucketCount=12] - the amount of buckets to divide the time period into
@@ -111,11 +111,11 @@ export default class RateLimit {
   /**
    * The history is an array of buckets where requests have been made,
    * each past bucket is documented in the history with an object with attributes:
-   * * amount - amount of requests made in the bucket.
-   * * time - time the bucket started.
-   * * limitAt - time when the bucket switched over from burst to rate limitation mode, may not exist.
+   * amount - amount of requests made in the bucket.
+   * time - time the bucket started.
+   * limitAt - time when the bucket switched over from burst to rate limitation mode, may not exist.
    *
-   * @returns {Object[]}
+   * @returns {object[]}
    */
   history() {
     return this._history;
@@ -133,6 +133,7 @@ export default class RateLimit {
    *
    * (**) This subtraction is done to avoid overshooting the budget by consuming the budget in the first millisecond
    * and then consuming "rate" number of requests in rate limitation mode.
+   *
    * @private
    */
   calculateBudget() {
@@ -226,6 +227,7 @@ export default class RateLimit {
   /**
    * Handles the queue of requests by either calling them or postponing via timeouts
    * and then calling itself recursivel from that timeout.
+   *
    * @private
    */
   process() {
@@ -287,9 +289,9 @@ export default class RateLimit {
   /**
    * Enqueue a request in the form of an asynchronous function, i.e. it has to return a promise.
    *
-   * @param {function} fn the function to add to the queue
+   * @param {Function} fn the function to add to the queue
    * @param {object} [context] a context object that will become the "this" of the function, optional.
-   * @param {array} [args] an array of arguments, optional.
+   * @param {Array} [args] an array of arguments, optional.
    * @returns {Promise} a new potentially delayed promise with the same resolve and reject values.
    */
   enqueue(fn, context, args = []) {
@@ -318,7 +320,8 @@ export default class RateLimit {
 
   /**
    * Listener that will be notified if rate limitation is turned on (true is sent) or off (false is sent).
-   * @param {function} listener
+   *
+   * @param {Function} listener
    */
   addListener(listener) {
     this._listeners.push(listener);
@@ -326,7 +329,8 @@ export default class RateLimit {
 
   /**
    * Remove the provided rate limitation listener.
-   * @param {function} listener
+   *
+   * @param {Function} listener
    */
   removeListener(listener) {
     this._listeners.splice(this._listeners.indexOf(listener), 1);

@@ -2,10 +2,16 @@ import List from './List.js';
 import terms from './terms.js';
 
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryInfo from './EntryInfo.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * Group is a subclass of the List resource and contains a list of users.
  * The group resource URI can be referred to from access control lists.
  *
- * @exports store/Group
+ * @exports module:store/Group
  */
 export default class Group extends List {
   /**
@@ -20,6 +26,7 @@ export default class Group extends List {
   /**
    * Get the name of the group, this is a a unique name (username) in the current
    * repository's _principals context.
+   *
    * @returns {string}
    */
   getName() {
@@ -29,6 +36,7 @@ export default class Group extends List {
   /**
    * Set a new name of the group, it will not succeed if it is already in use, for instance by
    * another user or group.
+   *
    * @param {string} name
    * @returns {Promise<Group>}
    */
@@ -104,8 +112,9 @@ export default class Group extends List {
   /**
    *
    * Data contains allUnsorted array, size, and children.
-   * @param data
-   * @param children
+   *
+   * @param {object} data
+   * @param {Entry[]} children
    * @private
    */
   _update(data, children) {

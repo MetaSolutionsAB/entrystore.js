@@ -1,9 +1,13 @@
 /**
+ * @import Entry from './Entry.js'
+ */
+
+/**
  * Caches loaded entries and keeps track of which entries that need to be updated (refreshed).
  * The cache also provides a listener functionality that allows you to be notified of
  * when entries are updated.
  *
- * @exports store/Cache
+ * @exports module:store/Cache
  */
 export default class Cache {
   constructor() {
@@ -71,6 +75,7 @@ export default class Cache {
 
   /**
    * Removes a single entry from the cache.
+   *
    * @param {Entry} entry the entry to remove.
    */
   unCache(entry) {
@@ -113,7 +118,7 @@ export default class Cache {
    * A convenience method for caching multiple entries.
    *
    * @param {Entry[]} entryArr
-   * @param {Boolean=} silently
+   * @param {boolean=} silently
    * @see Cache#cache
    */
   cacheAll(entryArr, silently) {

@@ -6,7 +6,7 @@ import { isBrowser } from './utils.js';
  * File resources are resources located in the Entrystore repository that have a graph type of
  * none, e.g. none of the special cases for which there are special treatment in EntryStore.
  *
- * @exports store/File
+ * @exports module:store/File
  */
 export default class FileResource extends Resource {
   constructor(...args) {
@@ -26,7 +26,7 @@ export default class FileResource extends Resource {
    * In a nodejs environments the file is leveraged as a stream, i.e.:
    * res.putFile(fs.createReadStream('file.txt'));
    *
-   * @param {node|fileHandle} data - input tag or file handle that corresponds to a file.
+   * @param {Node|object} data - input tag or file handle that corresponds to a file.
    * @param {string} format - indicates the mimetype of the data
    * @todo fix-if-modified-since
    * @returns {Promise}
@@ -84,7 +84,7 @@ export default class FileResource extends Resource {
   /**
    * Pushes JSON content to the server for this resource.
    *
-   * @param {Object} obj - to be stored as a json object, format will be set to application/json.
+   * @param {object} obj - to be stored as a json object, format will be set to application/json.
    * @returns {Promise}
    */
   putJSON(obj) {
@@ -109,11 +109,11 @@ export default class FileResource extends Resource {
       try {
         // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
         _xml = new XMLSerializer().serializeToString(_xml);
-      } catch (e) {
+      } catch {
         try {
           // Internet Explorer.
           _xml = _xml.xml;
-        } catch (ee) {
+        } catch {
           throw new Error('Xmlserializer not supported');
         }
       }
@@ -127,7 +127,7 @@ export default class FileResource extends Resource {
    * @returns {Promise} which format the resource is returned in the promise (string, json or
    * xml) depends on what is specified in the mimetype. Xml is only returned in a browser
    * environment, if not in a browser a string is returned.
-   * @param writableStream a writable stream, e.g. in nodejs it can be created via fs.createWriteStream('./output');
+   * @param {object} writableStream a writable stream, e.g. in nodejs it can be created via fs.createWriteStream('./output');
    */
   get(writableStream) {
     const format = this.getEntry(true).getEntryInfo().getFormat();
@@ -141,7 +141,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {Promise.<String>} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise.<string>} ignores what is specified in the mimetype and returns the resource
    * as a string in the promise.
    */
   getText() {
@@ -155,7 +155,7 @@ export default class FileResource extends Resource {
   }
 
   /**
-   * @returns {Promise.<Object>} ignores what is specified in the mimetype and returns the resource
+   * @returns {Promise.<object>} ignores what is specified in the mimetype and returns the resource
    * as a javascript object in the promise.
    */
   getJSON() {

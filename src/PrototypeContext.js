@@ -2,6 +2,12 @@ import { NEW_ID_PLACEHOLDER } from './PrototypeEntry.js';
 import Context from './Context.js';
 
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import PrototypeEntry from './PrototypeEntry.js'
+ */
+
+/**
  * A not yet existing context (on the server). The context is accessible from a PrototypeContextEntry.
  * Allows creating initial prototype entries within the context even before the context is created (before commit).
  * When the context is created (via commit on its entry) all the initial entries are created as well (after the context is created).
@@ -12,7 +18,7 @@ import Context from './Context.js';
  *  2. to rewrite all references between the entries after the context has been created with the right context id
  *  3. allow access to the initial entries after context creation
  *
- * @exports store/PrototypeContext
+ * @exports module:store/PrototypeContext
  */
 export default class PrototypeContext extends Context {
   /**
@@ -20,7 +26,6 @@ export default class PrototypeContext extends Context {
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
    */
-  // eslint-disable-next-line no-useless-constructor
   constructor(entryURI, resourceURI, entryStore) {
     super(entryURI, resourceURI, entryStore);
     this.entryIdCounter = 0;
@@ -31,8 +36,8 @@ export default class PrototypeContext extends Context {
    * Creates an identifier if no explicit identifier is provided.
    * Currently the identifiers are created in numerical order.
    *
-   * @param id
-   * @return {string}
+   * @param {string} id
+   * @returns {string}
    * @private
    */
   _newId(id) {
@@ -49,8 +54,9 @@ export default class PrototypeContext extends Context {
 
   /**
    * Utility method to simplify overriding of the superclass "new" methods.
+   *
    * @param {PrototypeEntry} pe
-   * @return {PrototypeEntry}
+   * @returns {PrototypeEntry}
    * @private
    */
   _register(pe) {
@@ -106,7 +112,6 @@ export default class PrototypeContext extends Context {
    */
   updateEntriesForCreatedContext(context) {
     const es = this.getEntryStore();
-    const cru = context.getResourceURI();
 
     const oldBase = `${es.getBaseURI()}${NEW_ID_PLACEHOLDER}/`;
     const newBase = `${es.getBaseURI()}${context.getId()}/`;
@@ -139,7 +144,7 @@ export default class PrototypeContext extends Context {
   /**
    * Creates all the initial prototype entries in the context.
    *
-   * @return {Promise<Entry[]>}
+   * @returns {Promise<Entry[]>}
    */
   async createInitialEntries() {
     const pes = Object.values(this.id2pe);
@@ -149,7 +154,7 @@ export default class PrototypeContext extends Context {
   }
 
   /**
-   * @return {Entry[]}
+   * @returns {Entry[]}
    */
   getInitialEntries() {
     return this._initialEntries;

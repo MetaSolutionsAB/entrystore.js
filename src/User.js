@@ -1,17 +1,21 @@
 import Resource from './Resource.js';
 
 /**
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * User instances are resources corresponding to users that can be authenticated to access
  * the EntryStore repository. The user resource URI can be referred to from access control lists.
  *
- * @exports store/User
+ * @exports module:store/User
  */
 export default class User extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
-   * @param {Object} data - information about the user, e.g. object with name and homecontext.
+   * @param {object} data - information about the user, e.g. object with name and homecontext.
    */
   constructor(entryURI, resourceURI, entryStore, data) {
     super(entryURI, resourceURI, entryStore);
@@ -21,6 +25,7 @@ export default class User extends Resource {
   /**
    * Get the name of the user, this is a a unique name (username) in the current repository's
    * _principals context.
+   *
    * @returns {string}
    */
   getName() {
@@ -30,6 +35,7 @@ export default class User extends Resource {
   /**
    * Set a new name (username), it will not succeed if it is already in use, for instance by
    * another user or group.
+   *
    * @param {string} name
    * @returns {Promise}
    */
@@ -57,6 +63,7 @@ export default class User extends Resource {
 
   /**
    * Get the preferred language of the user.
+   *
    * @returns {string}
    */
   getLanguage() {
@@ -65,6 +72,7 @@ export default class User extends Resource {
 
   /**
    * Sets the preferred language of a user.
+   *
    * @param {string} language
    * @returns {Promise}
    */
@@ -113,6 +121,7 @@ export default class User extends Resource {
   /**
    * Check if the user is disabled. Disabled users cannot sign in, although they still exist
    * for lookup, e.g. when presenting creators and contributors.
+   *
    * @returns {boolean}
    */
   isDisabled() {
@@ -121,6 +130,7 @@ export default class User extends Resource {
 
   /**
    * Set the user to be disabled or not.
+   *
    * @param {boolean} disabled
    * @returns {Promise}
    */
@@ -228,7 +238,7 @@ export default class User extends Resource {
 
   /**
    *
-   * @return {Object}
+   * @returns {object}
    */
   getSource() {
     return this._data;

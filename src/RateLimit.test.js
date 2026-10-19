@@ -1,7 +1,7 @@
 import RateLimit from './RateLimit.js';
 import init from '../tests/init.js';
 
-const { context, entrystore } = init();
+const { entrystore } = init();
 
 describe('RateLimitation', () => {
   // beforeAll(() => logInlogOut());
@@ -20,11 +20,7 @@ describe('RateLimitation', () => {
         throw 'no way';
       },
     };
-    try {
-      const result = await rl.enqueue(obj.b, obj);
-    } catch (err) {
-      expect(err).toBe('no way');
-    }
+    await expect(rl.enqueue(obj.b, obj)).rejects.toBe('no way');
   });
 
   test('Single request with parameter', async () => {
@@ -66,8 +62,7 @@ describe('RateLimitation', () => {
     expect(rl.waitTime()).toBe(0); // We are still within the budget,
     expect(await rl.enqueue(async () => 'six')).toBe('six');
     const after = new Date().getTime();
-    const waitTime = rl.waitTime();
-    // expect(waitTime).toBeGreaterThan(800); // The budget is now consumed, ratelimitation applies (approx 1 req / sec)
+    // expect(rl.waitTime()).toBeGreaterThan(800); // The budget is now consumed, ratelimitation applies (approx 1 req / sec)
     expect(after - before).toBeLessThan(100); // The six first requests should have been executed very quickly
 
     const before2 = new Date().getTime();
@@ -101,8 +96,7 @@ describe('RateLimitation', () => {
     expect(rl.waitTime()).toBe(0); // We are still within the budget,
     expect(await rl.enqueue(async () => 'six')).toBe('six');
     const after = new Date().getTime();
-    const waitTime = rl.waitTime();
-    // expect(waitTime).toBeGreaterThan(800); // The budget is now consumed, ratelimitation applies (approx 1 req / sec)
+    // expect(rl.waitTime()).toBeGreaterThan(800); // The budget is now consumed, ratelimitation applies (approx 1 req / sec)
     expect(after - before).toBeLessThan(100); // The six first requests should have been executed very quickly
 
     const before2 = new Date().getTime();

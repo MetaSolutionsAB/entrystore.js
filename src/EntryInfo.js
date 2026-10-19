@@ -4,10 +4,15 @@ import factory from './factory.js';
 import terms from './terms.js';
 
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  *
- * @param entry
- * @param vocab
- * @returns {*}
+ * @param {EntryInfo} entry
+ * @param {object} vocab
+ * @returns {string}
  */
 const getResourceTypeHelper = (entry, vocab) => {
   const stmts = entry._graph.find(entry.getResourceURI(), terms.rdf.type);
@@ -23,13 +28,14 @@ const getResourceTypeHelper = (entry, vocab) => {
 
 /**
  * EntryInfo is a class that contains all the administrative information of an entry.
- * @exports store/EntryInfo
+ *
+ * @exports module:store/EntryInfo
  */
 export default class EntryInfo {
   /**
-   * @param {String} entryURI must be provided unless the graph contains a statement with
+   * @param {string} entryURI must be provided unless the graph contains a statement with
    * the store:resource property which allows us to infer the entryURI.
-   * @param {rdfjson/Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
+   * @param {Graph} graph corresponds to a rdfjson.Graph class with the entryinfo as
    * statements
    * @param {EntryStore} entryStore
    */
@@ -48,14 +54,14 @@ export default class EntryInfo {
   }
 
   /**
-   * @param {rdfjson/Graph} graph
+   * @param {Graph} graph
    */
   setGraph(graph) {
     this._graph = graph;
   }
 
   /**
-   * @return {rdfjson/Graph}
+   * @returns {Graph}
    */
   getGraph() {
     return this._graph;
@@ -64,7 +70,8 @@ export default class EntryInfo {
   /**
    * Pushes the entry information to the repository, e.g. posts to
    * basepath/{contextId}/entry/{entryId}
-   * @params {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
+   *
+   * @param {boolean} ignoreIfUnmodifiedSinceCheck if explicitly set to true no check is done
    * if information is stale, also it will not automatically refresh with the latest date
    * @returns {Promise.<EntryInfo>}
    */
@@ -84,14 +91,14 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {String}
+   * @returns {string}
    */
   getEntryURI() {
     return this._entryURI;
   }
 
   /**
-   * @returns {String} the id of the entry
+   * @returns {string} the id of the entry
    */
   getId() {
     return factory.getEntryId(this._entryURI);
@@ -104,7 +111,7 @@ export default class EntryInfo {
    * have the name (from a search where the name is provided but not the resource),
    * in this case we can access this name here.
    *
-   * @returns {String} a username, groupname or contextname of the entry
+   * @returns {string} a username, groupname or contextname of the entry
    */
   getName() {
     return this._name;
@@ -124,14 +131,14 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {String}
+   * @returns {string}
    */
   getMetadataURI() {
     return factory.getMetadataURIFromURI(this._entryStore, this._entryURI);
   }
 
   /**
-   * @returns {String}
+   * @returns {string}
    */
   getExternalMetadataURI() {
     // TODO will only exist for LinkReferences and References.
@@ -139,7 +146,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @param {String} uri
+   * @param {string} uri
    */
   setExternalMetadataURI(uri) {
     this._graph.findAndRemove(this._entryURI, terms.externalMetadata);
@@ -150,7 +157,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {String}
+   * @returns {string}
    */
   getCachedExternalMetadataURI() {
     return factory.getCachedExternalMetadataURI(this._entryURI);
@@ -159,29 +166,29 @@ export default class EntryInfo {
   /**
    * The URI of the merged metadata, i.e. the server side counterpart of
    * {@link Entry#getAllMetadata}. Available for all entry types, the content depends on type:
-   * * local - local metadata
-   * * link - local metadata
-   * * reference - cached external metadata
-   * * linkReference - combination of local and cached external metadata (statements are not
+   * local - local metadata
+   * link - local metadata
+   * reference - cached external metadata
+   * linkReference - combination of local and cached external metadata (statements are not
    *   marked as external, unlike in getAllMetadata)
    *
    * The merged metadata is read-only.
    *
-   * @returns {String}
+   * @returns {string}
    */
   getMergedMetadataURI() {
     return factory.getMergedMetadataURI(this._entryURI);
   }
 
   /**
-   * @returns {String}
+   * @returns {string}
    */
   getResourceURI() {
     return this._graph.findFirstValue(this._entryURI, terms.resource);
   }
 
   /**
-   * @param {String} uri
+   * @param {string} uri
    */
   setResourceURI(uri) {
     const oldResourceURI = this.getResourceURI();
@@ -199,7 +206,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {String} one of the entryTypes
+   * @returns {string} one of the entryTypes
    * @see terms#entryType
    */
   getEntryType() {
@@ -213,7 +220,7 @@ export default class EntryInfo {
    * E.g. to check if the entry is an information resource:
    * if (ei.getResourceType() === types.RT_INFORMATIONRESOURCE) {...}
    *
-   * @returns {String}
+   * @returns {string}
    */
   getResourceType() {
     return getResourceTypeHelper(this, terms.resourceType);
@@ -225,7 +232,7 @@ export default class EntryInfo {
    * E.g. to check if the entry is a list:
    * if (ei.getGraphType() === types.GT_LIST) {...}
    *
-   * @returns {String}
+   * @returns {string}
    */
   getGraphType() {
     return getResourceTypeHelper(this, terms.graphType);
@@ -248,7 +255,7 @@ export default class EntryInfo {
    * Please note that a non empty acl overrides any defaults from the surrounding context.
    *
    * @param {boolean} asIds - if true the principalURIs are shortened to entry identifiers.
-   * @return {Object} an acl object.
+   * @returns {object} an acl object.
    */
   getACL(asIds = false) {
     const f = (stmt) => {
@@ -292,7 +299,7 @@ export default class EntryInfo {
    * The second difference is that it allows entryIds as values in the arrays,
    * not only full resource URIs, both have to refer to principals though.
    *
-   * @param {Object} acl same kind of object you get from getACL.
+   * @param {object} acl same kind of object you get from getACL.
    */
   setACL(acl) {
     const g = this._graph;
@@ -326,7 +333,7 @@ export default class EntryInfo {
    * Checks if there are any metadata revisions for this entry,
    * in practise this is always true if provenance is enabled for this entry.
    *
-   * @return {boolean} true if there is at least one metadata revision.
+   * @returns {boolean} true if there is at least one metadata revision.
    */
   hasMetadataRevisions() {
     // const mdURI = this.getMetadataURI();
@@ -336,15 +343,15 @@ export default class EntryInfo {
   /**
    * Extracts an array of metadata revisions from the graph.
    * Each revision is an object that contains:
-   *   * time - when the change was made (Date)
-   *   * by   - the user who performed the change (entryURI)
-   *   * rev  - the revision number (string)
-   *   * uri  - an URI to this revision (string)
+   *   time - when the change was made (Date)
+   *   by   - the user who performed the change (entryURI)
+   *   rev  - the revision number (string)
+   *   uri  - an URI to this revision (string)
    *
    * The uri of the revision can be used by the method getMetadataRevisionGraph
    * to get a hold of the actual new graph that caused the revision.
    *
-   * @return {Array.<{time: Date, by: string, rev: string, uri: string}>} a sorted array of revisions, latest revision first.
+   * @returns {Array.<{time: Date, by: string, rev: string, uri: string}>} a sorted array of revisions, latest revision first.
    */
   getMetadataRevisions() {
     const revs = [];
@@ -382,8 +389,9 @@ export default class EntryInfo {
 
   /**
    * Retrieves the metadata graph of a certain revision from its graph.
-   * @param revisionURI
-   * @return {Promise.<rdfjson/Graph>}
+   *
+   * @param {string} revisionURI
+   * @returns {Promise.<Graph>}
    */
   async getMetadataRevisionGraph(revisionURI) {
     const data = await this._entryStore.getREST().get(revisionURI);
@@ -505,6 +513,7 @@ export default class EntryInfo {
 
   /**
    * A method to be used internally / within the library after modifying operations return successfull with a new modified date.
+   *
    * @param {string} date
    * @protected
    */
@@ -535,7 +544,7 @@ export default class EntryInfo {
   }
 
   /**
-   * @returns {String} a URI to creator, the user Entry resource URI is used, e.g. "http://somerepo/_principals/resource/4", never null.
+   * @returns {string} a URI to creator, the user Entry resource URI is used, e.g. "http://somerepo/_principals/resource/4", never null.
    */
   getCreator() {
     return this._graph.findFirstValue(

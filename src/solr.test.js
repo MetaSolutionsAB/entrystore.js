@@ -1,7 +1,7 @@
 import types from './types.js';
 import init from '../tests/init.js';
 
-const { context, entrystore, entrystoreutil } = init();
+const { entrystore, entrystoreutil } = init();
 
 test('Search for specific title', async () => {
   const entries = await entrystore()
@@ -128,7 +128,7 @@ test('Find two users by utilizing forEach functionality', async () => {
         // End function called before all callbacks.
       }
       expect(callbackCount).toBe(idx); // If fail: 'Callback index is wrong.');
-      callbackCount++;
+      callbackCount += 1;
     });
   endReached = true;
   expect(callbackCount).toBe(totalCount); // If fail: 'Total count does not agree with amount of callbacks.');

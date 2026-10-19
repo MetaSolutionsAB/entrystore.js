@@ -1,7 +1,7 @@
 /**
  * This module contains utility methods for promises.
  *
- * @exports store/promiseUtil
+ * @exports module:store/promiseUtil
  * @namespace
  */
 const promiseUtil = {};
@@ -16,8 +16,8 @@ const promiseUtil = {};
  * but with the values replaced with the result of the promise.
  * (The function is applied to the value of each key in the items object.)
  *
- * @param {array|object} items
- * @param {function} func a function that is applied to each item and must return a promise
+ * @param {Array | object} items
+ * @param {Function} func a function that is applied to each item and must return a promise
  * @returns {Promise}
  */
 promiseUtil.forEach = (items, func) =>
@@ -71,7 +71,7 @@ promiseUtil.forEach = (items, func) =>
  * If the value the false boolean it is interpreted as a reject.
  *
  * @param {any|Promise} value the value to wrap in a promise, if it already is a promise it is returned.
- * @return {Promise}
+ * @returns {Promise}
  */
 promiseUtil.toPromise = (value) => {
   if (
@@ -93,8 +93,9 @@ promiseUtil.toPromise = (value) => {
  *  promise1,
  *  promiseUtil.delay(1000),
  * ]);
- * @param millisecs
- * @returns {Promise<any>}
+ *
+ * @param {number} millisecs
+ * @returns {Promise<void>}
  */
 promiseUtil.delay = (millisecs) =>
   new Promise((resolve) => setTimeout(resolve, millisecs));

@@ -6,6 +6,16 @@ const es = new EntryStore(repository);
 const auth = es.getAuth();
 const MAX_AGE = 86400;
 
+// Resolves with the next auth event, then stops listening.
+const nextAuthEvent = () =>
+  new Promise((resolve) => {
+    const authCallback = (topic, data) => {
+      auth.removeAuthListener(authCallback);
+      resolve({ topic, data });
+    };
+    auth.addAuthListener(authCallback);
+  });
+
 describe('Signing in and out using cookies', () => {
   test('Sign in with cookies', async () => {
     const data = await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
@@ -26,16 +36,14 @@ describe('Authentication using a guest profile', () => {
 
   beforeEach(setUp);
 
-  test('Signing in', (done) => {
-    expect.assertions(2);
-    const authCallback = (topic, data) => {
-      expect(topic).toBe('login');
-      expect(data.user).toBe(nonAdminUser);
-      done();
-      auth.removeAuthListener(authCallback);
-    };
-    auth.addAuthListener(authCallback);
-    auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+  test('Signing in', async () => {
+    const authEvent = nextAuthEvent();
+
+    await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+    const { topic, data } = await authEvent;
+
+    expect(topic).toBe('login');
+    expect(data.user).toBe(nonAdminUser);
   });
 
   test('Check user entry is guest', async () => {
@@ -53,16 +61,14 @@ describe('Authentication using a user profile', () => {
 
   beforeEach(setUpNonAdmin);
 
-  test('Signing out', (done) => {
-    expect.assertions(2);
-    const authCallback = (topic, data) => {
-      expect(topic).toBe('logout');
-      expect(data.user).toBe('guest');
-      done();
-      auth.removeAuthListener(authCallback);
-    };
-    auth.addAuthListener(authCallback);
-    auth.logout();
+  test('Signing out', async () => {
+    const authEvent = nextAuthEvent();
+
+    await auth.logout();
+    const { topic, data } = await authEvent;
+
+    expect(topic).toBe('logout');
+    expect(data.user).toBe('guest');
   });
 
   test('Check authentication entry is a user profile', async () => {

@@ -53,24 +53,18 @@ describe('A signed in admin (user)', () => {
     return logInlogOut();
   });
 
-  test('Sign out then checking if listener caught the signout', (done) => {
-    expect.assertions(2);
-    const asyncListener = async (promise, callType) => {
-      expect(callType).toBe('logout'); // If fail: Wrong calltype, should be 'logout'
-      promise.then(
-        (value) => {
-          expect(1).toBeTruthy();
-          done();
-        },
-        (reason) => {
-          expect(0).toBeTruthy();
-          done(reason);
-        }
-      );
+  test('Sign out then checking if listener caught the signout', async () => {
+    const calls = [];
+    const asyncListener = (promise, callType) => {
+      calls.push({ promise, callType });
     };
     es.addAsyncListener(asyncListener);
-    es.getAuth().logout();
+    const loggedOut = es.getAuth().logout();
     es.removeAsyncListener(asyncListener);
+
+    expect(calls.map(({ callType }) => callType)).toEqual(['logout']);
+    await calls[0].promise;
+    await loggedOut;
   });
 
   test('Fetch context list', async () => {

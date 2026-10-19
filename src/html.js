@@ -1,9 +1,15 @@
 import { print } from '@entryscape/rdfjson';
 
 /**
+ * @import { Graph } from '@entryscape/rdfjson'
+ * @import Entry from './Entry.js'
+ * @import EntryInfo from './EntryInfo.js'
+ */
+
+/**
  * A module that contain utility methods for generating html for entries.
  *
- * @exports store/html
+ * @exports module:store/html
  * @namespace
  */
 const html = {};
@@ -12,6 +18,7 @@ const html = {};
 
 /**
  * Generates a table with columns subject, predicate, and object.
+ *
  * @param {Entry} entry to expose metadata for
  * @returns {string} rendered html as a string
  */
@@ -52,7 +59,7 @@ const indenter = function (indent) {
 /**
  * Prints one level of triples from a subject where URIs are namespaced.
  *
- * @param {rdfjson/Graph} graph the graph containing the metadata
+ * @param {Graph} graph the graph containing the metadata
  * @param {string} subject URI to a resource to start from
  * @returns {string} string with the triples rendered as HTML.
  */
@@ -77,6 +84,7 @@ html.metadataIndent = function (graph, subject) {
 
 /**
  * Prints the three types of the entry, i.e. entry, resource and graphtype.
+ *
  * @param {EntryInfo} entryInfo
  * @returns {string}
  */

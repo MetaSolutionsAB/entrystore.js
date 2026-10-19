@@ -66,12 +66,10 @@ utils.addRelation = (fromEntry, property, toEntry) => {
 };
 
 utils.removeRelation = (fromEntry, property, toEntry) => {
-  fromEntry
-    .getMetadata()
-    .remove(fromEntry.getResourceURI(), property, {
-      type: 'uri',
-      value: toEntry.getResourceURI(),
-    });
+  fromEntry.getMetadata().remove(fromEntry.getResourceURI(), property, {
+    type: 'uri',
+    value: toEntry.getResourceURI(),
+  });
   return fromEntry.commitMetadata().then(() => {
     toEntry.setRefreshNeeded();
     return toEntry.refresh();
