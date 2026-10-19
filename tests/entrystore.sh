@@ -31,7 +31,7 @@ docker network create "$NAME" > /dev/null
 docker create --name "${NAME}-solr" --network "$NAME" --network-alias solr -e SOLR_MODULES=analysis-extras -e SOLR_HEAP=256m \
   solr:10.0.0 solr-precreate entrystore /opt/solr/server/solr/configsets/solr > /dev/null
 CONF_CONTAINER=$(docker create --platform linux/amd64 "$IMAGE")
-docker cp -q "$CONF_CONTAINER:/srv/entrystore/solr" - | docker cp -q - "${NAME}-solr:/opt/solr/server/solr/configsets/"
+docker cp "$CONF_CONTAINER:/srv/entrystore/solr" - | docker cp - "${NAME}-solr:/opt/solr/server/solr/configsets/"
 docker rm "$CONF_CONTAINER" > /dev/null
 CONF_CONTAINER=''
 docker start "${NAME}-solr" > /dev/null
