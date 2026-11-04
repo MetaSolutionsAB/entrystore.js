@@ -104,6 +104,36 @@ export default class Auth {
   }
 
   /**
+   * The session cookie from the last login or setAuthCookie, Node only. Use it together with
+   * setAuthCookie to keep a session across processes.
+   *
+   * @returns {string|undefined} "auth_token=<value>"
+   */
+  getAuthCookie() {
+    return this._entryStore.getREST()._authCookie;
+  }
+
+  /**
+   * Restores a session from a cookie returned by getAuthCookie, Node only. The cookie is only
+   * sent to the repository's origin. Nothing is requested; the user is looked up on the next
+   * getUserInfo, call getUserInfo(true) to check that the session is still valid.
+   *
+   * @param {string} cookie - "auth_token=<value>"
+   */
+  setAuthCookie(cookie) {
+    if (typeof cookie !== 'string' || !cookie.startsWith('auth_token=')) {
+      throw new Error('Expected a cookie on the form "auth_token=<value>"');
+    }
+    this._entryStore
+      .getREST()
+      ._setAuthCookie(cookie, this._entryStore.getBaseURI());
+
+    delete this.userInfo;
+    delete this.userEntry;
+    this._entryStore.getCache().allNeedRefresh();
+  }
+
+  /**
    * Authenticate using credentials containing a user, a password and an optional maxAge
    * given in seconds.
    *

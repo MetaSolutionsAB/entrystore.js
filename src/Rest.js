@@ -26,6 +26,18 @@ const sameOrigin = (url) => {
 };
 
 /**
+ * @param {string} uri
+ * @returns {string|undefined} undefined if uri is not an absolute URL
+ */
+const getOrigin = (uri) => {
+  try {
+    return new URL(uri).origin;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
  * Last 7 digits of milliseconds since 1970 + random number.
  *
  * @returns {number}
@@ -143,6 +155,47 @@ export default class Rest {
   }
 
   /**
+   * Binds the auth cookie to the origin of base, the only origin it is sent to (Node only, in
+   * the browser the cookie is handled by the browser).
+   *
+   * @param {string} cookie - "auth_token=<value>", cookie attributes are dropped
+   * @param {string} base
+   * @private
+   */
+  _setAuthCookie(cookie, base) {
+    this._authCookie = cookie.split(';')[0].trim();
+    this._authOrigin = new URL(base).origin;
+  }
+
+  /**
+   * @private
+   */
+  _clearAuthCookie() {
+    delete this._authCookie;
+    delete this._authOrigin;
+  }
+
+  /**
+   * Headers for a request to uri. The auth cookie is only included when uri has the origin it
+   * is bound to; a cookie in this.headers is never sent.
+   *
+   * @param {string} uri
+   * @returns {object}
+   * @private
+   */
+  _headersFor(uri) {
+    const headers = Object.fromEntries(
+      Object.entries(this.headers).filter(
+        ([name]) => name.toLowerCase() !== 'cookie'
+      )
+    );
+    if (this._authCookie && getOrigin(uri) === this._authOrigin) {
+      headers.cookie = this._authCookie;
+    }
+    return headers;
+  }
+
+  /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
    * @returns {Promise} A thenable object
@@ -156,32 +209,47 @@ export default class Rest {
       maxAge = 604800,
       logout = false,
     } = credentials;
-    delete this.headers.cookie;
 
     if (logout) {
+      const logoutURI = `${base}auth/logout`;
       const logoutRequest = (method) => {
-        const request = superagent[method](`${base}auth/logout`)
+        const request = superagent[method](logoutURI)
           .accept('application/json')
           .withCredentials()
           .timeout({ response: this.timeout });
 
-        Object.entries(this.headers).map((keyVal) =>
+        Object.entries(this._headersFor(logoutURI)).map((keyVal) =>
           request.set(keyVal[0], keyVal[1])
         );
 
         return request;
       };
+      const logoutWithFallback = async () => {
+        try {
+          return await logoutRequest('post');
+        } catch (err) {
+          // Old backends only serve logout via GET.
+          if (err.status === 405 || err.status === 404) {
+            return logoutRequest('get');
+          }
+          throw err;
+        }
+      };
 
       try {
-        return await logoutRequest('post');
+        return await logoutWithFallback();
       } catch (err) {
-        // Old backends only serve logout via GET.
-        if (err.status === 405 || err.status === 404) {
-          return logoutRequest('get');
+        // In Node, an expired or revoked token has no session left to end.
+        if (err.status === 401 && !isBrowser()) {
+          return err.response;
         }
         throw err;
+      } finally {
+        this._clearAuthCookie();
       }
     }
+
+    this._clearAuthCookie();
 
     const data = {
       auth_username: encodeURIComponent(user),
@@ -207,13 +275,11 @@ export default class Rest {
       null,
       'application/x-www-form-urlencoded'
     );
-    const cookies = authCookieResponse.headers['set-cookie'];
-
-    for (const cookie of cookies) {
-      if (cookie.startsWith('auth_token=')) {
-        this.headers.cookie = [cookie];
-        break;
-      }
+    const authCookie = authCookieResponse.headers['set-cookie'].find((cookie) =>
+      cookie.startsWith('auth_token=')
+    );
+    if (authCookie) {
+      this._setAuthCookie(authCookie, base);
     }
 
     return authCookieResponse;
@@ -263,7 +329,7 @@ export default class Rest {
    */
   async _get(uri, format, nonJSONP, writableStream, preventCache) {
     let _format = format;
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     locHeaders['X-Requested-With'] = null;
     delete locHeaders['Content-Type'];
 
@@ -403,7 +469,7 @@ export default class Rest {
    * @see post
    */
   _post(uri, data, modDate, format) {
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
     } // multipart/form-data
@@ -498,7 +564,7 @@ export default class Rest {
    * @see put
    */
   _put(uri, data, modDate, format) {
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
     }
@@ -546,7 +612,7 @@ export default class Rest {
    * @see del
    */
   _del(uri, modDate) {
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     delete locHeaders['Content-Type'];
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
@@ -605,7 +671,7 @@ export default class Rest {
     if (data && data.constructor && data.constructor.pipeline) {
       return new Promise((resolve, reject) => {
         const upload = superagent.put(uri).timeout({ response: this.timeout });
-        const locHeaders = Object.assign({}, this.headers);
+        const locHeaders = this._headersFor(uri);
         if (format) {
           locHeaders['Content-Type'] = format;
         }
