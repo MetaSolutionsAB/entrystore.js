@@ -196,6 +196,21 @@ export default class Rest {
   }
 
   /**
+   * @param {string} base
+   * @returns {Promise<boolean>} true if the repository rejects the auth cookie or treats it as
+   * guest; false if it still accepts it or cannot be asked
+   * @private
+   */
+  async _isSessionEnded(base) {
+    try {
+      const userInfo = await this.get(`${base}auth/user`, null, true);
+      return userInfo.user === 'guest';
+    } catch (err) {
+      return err.status === 401;
+    }
+  }
+
+  /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
    * @returns {Promise} A thenable object
@@ -237,15 +252,22 @@ export default class Rest {
       };
 
       try {
-        return await logoutWithFallback();
+        const response = await logoutWithFallback();
+        this._clearAuthCookie();
+        return response;
       } catch (err) {
-        // In Node, an expired or revoked token has no session left to end.
-        if (err.status === 401 && !isBrowser()) {
+        // In Node, a 401 means either that the session has already ended, or that the server
+        // refused to end it, e.g. for a missing CSRF token. The token is kept in the latter case
+        // so that logout can be retried.
+        if (
+          err.status === 401 &&
+          !isBrowser() &&
+          (await this._isSessionEnded(base))
+        ) {
+          this._clearAuthCookie();
           return err.response;
         }
         throw err;
-      } finally {
-        this._clearAuthCookie();
       }
     }
 

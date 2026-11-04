@@ -5,17 +5,20 @@ import EntryStore from './EntryStore.js';
 // A fake repository and a server on another origin, recording the Cookie header of every request.
 const SET_COOKIE = 'auth_token=SECRET; Path=/; HttpOnly; Max-Age=86400';
 const EXPIRED_COOKIE = 'auth_token=EXPIRED';
+// Live sessions whose logout the repository answers with an error status.
+const FAILED_LOGOUTS = { 'auth_token=REFUSED': 401, 'auth_token=FAILING': 500 };
 let received = [];
 
 const repositoryHandler = (req, res) => {
+  const { cookie } = req.headers;
   if (req.url.endsWith('/auth/cookie')) {
     res.setHeader('Set-Cookie', SET_COOKIE);
   }
-  if (
-    req.url.endsWith('/auth/logout') &&
-    req.headers.cookie === EXPIRED_COOKIE
-  ) {
+  if (cookie === EXPIRED_COOKIE) {
     res.statusCode = 401;
+  }
+  if (req.url.endsWith('/auth/logout') && FAILED_LOGOUTS[cookie]) {
+    res.statusCode = FAILED_LOGOUTS[cookie];
   }
   const userInfo = req.headers.cookie
     ? { user: 'donald', id: '1' }
@@ -147,6 +150,18 @@ describe('Rest auth cookie', () => {
     expect(userInfo.user).toBe('guest');
     expect(auth.getAuthCookie()).toBeUndefined();
   });
+
+  test.each(Object.entries(FAILED_LOGOUTS))(
+    'keeps %s for a retry when logout fails with %i',
+    async (cookie, status) => {
+      const auth = es.getAuth();
+      auth.setAuthCookie(cookie);
+
+      await expect(auth.logout()).rejects.toMatchObject({ status });
+
+      expect(auth.getAuthCookie()).toBe(cookie);
+    }
+  );
 });
 
 describe('Auth setAuthCookie', () => {
