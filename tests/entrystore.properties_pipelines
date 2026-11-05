@@ -1,11 +1,13 @@
 entrystore.baseurl.folder=http://entrystore.local:8080/
 entrystore.repository.rewrite-basereference=false
 
-entrystore.data.folder=/tmp/entrystore-test-files/
+server.servlet.context-path=
+
+entrystore.data.folder=/srv/entrystore/data/files/
 
 entrystore.solr=on
 entrystore.solr.reindex-on-startup=off
-entrystore.solr.url=/tmp/entrystore-test-solr/
+entrystore.solr.url=http://solr:8983/solr/entrystore
 
 entrystore.repository.store.type=memory
 entrystore.repository.store.init-with-test-data=on
@@ -20,3 +22,4 @@ entrystore.cors.max-age=3600
 entrystore.nonadmin.group-context-creation=on
 
 entrystore.auth.adminpw=adminadmin
+entrystore.auth.cookie.secure=off
