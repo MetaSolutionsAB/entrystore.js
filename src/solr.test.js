@@ -1,3 +1,4 @@
+import { namespaces } from '@entryscape/rdfjson';
 import types from './types.js';
 import init from '../tests/init.js';
 
@@ -186,4 +187,95 @@ test('searches the title in the given language', () => {
     .titleWithLanguage('banana split', 'en');
 
   expect(query.getQuery()).toContain('query=title.en:(banana+AND+split)');
+});
+
+describe('contextType', () => {
+  const catalogContext = 'http://entryscape.com/terms/CatalogContext';
+  const workbenchContext = 'http://entryscape.com/terms/WorkbenchContext';
+  const decode = (query) => decodeURIComponent(query.replace(/\+/g, ' '));
+  const join = (contextTypes) =>
+    `filter({!join from=resource to=context score=none v='graphType:Context AND rdfType:(${contextTypes})'})`;
+
+  beforeAll(() => {
+    namespaces.add('esterms', 'http://entryscape.com/terms/');
+  });
+
+  test('filters on one namespaced context type', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .contextType('esterms:CatalogContext');
+
+    expect(decode(query.getQuery())).toContain(
+      `query=${join(`"${catalogContext}"`)}`
+    );
+  });
+
+  test('ORs several context types inside the join', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .contextType([catalogContext, workbenchContext]);
+
+    expect(decode(query.getQuery())).toContain(
+      join(`"${catalogContext}" OR "${workbenchContext}"`)
+    );
+  });
+
+  test.each(['not', true])(
+    'excludes the context types with modifier %s',
+    (modifier) => {
+      const query = entrystore()
+        .newSolrQuery()
+        .contextType(catalogContext, modifier);
+
+      expect(decode(query.getQuery())).toContain(
+        `query=NOT(${join(`"${catalogContext}"`)})`
+      );
+    }
+  );
+
+  test('escapes quotes and backslashes in the context types', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .contextType("http://example.com/it's\\type");
+
+    expect(decode(query.getQuery())).toContain(
+      join(`"http://example.com/it\\'s\\\\type"`)
+    );
+  });
+
+  test('sends no literal + inside the join', () => {
+    const query = entrystore().newSolrQuery().contextType(catalogContext);
+
+    expect(query.getQuery()).not.toContain('%2B');
+  });
+
+  test('ANDs the join with the rest of the query', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .rdfType('dcat:Dataset')
+      .contextType(catalogContext);
+
+    expect(decode(query.getQuery())).toContain(
+      `#Dataset AND ${join(`"${catalogContext}"`)}`
+    );
+  });
+
+  test('ANDs the join with the OR:ed terms in a disjunctive query', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .disjunctive()
+      .title('banana')
+      .description('tomato')
+      .contextType(catalogContext);
+
+    expect(decode(query.getQuery())).toContain(
+      `query=(title:banana OR description:tomato) AND ${join(`"${catalogContext}"`)}`
+    );
+  });
+
+  test.each([[[]], ['']])('adds nothing for %j', (contextType) => {
+    const query = entrystore().newSolrQuery().contextType(contextType);
+
+    expect(query.getQuery()).not.toContain('join');
+  });
 });

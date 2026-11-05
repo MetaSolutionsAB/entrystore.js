@@ -90,6 +90,25 @@ const toDateRange = (from, to) =>
 const toRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
 
 /**
+ * Joins from the context entries of the given types to the entries in those contexts.
+ * Uses AND rather than + inside the join, as EntryStore URL-decodes a filterQuery twice
+ * and a + would then become a space.
+ *
+ * @param {Array<string>} contextTypes expanded URIs
+ * @param {boolean} negate
+ * @returns {string} the URL-encoded clause
+ */
+const contextTypeClause = (contextTypes, negate) => {
+  const typeList = contextTypes
+    .map((type) => `"${type.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}"`)
+    .join(' OR ');
+  const clause = encodeURIComponent(
+    `filter({!join from=resource to=context score=none v='graphType:Context AND rdfType:(${typeList})'})`
+  ).replace(/%20/g, '+');
+  return negate ? `NOT(${clause})` : clause;
+};
+
+/**
  *
  * @param {object} struct
  * @param {boolean} isAnd
@@ -655,6 +674,35 @@ export default class SolrQuery {
       }
     }
 
+    return this;
+  }
+
+  /**
+   * Matches only entries in contexts of the given type(s), i.e. contexts whose context
+   * entry has the type via rdf:type. The context types are matched with a query-time join,
+   * so the query length does not depend on the number of contexts. For example:
+   *
+   *     sq.rdfType('dcat:Dataset').contextType('esterms:CatalogContext')
+   *
+   * The clause is always AND:ed with the rest of the query, also in disjunctive mode.
+   * Note that the join reads context entries without an access check, so hit counts can
+   * reveal the type of a context.
+   *
+   * @param {string | Array} contextType a context type URI, possibly namespaced, or an array
+   * of them that are OR:ed together
+   * @param {true|false|string} modifier true or 'not' excludes entries in contexts of the
+   * given type(s)
+   * @returns {SolrQuery}
+   */
+  contextType(contextType, modifier = null) {
+    const contextTypes = (
+      Array.isArray(contextType) ? contextType : [contextType]
+    )
+      .filter((type) => typeof type === 'string' && type !== '')
+      .map((type) => namespaces.expand(type));
+    if (contextTypes.length > 0) {
+      this._contextType = { contextTypes, modifier };
+    }
     return this;
   }
 
@@ -1298,9 +1346,22 @@ export default class SolrQuery {
     if (this.facetConfig.facetMissing === true) {
       trail += `&facetMissing=true`;
     }
-    return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(
-      this._disjunctive ? '+OR+' : '+AND+'
-    )}${trail}`;
+    let query = and.join(this._disjunctive ? '+OR+' : '+AND+');
+    if (this._contextType) {
+      const { contextTypes, modifier } = this._contextType;
+      const clause = contextTypeClause(
+        contextTypes,
+        modifier === true || modifier === 'not'
+      );
+      if (and.length === 0) {
+        query = clause;
+      } else if (this._disjunctive && and.length > 1) {
+        query = `(${query})+AND+${clause}`;
+      } else {
+        query = `${query}+AND+${clause}`;
+      }
+    }
+    return `${this._entrystore.getBaseURI()}search?type=solr&query=${query}${trail}`;
   }
 
   /**
