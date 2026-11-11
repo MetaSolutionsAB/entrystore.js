@@ -2,16 +2,20 @@ import { Graph } from '@entryscape/rdfjson';
 import Resource from './Resource.js';
 
 /**
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * Graph is a resource for handling RDF graphs relying on the {@link rdfjson/Graph} API.
  *
- * @exports store/Graph
+ * @exports module:store/Graph
  */
 export default class GraphResource extends Resource {
   /**
    * @param {string} entryURI - URI to an entry where this resource is contained.
    * @param {string} resourceURI - URI to the resource.
    * @param {EntryStore} entryStore - the API's repository instance.
-   * @param {rdfjson/Graph | Object} data - is an RDF graph of some sort
+   * @param {Graph | object} data - is an RDF graph of some sort
    */
   constructor(entryURI, resourceURI, entryStore, data) {
     super(entryURI, resourceURI, entryStore); // Call the super constructor.
@@ -21,9 +25,9 @@ export default class GraphResource extends Resource {
   /**
    * Get the rdf Graph. The returned graph is not a copy, subsequent getGraph calls will return
    * the same instance as long as the entry has not been refreshed or a new instance set via
-   * {@link Graph#setGraph setGraph}.
+   * {@link GraphResource#setGraph setGraph}.
    *
-   * @returns {rdfjson/Graph} will never be null or undefined, although the graph may be empty.
+   * @returns {Graph} will never be null or undefined, although the graph may be empty.
    */
   getGraph() {
     return this._graph;
@@ -33,7 +37,7 @@ export default class GraphResource extends Resource {
    * Set the rdf Graph. To update the graph in the repository call the
    * {@link EntryStore#commit commit}.
    *
-   * @param {rdfjson/Graph} graph - the new graph, if null or undefined a new empty graph will
+   * @param {Graph} graph - the new graph, if null or undefined a new empty graph will
    * be set.
    * @returns {Graph} - to allow chaining with commit.
    */
@@ -71,7 +75,7 @@ export default class GraphResource extends Resource {
   /**
    * Provides a JSON representation of the graph as rdf/json.
    *
-   * @returns {Object}
+   * @returns {object}
    */
   getSource() {
     return this._graph.exportRDFJSON();
@@ -79,7 +83,7 @@ export default class GraphResource extends Resource {
 
   /**
    *
-   * @param data
+   * @param {object} data
    * @private
    */
   _update(data) {

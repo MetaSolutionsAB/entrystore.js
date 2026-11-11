@@ -1,6 +1,6 @@
 import init from '../tests/init.js';
 
-const { context, list } = init(true);
+const { context } = init(true);
 
 test('Create a pipeline', async () => {
   expect.assertions(2);

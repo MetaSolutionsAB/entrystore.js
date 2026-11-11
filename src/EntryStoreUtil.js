@@ -10,9 +10,6 @@ const getContextURI = (es, c) => {
   }
 };
 
-const contextEquals = (es, c1, c2) =>
-  getContextURI(es, c1) === getContextURI(es, c2);
-
 const promiseInScope = (es, promise, c2) =>
   getContextURI(es, promise.__context) === getContextURI(es, c2);
 const markPromise = (es, promise, context) => {
@@ -23,8 +20,16 @@ const markPromise = (es, promise, context) => {
 };
 
 /**
+ * @import Context from './Context.js'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import SearchList from './SearchList.js'
+ */
+
+/**
  * EntryStoreUtil provides utility functionality for working with entries.
- * @exports store/EntryStoreUtil
+ *
+ * @exports module:store/EntryStoreUtil
  */
 export default class EntryStoreUtil {
   /**
@@ -42,6 +47,7 @@ export default class EntryStoreUtil {
   /**
    * When loading entries via solr queries restrict to those marked as public.
    * Corresponds to calling publicRead on all solr queries used internally in these help functions.
+   *
    * @param {boolean} publicRead
    */
   loadOnlyPublicEntries(publicRead) {
@@ -124,7 +130,7 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByResourceURI(resourceURI, context, asyncCallType) {
     return this.loadEntriesByResourceURIs(
@@ -168,7 +174,7 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByResourceURIDebounce(resourceURI, context, asyncCallType) {
     // Check first if the entry is already in the cache, then return it directly.
@@ -177,7 +183,6 @@ export default class EntryStoreUtil {
     if (entriesSet.size > 0) {
       if (context) {
         for (const entry of entriesSet) {
-          // eslint-disable-line
           if (entry.getContext().getId() === context.getId()) {
             return Promise.resolve(entry);
           }
@@ -232,7 +237,7 @@ export default class EntryStoreUtil {
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByType(typeURI, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().rdfType(typeURI).limit(2);
@@ -255,12 +260,12 @@ export default class EntryStoreUtil {
    * You may restrict to a specific context.
    *
    * @param {string} graphType is the graph type for the entry to match, e.g. use
-   * {@see types#GT_USER}.
+   * {@link types#GT_USER}.
    * @param {Context} context restrict to finding the entry in this context
    * @param {string} asyncCallType the callType used when making the search.
    * @returns {Promise.<Entry>}
    * @async
-   * @throws Error
+   * @throws {Error}
    */
   async getEntryByGraphType(graphType, context, asyncCallType) {
     const query = this._entrystore.newSolrQuery().graphType(graphType).limit(2);
@@ -288,7 +293,7 @@ export default class EntryStoreUtil {
    * uris to all entries that should be removed. After that the entries are removed.
    *
    * @param {SearchList} list
-   * @returns {Promise<String[]>} array of uris that where deleted
+   * @returns {Promise<string[]>} array of uris that where deleted
    */
   async removeAll(list) {
     const uris = [];
@@ -303,7 +308,7 @@ export default class EntryStoreUtil {
         try {
           await rest.del(uri);
           deleted.push(uri);
-        } catch (err) {
+        } catch {
           console.log(
             `Could not remove entry with uri: ${uri} continuing anyway.`
           );
@@ -327,7 +332,7 @@ export default class EntryStoreUtil {
    * can be waited on and lastly loads them itself by via a solr query. Note, if too many entries are asked for at
    * once the solr query will be divided into smaller chunks.
    *
-   * @param {Array<String>} resourceURIs array of resourceURIs to load.
+   * @param {Array<string>} resourceURIs array of resourceURIs to load.
    * @param {Context=} context only look for entries in this context, may be left out.
    * @param {boolean} acceptMissing if true then the array returned may contain holes
    * @param {string} asyncCallType the callType used when making the search.

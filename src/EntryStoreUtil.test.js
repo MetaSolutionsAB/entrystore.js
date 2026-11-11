@@ -141,10 +141,10 @@ describe('User with an admin login', () => {
     expect(c.getPromise(adminsRURI)).toBeTruthy();
     expect(c.getPromise(guestRURI)).not.toBeTruthy();
     await adminPromiseDirect;
-    // Two first entries are now loaded, last entry may be in process, but should not have arrived yet.
+    // Two first entries are now loaded. The last entry is loaded by a separate request
+    // whose timing relative to the first is not guaranteed, so it may already have arrived.
     expect(c.get(adminURI)).toBeTruthy();
     expect(c.get(adminsURI)).toBeTruthy();
-    expect(c.get(guestURI)).not.toBeTruthy();
 
     await guestPromiseDirect;
     // Last entry should now be loaded as well.

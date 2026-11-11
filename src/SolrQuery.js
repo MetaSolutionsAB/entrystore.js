@@ -42,10 +42,10 @@ const spaceTokenizerRegExp = /(?:\\\s|[^\s])+/g;
  * In addition, fields indexed as text_ngram will have to be shortened to the ngram max limit
  * as they will not match otherwise.
  *
- * @param key
- * @param term
- * @param isFacet
- * @return {*}
+ * @param {string} key
+ * @param {string} term
+ * @param {boolean} isFacet
+ * @returns {string}
  */
 const solrFriendly = (key, term, isFacet) => {
   let and = term.trim().replace(/\s\s+/g, ' ');
@@ -90,10 +90,29 @@ const toDateRange = (from, to) =>
 const toRange = (from, to) => `[${from || '*'} TO ${to || '*'}]`;
 
 /**
+ * Joins from the context entries of the given types to the entries in those contexts.
+ * Uses AND rather than + inside the join, as EntryStore URL-decodes a filterQuery twice
+ * and a + would then become a space.
  *
- * @param struct
- * @param isAnd
- * @return {string}
+ * @param {Array<string>} contextTypes expanded URIs
+ * @param {boolean} negate
+ * @returns {string} the URL-encoded clause
+ */
+const contextTypeClause = (contextTypes, negate) => {
+  const typeList = contextTypes
+    .map((type) => `"${type.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}"`)
+    .join(' OR ');
+  const clause = encodeURIComponent(
+    `filter({!join from=resource to=context score=none v='graphType:Context AND rdfType:(${typeList})'})`
+  ).replace(/%20/g, '+');
+  return negate ? `NOT(${clause})` : clause;
+};
+
+/**
+ *
+ * @param {object} struct
+ * @param {boolean} isAnd
+ * @returns {string}
  */
 const buildQuery = (struct, isAnd) => {
   const terms = [];
@@ -140,6 +159,13 @@ const buildQuery = (struct, isAnd) => {
 };
 
 /**
+ * @import Context from './Context.js'
+ * @import Entry from './Entry.js'
+ * @import EntryStore from './EntryStore.js'
+ * @import types from './types.js'
+ */
+
+/**
  * The SolrQuery class provides a way to create a query by chaining method calls according to
  * the builder pattern. For example:
  *
@@ -175,7 +201,7 @@ const buildQuery = (struct, isAnd) => {
  * query as a string that is used by EntryStore API behind the scenes, you can safely ignore
  * this method.
  *
- * @exports store/SolrQuery
+ * @exports module:store/SolrQuery
  */
 export default class SolrQuery {
   /**
@@ -187,23 +213,23 @@ export default class SolrQuery {
     this.relatedProperties = [];
     /**
      *
-     * @type {Map<string, *>}
+     * @type {Map<string, string | Array>}
      */
     this.params = new Map();
     /**
      *
-     * @type {Map<string, any>}
+     * @type {Map<string, boolean | string>}
      */
     this.modifiers = new Map();
     /**
      *
-     * @type {Set<Object>}
+     * @type {Set<object>}
      * @private
      */
     this._and = new Set();
     /**
      *
-     * @type {Set<Object>}
+     * @type {Set<object>}
      * @private
      */
     this._or = new Set();
@@ -214,9 +240,9 @@ export default class SolrQuery {
 
   /**
    *
-   * @param key
-   * @param val
-   * @param modifier
+   * @param {string} key
+   * @param {string | Array} val
+   * @param {true|false|string} modifier
    * @returns {SolrQuery}
    * @private
    */
@@ -231,9 +257,9 @@ export default class SolrQuery {
   /**
    * Matches the profile.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   profile(val, modifier = null) {
     return this._q('profile', val, modifier);
@@ -244,9 +270,9 @@ export default class SolrQuery {
    * Includes dc:title, dcterms:title, skos:prefLabel, skos:altLabel, skos:hiddenLabel,
    * rdfs:label, foaf:name.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   title(val, modifier = null) {
     return this._q('title', val, modifier);
@@ -255,9 +281,10 @@ export default class SolrQuery {
   /**
    * Matches all descriptions in all languages, multivalued, cannot be sorted on.
    * Includes dc:description, dcterms:description, rdfs:comment
-   * @param {string|array} val
+   *
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   description(val, modifier = null) {
     return this._q('description', val, modifier);
@@ -266,9 +293,9 @@ export default class SolrQuery {
   /**
    * Matches the username.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   username(val, modifier = null) {
     return this._q('username', val, modifier);
@@ -278,9 +305,9 @@ export default class SolrQuery {
    * Matches all tags literals in all languages, multivalued, cannot be sorted on.
    * Includes dc:subject, dcterms:subject, dcat:keyword and lom:keyword
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   tagLiteral(val, modifier = null) {
     return this._q('tag.literal', val, modifier);
@@ -290,9 +317,9 @@ export default class SolrQuery {
    * Matches all tag URIs, multivalued, cannot be sorted on.
    * Includes dc:subject, dcterms:subject
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   tagURI(val, modifier = null) {
     return this._q('tag.uri', val, modifier);
@@ -302,9 +329,9 @@ export default class SolrQuery {
    * Matches the language (as a literal) of the resource, single value, can be used for sorting?
    * Includes dc:language, dcterms:language
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   lang(val, modifier = null) {
     return this._q('lang', val, modifier);
@@ -313,9 +340,9 @@ export default class SolrQuery {
   /**
    * Matches title, description and tags, multivalue, cannot be sorted on.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   all(val, modifier = null) {
     return this._q('all', val, modifier);
@@ -324,9 +351,9 @@ export default class SolrQuery {
   /**
    * Matches all URIs in subject position in the metadata, except the resourceURI.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   subject(val, modifier = null) {
     return this._q('metadata.subject', val, modifier);
@@ -335,9 +362,9 @@ export default class SolrQuery {
   /**
    * Matches all URIs in predicate position in the metadata.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   predicate(val, modifier = null) {
     return this._q('metadata.predicate', val, modifier);
@@ -346,9 +373,9 @@ export default class SolrQuery {
   /**
    * Matches all literals in object position in the metadata.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   objectLiteral(val, modifier = null) {
     return this._q('metadata.object.literal', val, modifier);
@@ -357,9 +384,9 @@ export default class SolrQuery {
   /**
    * Matches all URIs in object position in the metadata.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   objectUri(val, modifier = null) {
     return this._q('metadata.object.uri', val, modifier);
@@ -368,9 +395,9 @@ export default class SolrQuery {
   /**
    * Matches the resourceURI of the entry.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   resource(val, modifier = null) {
     return this._q('resource', val, modifier);
@@ -379,9 +406,9 @@ export default class SolrQuery {
   /**
    * Matches the entryURI of the entry.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   uri(val, modifier = null) {
     return this._q('uri', val, modifier);
@@ -391,9 +418,9 @@ export default class SolrQuery {
    * Matches all types of the resourceURI, i.e.
    * all URIs pointed to via rdf:type from the resourceURI.
    *
-   * @param {string|array} rdfType
+   * @param {string | Array} rdfType
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   rdfType(rdfType, modifier = null) {
     if (Array.isArray(rdfType)) {
@@ -409,9 +436,9 @@ export default class SolrQuery {
   /**
    * Matches all creators (in the entry information graph) expressed via their resourceURIs.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   creator(val, modifier = null) {
     return this._q('creator', val, modifier);
@@ -420,9 +447,9 @@ export default class SolrQuery {
   /**
    * Matches all contributors (in the entry information graph) expressed via their resourceURIs.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   contributors(val, modifier = null) {
     return this._q('contributors', val, modifier);
@@ -431,9 +458,9 @@ export default class SolrQuery {
   /**
    * Matches all project types expressed via their URIs.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   projectType(val, modifier = null) {
     return this._q('projectType', val, modifier);
@@ -442,9 +469,9 @@ export default class SolrQuery {
   /**
    * Matches only entries that are part of the given lists, identified via their resourceURIs.
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   lists(val, modifier = null) {
     return this._q('lists', val, modifier);
@@ -454,9 +481,9 @@ export default class SolrQuery {
    * Matches entries that are created at a specific date or in a range.
    * Ranges must be given as strings as [2010-01-01T00:00:00Z TO *].
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   created(val, modifier = null) {
     return this._q('created', val, modifier);
@@ -468,7 +495,7 @@ export default class SolrQuery {
    * @param {Date} from - no lower range restriction if undefined or null is passed
    * @param {Date} to - no upper range restriction if undefined or null is passed
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   createdRange(from, to, modifier = null) {
     return this._q('created', toDateRange(from, to), modifier);
@@ -478,9 +505,9 @@ export default class SolrQuery {
    * Matches entries that are modified at a specific date or in a range.
    * Ranges are given as strings as [2010-01-01T00:00:00Z TO *].
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   modified(val, modifier = null) {
     return this._q('modified', val, modifier);
@@ -488,12 +515,11 @@ export default class SolrQuery {
 
   /**
    * Utility function to create a range expression for the modified function.
-
    *
    * @param {Date} from - no lower range restriction if undefined or null is passed
    * @param {Date} to - no upper range restriction if undefined or null is passed
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   modifiedRange(from, to, modifier = null) {
     return this._q('modified', toDateRange(from, to), modifier);
@@ -503,9 +529,9 @@ export default class SolrQuery {
    * Matches entries with the given entry type, use the values in {@link types}, e.g.
    * sq.entryType(types.ET_LINK).
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   entryType(val, modifier = null) {
     return this._q('entryType', val, modifier);
@@ -515,9 +541,9 @@ export default class SolrQuery {
    * Matches entries with the given graph type, use the values in {@link types}, e.g.
    * sq.entryType(types.GT_USER).
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   graphType(val, modifier = null) {
     return this._q('graphType', val, modifier);
@@ -527,9 +553,9 @@ export default class SolrQuery {
    * Matches entries with the given resource type, use the values in {@link types}, e.g.
    * sq.entryType(types.RT_INFORMATIONRESOURCE).
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   resourceType(val, modifier = null) {
     return this._q('resourceType', val, modifier);
@@ -541,7 +567,7 @@ export default class SolrQuery {
    * automatically. Hence, this flag may be incorrect.
    *
    * @param {true|false} isPublic
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   publicRead(isPublic = true) {
     return this._q('public', isPublic === true ? 'true' : 'false');
@@ -550,9 +576,9 @@ export default class SolrQuery {
   /**
    * Matches only entries with explicitly ACL stating user(s) has admin rights
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   admin(val, modifier = null) {
     return this._q('acl.admin', val, modifier);
@@ -561,9 +587,9 @@ export default class SolrQuery {
   /**
    * Matches only entries with explicitly ACL stating user(s) has metadata read rights
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   metadataRead(val, modifier = null) {
     return this._q('acl.metadata.r', val, modifier);
@@ -572,9 +598,9 @@ export default class SolrQuery {
   /**
    * Matches only entries with explicitly ACL stating user(s) has metadata write (and read) rights
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   metadataWrite(val, modifier = null) {
     return this._q('acl.metadata.rw', val, modifier);
@@ -583,9 +609,9 @@ export default class SolrQuery {
   /**
    * Matches only entries with explicitly ACL stating user(s) has resource read rights
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   resourceRead(val, modifier = null) {
     return this._q('acl.resource.r', val, modifier);
@@ -594,9 +620,9 @@ export default class SolrQuery {
   /**
    * Matches only entries with explicitly ACL stating user(s) has resource write (and read) rights
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   resourceWrite(val, modifier = null) {
     return this._q('acl.resource.rw', val, modifier);
@@ -605,9 +631,9 @@ export default class SolrQuery {
   /**
    * Matches entries with with specific status (expressed in entry information graph)
    *
-   * @param {string|array} val
+   * @param {string | Array} val
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   status(val, modifier = null) {
     return this._q('status', val, modifier);
@@ -621,7 +647,7 @@ export default class SolrQuery {
    +     * string, either directly or within the array and it starts with 'http' it is assumed it is
    +     * the resourceURI of the context, otherwise the context is assumed to be a contextId.
    * @param {true|false|string} modifier
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   context(context, modifier = null) {
     const f = (c) => {
@@ -652,6 +678,35 @@ export default class SolrQuery {
   }
 
   /**
+   * Matches only entries in contexts of the given type(s), i.e. contexts whose context
+   * entry has the type via rdf:type. The context types are matched with a query-time join,
+   * so the query length does not depend on the number of contexts. For example:
+   *
+   *     sq.rdfType('dcat:Dataset').contextType('esterms:CatalogContext')
+   *
+   * The clause is always AND:ed with the rest of the query, also in disjunctive mode.
+   * Note that the join reads context entries without an access check, so hit counts can
+   * reveal the type of a context.
+   *
+   * @param {string | Array} contextType a context type URI, possibly namespaced, or an array
+   * of them that are OR:ed together
+   * @param {true|false|string} modifier true or 'not' excludes entries in contexts of the
+   * given type(s)
+   * @returns {SolrQuery}
+   */
+  contextType(contextType, modifier = null) {
+    const contextTypes = (
+      Array.isArray(contextType) ? contextType : [contextType]
+    )
+      .filter((type) => typeof type === 'string' && type !== '')
+      .map((type) => namespaces.expand(type));
+    if (contextTypes.length > 0) {
+      this._contextType = { contextTypes, modifier };
+    }
+    return this;
+  }
+
+  /**
    * Provide a query in the form of an object structure where the toplevel attributes
    * are disjunctive (OR:ed together). The following example will query for things that
    * are typed as vedgetables AND have the word 'tomato' in either the title OR description:
@@ -665,8 +720,8 @@ export default class SolrQuery {
    * is combined. To change the toplevel behaviour of the query from an and to an or,
    * use the disjunctive method.
    *
-   * @param {Object} structure
-   * @return {SolrQuery}
+   * @param {object} structure
+   * @returns {SolrQuery}
    */
   or(structure) {
     this._or.add(structure);
@@ -688,8 +743,8 @@ export default class SolrQuery {
    * become disjunctive (being OR:ed together), this is to make the query more representative
    * since there is no need for the grouping of the object structure otherwise.
    *
-   * @param {Object} structure
-   * @return {SolrQuery}
+   * @param {object} structure
+   * @returns {SolrQuery}
    */
   and(structure) {
     this._and.add(structure);
@@ -697,6 +752,8 @@ export default class SolrQuery {
   }
 
   /**
+   * @param {string} title
+   * @param {string} language
    * @deprecated
    */
   //eslint-disable-next-line
@@ -705,9 +762,10 @@ export default class SolrQuery {
   /**
    * If a title has a language set, a dynamic field is created with the pattern "title.en",
    * without multi value support. This is used in the context of sorting.
-   * @param title {String} the title to search for
-   * @param language {String} the language of the title for instance "en".
-   * @return {SolrQuery}
+   *
+   * @param {string} title the title to search for
+   * @param {string} language the language of the title for instance "en".
+   * @returns {SolrQuery}
    */
   titleWithLanguage(title, language) {
     this._title_lang = { value: title, language };
@@ -718,12 +776,12 @@ export default class SolrQuery {
    * Matches specific property value combinations.
    *
    * @param {string} predicate
-   * @param {string|array} object
+   * @param {string | Array} object
    * @param {true|false|string} modifier
-   * @param {text|string} [indexType=ngram] 'ngram' corresponds to partial string
+   * @param {'ngram'|'string'|'text'} [indexType=ngram] 'ngram' corresponds to partial string
    * matching, 'string' corresponds to exact string matching and 'text' corresponds to word matching.
    * @param {boolean} [related=false] will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   literalProperty(
     predicate,
@@ -763,7 +821,7 @@ export default class SolrQuery {
    * @param {string} to
    * @param {true|false|string} modifier
    * @param {boolean} [related=false] will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   literalPropertyRange(predicate, from, to, modifier, related = false) {
     return this.literalProperty(
@@ -781,10 +839,10 @@ export default class SolrQuery {
    * Ranges are allowed as strings, for instance [0 TO 100] or [0 TO *] for all positive integers.
    *
    * @param {string} predicate
-   * @param {string|array} object
+   * @param {string | Array} object
    * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   integerProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
@@ -804,8 +862,9 @@ export default class SolrQuery {
    * @param {string} predicate
    * @param {string|number} from - if undefined no lower bound will be created, corresponds to *
    * @param {string|number} to - if undefined no upper bound will be created, corresponds to *
+   * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   integerPropertyRange(predicate, from, to, modifier, related = false) {
     return this.integerProperty(
@@ -822,10 +881,10 @@ export default class SolrQuery {
    * Ranges are allowed as strings, for instance [* TO 2010-01-01T00:00:00Z].
    *
    * @param {string} predicate
-   * @param {string|array} object
+   * @param {string | Array} object
    * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   dateProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
@@ -847,7 +906,7 @@ export default class SolrQuery {
    * @param {Date} to
    * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   datePropertyRange(predicate, from, to, modifier, related = false) {
     return this.dateProperty(
@@ -862,10 +921,10 @@ export default class SolrQuery {
    * Matches specific property value combinations when the value is an uri.
    *
    * @param {string} predicate
-   * @param {string|array} object
+   * @param {string | Array} object
    * @param {true|false|string} modifier
    * @param {boolean} related - will search in related properties if true, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   uriProperty(predicate, object, modifier, related = false) {
     const key = shorten(predicate);
@@ -886,7 +945,7 @@ export default class SolrQuery {
    * Sets the pagination limit.
    *
    * @param {string|number} limit
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   limit(limit) {
     this._limit = limit;
@@ -896,7 +955,7 @@ export default class SolrQuery {
   /**
    * Gets the pagination limit if it set.
    *
-   * @return {string|number}
+   * @returns {string|number}
    */
   getLimit() {
     return this._limit;
@@ -909,9 +968,12 @@ export default class SolrQuery {
    * description and keywords,
    * but allows sorting after e.g. title.en.
    * If no sort is explicitly given the default sort string used is "score+asc".
-   * @param sort {String} a list of fields together with '+asc' or '+desc', first field has the
+   *
+   * @param {string} sort a list of fields together with '+asc' or '+desc', first field has the
    * highest priority when sorting.
-   * @return {SolrQuery}
+   * Replaces any sort set earlier, including sorts added with the property sort methods
+   * such as {@link SolrQuery#literalPropertySort}.
+   * @returns {SolrQuery}
    */
   sort(sort) {
     this._sort = sort;
@@ -919,10 +981,64 @@ export default class SolrQuery {
   }
 
   /**
+   * Adds a sort on the string value of the given predicate. Sorts are applied in the order
+   * they are added, after any sort given with {@link SolrQuery#sort}.
+   *
+   * @param {string} predicate - the predicate, e.g. "schema:name"
+   * @param {'asc'|'desc'} [order='asc']
+   * @param {boolean} [related=false] sort on the related properties if true
+   * @returns {SolrQuery}
+   */
+  literalPropertySort(predicate, order = 'asc', related = false) {
+    return this._addPropertySort('literal_s', predicate, order, related);
+  }
+
+  /**
+   * Adds a sort on the integer value of the given predicate. Sorts are applied in the order
+   * they are added, after any sort given with {@link SolrQuery#sort}.
+   *
+   * @param {string} predicate - the predicate, e.g. "dcterms:created"
+   * @param {'asc'|'desc'} [order='asc']
+   * @param {boolean} [related=false] sort on the related properties if true
+   * @returns {SolrQuery}
+   */
+  integerPropertySort(predicate, order = 'asc', related = false) {
+    return this._addPropertySort('integer', predicate, order, related);
+  }
+
+  /**
+   * Adds a sort on the date value of the given predicate. Sorts are applied in the order
+   * they are added, after any sort given with {@link SolrQuery#sort}.
+   *
+   * @param {string} predicate - the predicate, e.g. "dcterms:issued"
+   * @param {'asc'|'desc'} [order='asc']
+   * @param {boolean} [related=false] sort on the related properties if true
+   * @returns {SolrQuery}
+   */
+  datePropertySort(predicate, order = 'asc', related = false) {
+    return this._addPropertySort('date', predicate, order, related);
+  }
+
+  /**
+   * @private
+   * @param {string} nodetype
+   * @param {string} predicate
+   * @param {'asc'|'desc'} order
+   * @param {boolean} related
+   * @returns {SolrQuery}
+   */
+  _addPropertySort(nodetype, predicate, order, related) {
+    const field = `${related ? 'related.' : ''}metadata.predicate.${nodetype}.${shorten(predicate)}`;
+    const clause = `${field}+${order}`;
+    this._sort = this._sort ? `${this._sort},${clause}` : clause;
+    return this;
+  }
+
+  /**
    * Set an explicit offset.
    *
    * @param {string|number} offset
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   offset(offset) {
     this._offset = offset;
@@ -934,7 +1050,7 @@ export default class SolrQuery {
    * @param {string} facet
    * @param {string} predicate
    * @param {boolean} [related=false]
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   facet(facet, predicate, related = false) {
     this.facets = this.facets || [];
@@ -953,9 +1069,10 @@ export default class SolrQuery {
 
   /**
    * Request to include literal facets for the given predicate
+   *
    * @param {string} predicate
    * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   literalFacet(predicate, related = false) {
     this.facet(
@@ -970,9 +1087,10 @@ export default class SolrQuery {
 
   /**
    * Request to include URI facets for the given predicate
+   *
    * @param {string} predicate
    * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   uriFacet(predicate, related = false) {
     this.facet(
@@ -987,9 +1105,10 @@ export default class SolrQuery {
 
   /**
    * Request to include integer facets for the given predicate
+   *
    * @param {string} predicate
    * @param {boolean} [related=false] whether the facet is on the related predicates, default is false
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   integerFacet(predicate, related = false) {
     this.facet(
@@ -1004,7 +1123,8 @@ export default class SolrQuery {
 
   /**
    * The maximum amount of facet results to be report on. Default is 100, values up to 1000 is allowed.
-   * @param {integer} limit maximum number of facet results to return per facet.
+   *
+   * @param {number} limit maximum number of facet results to return per facet.
    */
   facetLimit(limit) {
     this.facetConfig.facetLimit = limit;
@@ -1012,7 +1132,8 @@ export default class SolrQuery {
 
   /**
    * The minimum amount of facet results to be included in the response. Default is 1.
-   * @param {integer} limit minumum amount of facet results, facets with fewer results will be omitted in the response.
+   *
+   * @param {number} limit minumum amount of facet results, facets with fewer results will be omitted in the response.
    */
   facetMinCount(limit) {
     this.facetConfig.facetMinCount = limit;
@@ -1020,6 +1141,7 @@ export default class SolrQuery {
 
   /**
    * If matches with no match against a facet should be reported as well.
+   *
    * @param {boolean} include true if they should be reported.
    */
   facetMissing(include) {
@@ -1038,7 +1160,7 @@ export default class SolrQuery {
    * ex:Banana via dcterms:subject. The default, without disjunctiveProperties being called
    * is to create a conjunction, i.e. AND them together.
    *
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   disjunctiveProperties() {
     this._disjunctiveProperties = true;
@@ -1054,7 +1176,7 @@ export default class SolrQuery {
    * Will search for entries that have either a "banana" in the title or "tomato" in the
    * description rather than entries that have both which is the default.
    *
-   * @return {SolrQuery}
+   * @returns {SolrQuery}
    */
   disjunctive() {
     this._disjunctive = true;
@@ -1064,7 +1186,7 @@ export default class SolrQuery {
   /**
    * Construct a SearchList fro this SolrQuery.
    *
-   * @param asyncCallType
+   * @param {string} asyncCallType
    * @returns {SearchList}
    */
   list(asyncCallType) {
@@ -1073,18 +1195,15 @@ export default class SolrQuery {
 
   /**
    * Produces the actual query to the EntryStore API.
-   * @return {string}
+   *
+   * @returns {string}
    * @protected
    */
   getQuery() {
     const and = [];
     if (this._title_lang != null) {
-      and.push(
-        `title.${this._title_lang.lang}:${solrFriendly(
-          this._title_lang.lang,
-          this._title_lang.value
-        )}`
-      );
+      const key = `title.${this._title_lang.language}`;
+      and.push(`${key}:${solrFriendly(key, this._title_lang.value)}`);
     }
 
     this.params.forEach((v, key) => {
@@ -1227,13 +1346,26 @@ export default class SolrQuery {
     if (this.facetConfig.facetMissing === true) {
       trail += `&facetMissing=true`;
     }
-    return `${this._entrystore.getBaseURI()}search?type=solr&query=${and.join(
-      this._disjunctive ? '+OR' : '+AND+'
-    )}${trail}`;
+    let query = and.join(this._disjunctive ? '+OR+' : '+AND+');
+    if (this._contextType) {
+      const { contextTypes, modifier } = this._contextType;
+      const clause = contextTypeClause(
+        contextTypes,
+        modifier === true || modifier === 'not'
+      );
+      if (and.length === 0) {
+        query = clause;
+      } else if (this._disjunctive && and.length > 1) {
+        query = `(${query})+AND+${clause}`;
+      } else {
+        query = `${query}+AND+${clause}`;
+      }
+    }
+    return `${this._entrystore.getBaseURI()}search?type=solr&query=${query}${trail}`;
   }
 
   /**
-   * @param page
+   * @param {number} page
    * @returns {Promise.<Array.<Entry>>} the promise will return an entry-array.
    * @see {List.getEntries}
    */
@@ -1243,6 +1375,7 @@ export default class SolrQuery {
 
   /**
    * Finds a single entry for the current query (sets the limit to 1).
+   *
    * @returns {Promise<Entry>}
    */
   async getEntry() {
@@ -1252,8 +1385,8 @@ export default class SolrQuery {
   }
 
   /**
-   * @param func
-   * @return {promise}
+   * @param {Function} func
+   * @returns {Promise}
    * @see {List.forEach}
    */
   forEach(func) {

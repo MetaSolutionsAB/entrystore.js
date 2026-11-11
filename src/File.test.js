@@ -1,5 +1,4 @@
 import xmldom from '@xmldom/xmldom';
-import utils from './utils.js';
 import init from '../tests/init.js';
 
 const { context } = init();
@@ -28,16 +27,22 @@ test('Create entry with a text file', async () => {
   expect(data).toBe('test'); // If fail: Text not set correctly as resource.');
 });
 
+test('returns the contents of a file whose content type is not read as text', async () => {
+  const entry = await context().newEntry().commit();
+  const resource = entry.getResource(true);
+  const rdfXml =
+    '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>';
+  await resource.put(rdfXml, 'application/rdf+xml');
+  entry.setRefreshNeeded(true);
+  await entry.refresh();
+
+  expect(await resource.get()).toBe(rdfXml);
+});
+
 test('Create entry with a xml file', async () => {
   const entry = await context().newEntry().commit();
 
   const r = entry.getResource(true);
-  if (utils.isBrowser()) {
-    const DOMParser = DOMParser;
-  } else {
-    const DOMParser = xmldom.DOMParser;
-  }
-
   const parser = new xmldom.DOMParser();
   let xml = parser.parseFromString('<book></book>', 'text/xml');
 
@@ -46,11 +51,7 @@ test('Create entry with a xml file', async () => {
   await entry.refresh();
   expect(entry.getEntryInfo().getFormat()).toBe('text/xml'); // If fail: 'Mimetype is not text/plain as it should.');
   const data = await r.getXML();
-  if (utils.isBrowser()) {
-    expect(data instanceof Document).toBe('book'); // If fail: 'XML not stored correctly, document contains other xml than sent.'
-    expect(data.firstChild.nodeName).toBe('book'); // If fail: 'XML not stored correctly, document contains other xml than sent.'
-  } else {
-    expect(typeof data).toBe('string'); // If fail: XMl not set correctly as a resource.
-    expect(data).toBe('<book/>'); // If fail: XMl not set correctly as a resource.
-  }
+  // getXML returns a string outside the browser, and Jest runs in Node
+  expect(typeof data).toBe('string'); // If fail: XMl not set correctly as a resource.
+  expect(data).toBe('<book/>'); // If fail: XMl not set correctly as a resource.
 });

@@ -1,3 +1,4 @@
+import superagent from 'superagent';
 import EntryStore from './EntryStore.js';
 import config from '../tests/config.js';
 
@@ -5,6 +6,16 @@ const { repository, nonAdminUser, nonAdminPassword } = config;
 const es = new EntryStore(repository);
 const auth = es.getAuth();
 const MAX_AGE = 86400;
+
+// Resolves with the next auth event, then stops listening.
+const nextAuthEvent = () =>
+  new Promise((resolve) => {
+    const authCallback = (topic, data) => {
+      auth.removeAuthListener(authCallback);
+      resolve({ topic, data });
+    };
+    auth.addAuthListener(authCallback);
+  });
 
 describe('Signing in and out using cookies', () => {
   test('Sign in with cookies', async () => {
@@ -17,6 +28,27 @@ describe('Signing in and out using cookies', () => {
     const data = await auth.logout();
     expect(data.user).toBe('guest'); // If fail:`Failed sign out from account ${nonAdminUser}.`
   });
+
+  test('Sign out ends the session on the server', async () => {
+    await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+    const cookie = auth.getAuthCookie();
+
+    await auth.logout();
+
+    await expect(
+      superagent.get(`${repository}auth/user`).set('Cookie', cookie)
+    ).rejects.toMatchObject({ status: 401 });
+  });
+
+  test('Sign in with a saved cookie in another instance', async () => {
+    await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+    const restoredAuth = new EntryStore(repository).getAuth();
+
+    restoredAuth.setAuthCookie(auth.getAuthCookie());
+    const data = await restoredAuth.getUserInfo();
+
+    expect(data.user).toBe(nonAdminUser);
+  });
 });
 
 describe('Authentication using a guest profile', () => {
@@ -26,16 +58,14 @@ describe('Authentication using a guest profile', () => {
 
   beforeEach(setUp);
 
-  test('Signing in', (done) => {
-    expect.assertions(2);
-    const authCallback = (topic, data) => {
-      expect(topic).toBe('login');
-      expect(data.user).toBe(nonAdminUser);
-      done();
-      auth.removeAuthListener(authCallback);
-    };
-    auth.addAuthListener(authCallback);
-    auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+  test('Signing in', async () => {
+    const authEvent = nextAuthEvent();
+
+    await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+    const { topic, data } = await authEvent;
+
+    expect(topic).toBe('login');
+    expect(data.user).toBe(nonAdminUser);
   });
 
   test('Check user entry is guest', async () => {
@@ -53,16 +83,14 @@ describe('Authentication using a user profile', () => {
 
   beforeEach(setUpNonAdmin);
 
-  test('Signing out', (done) => {
-    expect.assertions(2);
-    const authCallback = (topic, data) => {
-      expect(topic).toBe('logout');
-      expect(data.user).toBe('guest');
-      done();
-      auth.removeAuthListener(authCallback);
-    };
-    auth.addAuthListener(authCallback);
-    auth.logout();
+  test('Signing out', async () => {
+    const authEvent = nextAuthEvent();
+
+    await auth.logout();
+    const { topic, data } = await authEvent;
+
+    expect(topic).toBe('logout');
+    expect(data.user).toBe('guest');
   });
 
   test('Check authentication entry is a user profile', async () => {

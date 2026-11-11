@@ -64,12 +64,10 @@ describe('Work with entries', () => {
 
   test('Update the metadata of an entry', async () => {
     const entry = await context().newEntry().commit();
-    entry
-      .getMetadata()
-      .add(entry.getResourceURI(), 'dcterms:title', {
-        type: 'literal',
-        value: 'Some title2',
-      });
+    entry.getMetadata().add(entry.getResourceURI(), 'dcterms:title', {
+      type: 'literal',
+      value: 'Some title2',
+    });
     await entry.commitMetadata();
     entry.getMetadata().findAndRemove();
     expect(

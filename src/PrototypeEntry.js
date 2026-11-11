@@ -4,6 +4,11 @@ import terms from './terms.js';
 
 export const NEW_ID_PLACEHOLDER = '_newId';
 /**
+ * @import Context from './Context.js'
+ * @import Resource from './Resource.js'
+ */
+
+/**
  * A PrototypeEntry is used to create new entries by collecting information about the initial
  * state of the entry to send along to the repository upon creation.
  *
@@ -12,7 +17,7 @@ export const NEW_ID_PLACEHOLDER = '_newId';
  * changed in an entry, e.g. the entry, graph and resource types, but are crucial before creation.
  * Hence, some methods have been introduced to cover for this need.
  *
- * @exports store/PrototypeEntry
+ * @exports module:store/PrototypeEntry
  */
 export default class PrototypeEntry extends Entry {
   /**
@@ -50,6 +55,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Direct access method for the resource instance for prorotypeEntries.
+   *
    * @returns {Resource}
    */
   getResource() {
@@ -73,6 +79,7 @@ export default class PrototypeEntry extends Entry {
    * {@link EntryInfo} on this class
    * and makes it chainable.
    *
+   * @param {string} uri
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setResourceURI(uri) {
@@ -85,19 +92,18 @@ export default class PrototypeEntry extends Entry {
    * from {@link EntryInfo} on this class
    * and makes it chainable.
    *
+   * @param {string} uri
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setExternalMetadataURI(uri) {
-    EntryInfo.prototype.setExternalMetadataURI.apply(
-      this._entryInfo,
-      arguments
-    );
+    EntryInfo.prototype.setExternalMetadataURI.call(this._entryInfo, uri);
     return this;
   }
 
   /**
    * Makes it possible to change the EntryType (which is not allowed on existing entries).
    *
+   * @param {string} et
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setEntryType(et) {
@@ -116,6 +122,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the GraphType (which is not allowed on existing entries).
    *
+   * @param {string} gt
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setGraphType(gt) {
@@ -135,6 +142,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Makes it possible to change the ResourceType (which is not allowed on existing entries).
    *
+   * @param {string} rt
    * @returns {PrototypeEntry} - to allow the method call to be chained.
    */
   setResourceType(rt) {
@@ -164,6 +172,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Get the parent list (as an entry) for this PrototypeEntry.
+   *
    * @returns {Entry}
    */
   getParentList() {
@@ -172,6 +181,7 @@ export default class PrototypeEntry extends Entry {
 
   /**
    * Get the suggested entry id for this PrototypeEntry
+   *
    * @returns {string}
    */
   getSpecificId() {
@@ -181,6 +191,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Allowed as a way to save metadata for an
    * entry that is assumed to exist with a given entry id.
+   *
    * @override
    */
   commitMetadata() {
@@ -205,6 +216,7 @@ export default class PrototypeEntry extends Entry {
   /**
    * Allowed as a way to save cached external metadata for an entry that is assumed to
    * exist with a given entry id.
+   *
    * @override
    */
   commitCachedExternalMetadata() {

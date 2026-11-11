@@ -155,6 +155,8 @@ The tests have to run against a EntryStore instance. To bring one up an instance
 
     $ pnpm entrystore:tests
 
+This runs EntryStore 6 from the Docker image `metasolutions/entrystore:develop` on port 8080, next to a Solr container, until you stop it with Ctrl-C. Set `ENTRYSTORE_IMAGE` to test another EntryStore 6 image, e.g. `metasolutions/entrystore:6.1-rc`.
+
 When that is running, open another terminal and run:
 
     $ pnpm tests

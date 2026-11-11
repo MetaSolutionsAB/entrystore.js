@@ -1,8 +1,14 @@
 /**
+ * @import Entry from './Entry.js'
+ * @import EntryInfo from './EntryInfo.js'
+ * @import EntryStore from './EntryStore.js'
+ */
+
+/**
  * EntryStore is the main class that is used to connect to a running server-side
  * EntryStore repository.
  *
- * @exports store/Auth
+ * @exports module:store/Auth
  */
 export default class Auth {
   /**
@@ -21,8 +27,8 @@ export default class Auth {
 
   /**
    *
-   * @param {String} topic
-   * @param obj
+   * @param {string} topic
+   * @param {object} obj
    */
   messageListeners(topic, obj) {
     this._listeners.forEach((func) => func(topic, obj));
@@ -30,6 +36,7 @@ export default class Auth {
 
   /**
    * Adds an authentication listener, it will be notified of login and logout events.
+   *
    * @param {Function} listener
    */
   addAuthListener(listener) {
@@ -42,6 +49,7 @@ export default class Auth {
 
   /**
    * Removes an authentication listener
+   *
    * @param {Function} listener
    */
   removeAuthListener(listener) {
@@ -96,12 +104,45 @@ export default class Auth {
   }
 
   /**
-   * Authenticate using credentials containing a user, a password and an optional maxAge
-   * given in seconds.
+   * The session cookie from the last login or setAuthCookie, Node only. Use it together with
+   * setAuthCookie to keep a session across processes.
    *
-   * @param user
-   * @param password
-   * @param maxAge
+   * @returns {string|undefined} "auth_token=<value>"
+   */
+  getAuthCookie() {
+    return this._entryStore.getREST()._authCookie;
+  }
+
+  /**
+   * Restores a session from a cookie returned by getAuthCookie, Node only. The cookie is only
+   * sent to the repository's origin. Nothing is requested; the user is looked up on the next
+   * getUserInfo, call getUserInfo(true) to check that the session is still valid.
+   *
+   * @param {string} cookie - "auth_token=<value>"
+   * @throws {Error} if the repository is on plain http and not a loopback address
+   * (localhost, 127.0.0.1 or [::1])
+   */
+  setAuthCookie(cookie) {
+    if (typeof cookie !== 'string' || !cookie.startsWith('auth_token=')) {
+      throw new Error('Expected a cookie on the form "auth_token=<value>"');
+    }
+    this._entryStore
+      .getREST()
+      ._setAuthCookie(cookie, this._entryStore.getBaseURI());
+
+    delete this.userInfo;
+    delete this.userEntry;
+    this._entryStore.getCache().allNeedRefresh();
+  }
+
+  /**
+   * Authenticate using credentials containing a user, a password and an optional maxAge
+   * given in seconds. In Node, the login is refused without a request when the repository is
+   * on plain http and not a loopback address (localhost, 127.0.0.1 or [::1]).
+   *
+   * @param {string} user
+   * @param {string} password
+   * @param {number} maxAge
    * @returns {Promise}
    */
   async login(user, password, maxAge) {

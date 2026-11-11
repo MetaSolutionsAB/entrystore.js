@@ -18,6 +18,14 @@ async function logInlogOut() {
   await es.getAuth().login(adminUser, adminPassword, MAX_AGE);
 }
 
+describe('URI construction', () => {
+  test('builds the metadata URI of an entry from its context and entry id', () => {
+    expect(es.getMetadataURI(contextId, entryId)).toBe(
+      `${repository}${contextId}/metadata/${entryId}`
+    );
+  });
+});
+
 describe('A signed out (admin) user', () => {
   beforeEach(() => {
     return logOut();
@@ -45,24 +53,18 @@ describe('A signed in admin (user)', () => {
     return logInlogOut();
   });
 
-  test('Sign out then checking if listener caught the signout', (done) => {
-    expect.assertions(2);
-    const asyncListener = async (promise, callType) => {
-      expect(callType).toBe('logout'); // If fail: Wrong calltype, should be 'logout'
-      promise.then(
-        (value) => {
-          expect(1).toBeTruthy();
-          done();
-        },
-        (reason) => {
-          expect(0).toBeTruthy();
-          done(reason);
-        }
-      );
+  test('Sign out then checking if listener caught the signout', async () => {
+    const calls = [];
+    const asyncListener = (promise, callType) => {
+      calls.push({ promise, callType });
     };
     es.addAsyncListener(asyncListener);
-    es.getAuth().logout();
+    const loggedOut = es.getAuth().logout();
     es.removeAsyncListener(asyncListener);
+
+    expect(calls.map(({ callType }) => callType)).toEqual(['logout']);
+    await calls[0].promise;
+    await loggedOut;
   });
 
   test('Fetch context list', async () => {
@@ -93,6 +95,24 @@ describe('A signed in admin (user)', () => {
   });
 
   // Bertrand Russel would be proud of this entry
+  test('fetches the extended status with the requested count statistics', async () => {
+    const status = await es.getStatus({ include: ['countStats'] });
+
+    expect(status).toHaveProperty('baseURI');
+    // EntryStore 5.x reports the count statistics as stats, 6.x as countStats
+    expect(status.countStats ?? status.stats).toEqual(expect.any(Object));
+  });
+
+  test('includes the verbose relation statistics whatever the order of the options', async () => {
+    const status = await es.getStatus({
+      include: ['relationVerboseStats', 'relationStats'],
+    });
+
+    expect(status.relationStats).toHaveProperty(
+      'activeRelationsWithNonExistingTarget'
+    );
+  });
+
   test('Check so that cache only has one request', async () => {
     expect.assertions(7);
     const contextsEntryURI = es.getEntryURI('_contexts', '_contexts');
