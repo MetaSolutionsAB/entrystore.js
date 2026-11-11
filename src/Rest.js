@@ -26,6 +26,35 @@ const sameOrigin = (url) => {
 };
 
 /**
+ * @param {string} uri
+ * @returns {string|undefined} undefined if uri is not an absolute URL
+ */
+const getOrigin = (uri) => {
+  try {
+    return new URL(uri).origin;
+  } catch {
+    return undefined;
+  }
+};
+
+const LOOPBACK_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]'];
+
+/**
+ * Throws if credentials for base would go over plain http to a host other than this machine.
+ * Compares the hostname only, without a DNS lookup.
+ *
+ * @param {string} base
+ */
+const assertCredentialsTransport = (base) => {
+  const { protocol, hostname, origin } = new URL(base);
+  if (protocol === 'http:' && !LOOPBACK_HOSTNAMES.includes(hostname)) {
+    throw new Error(
+      `Refusing to send credentials to ${origin} over plain http; use https, or a loopback address for local development`
+    );
+  }
+};
+
+/**
  * Last 7 digits of milliseconds since 1970 + random number.
  *
  * @returns {number}
@@ -143,9 +172,68 @@ export default class Rest {
   }
 
   /**
+   * Binds the auth cookie to the origin of base, the only origin it is sent to (Node only, in
+   * the browser the cookie is handled by the browser).
+   *
+   * @param {string} cookie - "auth_token=<value>", cookie attributes are dropped
+   * @param {string} base
+   * @throws {Error} if base is plain http and not a loopback address
+   * @private
+   */
+  _setAuthCookie(cookie, base) {
+    assertCredentialsTransport(base);
+    this._authCookie = cookie.split(';')[0].trim();
+    this._authOrigin = new URL(base).origin;
+  }
+
+  /**
+   * @private
+   */
+  _clearAuthCookie() {
+    delete this._authCookie;
+    delete this._authOrigin;
+  }
+
+  /**
+   * Headers for a request to uri. The auth cookie is only included when uri has the origin it
+   * is bound to; a cookie in this.headers is never sent.
+   *
+   * @param {string} uri
+   * @returns {object}
+   * @private
+   */
+  _headersFor(uri) {
+    const headers = Object.fromEntries(
+      Object.entries(this.headers).filter(
+        ([name]) => name.toLowerCase() !== 'cookie'
+      )
+    );
+    if (this._authCookie && getOrigin(uri) === this._authOrigin) {
+      headers.cookie = this._authCookie;
+    }
+    return headers;
+  }
+
+  /**
+   * @param {string} base
+   * @returns {Promise<boolean>} true if the repository rejects the auth cookie or treats it as
+   * guest; false if it still accepts it or cannot be asked
+   * @private
+   */
+  async _isSessionEnded(base) {
+    try {
+      const userInfo = await this.get(`${base}auth/user`, null, true);
+      return userInfo.user === 'guest';
+    } catch (err) {
+      return err.status === 401;
+    }
+  }
+
+  /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
-   * @returns {Promise} A thenable object
+   * @returns {Promise} A thenable object, in Node rejected without a request when logging in to
+   * a plain http base that is not a loopback address
    * @async
    */
   async auth(credentials) {
@@ -156,32 +244,57 @@ export default class Rest {
       maxAge = 604800,
       logout = false,
     } = credentials;
-    delete this.headers.cookie;
 
     if (logout) {
+      const logoutURI = `${base}auth/logout`;
       const logoutRequest = (method) => {
-        const request = superagent[method](`${base}auth/logout`)
+        const request = superagent[method](logoutURI)
           .accept('application/json')
           .withCredentials()
           .timeout({ response: this.timeout });
 
-        Object.entries(this.headers).map((keyVal) =>
+        Object.entries(this._headersFor(logoutURI)).map((keyVal) =>
           request.set(keyVal[0], keyVal[1])
         );
 
         return request;
       };
+      const logoutWithFallback = async () => {
+        try {
+          return await logoutRequest('post');
+        } catch (err) {
+          // Old backends only serve logout via GET.
+          if (err.status === 405 || err.status === 404) {
+            return logoutRequest('get');
+          }
+          throw err;
+        }
+      };
 
       try {
-        return await logoutRequest('post');
+        const response = await logoutWithFallback();
+        this._clearAuthCookie();
+        return response;
       } catch (err) {
-        // Old backends only serve logout via GET.
-        if (err.status === 405 || err.status === 404) {
-          return logoutRequest('get');
+        // In Node, a 401 means either that the session has already ended, or that the server
+        // refused to end it, e.g. for a missing CSRF token. The token is kept in the latter case
+        // so that logout can be retried.
+        if (
+          err.status === 401 &&
+          !isBrowser() &&
+          (await this._isSessionEnded(base))
+        ) {
+          this._clearAuthCookie();
+          return err.response;
         }
         throw err;
       }
     }
+
+    if (!isBrowser()) {
+      assertCredentialsTransport(base);
+    }
+    this._clearAuthCookie();
 
     const data = {
       auth_username: encodeURIComponent(user),
@@ -207,13 +320,11 @@ export default class Rest {
       null,
       'application/x-www-form-urlencoded'
     );
-    const cookies = authCookieResponse.headers['set-cookie'];
-
-    for (const cookie of cookies) {
-      if (cookie.startsWith('auth_token=')) {
-        this.headers.cookie = [cookie];
-        break;
-      }
+    const authCookie = authCookieResponse.headers['set-cookie'].find((cookie) =>
+      cookie.startsWith('auth_token=')
+    );
+    if (authCookie) {
+      this._setAuthCookie(authCookie, base);
     }
 
     return authCookieResponse;
@@ -263,7 +374,7 @@ export default class Rest {
    */
   async _get(uri, format, nonJSONP, writableStream, preventCache) {
     let _format = format;
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     locHeaders['X-Requested-With'] = null;
     delete locHeaders['Content-Type'];
 
@@ -403,7 +514,7 @@ export default class Rest {
    * @see post
    */
   _post(uri, data, modDate, format) {
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
     } // multipart/form-data
@@ -498,7 +609,7 @@ export default class Rest {
    * @see put
    */
   _put(uri, data, modDate, format) {
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
     }
@@ -546,7 +657,7 @@ export default class Rest {
    * @see del
    */
   _del(uri, modDate) {
-    const locHeaders = Object.assign({}, this.headers);
+    const locHeaders = this._headersFor(uri);
     delete locHeaders['Content-Type'];
     if (modDate) {
       locHeaders['If-Unmodified-Since'] = modDate.toUTCString();
@@ -605,7 +716,7 @@ export default class Rest {
     if (data && data.constructor && data.constructor.pipeline) {
       return new Promise((resolve, reject) => {
         const upload = superagent.put(uri).timeout({ response: this.timeout });
-        const locHeaders = Object.assign({}, this.headers);
+        const locHeaders = this._headersFor(uri);
         if (format) {
           locHeaders['Content-Type'] = format;
         }

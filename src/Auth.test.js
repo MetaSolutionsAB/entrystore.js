@@ -1,3 +1,4 @@
+import superagent from 'superagent';
 import EntryStore from './EntryStore.js';
 import config from '../tests/config.js';
 
@@ -26,6 +27,27 @@ describe('Signing in and out using cookies', () => {
     await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
     const data = await auth.logout();
     expect(data.user).toBe('guest'); // If fail:`Failed sign out from account ${nonAdminUser}.`
+  });
+
+  test('Sign out ends the session on the server', async () => {
+    await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+    const cookie = auth.getAuthCookie();
+
+    await auth.logout();
+
+    await expect(
+      superagent.get(`${repository}auth/user`).set('Cookie', cookie)
+    ).rejects.toMatchObject({ status: 401 });
+  });
+
+  test('Sign in with a saved cookie in another instance', async () => {
+    await auth.login(nonAdminUser, nonAdminPassword, MAX_AGE);
+    const restoredAuth = new EntryStore(repository).getAuth();
+
+    restoredAuth.setAuthCookie(auth.getAuthCookie());
+    const data = await restoredAuth.getUserInfo();
+
+    expect(data.user).toBe(nonAdminUser);
   });
 });
 
