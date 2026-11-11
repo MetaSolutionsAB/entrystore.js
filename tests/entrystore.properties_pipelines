@@ -1,4 +1,4 @@
-entrystore.baseurl.folder=http://entrystore.local:8080/
+entrystore.baseurl.folder=http://127.0.0.1:8080/
 entrystore.repository.rewrite-basereference=false
 
 server.servlet.context-path=

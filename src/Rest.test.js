@@ -210,3 +210,39 @@ describe('Auth setAuthCookie', () => {
     );
   });
 });
+
+describe('Credentials over plain http', () => {
+  test.each([
+    'http://localhost:8080/store/',
+    'http://127.0.0.1:8080/store/',
+    'http://[::1]:8080/store/',
+    'https://entrystore.example/store/',
+  ])('accepts a saved cookie for %s', (base) => {
+    const auth = new EntryStore(base).getAuth();
+
+    auth.setAuthCookie('auth_token=SAVED');
+
+    expect(auth.getAuthCookie()).toBe('auth_token=SAVED');
+  });
+
+  test.each([
+    'http://entrystore.example/store/',
+    'http://192.168.1.10:8080/store/',
+  ])('refuses a saved cookie for %s', (base) => {
+    const auth = new EntryStore(base).getAuth();
+
+    expect(() => auth.setAuthCookie('auth_token=SAVED')).toThrow(
+      'over plain http'
+    );
+    expect(auth.getAuthCookie()).toBeUndefined();
+  });
+
+  test('refuses to log in over plain http to another host', async () => {
+    // The host does not exist, so a request that went out would fail with another error.
+    const auth = new EntryStore('http://entrystore.example/store/').getAuth();
+
+    await expect(auth.login('donald', 'secret')).rejects.toThrow(
+      'Refusing to send credentials to http://entrystore.example over plain http'
+    );
+  });
+});

@@ -37,6 +37,23 @@ const getOrigin = (uri) => {
   }
 };
 
+const LOOPBACK_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]'];
+
+/**
+ * Throws if credentials for base would go over plain http to a host other than this machine.
+ * Compares the hostname only, without a DNS lookup.
+ *
+ * @param {string} base
+ */
+const assertCredentialsTransport = (base) => {
+  const { protocol, hostname, origin } = new URL(base);
+  if (protocol === 'http:' && !LOOPBACK_HOSTNAMES.includes(hostname)) {
+    throw new Error(
+      `Refusing to send credentials to ${origin} over plain http; use https, or a loopback address for local development`
+    );
+  }
+};
+
 /**
  * Last 7 digits of milliseconds since 1970 + random number.
  *
@@ -160,9 +177,11 @@ export default class Rest {
    *
    * @param {string} cookie - "auth_token=<value>", cookie attributes are dropped
    * @param {string} base
+   * @throws {Error} if base is plain http and not a loopback address
    * @private
    */
   _setAuthCookie(cookie, base) {
+    assertCredentialsTransport(base);
     this._authCookie = cookie.split(';')[0].trim();
     this._authOrigin = new URL(base).origin;
   }
@@ -213,7 +232,8 @@ export default class Rest {
   /**
    * @param {object} credentials should contain attributes "user", "password", and "maxAge".
    * MaxAge is the amount of seconds the authorization should be valid.
-   * @returns {Promise} A thenable object
+   * @returns {Promise} A thenable object, in Node rejected without a request when logging in to
+   * a plain http base that is not a loopback address
    * @async
    */
   async auth(credentials) {
@@ -271,6 +291,9 @@ export default class Rest {
       }
     }
 
+    if (!isBrowser()) {
+      assertCredentialsTransport(base);
+    }
     this._clearAuthCookie();
 
     const data = {

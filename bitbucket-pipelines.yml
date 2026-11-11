@@ -25,10 +25,9 @@ stepdefinitions:
   - test: &test
       name: Test
       script:
-        - echo "127.0.0.1 entrystore.local" >> /etc/hosts && cat /etc/hosts
         - tests/entrystore.sh tests/entrystore.properties_pipelines 8080 > entrystore.log 2>&1 &
-        - for i in $(seq 1 60); do curl -fs http://entrystore.local:8080/management/status && break; [ $i == 60 ] && { echo "EntryStore did not start"; cat entrystore.log; exit 1; }; sleep 2; done
-        - curl -s http://entrystore.local:8080/auth/user
+        - for i in $(seq 1 60); do curl -fs http://127.0.0.1:8080/management/status && break; [ $i == 60 ] && { echo "EntryStore did not start"; cat entrystore.log; exit 1; }; sleep 2; done
+        - curl -s http://127.0.0.1:8080/auth/user
         - cp tests/config.js_pipelines tests/config.js && cat tests/config.js
         - pnpm tests
       services:

@@ -119,6 +119,8 @@ export default class Auth {
    * getUserInfo, call getUserInfo(true) to check that the session is still valid.
    *
    * @param {string} cookie - "auth_token=<value>"
+   * @throws {Error} if the repository is on plain http and not a loopback address
+   * (localhost, 127.0.0.1 or [::1])
    */
   setAuthCookie(cookie) {
     if (typeof cookie !== 'string' || !cookie.startsWith('auth_token=')) {
@@ -135,7 +137,8 @@ export default class Auth {
 
   /**
    * Authenticate using credentials containing a user, a password and an optional maxAge
-   * given in seconds.
+   * given in seconds. In Node, the login is refused without a request when the repository is
+   * on plain http and not a loopback address (localhost, 127.0.0.1 or [::1]).
    *
    * @param {string} user
    * @param {string} password
