@@ -272,7 +272,9 @@ export default class EntryStore {
    * @param {{forceLoad, direct, loadResource, limit, offset, sort, asyncContext}} optionalLoadParams - parameters for how to load an entry.
    * @returns {Promise.<Entry> | Entry | undefined} - by default a promise is returned,
    * if the direct parameter is specified the entry is returned directly or undefined if the
-   * entry is not in cache.
+   * entry is not in cache. When the request fails the promise is rejected with an error that
+   * carries the response and status when the server answered (error.response, error.status),
+   * and the original error as error.cause.
    * @see {@link EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
    * @see {@link Context#getEntryById} for loading entries relative to a context.
    */
@@ -328,7 +330,13 @@ export default class EntryStore {
           return checkResourceLoaded(entry);
         },
         (err) => {
-          throw new Error(`Failed fetching entry. ${err}`);
+          const error = new Error(`Failed fetching entry. ${err}`, {
+            cause: err,
+          });
+          // Same shape as a failed request via getREST(), so callers can read the HTTP status
+          error.response = err.response;
+          error.status = err.status;
+          throw error;
         }
       ),
       asyncContext
