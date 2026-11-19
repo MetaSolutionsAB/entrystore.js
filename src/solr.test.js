@@ -165,6 +165,65 @@ test('joins top-level clauses with OR in a disjunctive query', () => {
   );
 });
 
+describe('anyOfProperties', () => {
+  const TYPE = 'http://purl.org/dc/terms/type';
+  const TITLE = 'http://purl.org/dc/terms/title';
+  const DESCRIPTION = 'http://purl.org/dc/terms/description';
+  const decode = (query) => decodeURIComponent(query.replace(/\+/g, ' '));
+  const queryOf = (query) => decode(query.getQuery()).match(/query=([^&]*)/)[1];
+  const clauseOf = (addProperty) =>
+    queryOf(addProperty(entrystore().newSolrQuery()));
+
+  const typeClause = clauseOf((query) =>
+    query.uriProperty(TYPE, 'http://example.com/A')
+  );
+  const titleClause = clauseOf((query) =>
+    query.literalProperty(TITLE, 'banana')
+  );
+  const descriptionClause = clauseOf((query) =>
+    query.literalProperty(DESCRIPTION, 'banana')
+  );
+
+  test('ORs the grouped clauses and ANDs the group with the other clauses', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .uriProperty(TYPE, 'http://example.com/A')
+      .anyOfProperties((group) =>
+        group
+          .literalProperty(TITLE, 'banana')
+          .literalProperty(DESCRIPTION, 'banana')
+      );
+
+    expect(queryOf(query)).toBe(
+      `${typeClause} AND (${titleClause} OR ${descriptionClause})`
+    );
+  });
+
+  test('keeps the modifiers of the clauses in and outside the group', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .uriProperty(TYPE, 'http://example.com/A', 'not')
+      .anyOfProperties((group) =>
+        group
+          .literalProperty(TITLE, 'banana', 'not')
+          .literalProperty(DESCRIPTION, 'banana')
+      );
+
+    expect(queryOf(query)).toBe(
+      `NOT(${typeClause}) AND (NOT(${titleClause}) OR ${descriptionClause})`
+    );
+  });
+
+  test('adds nothing for an empty group', () => {
+    const query = entrystore()
+      .newSolrQuery()
+      .uriProperty(TYPE, 'http://example.com/A')
+      .anyOfProperties(() => {});
+
+    expect(queryOf(query)).toBe(typeClause);
+  });
+});
+
 test('Range literal query', async () => {
   const es = await entrystore();
   const q1 = es

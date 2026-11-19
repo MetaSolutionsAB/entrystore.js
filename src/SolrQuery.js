@@ -109,6 +109,40 @@ const contextTypeClause = (contextTypes, negate) => {
 };
 
 /**
+ * The query clause for a property added with one of the property methods, or for
+ * a group of them added with anyOfProperties.
+ *
+ * @param {object} prop
+ * @param {object} facetpredicates
+ * @returns {string|undefined} undefined when the property matches no value
+ */
+const propertyClause = (prop, facetpredicates) => {
+  if (prop.anyOf) {
+    const clauses = prop.anyOf
+      .map((groupProp) => propertyClause(groupProp, facetpredicates))
+      .filter(Boolean);
+    return clauses.length > 0 ? `(${clauses.join('+OR+')})` : undefined;
+  }
+
+  const obj = prop.object;
+  const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
+  const negated = prop.modifier === true || prop.modifier === 'not';
+  if (typeof obj === 'string') {
+    const clause = `${key}:${solrFriendly(key, obj, facetpredicates[prop.pred])}`;
+    return negated ? `NOT(${clause})` : clause;
+  }
+  if (Array.isArray(obj) && obj.length > 0) {
+    const or = obj.map(
+      (o) => `${key}:${solrFriendly(key, o, facetpredicates[prop.pred])}`
+    );
+    if (negated) return `NOT(${or.join('+OR+')})`;
+    if (prop.modifier === 'and') return `(${or.join('+AND+')})`;
+    return `(${or.join('+OR+')})`;
+  }
+  return undefined;
+};
+
+/**
  *
  * @param {object} struct
  * @param {boolean} isAnd
@@ -1160,10 +1194,43 @@ export default class SolrQuery {
    * ex:Banana via dcterms:subject. The default, without disjunctiveProperties being called
    * is to create a conjunction, i.e. AND them together.
    *
+   * This applies to every property clause in the query, and their modifiers are
+   * ignored. To OR only some of them, use anyOfProperties.
+   *
    * @returns {SolrQuery}
    */
   disjunctiveProperties() {
     this._disjunctiveProperties = true;
+    return this;
+  }
+
+  /**
+   * Matches entries that satisfy at least one of the property clauses added in
+   * addProperties, while the group as a whole is ANDed with the rest of the query.
+   * Each clause keeps its modifier. For example:
+   *
+   *     es.newSolrQuery().rdfType('ex:Fruit').anyOfProperties((group) => group
+   *          .literalProperty('dcterms:title', 'banana')
+   *          .literalProperty('dcterms:description', 'banana'));
+   *
+   * Will search for fruits that have "banana" in either the title or the description.
+   * Only clauses added with the property methods (literalProperty, uriProperty,
+   * integerProperty, dateProperty and their range variants) without related are
+   * grouped; any other method called on the query applies to the query as usual.
+   *
+   * @param {function(SolrQuery): void} addProperties is called with this query and adds
+   * the property clauses to group
+   * @returns {SolrQuery}
+   */
+  anyOfProperties(addProperties) {
+    const { properties } = this;
+    this.properties = [];
+    addProperties(this);
+    const group = this.properties;
+    this.properties = properties;
+    if (group.length > 0) {
+      this.properties.push({ anyOf: group });
+    }
     return this;
   }
 
@@ -1261,6 +1328,11 @@ export default class SolrQuery {
     if (this._disjunctiveProperties || this._disjunctive) {
       const or = [];
       this.properties.forEach((prop) => {
+        if (prop.anyOf) {
+          const clause = propertyClause(prop, this.facetpredicates);
+          if (clause) or.push(clause);
+          return;
+        }
         const obj = prop.object;
         const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
         if (typeof obj === 'string') {
@@ -1280,42 +1352,9 @@ export default class SolrQuery {
       }
     } else {
       this.properties.forEach((prop) => {
-        const obj = prop.object;
-        const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
-        if (typeof obj === 'string') {
-          if (prop.modifier === true || prop.modifier === 'not') {
-            and.push(
-              `NOT(${key}:${solrFriendly(
-                key,
-                obj,
-                this.facetpredicates[prop.pred]
-              )})`
-            );
-          } else {
-            and.push(
-              `${key}:${solrFriendly(
-                key,
-                obj,
-                this.facetpredicates[prop.pred]
-              )}`
-            );
-          }
-        } else if (Array.isArray(obj) && obj.length > 0) {
-          const or = [];
-          obj.forEach((o) => {
-            or.push(
-              `${key}:${solrFriendly(key, o, this.facetpredicates[prop.pred])}`
-            );
-          }, this);
-          if (prop.modifier === true || prop.modifier === 'not') {
-            and.push(`NOT(${or.join('+OR+')})`);
-          } else if (prop.modifier === 'and') {
-            and.push(`(${or.join('+AND+')})`);
-          } else {
-            and.push(`(${or.join('+OR+')})`);
-          }
-        }
-      }, this);
+        const clause = propertyClause(prop, this.facetpredicates);
+        if (clause) and.push(clause);
+      });
     }
     this._and.forEach((struct) => {
       and.push(buildQuery(struct, true));
