@@ -273,8 +273,9 @@ export default class EntryStore {
    * @returns {Promise.<Entry> | Entry | undefined} - by default a promise is returned,
    * if the direct parameter is specified the entry is returned directly or undefined if the
    * entry is not in cache. When the request fails the promise is rejected with an error that
-   * carries the response and status when the server answered (error.response, error.status),
-   * and the original error as error.cause.
+   * carries the response and status when the server answered (error.response, error.status).
+   * When the entry is not in the cache, or forceLoad is given, that error also holds the
+   * original error as error.cause.
    * @see {@link EntryStore#getEntryURI getEntryURI} for help to construct entry URIs.
    * @see {@link Context#getEntryById} for loading entries relative to a context.
    */
