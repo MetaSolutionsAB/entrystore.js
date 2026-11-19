@@ -108,6 +108,8 @@ const contextTypeClause = (contextTypes, negate) => {
   return negate ? `NOT(${clause})` : clause;
 };
 
+const isNegated = (modifier) => modifier === true || modifier === 'not';
+
 /**
  * The query clause for a property added with one of the property methods, or for
  * a group of them added with anyOfProperties.
@@ -118,24 +120,30 @@ const contextTypeClause = (contextTypes, negate) => {
  */
 const propertyClause = (prop, facetpredicates) => {
   if (prop.anyOf) {
+    // In Solr, a NOT clause ORed with other clauses removes its values from the whole
+    // group's matches. Paired with *:*, it matches every entry without those values.
     const clauses = prop.anyOf
-      .map((groupProp) => propertyClause(groupProp, facetpredicates))
+      .map((groupProp) => {
+        const clause = propertyClause(groupProp, facetpredicates);
+        return clause && isNegated(groupProp.modifier)
+          ? `(*:*+AND+${clause})`
+          : clause;
+      })
       .filter(Boolean);
     return clauses.length > 0 ? `(${clauses.join('+OR+')})` : undefined;
   }
 
   const obj = prop.object;
   const key = `metadata.predicate.${prop.nodetype}.${prop.md5}`;
-  const negated = prop.modifier === true || prop.modifier === 'not';
   if (typeof obj === 'string') {
     const clause = `${key}:${solrFriendly(key, obj, facetpredicates[prop.pred])}`;
-    return negated ? `NOT(${clause})` : clause;
+    return isNegated(prop.modifier) ? `NOT(${clause})` : clause;
   }
   if (Array.isArray(obj) && obj.length > 0) {
     const or = obj.map(
       (o) => `${key}:${solrFriendly(key, o, facetpredicates[prop.pred])}`
     );
-    if (negated) return `NOT(${or.join('+OR+')})`;
+    if (isNegated(prop.modifier)) return `NOT(${or.join('+OR+')})`;
     if (prop.modifier === 'and') return `(${or.join('+AND+')})`;
     return `(${or.join('+OR+')})`;
   }
@@ -1224,10 +1232,13 @@ export default class SolrQuery {
    */
   anyOfProperties(addProperties) {
     const { properties } = this;
-    this.properties = [];
-    addProperties(this);
-    const group = this.properties;
-    this.properties = properties;
+    const group = [];
+    this.properties = group;
+    try {
+      addProperties(this);
+    } finally {
+      this.properties = properties;
+    }
     if (group.length > 0) {
       this.properties.push({ anyOf: group });
     }
@@ -1276,7 +1287,7 @@ export default class SolrQuery {
     this.params.forEach((v, key) => {
       const modifier = this.modifiers.get(key);
       if (typeof v === 'string' && v !== '') {
-        if (modifier === true || modifier === 'not') {
+        if (isNegated(modifier)) {
           and.push(`NOT(${key}:${solrFriendly(key, v)})`);
         } else {
           and.push(`${key}:${solrFriendly(key, v)}`);
@@ -1288,7 +1299,7 @@ export default class SolrQuery {
             or.push(`${key}:${solrFriendly(key, ov)}`);
           }
         });
-        if (modifier === true || modifier === 'not') {
+        if (isNegated(modifier)) {
           and.push(`NOT(${or.join('+OR+')})`);
         } else if (modifier === 'and') {
           and.push(`(${or.join('+AND+')})`);
@@ -1388,10 +1399,7 @@ export default class SolrQuery {
     let query = and.join(this._disjunctive ? '+OR+' : '+AND+');
     if (this._contextType) {
       const { contextTypes, modifier } = this._contextType;
-      const clause = contextTypeClause(
-        contextTypes,
-        modifier === true || modifier === 'not'
-      );
+      const clause = contextTypeClause(contextTypes, isNegated(modifier));
       if (and.length === 0) {
         query = clause;
       } else if (this._disjunctive && and.length > 1) {

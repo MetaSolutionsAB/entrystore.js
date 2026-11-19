@@ -2,7 +2,7 @@ import { namespaces } from '@entryscape/rdfjson';
 import types from './types.js';
 import init from '../tests/init.js';
 
-const { entrystore, entrystoreutil } = init();
+const { context, entrystore, entrystoreutil } = init();
 
 test('Search for specific title', async () => {
   const entries = await entrystore()
@@ -210,8 +210,64 @@ describe('anyOfProperties', () => {
       );
 
     expect(queryOf(query)).toBe(
-      `NOT(${typeClause}) AND (NOT(${titleClause}) OR ${descriptionClause})`
+      `NOT(${typeClause}) AND ((*:* AND NOT(${titleClause})) OR ${descriptionClause})`
     );
+  });
+
+  test('matches entries without a negated value or with another grouped value', async () => {
+    const A = 'http://example.com/a';
+    const B = 'http://example.com/b';
+    const RED = 'http://example.com/red';
+    const BLUE = 'http://example.com/blue';
+    const createEntry = (title, statements) => {
+      const prototype = context().newEntry();
+      const uri = prototype.getResourceURI();
+      const metadata = prototype.getMetadata();
+      metadata.addL(uri, TITLE, title);
+      statements.forEach(([predicate, object]) =>
+        metadata.add(uri, predicate, object)
+      );
+      return prototype.commit();
+    };
+    const titlesOf = async (query) => {
+      const entries = await query.list().getEntries(0);
+      return entries
+        .map((entry) => entry.getMetadata().findFirstValue(null, TITLE))
+        .sort();
+    };
+    const inContext = () => entrystore().newSolrQuery().context(context());
+    const countOf = async (query) => (await titlesOf(query)).length;
+    // Solr indexes entries and their metadata asynchronously, so wait until the
+    // values the query depends on are searchable.
+    const waitForIndexing = async (attempts = 40) => {
+      const [all, red, blue] = await Promise.all([
+        countOf(inContext()),
+        countOf(inContext().uriProperty(A, RED)),
+        countOf(inContext().uriProperty(B, BLUE)),
+      ]);
+      if (all === 4 && red === 2 && blue === 2) return;
+      if (attempts === 0) throw new Error('The test entries were not indexed');
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await waitForIndexing(attempts - 1);
+    };
+    await Promise.all([
+      createEntry('neither', []),
+      createEntry('blueOnly', [[B, BLUE]]),
+      createEntry('redOnly', [[A, RED]]),
+      createEntry('both', [
+        [A, RED],
+        [B, BLUE],
+      ]),
+    ]);
+    await waitForIndexing();
+
+    const titles = await titlesOf(
+      inContext().anyOfProperties((group) =>
+        group.uriProperty(A, RED, 'not').uriProperty(B, BLUE)
+      )
+    );
+
+    expect(titles).toEqual(['blueOnly', 'both', 'neither']);
   });
 
   test('adds nothing for an empty group', () => {
