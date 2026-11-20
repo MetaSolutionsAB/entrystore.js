@@ -113,6 +113,35 @@ describe('A signed in admin (user)', () => {
     );
   });
 
+  test('rejects the fetch of a missing entry with the HTTP response', async () => {
+    const missingEntryURI = es.getEntryURI(contextId, `missing${Date.now()}`);
+
+    await expect(es.getEntry(missingEntryURI)).rejects.toMatchObject({
+      message: expect.stringContaining('Failed fetching entry.'),
+      response: { status: 404 },
+      status: 404,
+      cause: expect.objectContaining({ status: 404 }),
+    });
+  });
+
+  test('hands async listeners the same error as the caller of a failed entry fetch', async () => {
+    const missingEntryURI = es.getEntryURI(contextId, `missing${Date.now()}`);
+    const calls = [];
+    const asyncListener = (promise, callType) => {
+      calls.push({ promise, callType });
+    };
+    es.addAsyncListener(asyncListener);
+    const fetching = es.getEntry(missingEntryURI);
+    es.removeAsyncListener(asyncListener);
+
+    const callerError = await fetching.catch((err) => err);
+    const listenerError = await calls[0].promise.catch((err) => err);
+
+    expect(calls).toHaveLength(1);
+    expect(callerError.response.status).toBe(404);
+    expect(listenerError).toBe(callerError);
+  });
+
   test('Check so that cache only has one request', async () => {
     expect.assertions(7);
     const contextsEntryURI = es.getEntryURI('_contexts', '_contexts');

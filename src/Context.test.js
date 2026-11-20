@@ -1,7 +1,7 @@
 import EntryStore from './EntryStore.js';
 import config from '../tests/config.js';
 
-const { repository, adminUser, adminPassword } = config;
+const { repository, contextId, adminUser, adminPassword } = config;
 const es = new EntryStore(repository);
 const MAX_AGE = 86400;
 
@@ -23,6 +23,14 @@ describe('A signed in admin (user)', () => {
     expect.assertions(1);
     const entry = await es.newContext().commit();
     expect(entry.isContext()).toBeTruthy(); // If fail: Entry created, but it is not a context
+  });
+
+  test('rejects the fetch of a missing entry by id with the HTTP response', async () => {
+    const context = es.getContextById(contextId);
+
+    await expect(
+      context.getEntryById(`missing${Date.now()}`)
+    ).rejects.toMatchObject({ response: { status: 404 } });
   });
 
   test('Create a new context and entries within in one go', async () => {

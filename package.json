@@ -1,7 +1,7 @@
 {
   "name": "@entryscape/entrystore-js",
   "type": "module",
-  "version": "4.19.0",
+  "version": "4.20.0",
   "main": "dist/entrystore.node.cjs",
   "browser": "dist/entrystore.js",
   "module": "src/index.js",
@@ -47,15 +47,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.13",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-env": "^7.29.14",
     "@entryscape/linting-config": "^1.2.0",
     "babel-loader": "^9.2.1",
     "docdash": "^2.0.2",
     "eslint": "^9.39.5",
     "jest": "^30.5.2",
     "jsdoc": "^4.0.5",
-    "prettier": "^3.9.10",
-    "webpack": "^5.112.2",
+    "prettier": "^3.10.1",
+    "webpack": "^5.113.0",
     "webpack-cli": "^5.1.4"
   },
   "scripts": {
