@@ -5,6 +5,20 @@ All notable changes to the entrystore.js project will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.20.0](https://bitbucket.org/metasolutions/entrystore.js/branches/compare/4.20.0%0D4.19.0) - 2026-11-20
+
+### Added
+
+- [ESJS-81](https://metasolutions.atlassian.net/browse/ESJS-81) Added `SolrQuery.anyOfProperties()` to OR a group of property clauses within an otherwise ANDed query
+
+### Changed
+
+- Upgraded dependencies
+
+### Fixed
+
+- [ESJS-80](https://metasolutions.atlassian.net/browse/ESJS-80) Fixed `getEntry()` and `getEntryById()` errors losing the HTTP response and status
+
 ## [4.19.0](https://bitbucket.org/metasolutions/entrystore.js/branches/compare/4.19.0%0D4.18.1) - 2026-11-11
 
 ### Security
